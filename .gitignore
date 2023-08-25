@@ -1,2 +1,5 @@
 front/node_modules/
 server/node_modules/
+OLDSERVER
+front/dist
+server/dist
