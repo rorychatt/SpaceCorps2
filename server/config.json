@@ -1,0 +1,15 @@
+{
+    "database":{
+        "host": "localhost",
+        "user": "rory",
+        "password": "dimaspidoras",
+        "database": "spacecorps",
+        "waitForConnections": true,
+        "connectionLimit": 10,
+        "queueLimit": 0
+    },
+    "ssh":{
+        "password": "dimaspidoras",
+        "remoteIp": "179.61.251.216"
+    }
+}
