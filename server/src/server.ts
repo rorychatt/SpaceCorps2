@@ -5,13 +5,18 @@ import http = require("http");
 //@ts-ignore
 import { Server } from "socket.io";
 import path = require("path");
-import { getAllUsers, setupDatabaseConnection } from "./db/db";
+import {
+  getUserByUsername,
+  setupDatabaseConnection,
+  updateUserLoginTime,
+  UserCredentials,
+} from "./db/db";
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-setupDatabaseConnection()
+setupDatabaseConnection();
 
 const port = 3000;
 
@@ -19,24 +24,32 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 // Serve static files from the 'web' directory (one level higher)
-app.use(express.static(path.join(__dirname, '..', 'web')))
+app.use(express.static(path.join(__dirname, "..", "web")));
 
-app.get('/login.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'web', 'html', 'login.html'));
-  });
+app.get("/login.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "web", "html", "login.html"));
+});
 
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
-  console.log(req.body)
-  getAllUsers().then(users => {console.log(users)})
-  // Validate username and password (this is just an example)
-  if (username === "1234" && password === "1234") {
-    res.json({ success: true, message: "Login successful" });
-  } else {
-    res.status(401).json({ success: false, message: "Invalid credentials" });
-  }
+  let userCredentials: UserCredentials;
+  Promise.resolve(
+    getUserByUsername(username).then((user) => {
+      userCredentials = user[0];
+      if (
+        username === userCredentials.username &&
+        password === userCredentials.password
+      ) {
+        res.json({ success: true, message: "Login successful" });
+        updateUserLoginTime(userCredentials.username);
+      } else {
+        res
+          .status(401)
+          .json({ success: false, message: "Invalid credentials" });
+      }
+    })
+  );
 });
 
 io.on("connection", (socket) => {
