@@ -8,6 +8,7 @@ import path = require("path");
 import {
   getUserByUsername,
   setupDatabaseConnection,
+  updateUserLoginTime,
   UserCredentials,
 } from "./db/db";
 
@@ -33,17 +34,22 @@ app.get("/login.html", (req, res) => {
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
   let userCredentials: UserCredentials;
-  Promise.resolve(getUserByUsername(username).then((user) => {
-    userCredentials = user[0];
-    if (
-      username === userCredentials.username &&
-      password === userCredentials.password
-    ) {
-      res.json({ success: true, message: "Login successful" });
-    } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
-    }
-  }));
+  Promise.resolve(
+    getUserByUsername(username).then((user) => {
+      userCredentials = user[0];
+      if (
+        username === userCredentials.username &&
+        password === userCredentials.password
+      ) {
+        res.json({ success: true, message: "Login successful" });
+        updateUserLoginTime(userCredentials.username);
+      } else {
+        res
+          .status(401)
+          .json({ success: false, message: "Invalid credentials" });
+      }
+    })
+  );
 });
 
 io.on("connection", (socket) => {
