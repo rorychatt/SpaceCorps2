@@ -1,6 +1,6 @@
 {
     "database":{
-        "host": "localhost",
+        "host": "179.61.251.216",
         "user": "rory",
         "password": "dimaspidoras",
         "database": "spacecorps",

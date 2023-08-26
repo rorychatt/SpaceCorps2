@@ -16,7 +16,7 @@ export function setupDatabaseConnection(): void {
       if (error) {
         console.error("Error connecting to the database:", error);
       } else {
-        console.log("Connected to the database!");
+        console.log(`TEST CONNECT TO MYSQL: SUCCESS`);
         connection.release(); // Release the connection
       }
     });
