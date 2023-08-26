@@ -36,3 +36,12 @@ let mainF = (e) => {
 }
 
 window.addEventListener("load", mainF);
+
+const socketuuid = getQueryParam('socketuuid');
+
+document.getElementById('socketuuid').value = socketuuid;
+
+function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}

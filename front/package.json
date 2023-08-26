@@ -2,7 +2,7 @@
   "name": "front",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron ."
@@ -10,9 +10,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/socket.io-client": "^3.0.0",
     "electron": "^26.1.0"
   },
   "dependencies": {
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.2",
     "socketio": "^1.0.0"
   }
 }

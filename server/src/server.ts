@@ -31,8 +31,13 @@ app.get("/login.html", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "web", "html", "login.html"));
 });
 
+app.get("/game.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "web", "html", "game.html"));
+});
+
 app.post("/login", (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, socketuuid } = req.body;
+  console.log(req.body)
   let userCredentials: UserCredentials;
   Promise.resolve(
     getUserByUsername(username).then((user) => {
@@ -42,6 +47,8 @@ app.post("/login", (req, res) => {
         password === userCredentials.password
       ) {
         res.json({ success: true, message: "Login successful" });
+        io.to(socketuuid).emit('loginSuccess');
+        console.log(`Emitting to ${socketuuid} that login is success`)
         updateUserLoginTime(userCredentials.username);
       } else {
         res
@@ -53,7 +60,14 @@ app.post("/login", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  socket.on('joinRoom', ({ room }) => {
+    socket.join(room);
+    console.log(`User connected, joining ${room}`)
+  });
+
+  io.on('login', () => {
+
+  })
 
   // Handle game-related events here
   // For example, socket.on('gameUpdate', handleGameUpdate);
