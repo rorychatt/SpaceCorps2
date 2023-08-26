@@ -8,6 +8,7 @@ export interface DatabaseConfig {
   waitForConnections: boolean;
   connectionLimit: number;
   queueLimit: number;
+  port: number;
 }
 
 export interface SSHConfig {
