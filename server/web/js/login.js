@@ -28,7 +28,6 @@ let changeForm = (e) => {
 }
 
 let mainF = (e) => {
-    console.log(switchBtn);
     for (var i = 0; i < allButtons.length; i++)
         allButtons[i].addEventListener("click", getButtons );
     for (var i = 0; i < switchBtn.length; i++)
@@ -36,3 +35,12 @@ let mainF = (e) => {
 }
 
 window.addEventListener("load", mainF);
+
+const socketuuid = getQueryParam('socketuuid');
+
+document.getElementById('socketuuid').value = socketuuid;
+
+function getQueryParam(name) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}

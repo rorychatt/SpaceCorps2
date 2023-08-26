@@ -3,9 +3,9 @@ import { config } from "../background/loadConfig";
 
 export interface UserCredentials {
   username: string;
-  uuid: number;
-  password: string;
-  lastLogin: string;
+  uuid?: number;
+  password?: string;
+  lastLogin?: string;
 }
 
 export let pool: mysql.Pool;
