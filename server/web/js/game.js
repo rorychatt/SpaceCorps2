@@ -1,9 +1,16 @@
 const tabButtons = document.querySelectorAll('.tab-button');
-const contentIframe = document.querySelector('.content-iframe');
+const contentIframes = document.querySelectorAll('.content-iframe');
 
-tabButtons.forEach(button => {
+tabButtons.forEach((button, index) => {
   button.addEventListener('click', () => {
-    const contentUrl = button.getAttribute('data-content');
-    contentIframe.src = contentUrl;
+    // Hide all iframes
+    contentIframes.forEach(iframe => {
+      iframe.hidden = true;
+    });
+    
+    // Show the selected iframe
+    if (contentIframes[index]) {
+      contentIframes[index].hidden = false;
+    }
   });
 });
