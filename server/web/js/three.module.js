@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 /* eslint-disable no-cond-assign */
 /* eslint-disable no-undef */
 /* eslint-disable no-useless-escape */
