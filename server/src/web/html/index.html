@@ -10,6 +10,12 @@
 </head>
 
 <body>
+
+  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+  <script src="./../ts/gameLogic.js" type="module"></script>
+  <script src="./../ts/loginLogic.js" type="module"></script>
+  <script src="./../ts/three.module.js" type="module"></script>
+
   <div class="main" id="loginDiv">
     <div class="container a-container" id="a-container">
       <div class="form" id="a-form">
@@ -76,9 +82,11 @@
       </div>
     </div>
   </div>
-  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
-  <script src="./../ts/gameLogic.js" type="module"></script>
-  <script src="./../ts/loginLogic.js" type="module"></script>
+
+  <div id="scene-container">
+
+  </div>
+
 </body>
 
 </html>

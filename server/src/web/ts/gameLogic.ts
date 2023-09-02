@@ -1,5 +1,7 @@
 //@ts-ignore
 export const socket = io("http://localhost:3000");
+//@ts-ignore
+import * as THREE from ('./three.module.js');
 
 let loginDiv = document.getElementById('loginDiv') as HTMLElement
 

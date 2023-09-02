@@ -2,5 +2,5 @@ front/node_modules/
 server/node_modules/
 OLDSERVER
 front/dist
-server/dist
-OLD/
+server/dist/
+!server/dist/web/ts/three.module.js
