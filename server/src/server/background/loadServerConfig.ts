@@ -18,6 +18,7 @@ export interface SSHConfig {
 
 export interface ServerConfig {
     port: number;
+    localhost?: string;
 }
 
 export interface Config {
@@ -26,7 +27,7 @@ export interface Config {
     server: ServerConfig;
 }
 
-export const readConfigFile = (filePath: string): Config => {
+export const readServerConfigFile = (): Config => {
     let config: Config = {
         database: {
             host: "localhost",
@@ -39,10 +40,10 @@ export const readConfigFile = (filePath: string): Config => {
         },
     };
     try {
-        const configFileContents = fs.readFileSync(filePath, "utf8");
+        const configFileContents = fs.readFileSync("./config.json", "utf8");
         config = JSON.parse(configFileContents) as Config;
     } catch (error) {
         console.error("Error reading config file:", (error as Error).message);
     }
-    return config
+    return config;
 };
