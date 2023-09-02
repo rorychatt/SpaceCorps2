@@ -2,5 +2,9 @@ front/node_modules/
 server/node_modules/
 OLDSERVER
 front/dist
-server/dist/
+server/dist/*
+!server/dist/web
+server/dist/web/*
+!server/dist/web/ts
+server/dist/web/ts/*
 !server/dist/web/ts/three.module.js
