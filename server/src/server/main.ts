@@ -11,7 +11,7 @@ import {
 import path from "path";
 import { Config, readServerConfigFile } from "./background/loadServerConfig.js";
 import { fileURLToPath } from "url";
-import { GameDataConfig, readGameDataConfigFiles } from "./background/loadGameData.js";
+import { GameDataConfig, readGameDataConfigFiles, SpaceMapConfig } from "./background/loadGameData.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -96,4 +96,9 @@ io.on("connection", (socket) => {
     );
 });
 
-console.log(JSON.stringify(gameDataConfig))
+for (const key in gameDataConfig) {
+    if (gameDataConfig.hasOwnProperty(key)) {
+        const element = gameDataConfig[key];
+        console.log(JSON.stringify(element));
+    }
+}
