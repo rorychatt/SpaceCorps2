@@ -44,7 +44,8 @@ let mainF = (e: Event) => {
 window.addEventListener("load", mainF);
 
 const loginBtn = document.getElementById("signin");
-loginBtn?.addEventListener("click", () => {
+loginBtn?.addEventListener("click", (event: Event) => {
+    event.preventDefault()
     const username = (
         document.getElementById("loginUsername") as HTMLInputElement
     ).value;
