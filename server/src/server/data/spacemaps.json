@@ -1,0 +1,105 @@
+{
+    "M-1": {
+        "name": "MCC-Homemap",
+        "size": {
+            "width": 160,
+            "height": 90
+        },
+        "staticEntities": {
+            "portals": [
+                {
+                    "location": "left",
+                    "destination": "P-1"
+                }
+            ],
+            "base": {
+                "location": "right",
+                "name": "MCC-Base"
+            }
+        }
+    },
+    "O-1": {
+        "name": "ORO-Homemap",
+        "size": {
+            "width": 160,
+            "height": 90
+        },
+        "staticEntities": {
+            "portals": [
+                {
+                    "location": "bottom",
+                    "destination": "P-1"
+                }
+            ],
+            "base": {
+                "location": "top",
+                "name": "ORO-Base"
+            }
+        }
+    },
+    "K-1": {
+        "name": "KGB-Homemap",
+        "size": {
+            "width": 160,
+            "height": 90
+        },
+        "staticEntities": {
+            "portals": [
+                {
+                    "location": "right",
+                    "destination": "P-1"
+                }
+            ],
+            "base": {
+                "location": "right",
+                "name": "KGB-Base"
+            }
+        }
+    },
+    "T-1": {
+        "name": "TRU-Homemap",
+        "size": {
+            "width": 160,
+            "height": 90
+        },
+        "staticEntities": {
+            "portals": [
+                {
+                    "location": "top",
+                    "destination": "P-1"
+                }
+            ],
+            "base": {
+                "location": "bottom",
+                "name": "TRU-Base"
+            }
+        }
+    },
+    "P-1": {
+        "name": "PVP map",
+        "size": {
+            "width": 160,
+            "heigh": 90
+        },
+        "staticEntities": {
+            "portals": [
+                {
+                    "location": "left",
+                    "destination": "K-1"
+                },
+                {
+                    "location": "right",
+                    "destination": "M-1"
+                },
+                {
+                    "location": "top",
+                    "destination": "O-1"
+                },
+                {
+                    "location": "bottom",
+                    "destination": "T-1"
+                }
+            ]
+        }
+    }
+}

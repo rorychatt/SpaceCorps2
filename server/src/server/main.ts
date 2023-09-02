@@ -9,8 +9,9 @@ import {
     UserCredentials,
 } from "./db/db.js";
 import path from "path";
-import { Config, readConfigFile } from "./background/loadConfig.js";
+import { Config, readServerConfigFile } from "./background/loadServerConfig.js";
 import { fileURLToPath } from "url";
+import { GameDataConfig, readGameDataConfigFiles } from "./background/loadGameData.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,7 +22,8 @@ const io = new Server(server);
 
 setupDatabaseConnection();
 
-const config: Config = readConfigFile("./config.json");
+const config: Config = readServerConfigFile();
+const gameDataConfig: GameDataConfig = readGameDataConfigFiles()
 
 app.use(cors());
 app.use(express.json());
@@ -33,6 +35,15 @@ app.get("/", (req, res) => {
     res.sendFile(
         path.join(__dirname, "..", "..", "src", "web", "html", "index.html")
     );
+});
+
+app.get("/three", (req, res) => {
+    // Use res.sendFile to send the file with the correct MIME type
+    res.sendFile(path.join(__dirname, "..", "..", "dist", "web", "ts", "three.module.js"), { 
+        headers: {
+            'Content-Type': 'application/javascript'
+        }
+    });
 });
 
 server.listen(config.server.port, () => {
@@ -60,12 +71,16 @@ io.on("connection", (socket) => {
                     socket.emit("loginSuccessful", {
                         username: userCredentials.username,
                     });
-                    console.log(`${userCredentials.username} logs into the game`)
+                    console.log(
+                        `${userCredentials.username} logs into the game`
+                    );
                 } else {
                     socket.emit("loginUnsuccessful", {
                         username: data.username,
                     });
-                    console.log(`${userCredentials.username} entered the wrong password`)
+                    console.log(
+                        `${userCredentials.username} entered the wrong password`
+                    );
                 }
             } catch (e) {
                 console.log(
@@ -80,3 +95,5 @@ io.on("connection", (socket) => {
         }
     );
 });
+
+console.log(JSON.stringify(gameDataConfig))
