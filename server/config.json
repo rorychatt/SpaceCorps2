@@ -12,5 +12,8 @@
     "ssh":{
         "password": "dimaspidoras",
         "remoteIp": "179.61.251.216"
+    },
+    "server":{
+        "port": 3000
     }
 }

@@ -2,33 +2,25 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "type": "module",
+  "main": "index.js",
   "scripts": {
-    "lint": "eslint src --ext .js,.jsx,.ts,.tsx --format stylish",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm run build:ts && npm run lint",
-    "build:ts": "tsc -d",
-    "start": "npm run build && node dist/server.js"
+    "build": "tsc -d",
+    "start": "npm run build && node dist/server/main.js"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/cors": "^2.8.13",
-    "@types/express": "^4.17.17",
-    "@types/socket.io": "^3.0.2",
-    "@types/socket.io-client": "^3.0.0",
     "cors": "^2.8.5",
-    "eslint": "^8.47.0",
     "express": "^4.18.2",
-    "http": "^0.0.1-security",
+    "fs": "^0.0.1-security",
     "mysql2": "^3.6.0",
-    "socket.io": "^4.7.2",
-    "socket.io-client": "^4.7.2",
-    "socketio": "^1.0.0"
+    "socket.io": "^4.7.2"
   },
   "devDependencies": {
-    "@types/node": "^20.5.6",
-    "@typescript-eslint/eslint-plugin": "^6.4.1"
+    "@types/cors": "^2.8.13",
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.5.8"
   }
 }
