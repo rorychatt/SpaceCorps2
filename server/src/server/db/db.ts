@@ -1,5 +1,5 @@
 import * as mysql from "mysql2";
-import { config } from "../background/loadConfig";
+import { Config, readConfigFile } from "../background/loadConfig.js";
 
 export interface UserCredentials {
   username: string;
@@ -9,6 +9,8 @@ export interface UserCredentials {
 }
 
 export let pool: mysql.Pool;
+
+const config: Config = readConfigFile("./config.json")
 
 export function setupDatabaseConnection(): void {
   try {
@@ -55,7 +57,6 @@ export function getUserByUsername(
   return executeQuery(query);
 }
 
-// Function to execute a query
 // Function to execute a query
 function executeQuery<T>(query: string): Promise<T[]> {
   return new Promise<T[]>((resolve, reject) => {
