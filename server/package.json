@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -d",
-    "start": "npm run build && node dist/server/main.js"
+    "start": "npm run build && node --experimental-specifier-resolution=node dist/server/main.js"
   },
   "keywords": [],
   "author": "",
@@ -16,7 +16,8 @@
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
     "mysql2": "^3.6.0",
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",
