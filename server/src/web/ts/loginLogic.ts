@@ -1,11 +1,19 @@
+import { socket } from "./gameLogic.js";
+
 let switchCtn = document.querySelector("#switch-cnt") as HTMLElement;
 let switchC1 = document.querySelector("#switch-c1") as HTMLElement;
 let switchC2 = document.querySelector("#switch-c2") as HTMLElement;
-let switchCircle = document.querySelectorAll(".switch__circle") as unknown as HTMLElement[];
-let switchBtn = document.querySelectorAll(".switch-btn") as unknown as HTMLElement[];
+let switchCircle = document.querySelectorAll(
+    ".switch__circle"
+) as unknown as HTMLElement[];
+let switchBtn = document.querySelectorAll(
+    ".switch-btn"
+) as unknown as HTMLElement[];
 let aContainer = document.querySelector("#a-container") as HTMLElement;
 let bContainer = document.querySelector("#b-container") as HTMLElement;
-let allButtons = document.querySelectorAll(".submit") as unknown as HTMLElement[];
+let allButtons = document.querySelectorAll(
+    ".submit"
+) as unknown as HTMLElement[];
 
 let getButtons = (e: Event) => e.preventDefault();
 
@@ -34,3 +42,15 @@ let mainF = (e: Event) => {
 };
 
 window.addEventListener("load", mainF);
+
+const loginBtn = document.getElementById("signin");
+loginBtn?.addEventListener("click", (event: Event) => {
+    event.preventDefault()
+    const username = (
+        document.getElementById("loginUsername") as HTMLInputElement
+    ).value;
+    const password = (
+        document.getElementById("loginPassword") as HTMLInputElement
+    ).value;
+    socket.emit("authenticate", { username: username, password: password });
+});
