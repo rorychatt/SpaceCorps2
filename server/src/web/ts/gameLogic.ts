@@ -24,6 +24,10 @@ socket.on("loginUnsuccessful", (data: { username: string }) => {
     alert(`Incorrect password for user: ${data.username}`);
 });
 
+socket.on("mapData", (data: any) => {
+    console.log(data)
+})
+
 function initScene(): void {
     loginDiv.hidden = true;
     spacemapDiv.hidden = false;

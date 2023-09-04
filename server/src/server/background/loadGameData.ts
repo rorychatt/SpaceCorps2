@@ -1,11 +1,11 @@
 import fs from "fs";
 
-interface PortalConfig {
+export interface PortalConfig {
     location: string;
     destination: string;
 }
 
-interface StaticEntitiesConfig {
+export interface StaticEntitiesConfig {
     portals: PortalConfig[];
     base?: {
         location: string;
@@ -13,17 +13,19 @@ interface StaticEntitiesConfig {
     };
 }
 
-interface SpaceMapConfig {
+export interface SpacemapSize {
+    width: number;
+    height: number
+}
+
+export interface SpacemapConfig {
     name: string;
-    size: {
-        width: number;
-        height: number;
-    };
+    size: SpacemapSize;
     staticEntities: StaticEntitiesConfig;
 }
 
 export interface GameDataConfig {
-    [key: string]: SpaceMapConfig;
+    [key: string]: SpacemapConfig;
 }
 
 // Load and parse the JSON file
