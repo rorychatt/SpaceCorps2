@@ -1,24 +1,23 @@
 import express from "express";
 import cors from "cors";
 import http from "http";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import {
     getUserByUsername,
     setupDatabaseConnection,
-    updateUserLoginTime,
-    UserCredentials,
 } from "./db/db.js";
 import path from "path";
 import { Config, readServerConfigFile } from "./background/loadServerConfig.js";
 import { fileURLToPath } from "url";
-import { GameDataConfig, readGameDataConfigFiles, SpaceMapConfig } from "./background/loadGameData.js";
+import { GameDataConfig, readGameDataConfigFiles } from "./background/loadGameData.js";
+import { GameServer } from "./background/gameServer.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io: Server = new Server(server);
 
 setupDatabaseConnection();
 
@@ -50,11 +49,15 @@ server.listen(config.server.port, () => {
     console.log(`Node server is running at port: ${config.server.port}`);
 });
 
+const gameServer: GameServer = new GameServer(io)
+gameServer.startServer()
+
 io.on("connection", (socket) => {
     console.log("A user connected");
 
     socket.on("disconnect", () => {
         console.log("A user disconnected");
+        gameServer.disconnectPlayerBySocketId(socket.id)
     });
 
     socket.on(
@@ -74,6 +77,7 @@ io.on("connection", (socket) => {
                     console.log(
                         `${userCredentials.username} logs into the game`
                     );
+                    gameServer.loadNewPlayer(socket.id as string, userCredentials.username);
                 } else {
                     socket.emit("loginUnsuccessful", {
                         username: data.username,
@@ -96,9 +100,3 @@ io.on("connection", (socket) => {
     );
 });
 
-for (const key in gameDataConfig) {
-    if (gameDataConfig.hasOwnProperty(key)) {
-        const element = gameDataConfig[key];
-        console.log(JSON.stringify(element));
-    }
-}

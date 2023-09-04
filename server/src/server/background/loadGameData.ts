@@ -13,12 +13,14 @@ export interface StaticEntitiesConfig {
     };
 }
 
+export interface SpacemapSize {
+    width: number;
+    height: number
+}
+
 export interface SpacemapConfig {
     name: string;
-    size: {
-        width: number;
-        height: number;
-    };
+    size: SpacemapSize;
     staticEntities: StaticEntitiesConfig;
 }
 
