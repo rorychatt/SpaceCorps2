@@ -9,3 +9,4 @@ server/dist/web/*
 server/dist/web/ts/*
 !server/dist/web/ts/three.module.js
 !server/dist/web/ts/OrbitControls.js
+temp

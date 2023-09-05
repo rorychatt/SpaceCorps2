@@ -6,6 +6,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 let loginDiv = document.getElementById("loginDiv") as HTMLElement;
 let spacemapDiv = document.getElementById("spacemapDiv") as HTMLElement;
+let contentDiv = document.getElementById("content") as HTMLElement;
 
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
@@ -67,6 +68,7 @@ async function loadStaticEntities(data: any) {
 }
 
 function initScene(): void {
+    contentDiv.hidden = true;
     loginDiv.hidden = true;
     spacemapDiv.hidden = false;
     scene = new THREE.Scene();
@@ -83,6 +85,7 @@ function initScene(): void {
 
     // Append the renderer to the HTML container
     document.getElementById("spacemapDiv")?.appendChild(renderer.domElement);
+    spacemapDiv.appendChild(renderer.domElement)
 
     // Create a cube and add it to the scene
     const geometry: THREE.BoxGeometry = new THREE.BoxGeometry();
