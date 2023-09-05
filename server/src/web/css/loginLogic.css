@@ -309,6 +309,13 @@ h1 {
     min-width: 640px;
 }
 
+.ui {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    z-index: 1;
+}
+
 /* Buttons */
 .btn {
     background-color: rgba(30, 144, 255, 0.75);
