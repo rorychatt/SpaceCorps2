@@ -27,3 +27,7 @@
     npm install
     git checkout -b bugfix/[name]
     git checkout -b feature/[name]
+
+# Extras
+
+    Spacemaps are generated using https://tools.wwwtyro.net/space-3d/index.html
