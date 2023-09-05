@@ -37,13 +37,20 @@ app.get("/", (req, res) => {
 });
 
 app.get("/three", (req, res) => {
-    // Use res.sendFile to send the file with the correct MIME type
     res.sendFile(path.join(__dirname, "..", "..", "dist", "web", "ts", "three.module.js"), { 
         headers: {
             'Content-Type': 'application/javascript'
         }
     });
 });
+
+app.get("/three/examples/jsm/controls/OrbitControls", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "..", "dist", "web", "ts", "OrbitControls.js"), { 
+        headers: {
+            'Content-Type': 'application/javascript'
+        }
+    });
+})
 
 server.listen(config.server.port, () => {
     console.log(`Node server is running at port: ${config.server.port}`);
