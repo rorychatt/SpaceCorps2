@@ -83,6 +83,7 @@ function initScene(): void {
 
     // Append the renderer to the HTML container
     document.getElementById("spacemapDiv")?.appendChild(renderer.domElement);
+    spacemapDiv.appendChild(renderer.domElement)
 
     // Create a cube and add it to the scene
     const geometry: THREE.BoxGeometry = new THREE.BoxGeometry();
