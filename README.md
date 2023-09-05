@@ -19,6 +19,12 @@
     git pull 
     git checkout -b bugfix/HUJNJA
     git checkout -b feature/HUJNJA
+    
+    Pull Request, merge 
+    git switch master
+    git pull
+    npm version patch / npm version minor / npm version major
+    git pull
 
 # Install updates
 
