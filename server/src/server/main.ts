@@ -7,10 +7,10 @@ import {
     setupDatabaseConnection,
 } from "./db/db.js";
 import path from "path";
-import { Config, readServerConfigFile } from "./background/loadServerConfig.js";
+import { Config, readServerConfigFile } from "./background/ServerConfig.js";
 import { fileURLToPath } from "url";
 import { GameDataConfig, readGameDataConfigFiles } from "./background/loadGameData.js";
-import { GameServer } from "./background/gameServer.js";
+import { GameServer } from "./background/GameServer.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
