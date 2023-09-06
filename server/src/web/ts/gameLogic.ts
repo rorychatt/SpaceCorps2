@@ -13,6 +13,9 @@ let camera: THREE.PerspectiveCamera;
 let renderer: THREE.Renderer;
 let currentMap: string;
 let controls: OrbitControls;
+let canvas: HTMLElement | null;
+
+const raycaster = new THREE.Raycaster();
 
 socket.on("connect", () => {
     console.log("Connected to the socket.io server");
@@ -29,7 +32,7 @@ socket.on("loginUnsuccessful", (data: { username: string }) => {
 });
 
 socket.on("mapData", (data: any) => {
-    console.log(data);
+    // console.log(data);
     if (currentMap != data.name) {
         loadNewSpacemap(data);
     }
@@ -60,6 +63,7 @@ async function loadSpacemapPlane(data: any) {
     const plane = new THREE.Mesh(geometry, material);
     plane.position.set(0, 0, 0);
     plane.rotation.x = -Math.PI / 2;
+    plane.name = "movingPlane";
     scene.add(plane);
 }
 
@@ -84,15 +88,20 @@ function initScene(): void {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     // Append the renderer to the HTML container
+    renderer.domElement.id = "THREEJSScene";
     document.getElementById("spacemapDiv")?.appendChild(renderer.domElement);
-    spacemapDiv.appendChild(renderer.domElement)
 
+    canvas = document.getElementById("THREEJSScene") as HTMLElement;
+    spacemapDiv.appendChild(renderer.domElement);
+
+    canvas.addEventListener("click", raycastFromCamera, false);
     // Create a cube and add it to the scene
     const geometry: THREE.BoxGeometry = new THREE.BoxGeometry();
     const material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
         color: 0x00ff00,
     });
     const cube: THREE.Mesh = new THREE.Mesh(geometry, material);
+    cube.name = 'test cube'
     scene.add(cube);
 
     // Position the camera
@@ -120,6 +129,26 @@ function initScene(): void {
 
     // Call the animate function to start the animation loop
     animate();
+}
+
+function raycastFromCamera(event: any) {
+    const mouse = new THREE.Vector2();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(scene.children, true);
+
+    let _names: string[] = [];
+
+    if (intersects.length > 0) {
+        intersects.forEach((intersect) => {
+            _names.push(intersect.object.name);
+        });
+        console.log(`Got following intersects: ${JSON.stringify(_names)}`)
+        console.log(intersects)
+    }
 }
 
 function createLighting() {
