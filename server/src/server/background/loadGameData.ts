@@ -1,28 +1,5 @@
 import fs from "fs";
-
-export interface PortalConfig {
-    location: string;
-    destination: string;
-}
-
-export interface StaticEntitiesConfig {
-    portals: PortalConfig[];
-    base?: {
-        location: string;
-        name: string;
-    };
-}
-
-export interface SpacemapSize {
-    width: number;
-    height: number
-}
-
-export interface SpacemapConfig {
-    name: string;
-    size: SpacemapSize;
-    staticEntities: StaticEntitiesConfig;
-}
+import { SpacemapConfig } from "./Spacemap";
 
 export interface GameDataConfig {
     [key: string]: SpacemapConfig;

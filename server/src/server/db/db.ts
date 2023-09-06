@@ -2,7 +2,7 @@ import * as mysql from "mysql2";
 import {
     Config,
     readServerConfigFile,
-} from "../background/loadServerConfig.js";
+} from "../background/ServerConfig.js";
 
 export interface UserCredentials {
     username: string;

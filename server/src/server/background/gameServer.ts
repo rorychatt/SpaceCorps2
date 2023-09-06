@@ -1,53 +1,10 @@
+import { Player } from "./Player";
+import { Spacemap, Spacemaps } from "./Spacemap";
 import {
     GameDataConfig,
-    SpacemapConfig,
-    SpacemapSize,
     readGameDataConfigFiles,
 } from "./loadGameData";
 import { Server } from "socket.io";
-
-export class Entity {
-    name: string;
-
-    public constructor() {
-        this.name = "testEntity";
-    }
-}
-
-export class Player extends Entity {
-    currentMap: string;
-    socketId: string;
-
-    public constructor(socketId: string, username: string) {
-        super();
-        this.name = username;
-        this.currentMap = "M-1";
-        this.socketId = socketId;
-    }
-}
-
-export class Spacemap {
-    name: string;
-    size: SpacemapSize;
-    entities: Entity[];
-
-    public constructor(config: SpacemapConfig) {
-        this.entities = [];
-        this.name = "test";
-        this.size = { width: 160, height: 90 };
-        if (config) {
-            this.name = config.name;
-            this.size = config.size;
-        } else {
-            console.log(`Warning! Tried to load a map without a config file!`);
-        }
-    }
-}
-
-interface Spacemaps {
-    [key: string]: Spacemap;
-}
-
 export class GameServer {
     spacemaps: Spacemaps;
     players: Player[];

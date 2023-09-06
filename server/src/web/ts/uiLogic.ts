@@ -21,7 +21,7 @@ const quitButtonNo = document.getElementById("quit_btn_no") as HTMLElement;
 const playerModalButton = document.getElementById("player_modal_btn") as HTMLElement;
 const playerModalQuitButton = document.getElementById("modal_quit_btn") as HTMLElement;
 
-toggleMenuButton.addEventListener("click", function() {
+toggleMenuButton.addEventListener("click", function(): void {
     if (mainMenuDiv.style.display === "none" || mainMenuDiv.style.display === "") {
         mainMenuDiv.style.display = "block";
     } else {
@@ -29,11 +29,11 @@ toggleMenuButton.addEventListener("click", function() {
     }
 });
 
-returnToGameButton.addEventListener("click", function() {
+returnToGameButton.addEventListener("click", function(): void {
     mainMenuDiv.style.display = "none";
 })
 
-closeButton.addEventListener("click", function() {
+closeButton.addEventListener("click", function(): void {
     containerDiv.style.display = "none";
     playerInfoDiv.style.display = "none";
     clanInfoDiv.style.display = "none";
@@ -42,37 +42,37 @@ closeButton.addEventListener("click", function() {
     assemblyDiv.style.display = "none";
 })
 
-playerInfoButton.addEventListener("click", function() {
+playerInfoButton.addEventListener("click", function(): void {
     containerDiv.style.display = "block";
     playerInfoDiv.style.display = "block";
     mainMenuDiv.style.display = "none";
 })
 
-clanInfoButton.addEventListener("click", function() {
+clanInfoButton.addEventListener("click", function(): void {
     containerDiv.style.display = "block";
     clanInfoDiv.style.display = "block";
     mainMenuDiv.style.display = "none";
 })
 
-shopButton.addEventListener("click", function() {
+shopButton.addEventListener("click", function(): void {
     containerDiv.style.display = "block";
     shopDiv.style.display = "block";
     mainMenuDiv.style.display = "none";
 })
 
-auctionButton.addEventListener("click", function() {
+auctionButton.addEventListener("click", function(): void {
     containerDiv.style.display = "block";
     auctionDiv.style.display = "block";
     mainMenuDiv.style.display = "none";
 })
 
-assemblyButton.addEventListener ("click", function() {
+assemblyButton.addEventListener ("click", function(): void {
     containerDiv.style.display = "block";
     assemblyDiv.style.display = "block";
     mainMenuDiv.style.display = "none";
 })
 
-quitButton.addEventListener("click", function() {
+quitButton.addEventListener("click", function(): void {
     if (quitDiv.style.display === "none" || quitDiv.style.display === "") {
         quitDiv.style.display = "block";
     } else {
@@ -80,16 +80,16 @@ quitButton.addEventListener("click", function() {
     }
 })
 
-quitButtonNo.addEventListener ("click", function() {
+quitButtonNo.addEventListener ("click", function(): void {
     quitDiv.style.display = "none";
 })
 
-quitButtonYes.addEventListener("click", function() {
+quitButtonYes.addEventListener("click", function(): void {
     alert("You logged off. This page will restart automatically");
     window.location.reload();
 })
 
-playerModalButton.addEventListener("click", function() {
+playerModalButton.addEventListener("click", function(): void {
     if (playerModalDiv.style.display === "none" || playerModalDiv.style.display === "") {
         playerModalDiv.style.display = "block";
     } else {
@@ -97,6 +97,6 @@ playerModalButton.addEventListener("click", function() {
     }
 })
 
-playerModalQuitButton.addEventListener("click", function() {
+playerModalQuitButton.addEventListener("click", function(): void {
     playerModalDiv.style.display = "none";
 })
