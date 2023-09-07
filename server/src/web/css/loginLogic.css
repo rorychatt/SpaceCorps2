@@ -423,13 +423,14 @@ h1 {
 }
 
 /* Top Container */
-.top_container {
+/* .top_container {
     display: flex;
     justify-content: space-between;
-}
+} */
 
 /* Menu Container */
 .menu_container {
+    position: absolute;
     display: flex;
     flex-direction: row;
     right: 0;
@@ -437,6 +438,7 @@ h1 {
 
 /* UI Container */
 .ui_container {
+    position: absolute;
     display: flex;
     flex-direction: row;
     left: 0;
