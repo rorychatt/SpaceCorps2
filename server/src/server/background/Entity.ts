@@ -63,7 +63,9 @@ export interface Durability {
     shieldAbsorbance: number;
 }
 
-export interface OreDrop {}
+export interface OreDrop {
+    // Oredrop
+}
 
 export interface AlienDamageCharacteristic {
     maxDamage: number;
