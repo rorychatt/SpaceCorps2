@@ -76,10 +76,15 @@ function fixPlayer(){
         }
 
         // Replace the import statement for "THREE" module
-        const modifiedData = data.replace(
+        let modifiedData = data.replace(
             'import { Entity } from "./Entity";',
             'import { Entity } from "./Entity.js";'
         );
+
+        modifiedData = modifiedData.replace(
+            'import { getUserDataByUsername } from "../db/db";',
+            'import { getUserDataByUsername } from "../db/db.js";',
+        )
 
         // Write the modified content back to the file
         writeFile("./dist/server/background/Player.js", modifiedData, (err) => {
