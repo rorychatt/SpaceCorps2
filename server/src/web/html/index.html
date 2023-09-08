@@ -97,18 +97,18 @@
           <button class="btn" id="player_modal_btn"><i class="fa fa-user"></i></button>
         </div>
         <div class="ship_button">
-          <button class="btn"><i class="fa fa-space-shuttle"></i></button>
+          <button class="btn" id="ship_modal_btn"><i class="fa fa-space-shuttle"></i></button>
         </div>
-        <div class="chat_button">
+        <div class="chat_button" id="chat_modal_btn">
           <button class="btn"><i class="fa fa-wechat"></i></button>
         </div>
-        <div class="spacemap_button">
+        <div class="spacemap_button" id="spacemap_modal_btn">
           <button class="btn"><i class="fa fa-map"></i></button>
         </div>
-        <div class="log_button">
+        <div class="log_button" id="log_modal_btn">
           <button class="btn"><i class="fa fa-th-list"></i></button>
         </div>
-        <div class="assembly_button">
+        <div class="assembly_button" id="assembly_modal_btn">
           <button class="btn"><i class="fa fa-creative-commons"></i></button>
         </div>
       </div>
@@ -155,23 +155,173 @@
       </div>
     </div>
     <div class="gameui" id="container">
-
-      <div class="container_header">
-        <div class="close_button">
-          <button class="close_btn" id="close_btn"><i class="fa fa-close"></i></button>
-        </div>
-      </div>
       <div class="profile_info" id="p_info">
-
+        <div class="shop_top">
+          <div class="profile_pilot">
+            <button class="shop_text" id="profile_pilot_button">Pilot</button>
+          </div>
+          <div class="profile_ranking">
+            <button class="shop_text" id="profile_ranking_button">
+              Ranking
+            </button>
+          </div>
+          <div class="profile_studio">
+            <button class="shop_text" id="profile_hangar_button">
+              Hangar
+            </button>
+          </div>
+          <div class="profile_workroom">
+            <button class="shop_text" id="profile_workroom_button">
+              Workroom
+            </button>
+          </div>
+          <div class="close_button">
+            <button class="close_btn" id="profile_close_btn">
+              <i class="fa fa-close"></i>
+            </button>
+          </div>
+        </div>
+        <div
+          class="profile_container profile_container_pilot"
+          id="profile_pilot"
+        ></div>
+        <div
+          class="profile_container profile_container_ranking"
+          id="profile_ranking"
+        ></div>
+        <div
+          class="profile_container profile_container_hangar"
+          id="profile_hangar"
+        ></div>
+        <div
+          class="profile_container profile_container_workroom"
+          id="profile_workroom"
+        ></div>
       </div>
       <div class="clan_information" id="c_info">
-
+        <div class="shop_top">
+          <div class="auc_hourly">
+            <button class="shop_text" id="clan_info_button">
+              Information
+            </button>
+          </div>
+          <div class="auc_daily">
+            <button class="shop_text" id="clan_members_btn">Members</button>
+          </div>
+          <div class="auc_weekly">
+            <button class="shop_text" id="clan_politics_btn">Politics</button>
+          </div>
+          <div class="auc_monthly">
+            <button class="shop_text" id="clan_economics_btn">
+              Economics
+            </button>
+          </div>
+          <div class="close_button">
+            <button class="close_btn" id="clan_close_btn">
+              <i class="fa fa-close"></i>
+            </button>
+          </div>
+        </div>
+        <div class="clan_container clan_container_info" id="clan_info"></div>
+        <div
+          class="clan_container clan_container_members"
+          id="clan_members"
+        ></div>
+        <div
+          class="clan_container clan_container_politics"
+          id="clan_politics"
+        ></div>
+        <div
+          class="clan_container clan_container_economics"
+          id="clan_economics"
+        ></div>
       </div>
       <div class="shopping" id="shop">
-
+        <div class="shop_top">
+          <div class="shop_ships">
+            <button class="shop_def shop_text" id="shop_ships">Ships</button>
+          </div>
+          <div class="shop_def shop_weapons">
+            <button class="shop_def shop_text" id="shop_weapons">
+              Weapons
+            </button>
+          </div>
+          <div class="shop_def shop_ammunition">
+            <button class="shop_def shop_text" id="shop_ammo">Ammo</button>
+          </div>
+          <div class="shop_def shop_generators">
+            <button class="shop_def shop_text" id="shop_generators">
+              Generators
+            </button>
+          </div>
+          <div class="shop_def shop_extras">
+            <button class="shop_def shop_text" id="shop_extras">
+              Extras
+            </button>
+          </div>
+          <div class="shop_def shop_designs">
+            <button class="shop_def shop_text" id="shop_design">
+              Design
+            </button>
+          </div>
+          <div class="shop_def shop_donate">
+            <button class="shop_def shop_text" id="shop_donate">
+              Donate
+            </button>
+          </div>
+          <div class="close_button">
+            <button class="close_btn" id="close_btn">
+              <i class="fa fa-close"></i>
+            </button>
+          </div>
+        </div>
+        <div class="shopping_def shopping_ships" id="shopping_ships"></div>
+        <div
+          class="shopping_def shopping_weapons"
+          id="shopping_weapons"
+        ></div>
+        <div
+          class="shopping_def shopping_ammunition"
+          id="shopping_ammunition"
+        ></div>
+        <div
+          class="shopping_def shopping_generators"
+          id="shopping_generators"
+        ></div>
+        <div class="shopping_def shopping_extras" id="shopping_extras"></div>
+        <div class="shopping_def shopping_design" id="shopping_design"></div>
+        <div class="shopping_def shopping_donate" id="shopping_donate"></div>
       </div>
       <div class="bidding" id="auction">
-
+        <div class="shop_top">
+          <div class="auc_hourly">
+            <button class="shop_def shop_text" id="auc_hour_btn">
+              Hourly
+            </button>
+          </div>
+          <div class="auc_daily">
+            <button class="shop_def shop_text" id="auc_day_btn">Daily</button>
+          </div>
+          <div class="auc_weekly">
+            <button class="shop_def shop_text" id="auc_week_btn">
+              Weekly
+            </button>
+          </div>
+          <div class="auc_monthly">
+            <button class="shop_def shop_text" id="auc_month_btn">
+              Monthly
+            </button>
+          </div>
+          <div class="close_button">
+            <button class="close_btn" id="auc_close_btn">
+              <i class="fa fa-close"></i>
+            </button>
+          </div>
+        </div>
+        <div class="auc_container auc_hourly_container" id="auc_hour"></div>
+        <div class="auc_container auc_daily_container" id="auc_day"></div>
+        <div class="auc_container auc_weekly_container" id="auc_week"></div>
+        <div class="auc_container auc_monthly_container" id="auc_month"></div>
       </div>
       <div class="crafting" id="assembly">
 
@@ -196,20 +346,61 @@
         </div>
       </div>
     </div>
-    <div class="player_info_modal" id="player_info_modal">
+    <div class="player_info_modal movable-div" id="player_info_modal">
       <div class="player_info_modal_header" id="player_modal">
-        <h1>Player info</h1> <button class="modal_btn" id="modal_quit_btn"><i class="fa fa-remove"></i></button>
+        <h1>Player info</h1>
+        <button class="modal_btn" id="modal_quit_btn">
+          <i class="fa fa-remove"></i>
+        </button>
       </div>
     </div>
-
-
+    <div class="ship_info_modal movable-div" id="ship_info_modal">
+      <div class="ship_info_modal_header" id="ship_modal">
+        <h1>Ship Info</h1>
+        <button class="modal_btn" id="ship_modal_quit_btn">
+          <i class="fa fa-remove"></i>
+        </button>
+      </div>
+    </div>
+    <div class="chat_info_modal movable-div" id="chat_info_modal">
+      <div class="chat_info_modal_header" id="chat_modal">
+        <h1>Chat</h1>
+        <button class="modal_btn" id="chat_modal_quit_btn">
+          <i class="fa fa-remove"></i>
+        </button>
+      </div>
+    </div>
+    <div class="spacemap_info_modal movable-div" id="spacemap_info_modal">
+      <div class="spacemap_info_modal_header" id="spacemap_modal">
+        <h1>Spacemap</h1>
+        <button class="modal_btn" id="spacemap_modal_quit_btn">
+          <i class="fa fa-remove"></i>
+        </button>
+      </div>
+    </div>
+    <div class="log_info_modal movable-div" id="log_info_modal">
+      <div class="log_info_modal_header" id="log_modal">
+        <h1>Log</h1>
+        <button class="modal_btn" id="log_modal_quit_btn">
+          <i class="fa fa-remove"></i>
+        </button>
+      </div>
+    </div>
+    <div class="assembly_info_modal movable-div" id="assembly_info_modal">
+      <div class="assembly_info_modal_header" id="assembly_modal">
+        <h1>Assembly</h1>
+        <button class="modal_btn" id="assembly_modal_quit_btn">
+          <i class="fa fa-remove"></i>
+        </button>
+      </div>
+    </div>
   </div>
   <div id="spacemapDiv" hidden>
 
   </div>
 
   <script src="./../ts/uiLogic.js"></script>
-
+  <script src="./../ts/buttons.js"></script>
 </body>
 
 </html>
