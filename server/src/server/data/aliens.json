@@ -1,3 +1,47 @@
 {
-    
+    "thetys": {
+        "hitPoints":{
+            "hullPoints": 2000,
+            "shieldPoints": 1000,
+            "shieldAbsorbance": 50
+        },
+        "damage":{
+            "maxDamage": 100,
+            "variance": 0.2,
+            "criticalChance": 0.01,
+            "criticalMultipler": 2
+        },
+        "oreDrop":{
+
+        },
+        "killReward":{
+            "credits": 1000,
+            "thulium": 1,
+            "experience": 125,
+            "honor": 1
+        }
+    },
+    "plasmoid": {
+        "hitPoints":{
+            "hullPoints": 4000,
+            "shieldPoints": 4000,
+            "shieldAbsorbance": 60
+        },
+        "damage":{
+            "maxDamage": 130,
+            "variance": 0.4,
+            "criticalChance": 0.02,
+            "criticalMultipler": 3
+        },
+        "oreDrop":{
+
+        },
+        "killReward":{
+            "credits": 3000,
+            "thulium": 3,
+            "experience": 400,
+            "honor": 3
+        }
+
+    }
 }
