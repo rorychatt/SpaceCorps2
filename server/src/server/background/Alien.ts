@@ -1,7 +1,7 @@
 import { Entity } from "./Entity";
 
 export class Alien extends Entity {
-    hitpoints: Durability;
+    hitPoints: Durability;
     killReward: KillReward;
     oreDrop: OreDrop;
     damage: AlienDamageCharacteristic;
@@ -9,7 +9,7 @@ export class Alien extends Entity {
     public constructor() {
         super("AlienTEST");
 
-        this.hitpoints = {
+        this.hitPoints = {
             hullPoints: 1000,
             shieldPoints: 1000,
             shieldAbsorbance: 100,
@@ -30,16 +30,16 @@ export class Alien extends Entity {
     }
 
     receiveDamage(damage: number) {
-        let shieldDamage: number = damage * this.hitpoints.shieldAbsorbance;
+        let shieldDamage: number = damage * this.hitPoints.shieldAbsorbance;
         let hullDamage: number = damage - shieldDamage;
 
-        if (shieldDamage > this.hitpoints.shieldPoints) {
-            let excessDamage = shieldDamage - this.hitpoints.shieldPoints;
+        if (shieldDamage > this.hitPoints.shieldPoints) {
+            let excessDamage = shieldDamage - this.hitPoints.shieldPoints;
             hullDamage = hullDamage + excessDamage;
-            this.hitpoints.shieldPoints = 0;
+            this.hitPoints.shieldPoints = 0;
         }
 
-        this.hitpoints.hullPoints = this.hitpoints.hullPoints - hullDamage;
+        this.hitPoints.hullPoints = this.hitPoints.hullPoints - hullDamage;
     }
 
     giveDamage() {
