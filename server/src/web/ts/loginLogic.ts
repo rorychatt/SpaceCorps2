@@ -43,7 +43,7 @@ let mainF = (e: Event) => {
 
 window.addEventListener("load", mainF);
 
-const loginBtn = document.getElementById("signin");
+const loginBtn: HTMLElement | null = document.getElementById("signin");
 loginBtn?.addEventListener("click", (event: Event) => {
     event.preventDefault()
     const username = (
@@ -54,3 +54,12 @@ loginBtn?.addEventListener("click", (event: Event) => {
     ).value;
     socket.emit("authenticate", { username: username, password: password });
 });
+
+const registerBtn: HTMLElement | null = document.getElementById("signup");
+registerBtn?.addEventListener("click", (event: Event) => {
+    event.preventDefault()
+    console.log("Attempting to register...")
+    const username = (document.getElementById("registerUsername") as HTMLInputElement).value
+    const password = (document.getElementById("registerPassword") as HTMLInputElement).value
+    socket.emit("attemptRegister", {username: username, password: password})
+})

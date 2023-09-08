@@ -31,6 +31,14 @@ socket.on("loginUnsuccessful", (data: { username: string }) => {
     alert(`Incorrect password for user: ${data.username}`);
 });
 
+socket.on("registerSuccessful", (data: { username: string }) => {
+    alert(`Successfully registered user: ${data.username}`)
+})
+
+socket.on("registerUnsuccessful", (data : { username: string}) => {
+    alert(`Could not register user: ${data.username}`)
+})
+
 socket.on("mapData", (data: any) => {
     // console.log(data);
     if (currentMap != data.name) {

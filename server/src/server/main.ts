@@ -4,12 +4,16 @@ import http from "http";
 import { Server, Socket } from "socket.io";
 import {
     getUserByUsername,
+    registerNewUser,
     setupDatabaseConnection,
 } from "./db/db.js";
 import path from "path";
 import { Config, readServerConfigFile } from "./background/ServerConfig.js";
 import { fileURLToPath } from "url";
-import { GameDataConfig, readGameDataConfigFiles } from "./background/loadGameData.js";
+import {
+    GameDataConfig,
+    readGameDataConfigFiles,
+} from "./background/loadGameData.js";
 import { GameServer } from "./background/GameServer.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -22,7 +26,7 @@ const io: Server = new Server(server);
 setupDatabaseConnection();
 
 const config: Config = readServerConfigFile();
-const gameDataConfig: GameDataConfig = readGameDataConfigFiles()
+const gameDataConfig: GameDataConfig = readGameDataConfigFiles();
 
 app.use(cors());
 app.use(express.json());
@@ -37,34 +41,56 @@ app.get("/", (req, res) => {
 });
 
 app.get("/three", (req, res) => {
-    res.sendFile(path.join(__dirname, "..", "..", "dist", "web", "ts", "three.module.js"), { 
-        headers: {
-            'Content-Type': 'application/javascript'
+    res.sendFile(
+        path.join(
+            __dirname,
+            "..",
+            "..",
+            "dist",
+            "web",
+            "ts",
+            "three.module.js"
+        ),
+        {
+            headers: {
+                "Content-Type": "application/javascript",
+            },
         }
-    });
+    );
 });
 
 app.get("/three/examples/jsm/controls/OrbitControls", (req, res) => {
-    res.sendFile(path.join(__dirname, "..", "..", "dist", "web", "ts", "OrbitControls.js"), { 
-        headers: {
-            'Content-Type': 'application/javascript'
+    res.sendFile(
+        path.join(
+            __dirname,
+            "..",
+            "..",
+            "dist",
+            "web",
+            "ts",
+            "OrbitControls.js"
+        ),
+        {
+            headers: {
+                "Content-Type": "application/javascript",
+            },
         }
-    });
-})
+    );
+});
 
 server.listen(config.server.port, () => {
     console.log(`Node server is running at port: ${config.server.port}`);
 });
 
-const gameServer: GameServer = new GameServer(io)
-gameServer.startServer()
+const gameServer: GameServer = new GameServer(io);
+gameServer.startServer();
 
 io.on("connection", (socket) => {
     console.log("A user connected");
 
     socket.on("disconnect", () => {
         console.log("A user disconnected");
-        gameServer.disconnectPlayerBySocketId(socket.id)
+        gameServer.disconnectPlayerBySocketId(socket.id);
     });
 
     socket.on(
@@ -84,7 +110,10 @@ io.on("connection", (socket) => {
                     console.log(
                         `${userCredentials.username} logs into the game`
                     );
-                    gameServer.loadNewPlayer(socket.id as string, userCredentials.username);
+                    gameServer.loadNewPlayer(
+                        socket.id as string,
+                        userCredentials.username
+                    );
                 } else {
                     socket.emit("loginUnsuccessful", {
                         username: data.username,
@@ -105,5 +134,22 @@ io.on("connection", (socket) => {
             }
         }
     );
-});
 
+    socket.on(
+        "attemptRegister",
+        async (data: { username: string; password: string }) => {
+            const [userCredentials] = await getUserByUsername(data.username);
+            if (userCredentials) {
+                socket.emit("registerUnsuccessful", userCredentials.username);
+            } else {
+                try {
+                    await registerNewUser(data.username, data.password);
+                } finally {
+                    socket.emit("registerSuccessful", {
+                        username: data.username,
+                    });
+                }
+            }
+        }
+    );
+});
