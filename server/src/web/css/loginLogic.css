@@ -515,27 +515,22 @@ h1 {
 
 .profile_info {
     display: none;
-    border: 1px solid red;
 }
 
 .clan_information {
     display: none;
-    border: 1px solid green;
 }
 
 .shopping {
     display: none;
-    border: 1px solid greenyellow;
 }
 
 .bidding {
     display: none;
-    border: 1px solid white;
 }
 
 .crafting {
     display: none;
-    border: 1px solid purple;
 }
 
 .quit_text {
@@ -569,7 +564,7 @@ h1 {
     background-color: rgba(255, 0, 0, 0.6);
 }
 
-.player_info_modal {
+.player_info_modal, .ship_info_modal, .chat_info_modal, .spacemap_info_modal, .log_info_modal, .assembly_info_modal {
     position: absolute;
     border: 1px solid white;
 
@@ -585,9 +580,207 @@ h1 {
     display: none;
 }
 
-.player_info_modal_header {
+.player_info_modal_header, .ship_info_modal_header, .chat_info_modal_header, .spacemap_info_modal_header, .log_info_modal_header, .assembly_info_modal_header {
     display: flex;
     justify-content: space-between;
+}
+
+.chat_info_modal {
+    left: 1%;
+    bottom: 80%;
+}
+
+.spacemap_info_modal {
+    right: 80%;
+    bottom: 80%;
+}
+
+.log_info_modal {
+    left: 80%;
+    bottom: 80%;
+}
+
+.player_info_modal {
+    left: 0;
+}
+
+.ship_info_modal {
+    left: 10%;
+}
+
+.assembly_info_modal {
+    left: 20%;
+}
+
+.shop_top {
+    display: flex;
+    justify-content: space-between;
+}
+
+.shop_ships, .shop_weapons, .shop_ammunition, .shop_generators, .shop_extras, .shop_designs, .shop_donate {
+    height: 4vh;
+    width: 7%;
+    border-radius: 4px;
+    margin-top: 1vh;
+
+    cursor: pointer;
+}
+
+.shop_ships {
+    margin-left: 2vh;
+}
+
+.shop_text {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid white;
+    color: white;
+    padding: 6px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-family: 'Pacifico';
+    font-size: 2.5vh;
+    position: absolute;
+}
+
+.shop_text:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.shopping_def {
+    position: absolute;
+    margin-top: 1%;
+    height: auto;
+    min-height: 60vh;
+    width:100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    z-index: 6;
+}
+
+.shopping_ships {
+    border: 1px solid red;
+    display: block;
+    z-index: 6;
+}
+
+.shopping_weapons {
+    border: 1px solid green;
+    display: none;
+}
+
+.shopping_ammunition {
+    border: 1px solid white;
+    display: none;
+}
+
+.shopping_generators {
+    border: 1px solid purple;
+    display: none;
+}
+
+.shopping_extras {
+    border: 1px solid black;
+    display: none;
+}
+
+.shopping_design {
+    border: 1px solid blue;
+    display: none;
+}
+
+.shopping_donate {
+    border: 1px solid salmon;
+    display: none;
+}
+
+.auc_container {
+    position: absolute;
+    margin-top: 1%;
+    height: auto;
+    min-height: 60vh;
+    width:100%;
+    background-color: rgba(255, 255, 255, 0.1);    
+}
+
+.auc_hourly {
+    margin-left: 4vh;
+}
+
+.auc_hourly_container {
+    border: 1px solid white;
+    display: block;
+}
+
+.auc_daily_container {
+    border: 1px solid purple;
+    display: none;
+}
+
+.auc_weekly_container {
+    border: 1px solid green;
+    display: none;
+}
+
+.auc_monthly_container {
+    border: 1px solid salmon;
+    display: none;
+}
+
+.clan_container {
+    position: absolute;
+    margin-top: 1%;
+    height: auto;
+    min-height: 60vh;
+    width:100%;
+    background-color: rgba(255, 255, 255, 0.1);   
+}
+
+.clan_container_info {
+    border: 1px solid white;
+    display: block;    
+}
+
+.clan_container_members {
+    border: 1px solid purple;
+    display: none;    
+}
+
+.clan_container_politics {
+    border: 1px solid green;
+    display: none;    
+}
+
+.clan_container_economics {
+    border: 1px solid salmon;
+    display: none;   
+}
+
+.profile_container {
+    position: absolute;
+    margin-top: 1%;
+    height: auto;
+    min-height: 60vh;
+    width:100%;
+    background-color: rgba(255, 255, 255, 0.1);        
+}
+
+.profile_container_pilot {
+    border: 1px solid white;
+    display: block;    
+}
+
+.profile_container_ranking {
+    border: 1px solid purple;
+    display: none;
+}
+
+.profile_container_hangar {
+    border: 1px solid green;
+    display: none;
+}
+
+.profile_container_workroom {
+    border: 1px solid salmon;
+    display: none; 
 }
 
 
