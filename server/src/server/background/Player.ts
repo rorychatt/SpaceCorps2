@@ -4,14 +4,14 @@ import { Entity } from "./Entity";
 
 export class Player extends Entity {
     socketId: string;
-    hitpoints?: Durability;
+    hitPoints?: Durability;
     stats?: PlayerStats;
     damage?: PlayerDamageCharacteristic;
 
     public constructor(socketId: string, username: string) {
         super(username);
         this.socketId = socketId;
-        this.hitpoints = {
+        this.hitPoints = {
             hullPoints: 10000,
             shieldPoints: 0,
             shieldAbsorbance: 0,
@@ -62,20 +62,20 @@ export class Player extends Entity {
     }
 
     receiveDamage(damage: number) {
-        if (this.hitpoints) {
-            let shieldDamage: number = damage * this.hitpoints.shieldAbsorbance;
+        if (this.hitPoints) {
+            let shieldDamage: number = damage * this.hitPoints.shieldAbsorbance;
             let hullDamage: number = damage - shieldDamage;
 
-            if (shieldDamage > this.hitpoints.shieldPoints) {
-                let excessDamage = shieldDamage - this.hitpoints.shieldPoints;
+            if (shieldDamage > this.hitPoints.shieldPoints) {
+                let excessDamage = shieldDamage - this.hitPoints.shieldPoints;
                 hullDamage = hullDamage + excessDamage;
-                this.hitpoints.shieldPoints = 0;
+                this.hitPoints.shieldPoints = 0;
             }
 
-            this.hitpoints.hullPoints = this.hitpoints.hullPoints - hullDamage;
+            this.hitPoints.hullPoints = this.hitPoints.hullPoints - hullDamage;
         } else {
             console.log(
-                `Warning! ${this.name} has no hitpoints characteristic!!!`
+                `Warning! ${this.name} has no hitPoints characteristic!!!`
             );
         }
     }
