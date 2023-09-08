@@ -74,6 +74,8 @@ export class GameServer {
 
             console.log(`Player ${disconnectedPlayer.name} disconnected`);
 
+            console.log(disconnectedPlayer)
+
             // Implement any additional cleanup or handling logic here if needed
 
             this.players.splice(disconnectedPlayerIndex, 1);
