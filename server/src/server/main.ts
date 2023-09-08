@@ -140,7 +140,9 @@ io.on("connection", (socket) => {
         async (data: { username: string; password: string }) => {
             const [userCredentials] = await getUserByUsername(data.username);
             if (userCredentials) {
-                socket.emit("registerUnsuccessful", userCredentials.username);
+                socket.emit("registerUnsuccessful", {
+                    username: userCredentials.username,
+                });
             } else {
                 try {
                     await registerNewUser(data.username, data.password);

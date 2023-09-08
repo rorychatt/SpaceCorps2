@@ -9,6 +9,17 @@ export interface UserCredentials {
     lastLogin?: string;
 }
 
+export interface PlayerEntityInterface {
+    username: string;
+    mapName: string;
+    positionX: number;
+    positionY: number;
+    credits: number;
+    thulium: number;
+    experience: number;
+    honor: number
+}
+
 export let pool: mysql.Pool;
 
 const config: Config = readServerConfigFile();
@@ -81,6 +92,11 @@ export function getUserByUsername(
 ): Promise<UserCredentials[]> {
     const query = `SELECT * FROM login WHERE username = "${username}";`;
     return executeQuery(query);
+}
+
+export function getUserDataByUsername(username: string){
+    const query = `SELECT * FROM playerEntity WHERE username = "${username}"`
+    return executeQuery(query)
 }
 
 export async function registerNewUser(username: string, password: string) {

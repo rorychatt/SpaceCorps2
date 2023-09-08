@@ -1,8 +1,8 @@
+import { PlayerEntityInterface, getUserDataByUsername } from "../db/db";
 import { Durability } from "./Alien";
 import { Entity } from "./Entity";
 
 export class Player extends Entity {
-    currentMap: string;
     socketId: string;
     hitpoints?: Durability;
     stats?: PlayerStats;
@@ -10,14 +10,55 @@ export class Player extends Entity {
 
     public constructor(socketId: string, username: string) {
         super(username);
-        this.name = username;
-        this.currentMap = "M-1";
         this.socketId = socketId;
         this.hitpoints = {
             hullPoints: 10000,
             shieldPoints: 0,
             shieldAbsorbance: 0,
         };
+        this._getDataFromSQL()
+    }
+
+    async _getDataFromSQL() {
+        let templateData = {
+            currentMap: "M-1",
+            positionX: 0,
+            positionY: 0,
+            credits: 0,
+            thulium: 0,
+            experience: 0,
+            honor: 0,
+        };
+
+        const res = (await getUserDataByUsername(
+            this.name
+        )) as PlayerEntityInterface[];
+
+        if (res && res.length > 0) {
+            const data = res[0];
+            templateData = {
+                currentMap: data.mapName,
+                positionX: data.positionX,
+                positionY: data.positionY,
+                credits: data.credits,
+                thulium: data.thulium,
+                experience: data.experience,
+                honor: data.honor,
+            };
+        }
+        this.currentMap = templateData.currentMap;
+        this.position = {
+            x: templateData.positionX,
+            y: templateData.positionY,
+        };
+        this.stats = {
+            credits: templateData.credits,
+            thulium: templateData.thulium,
+            experience: templateData.experience,
+            honor: templateData.honor,
+        };
+
+        console.log(this)
     }
 
     receiveDamage(damage: number) {
@@ -44,13 +85,13 @@ export class Player extends Entity {
             const damage =
                 this.damage.maxDamage *
                 (1 - Math.random() * this.damage.variance);
-            return damage
+            return damage;
         } else {
-            console.log(`Warning! ${this.name} has no damage characteristic!!!`)
+            console.log(
+                `Warning! ${this.name} has no damage characteristic!!!`
+            );
         }
     }
-
-    
 }
 
 export interface PlayerDamageCharacteristic {
