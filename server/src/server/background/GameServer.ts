@@ -1,9 +1,6 @@
 import { Player } from "./Player";
 import { Spacemap, Spacemaps } from "./Spacemap";
-import {
-    GameDataConfig,
-    readGameDataConfigFiles,
-} from "./loadGameData";
+import { GameDataConfig, readGameDataConfigFiles } from "./loadGameData";
 import { Server } from "socket.io";
 export class GameServer {
     spacemaps: Spacemaps;
@@ -11,15 +8,17 @@ export class GameServer {
     io: Server;
     tickRate: number;
     gameLoop: NodeJS.Timeout | null;
+    _spacemapNames: string[];
 
     public constructor(io: Server) {
         this.players = [];
         this.spacemaps = {};
         this.io = io;
-        this.tickRate = 60;
+        this.tickRate = 1;
         this.gameLoop = null;
 
         this._loadSpacemapsFromConfig();
+        this._spacemapNames = Object.keys(this.spacemaps);
     }
 
     _loadSpacemapsFromConfig() {
@@ -39,7 +38,15 @@ export class GameServer {
         this.spacemaps[player.currentMap].entities.push(player);
     }
 
-    async processAILogic() {}
+    async processAILogic() {
+        // random spawnrate
+
+        for (const spacemapName in this._spacemapNames) {
+            this.spacemaps[
+                this._spacemapNames[spacemapName]
+            ].randomSpawnAlien();
+        }
+    }
 
     async processPlayerInputs() {}
 
@@ -74,7 +81,7 @@ export class GameServer {
 
             console.log(`Player ${disconnectedPlayer.name} disconnected`);
 
-            console.log(disconnectedPlayer)
+            console.log(disconnectedPlayer);
 
             // Implement any additional cleanup or handling logic here if needed
 
@@ -100,7 +107,6 @@ export class GameServer {
     }
 
     startServer() {
-        
         // TODO: Wait for previous tick completion?
 
         if (this.gameLoop === null) {
