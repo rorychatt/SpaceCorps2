@@ -3,6 +3,8 @@ import { readFile, writeFile } from "fs";
 fixThreeImport();
 fixGameServer();
 fixPlayer();
+fixSpacemap();
+fixAlien();
 
 function fixGameServer() {
     readFile("./dist/server/background/gameServer.js", "utf8", (err, data) => {
@@ -27,7 +29,10 @@ function fixGameServer() {
             'import { Player } from "./Player.js";'
         );
 
-
+        modifiedData = modifiedData.replace(
+            'import { readGameDataConfigFiles } from "./loadGameData";',
+            'import { readGameDataConfigFiles } from "./loadGameData.js";'
+        );
         // Write the modified content back to the file
         writeFile(
             "./dist/server/background/gameServer.js",
@@ -60,15 +65,19 @@ function fixThreeImport() {
             'import { OrbitControls } from "/three/examples/jsm/controls/OrbitControls";'
         );
         // Write the modified content back to the file
-        writeFile("./dist/web/ts/gameLogic.js", modifiedDataWithOrbitControls, (err) => {
-            if (err) {
-                console.error(`Error writing file: ${err}`);
+        writeFile(
+            "./dist/web/ts/gameLogic.js",
+            modifiedDataWithOrbitControls,
+            (err) => {
+                if (err) {
+                    console.error(`Error writing file: ${err}`);
+                }
             }
-        });
+        );
     });
 }
 
-function fixPlayer(){
+function fixPlayer() {
     readFile("./dist/server/background/Player.js", "utf8", (err, data) => {
         if (err) {
             console.error(`Error reading file: ${err}`);
@@ -83,11 +92,59 @@ function fixPlayer(){
 
         modifiedData = modifiedData.replace(
             'import { getUserDataByUsername } from "../db/db";',
-            'import { getUserDataByUsername } from "../db/db.js";',
-        )
+            'import { getUserDataByUsername } from "../db/db.js";'
+        );
 
         // Write the modified content back to the file
         writeFile("./dist/server/background/Player.js", modifiedData, (err) => {
+            if (err) {
+                console.error(`Error writing file: ${err}`);
+            }
+        });
+    });
+}
+
+function fixSpacemap() {
+    readFile("./dist/server/background/Spacemap.js", "utf8", (err, data) => {
+        if (err) {
+            console.error(`Error reading file: ${err}`);
+            return;
+        }
+
+        // Replace the import statement for "THREE" module
+        let modifiedData = data.replace(
+            'import { Alien } from "./Alien";',
+            'import { Alien } from "./Alien.js";'
+        );
+
+        // Write the modified content back to the file
+        writeFile(
+            "./dist/server/background/Spacemap.js",
+            modifiedData,
+            (err) => {
+                if (err) {
+                    console.error(`Error writing file: ${err}`);
+                }
+            }
+        );
+    });
+}
+
+function fixAlien() {
+    readFile("./dist/server/background/Alien.js", "utf8", (err, data) => {
+        if (err) {
+            console.error(`Error reading file: ${err}`);
+            return;
+        }
+
+        // Replace the import statement for "THREE" module
+        let modifiedData = data.replace(
+            'import { Entity } from "./Entity";',
+            'import { Entity } from "./Entity.js";'
+        );
+
+        // Write the modified content back to the file
+        writeFile("./dist/server/background/Alien.js", modifiedData, (err) => {
             if (err) {
                 console.error(`Error writing file: ${err}`);
             }

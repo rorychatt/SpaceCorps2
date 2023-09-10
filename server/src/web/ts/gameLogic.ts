@@ -40,7 +40,7 @@ socket.on("registerUnsuccessful", (data : { username: string}) => {
 })
 
 socket.on("mapData", (data: any) => {
-    // console.log(data);
+    console.log(data);
     if (currentMap != data.name) {
         loadNewSpacemap(data);
     }

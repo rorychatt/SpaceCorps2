@@ -16,6 +16,11 @@
                 "location": "right",
                 "name": "MCC-Base"
             }
+        },
+        "spawnableAliens": {
+            "thetys": {
+                "spawnLimit": 20
+            }
         }
     },
     "O-1": {
@@ -34,6 +39,11 @@
             "base": {
                 "location": "top",
                 "name": "ORO-Base"
+            }
+        },
+        "spawnableAliens": {
+            "thetys": {
+                "spawnLimit": 20
             }
         }
     },
@@ -54,6 +64,11 @@
                 "location": "right",
                 "name": "KGB-Base"
             }
+        },
+        "spawnableAliens": {
+            "thetys": {
+                "spawnLimit": 20
+            }
         }
     },
     "T-1": {
@@ -72,6 +87,11 @@
             "base": {
                 "location": "bottom",
                 "name": "TRU-Base"
+            }
+        },
+        "spawnableAliens": {
+            "thetys": {
+                "spawnLimit": 20
             }
         }
     },
@@ -100,6 +120,11 @@
                     "destination": "T-1"
                 }
             ]
+        },
+        "spawnableAliens": {
+            "thetys": {
+                "spawnLimit": 20
+            }
         }
     }
 }
