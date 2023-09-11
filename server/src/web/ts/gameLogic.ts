@@ -15,6 +15,8 @@ let currentMap: string;
 let controls: OrbitControls;
 let canvas: HTMLElement | null;
 
+const objectDataMap: Record<string, { data: any }> = {}
+
 const raycaster = new THREE.Raycaster();
 
 socket.on("connect", () => {
@@ -32,19 +34,22 @@ socket.on("loginUnsuccessful", (data: { username: string }) => {
 });
 
 socket.on("registerSuccessful", (data: { username: string }) => {
-    alert(`Successfully registered user: ${data.username}`)
-})
+    alert(`Successfully registered user: ${data.username}`);
+});
 
-socket.on("registerUnsuccessful", (data : { username: string}) => {
-    alert(`Could not register user: ${data.username}`)
-})
+socket.on("registerUnsuccessful", (data: { username: string }) => {
+    alert(`Could not register user: ${data.username}`);
+});
 
 socket.on("mapData", (data: any) => {
     console.log(data);
     if (currentMap != data.name) {
         loadNewSpacemap(data);
     }
+    updateOrLoadEntities(data.entities);
 });
+
+async function updateOrLoadEntities(entities: any) {}
 
 async function loadNewSpacemap(data: any) {
     try {
@@ -103,14 +108,6 @@ function initScene(): void {
     spacemapDiv.appendChild(renderer.domElement);
 
     canvas.addEventListener("click", raycastFromCamera, false);
-    // Create a cube and add it to the scene
-    const geometry: THREE.BoxGeometry = new THREE.BoxGeometry();
-    const material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
-        color: 0x00ff00,
-    });
-    const cube: THREE.Mesh = new THREE.Mesh(geometry, material);
-    cube.name = 'test cube'
-    scene.add(cube);
 
     // Position the camera
     camera.position.x = 4;
@@ -120,10 +117,6 @@ function initScene(): void {
     // Create an animation function to rotate the cube
     const animate = () => {
         requestAnimationFrame(animate);
-
-        // Rotate the cube
-        cube.rotation.x += 0.01;
-        cube.rotation.y += 0.01;
 
         // Render the scene
         controls.update();
@@ -154,8 +147,8 @@ function raycastFromCamera(event: any) {
         intersects.forEach((intersect) => {
             _names.push(intersect.object.name);
         });
-        console.log(`Got following intersects: ${JSON.stringify(_names)}`)
-        console.log(intersects)
+        console.log(`Got following intersects: ${JSON.stringify(_names)}`);
+        console.log(intersects);
     }
 }
 
@@ -186,4 +179,47 @@ function rescaleOnWindowResize(): void {
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
+}
+
+async function createObject(data: any) {
+    return new Promise(async (resolve) => {
+        const geometry: THREE.BoxGeometry = new THREE.BoxGeometry();
+        const material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ff00,
+        });
+        const cube: THREE.Mesh = new THREE.Mesh(geometry, material);
+        cube.uuid = data.uuid;
+        cube.position.set(data.position.x, 0, data.position.y);
+        cube.name = data.name;
+        scene.add(cube);
+        objectDataMap[data.uuid] = { data: cube };
+        resolve(cube);
+    });
+}
+
+function updateObjects(_data: any) {
+    const lerpFactor = 0.1;
+    for (const uuid in objectDataMap) {
+        if (objectDataMap.hasOwnProperty(uuid)) {
+            const object = getObjectByUUID(uuid);
+            if(object){
+                const { data } = objectDataMap[uuid];
+                const 
+            }
+        }
+    }
+}
+
+function getObjectByUUID(uuid: string) {
+    const objects = scene.children;
+
+    for (let i = 0, l = objects.length; i < l; i++) {
+        const object = objects[i];
+
+        if (object.uuid === uuid) {
+            return object;
+        }
+    }
+
+    return null;
 }
