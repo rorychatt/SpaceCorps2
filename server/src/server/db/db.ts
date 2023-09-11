@@ -21,7 +21,6 @@ export interface PlayerEntityInterface {
 }
 
 export let pool: mysql.Pool;
-// ХУЙНЮ ИЗ EXECUTEQUERY РЕЗУЛЬТАТЫ НАДО ЗАПИСАТЬ В LET RES И ДЕЛАТЬ ПРОВЕРКУ В REGISTERN
 
 const config: Config = readServerConfigFile();
 
@@ -101,7 +100,6 @@ export function getUserDataByUsername(username: string) {
 }
 
 export async function registerNewUser(username: string, password: string) {
-    // TODO: ADD ANOTHER CHECK FOR EXISTING USER HERE SPAC-39
 
     const checkUserQuery = `SELECT * FROM login WHERE username = "${username}"`;
 
