@@ -47,6 +47,8 @@ export class Spacemap {
                 alienCount < this._maxAliens
             ) {
                 this.spawnAlien(this._allowedAliens[0], {
+                    // TODO: Tweak parameters so aliens spawn accross the map, avoiding areas where there are portals
+                    
                     x: (0.5 - Math.random()) * 10,
                     y: (0.5 - Math.random()) * 10,
                 });

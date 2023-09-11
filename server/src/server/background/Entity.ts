@@ -1,7 +1,9 @@
+import { randomBytes } from "crypto";
 export class Entity {
     name: string;
     currentMap: string;
     position: { x: number; y: number };
+    uuid = randomBytes(16).toString('hex')
 
     public constructor(name: string, position?: { x: number; y: number }) {
         this.name = name;
