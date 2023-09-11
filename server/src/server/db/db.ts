@@ -21,6 +21,7 @@ export interface PlayerEntityInterface {
 }
 
 export let pool: mysql.Pool;
+// ХУЙНЮ ИЗ EXECUTEQUERY РЕЗУЛЬТАТЫ НАДО ЗАПИСАТЬ В LET RES И ДЕЛАТЬ ПРОВЕРКУ В REGISTERN
 
 const config: Config = readServerConfigFile();
 
@@ -102,17 +103,24 @@ export function getUserDataByUsername(username: string){
 export async function registerNewUser(username: string, password: string) {
     // TODO: ADD ANOTHER CHECK FOR EXISTING USER HERE SPAC-39
 
-    console.log(`Registering new player: ${username}`)
+    const checkUserQuery = `SELECT * FROM login WHERE username = "${username}"`;
 
-    const loginTableQuery = `INSERT INTO login (username, password, lastLogin) VALUES ("${username}", "${password}", NOW())`;
+    try {
+        const [userCredentials] = await executeQuery(checkUserQuery);
+        if(userCredentials == undefined) {
+            const loginTableQuery = `INSERT INTO login (username, password, lastLogin) VALUES ("${username}", "${password}", NOW())`;
+            const playerEntityQuery = `INSERT INTO playerEntity (username) VALUES ("${username}")`;
 
-    const playerEntityQuery = `INSERT INTO playerEntity (username) VALUES ("${username}")`;
-
-    await Promise.all([
-        executeQuery(loginTableQuery),
-        executeQuery(playerEntityQuery),
-    ]);
-
+            Promise.all([
+                executeQuery(loginTableQuery),
+                executeQuery(playerEntityQuery),
+            ]);
+        } else {
+            console.log("Can't register user");
+        }
+    } catch(error) {
+        console.log(error);
+    }
 }
 
 // Function to execute a query
