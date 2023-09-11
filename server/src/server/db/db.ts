@@ -17,7 +17,7 @@ export interface PlayerEntityInterface {
     credits: number;
     thulium: number;
     experience: number;
-    honor: number
+    honor: number;
 }
 
 export let pool: mysql.Pool;
@@ -95,9 +95,9 @@ export function getUserByUsername(
     return executeQuery(query);
 }
 
-export function getUserDataByUsername(username: string){
-    const query = `SELECT * FROM playerEntity WHERE username = "${username}"`
-    return executeQuery(query)
+export function getUserDataByUsername(username: string) {
+    const query = `SELECT * FROM playerEntity WHERE username = "${username}"`;
+    return executeQuery(query);
 }
 
 export async function registerNewUser(username: string, password: string) {
@@ -107,18 +107,16 @@ export async function registerNewUser(username: string, password: string) {
 
     try {
         const [userCredentials] = await executeQuery(checkUserQuery);
-        if(userCredentials == undefined) {
+        if (userCredentials == undefined) {
             const loginTableQuery = `INSERT INTO login (username, password, lastLogin) VALUES ("${username}", "${password}", NOW())`;
             const playerEntityQuery = `INSERT INTO playerEntity (username) VALUES ("${username}")`;
 
-            Promise.all([
-                executeQuery(loginTableQuery),
-                executeQuery(playerEntityQuery),
-            ]);
+            executeQuery(loginTableQuery);
+            executeQuery(playerEntityQuery);
         } else {
             console.log("Can't register user");
         }
-    } catch(error) {
+    } catch (error) {
         console.log(error);
     }
 }
