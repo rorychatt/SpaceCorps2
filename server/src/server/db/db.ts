@@ -163,3 +163,9 @@ function executeQuery<T>(query: string): Promise<T[]> {
         }
     });
 }
+
+// TODO: SPAC-49
+
+// Записать данные игрока в базу данных
+// position (positionX, positionY), mapname, credits, thulium, experience, honor
+// OPTIONAL: lastSocketId, hullPoints, shieldPoints

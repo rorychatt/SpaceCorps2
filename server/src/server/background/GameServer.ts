@@ -79,6 +79,10 @@ export class GameServer {
                 spacemap.entities.splice(playerIndexInSpacemap, 1);
             }
 
+            // TODO: SPAC-49
+
+            // db.ts:: saveUserData()...
+
             console.log(`Player ${disconnectedPlayer.name} disconnected`);
 
             console.log(disconnectedPlayer);
