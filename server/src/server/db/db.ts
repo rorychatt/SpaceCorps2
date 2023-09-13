@@ -171,9 +171,7 @@ function executeQuery<T>(query: string): Promise<T[]> {
 
 // MUST DO: company: default value = MMF (должно уже даваться при регистрации)
 
-export function savePlayerData(
-    player: Player,
-) {
-    const sql = `UPDATE playerEntity SET (positionX, positionY, credits, thulium, experience, honor, mapname) ("${player.position.x}", "${player.position.y}", "${player.stats?.credits}", "${player.stats?.thulium}", "${player.stats?.experience}", "${player.stats?.honor}", "${player.currentMap}") WHERE username="${player.name}"`;
+export function savePlayerData(player: Player) {
+    const sql = `UPDATE playerEntity SET positionX = "${player.position.x}", positionY = "${player.position.y}", credits = "${player.stats?.credits}", thulium = "${player.stats?.thulium}", experience = "${player.stats?.experience}", honor = "${player.stats?.honor}", mapname = "${player.currentMap}" WHERE username = "${player.name}"`;
     executeQuery(sql);
 }
