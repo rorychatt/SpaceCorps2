@@ -3,9 +3,11 @@ import { Player } from "./Player";
 import { Spacemap, Spacemaps } from "./Spacemap";
 import { GameDataConfig, readGameDataConfigFiles } from "./loadGameData";
 import { Server } from "socket.io";
+import { savePlayerData } from "../db/db";
 import * as zlib from "zlib"
 
 export const tickrate = 120;
+
 export class GameServer {
     spacemaps: Spacemaps;
     players: Player[];
@@ -105,9 +107,14 @@ export class GameServer {
                 spacemap.entities.splice(playerIndexInSpacemap, 1);
             }
 
-            console.log(`Player ${disconnectedPlayer.name} disconnected`);
+            // TODO: SPAC-49
 
-            console.log(disconnectedPlayer);
+            // db.ts:: saveUserData()...
+            if (disconnectedPlayer.stats) {
+                savePlayerData(disconnectedPlayer);
+            }
+
+            console.log(`Player ${disconnectedPlayer.name} disconnected`);
 
             // Implement any additional cleanup or handling logic here if needed
 

@@ -7,6 +7,7 @@ export class Player extends Entity {
     hitPoints?: Durability;
     stats?: PlayerStats;
     damage?: PlayerDamageCharacteristic;
+    company?: string
 
     public constructor(socketId: string, username: string) {
         super(username);

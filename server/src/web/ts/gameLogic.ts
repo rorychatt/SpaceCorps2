@@ -45,7 +45,6 @@ socket.on("registerUnsuccessful", (data: { username: string }) => {
 });
 
 socket.on("mapData", (compressedData: any) => {
-
     const uint8Array = new Uint8Array(compressedData);
     const inflatedData = JSON.parse(pako.inflate(uint8Array, { to: 'string' }));
     console.log(inflatedData)
@@ -111,8 +110,8 @@ function initScene(): void {
 
     canvas = document.getElementById("THREEJSScene") as HTMLElement;
     spacemapDiv.appendChild(renderer.domElement);
-
-    createStars()
+  
+    createStars();
 
     canvas.addEventListener("click", raycastFromCamera, false);
 
@@ -261,19 +260,16 @@ function getObjectByUUID(uuid: string) {
     return null;
 }
 
+
 async function createStars(){
 
     const vertices = [];
 
     for(let i = 0; i < 4096; i++){
 
-
         const x = (Math.random() - 0.5) * 180;
         const y = (Math.random() - 0.8) * 60;
         const z = (Math.random() - 0.5) * 180;
-
-
-        vertices.push(x, y, z);
 
     }
 
@@ -289,5 +285,4 @@ async function createStars(){
 
     scene.add(points);
     points.layers.enable(0);
-
 }
