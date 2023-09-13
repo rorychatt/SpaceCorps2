@@ -2,6 +2,7 @@ import { Player } from "./Player";
 import { Spacemap, Spacemaps } from "./Spacemap";
 import { GameDataConfig, readGameDataConfigFiles } from "./loadGameData";
 import { Server } from "socket.io";
+import { savePlayerData } from "../db/db";
 export class GameServer {
     spacemaps: Spacemaps;
     players: Player[];
@@ -82,10 +83,11 @@ export class GameServer {
             // TODO: SPAC-49
 
             // db.ts:: saveUserData()...
+            if (disconnectedPlayer.stats) {
+                savePlayerData(disconnectedPlayer);
+            }
 
             console.log(`Player ${disconnectedPlayer.name} disconnected`);
-
-            console.log(disconnectedPlayer);
 
             // Implement any additional cleanup or handling logic here if needed
 

@@ -100,7 +100,6 @@ export function getUserDataByUsername(username: string) {
 }
 
 export async function registerNewUser(username: string, password: string) {
-
     const checkUserQuery = `SELECT * FROM login WHERE username = "${username}"`;
 
     try {
@@ -171,3 +170,10 @@ function executeQuery<T>(query: string): Promise<T[]> {
 // OPTIONAL: lastSocketId, hullPoints, shieldPoints
 
 // MUST DO: company: default value = MMF (должно уже даваться при регистрации)
+
+export function savePlayerData(
+    player: Player,
+) {
+    const sql = `UPDATE playerEntity SET (positionX, positionY, credits, thulium, experience, honor, mapname) ("${player.position.x}", "${player.position.y}", "${player.stats?.credits}", "${player.stats?.thulium}", "${player.stats?.experience}", "${player.stats?.honor}", "${player.currentMap}") WHERE username="${player.name}"`;
+    executeQuery(sql);
+}
