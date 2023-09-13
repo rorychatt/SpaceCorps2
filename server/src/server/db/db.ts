@@ -167,7 +167,6 @@ function executeQuery<T>(query: string): Promise<T[]> {
 
 // Записать данные игрока в базу данных
 // position (positionX, positionY), mapname, credits, thulium, experience, honor
-// OPTIONAL: lastSocketId, hullPoints, shieldPoints
 
 // MUST DO: company: default value = MMF (должно уже даваться при регистрации)
 
