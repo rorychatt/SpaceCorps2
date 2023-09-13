@@ -263,7 +263,7 @@ function getObjectByUUID(uuid: string) {
 
 async function createStars(){
 
-    const vertices = [];
+    const vertices: any = [];
 
     for(let i = 0; i < 4096; i++){
 

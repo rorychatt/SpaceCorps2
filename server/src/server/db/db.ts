@@ -48,6 +48,7 @@ export function setupDatabaseConnection(): void {
                     CREATE TABLE IF NOT EXISTS playerEntity (
                       username VARCHAR(255) PRIMARY KEY,
                       mapName VARCHAR(255) DEFAULT 'M-1',
+                      company VARCHAR(255) DEFAULT 'MMF',
                       positionX INT DEFAULT 0,
                       positionY INT DEFAULT 0,
                       credits INT DEFAULT 50000,
@@ -171,6 +172,6 @@ function executeQuery<T>(query: string): Promise<T[]> {
 // MUST DO: company: default value = MMF (должно уже даваться при регистрации)
 
 export function savePlayerData(player: Player) {
-    const sql = `UPDATE playerEntity SET positionX = "${player.position.x}", positionY = "${player.position.y}", credits = "${player.stats?.credits}", thulium = "${player.stats?.thulium}", experience = "${player.stats?.experience}", honor = "${player.stats?.honor}", mapname = "${player.currentMap}" WHERE username = "${player.name}"`;
+    const sql = `UPDATE playerEntity SET positionX = "${player.position.x}", positionY = "${player.position.y}", credits = "${player.stats?.credits}", thulium = "${player.stats?.thulium}", experience = "${player.stats?.experience}", honor = "${player.stats?.honor}", mapname = "${player.currentMap}", company = "${player.company}" WHERE username = "${player.name}"`;
     executeQuery(sql);
 }

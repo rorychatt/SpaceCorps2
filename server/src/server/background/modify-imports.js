@@ -39,6 +39,11 @@ function fixGameServer() {
             'import { Alien } from "./Alien.js";'
         );
 
+        modifiedData = modifiedData.replace(
+            'import { savePlayerData } from "../db/db";',
+            'import { savePlayerData } from "../db/db.js";'
+        );
+
         // Write the modified content back to the file
         writeFile(
             "./dist/server/background/gameServer.js",
