@@ -1,8 +1,13 @@
+import { Alien } from "./Alien";
 import { Player } from "./Player";
 import { Spacemap, Spacemaps } from "./Spacemap";
 import { GameDataConfig, readGameDataConfigFiles } from "./loadGameData";
 import { Server } from "socket.io";
 import { savePlayerData } from "../db/db";
+import * as zlib from "zlib"
+
+export const tickrate = 120;
+
 export class GameServer {
     spacemaps: Spacemaps;
     players: Player[];
@@ -15,7 +20,7 @@ export class GameServer {
         this.players = [];
         this.spacemaps = {};
         this.io = io;
-        this.tickRate = 1;
+        this.tickRate = tickrate;
         this.gameLoop = null;
 
         this._loadSpacemapsFromConfig();
@@ -40,8 +45,24 @@ export class GameServer {
     }
 
     async processAILogic() {
-        // random spawnrate
+        await Promise.all([
+            this.proccessRandomSpawns(),
+            this.proccessRandomMovements(),
+        ]);
+    }
+    proccessRandomMovements() {
+        for (const spacemapName in this._spacemapNames) {
+            this.spacemaps[this._spacemapNames[spacemapName]].entities.forEach(
+                (entity) => {
+                    if (entity instanceof Alien) {
+                        entity.passiveRoam();
+                    }
+                }
+            );
+        }
+    }
 
+    async proccessRandomSpawns() {
         for (const spacemapName in this._spacemapNames) {
             this.spacemaps[
                 this._spacemapNames[spacemapName]
@@ -58,8 +79,14 @@ export class GameServer {
     async sendMapData() {
         this.players.forEach((player) => {
             const mapData = this.spacemaps[player.currentMap];
-            this.io.to(player.socketId).emit("mapData", mapData);
-        });
+            zlib.deflate(JSON.stringify(mapData), (err, compressedData) => {
+                if(!err){
+                    this.io.to(player.socketId).emit("mapData", compressedData)
+                } else {
+                    console.error(`Compression error: `, err)
+                }
+            })
+        })
     }
 
     async disconnectPlayerBySocketId(_socketId: string) {

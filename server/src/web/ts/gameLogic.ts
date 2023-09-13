@@ -3,7 +3,7 @@ export const socket = io("http://localhost:3000");
 
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import pako from "pako";
+import pako from 'pako';
 
 let loginDiv = document.getElementById("loginDiv") as HTMLElement;
 let spacemapDiv = document.getElementById("spacemapDiv") as HTMLElement;
@@ -46,13 +46,14 @@ socket.on("registerUnsuccessful", (data: { username: string }) => {
 
 socket.on("mapData", (compressedData: any) => {
     const uint8Array = new Uint8Array(compressedData);
-    const inflatedData = JSON.parse(pako.inflate(uint8Array, { to: "string" }));
-    console.log(inflatedData);
-    if (currentMap != inflatedData.name) {
+    const inflatedData = JSON.parse(pako.inflate(uint8Array, { to: 'string' }));
+    console.log(inflatedData)
+    if(currentMap != inflatedData.name) {
         loadNewSpacemap(inflatedData);
     }
-    updateObjects(inflatedData.entities);
+    updateObjects(inflatedData.entities)
 });
+
 
 async function loadNewSpacemap(data: any) {
     try {
@@ -109,7 +110,7 @@ function initScene(): void {
 
     canvas = document.getElementById("THREEJSScene") as HTMLElement;
     spacemapDiv.appendChild(renderer.domElement);
-
+  
     createStars();
 
     canvas.addEventListener("click", raycastFromCamera, false);
@@ -202,50 +203,47 @@ async function createObject(data: any) {
     });
 }
 
-async function updateObject(object: THREE.Object3D, entity: any) {
-    object.position.lerp(
-        new THREE.Vector3(entity.position.x, 0, entity.position.y),
-        lerpFactor
-    );
+async function updateObject(object: THREE.Object3D, entity: any){
+    object.position.lerp(new THREE.Vector3(entity.position.x, 0, entity.position.y), lerpFactor)
 }
 
-async function deleteObject(uuid: string) {
-    const object = getObjectByUUID(uuid);
-    if (object) {
-        scene.remove(object);
+async function deleteObject(uuid: string){
+    const object = getObjectByUUID(uuid)
+    if(object){
+        scene.remove(object)
         //TODO: deleteobject ?
-        console.log(`Deleted object with uuid: ${uuid}`);
+        console.log(`Deleted object with uuid: ${uuid}`)
     } else {
-        console.log(
-            `WARNING: tried to delete object but could not find it: ${uuid}`
-        );
+        console.log(`WARNING: tried to delete object but could not find it: ${uuid}`)
     }
 }
 
-async function updateObjects(_data: any[]) {
-    let existingUUIDs: string[] = [];
 
-    _data.forEach((entity) => {
-        if (objectDataMap.hasOwnProperty(entity.uuid)) {
-            const object = getObjectByUUID(entity.uuid);
-            if (object) {
-                updateObject(object, entity);
+async function updateObjects(_data: any[]) {
+
+    let existingUUIDs: string[] = []
+
+    _data.forEach(entity => {
+        if(objectDataMap.hasOwnProperty(entity.uuid)){
+            const object = getObjectByUUID(entity.uuid)
+            if(object) {
+                updateObject(object, entity)
             } else {
-                console.log(
-                    `WARNING: Could not find object for uuid: ${entity.uuid}`
-                );
+                console.log(`WARNING: Could not find object for uuid: ${entity.uuid}`)
             }
-        } else {
-            createObject(entity);
+        } else{
+            createObject(entity)
         }
-        existingUUIDs.push(entity.uuid);
+        existingUUIDs.push(entity.uuid)
     });
 
     for (const uuid in objectDataMap) {
         if (!existingUUIDs.includes(uuid)) {
-            deleteObject(uuid);
+          deleteObject(uuid);
         }
-    }
+      }
+
+
 }
 
 function getObjectByUUID(uuid: string) {
@@ -262,25 +260,24 @@ function getObjectByUUID(uuid: string) {
     return null;
 }
 
-async function createStars() {
+
+async function createStars(){
+
     const vertices = [];
 
-    for (let i = 0; i < 4096; i++) {
+    for(let i = 0; i < 4096; i++){
+
         const x = (Math.random() - 0.5) * 180;
         const y = (Math.random() - 0.8) * 60;
         const z = (Math.random() - 0.5) * 180;
 
-        vertices.push(x, y, z);
     }
 
     const geometry = new THREE.BufferGeometry();
 
-    geometry.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(vertices, 3)
-    );
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
 
-    const material = new THREE.PointsMaterial({ color: 0x888888, size: 0.08 });
+    const material = new THREE.PointsMaterial({color: 0x888888, size: 0.08});
 
     const points = new THREE.Points(geometry, material) as any;
 

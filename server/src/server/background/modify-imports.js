@@ -33,6 +33,12 @@ function fixGameServer() {
             'import { readGameDataConfigFiles } from "./loadGameData";',
             'import { readGameDataConfigFiles } from "./loadGameData.js";'
         );
+
+        modifiedData = modifiedData.replace(
+            'import { Alien } from "./Alien";',
+            'import { Alien } from "./Alien.js";'
+        );
+
         // Write the modified content back to the file
         writeFile(
             "./dist/server/background/gameServer.js",
@@ -54,10 +60,16 @@ function fixThreeImport() {
         }
 
         // Replace the import statement for "THREE" module
-        const modifiedData = data.replace(
+        let modifiedData = data.replace(
             /import \* as THREE from "three";/g,
             'import * as THREE from "/three";'
         );
+
+        modifiedData = modifiedData.replace(
+            `import pako from 'pako';`,
+            `import pako from '/pako';`
+        );
+
 
         // Replace the import statement for "OrbitControls"
         const modifiedDataWithOrbitControls = modifiedData.replace(
@@ -141,6 +153,11 @@ function fixAlien() {
         let modifiedData = data.replace(
             'import { Entity } from "./Entity";',
             'import { Entity } from "./Entity.js";'
+        );
+
+        modifiedData = modifiedData.replace(
+            'import { tickrate } from "./GameServer";',
+            'import { tickrate } from "./GameServer.js";'
         );
 
         // Write the modified content back to the file

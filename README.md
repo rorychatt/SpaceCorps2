@@ -1,7 +1,11 @@
 # SpaceCorps2
 
+## General info
 
-# Project setup
+MMO RPG game in space. Node.js server, three.js frontend with mySQL database
+
+
+## Project setup
 
     Navigate to front folder, run command `npm install`
 
@@ -12,7 +16,7 @@
     Run electron app by using `npm start` command while in front folder
 
 
-# Git workflow
+## Git workflow
 
     git status
     git switch master
@@ -26,7 +30,7 @@
     npm version patch / npm version minor / npm version major
     git pull
 
-# Install updates
+## Install updates
 
     git switch master
     git pull
@@ -34,6 +38,13 @@
     git checkout -b bugfix/[name]
     git checkout -b feature/[name]
 
-# Extras
+## Extras
 
     Spacemaps are generated using https://tools.wwwtyro.net/space-3d/index.html
+
+## Contributors
+
+- [ ] @rorychatt Lead full-stack developer, project lead, idea author
+- [ ] @dmitri.belov.db Front-end developer, idea supporter
+- [ ] @rostyslawn02 Back-end developer
+- [ ] @filipp.petuhhov Full-stack developer

@@ -19,6 +19,10 @@
             "thulium": 1,
             "experience": 125,
             "honor": 1
+        },
+        "movement":{
+            "behaviour": "passive",
+            "speed": 360
         }
     },
     "plasmoid": {
@@ -41,6 +45,10 @@
             "thulium": 3,
             "experience": 400,
             "honor": 3
+        },
+        "movement":{
+            "behaviour": "passive",
+            "speed": 360
         }
 
     }
