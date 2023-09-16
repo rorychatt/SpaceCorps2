@@ -3,7 +3,6 @@ export const socket = io("http://localhost:3000");
 
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import pako from "pako";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 let loginDiv = document.getElementById("loginDiv") as HTMLElement;
@@ -45,14 +44,12 @@ socket.on("registerUnsuccessful", (data: { username: string }) => {
     alert(`Could not register user: ${data.username}`);
 });
 
-socket.on("mapData", (compressedData: any) => {
-    const uint8Array = new Uint8Array(compressedData);
-    const inflatedData = JSON.parse(pako.inflate(uint8Array, { to: "string" }));
-    // console.log(inflatedData
-    if (currentMap != inflatedData.name) {
-        loadNewSpacemap(inflatedData);
+socket.on("mapData", (data: any) => {
+    if(currentMap != data.name) {
+        loadNewSpacemap(data);
     }
-    updateObjects(inflatedData.entities);
+    
+    updateObjects(data.entities);
 });
 
 async function loadNewSpacemap(data: any) {

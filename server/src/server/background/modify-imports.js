@@ -71,11 +71,6 @@ function fixThreeImport() {
         );
 
         modifiedData = modifiedData.replace(
-            `import pako from 'pako';`,
-            `import pako from '/pako';`
-        );
-
-        modifiedData = modifiedData.replace(
             `import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";`,
             `import { GLTFLoader } from "/three/examples/jsm/loaders/GLTFLoader";`
         )

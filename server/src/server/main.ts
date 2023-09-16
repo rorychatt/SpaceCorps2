@@ -59,17 +59,6 @@ app.get("/three", (req, res) => {
     );
 });
 
-app.get("/pako", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "..", "..", "dist", "web", "ts", "pako.js"),
-        {
-            headers: {
-                "Content-Type": "application/javascript",
-            },
-        }
-    );
-});
-
 app.get("/three/examples/jsm/controls/OrbitControls", (req, res) => {
     res.sendFile(
         path.join(
