@@ -164,13 +164,6 @@ function executeQuery<T>(query: string): Promise<T[]> {
     });
 }
 
-// TODO: SPAC-49
-
-// Записать данные игрока в базу данных
-// position (positionX, positionY), mapname, credits, thulium, experience, honor
-
-// MUST DO: company: default value = MMF (должно уже даваться при регистрации)
-
 export function savePlayerData(player: Player) {
     const sql = `UPDATE playerEntity SET positionX = "${player.position.x}", positionY = "${player.position.y}", credits = "${player.stats?.credits}", thulium = "${player.stats?.thulium}", experience = "${player.stats?.experience}", honor = "${player.stats?.honor}", mapname = "${player.currentMap}", company = "${player.company}" WHERE username = "${player.name}"`;
     executeQuery(sql);
