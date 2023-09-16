@@ -3,6 +3,7 @@ import * as fs from "fs";
 import { tickrate } from "./GameServer";
 
 export class Alien extends Entity {
+    _type: string = "Alien"
     hitPoints?: Durability;
     killReward?: KillReward;
     oreDrop?: OreDrop;

@@ -3,7 +3,8 @@ export const socket = io("http://localhost:3000");
 
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import pako from 'pako';
+import pako from "pako";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 let loginDiv = document.getElementById("loginDiv") as HTMLElement;
 let spacemapDiv = document.getElementById("spacemapDiv") as HTMLElement;
@@ -46,14 +47,13 @@ socket.on("registerUnsuccessful", (data: { username: string }) => {
 
 socket.on("mapData", (compressedData: any) => {
     const uint8Array = new Uint8Array(compressedData);
-    const inflatedData = JSON.parse(pako.inflate(uint8Array, { to: 'string' }));
-    console.log(inflatedData)
-    if(currentMap != inflatedData.name) {
+    const inflatedData = JSON.parse(pako.inflate(uint8Array, { to: "string" }));
+    // console.log(inflatedData
+    if (currentMap != inflatedData.name) {
         loadNewSpacemap(inflatedData);
     }
-    updateObjects(inflatedData.entities)
+    updateObjects(inflatedData.entities);
 });
-
 
 async function loadNewSpacemap(data: any) {
     try {
@@ -110,7 +110,7 @@ function initScene(): void {
 
     canvas = document.getElementById("THREEJSScene") as HTMLElement;
     spacemapDiv.appendChild(renderer.domElement);
-  
+
     createStars();
 
     canvas.addEventListener("click", raycastFromCamera, false);
@@ -189,61 +189,97 @@ function rescaleOnWindowResize(): void {
 
 async function createObject(data: any) {
     return new Promise(async (resolve) => {
-        const geometry: THREE.BoxGeometry = new THREE.BoxGeometry();
-        const material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00ff00,
-        });
-        const cube: THREE.Mesh = new THREE.Mesh(geometry, material);
-        cube.uuid = data.uuid;
-        cube.position.set(data.position.x, 0, data.position.y);
-        cube.name = data.name;
-        scene.add(cube);
-        objectDataMap[data.uuid] = { data: cube };
-        resolve(cube);
+        console.log(`Spawning new object: ${data.name}`)
+        const loader = new GLTFLoader();
+        objectDataMap[data.uuid] = { data: null}
+        switch (data._type) {
+            case "Alien":
+                loader.load(`./assets/models/ships/orion/orion.glb`, (glb) => {
+                    const model = glb.scene;
+                    model.uuid = data.uuid;
+                    model.position.set(data.position.x, 0, data.position.y);
+                    model.name = data.name;
+                    scene.add(model);
+                    objectDataMap[data.uuid] = { data: model };
+                    resolve(model);
+                });
+                break;
+            case "Player":
+                loader.load(
+                    `./assets/models/ships/ship008/Hercules.glb`,
+                    (glb) => {
+                        const model = glb.scene;
+                        model.uuid = data.uuid;
+                        model.position.set(data.position.x, 0, data.position.y);
+                        model.name = data.name;
+                        objectDataMap[data.uuid] = { data: model };
+                        scene.add(model);
+                        resolve(model);
+                    }
+                );
+                break;
+            default:
+                const geometry = new THREE.BoxGeometry();
+                const material = new THREE.MeshBasicMaterial({
+                    color: 0x00ff00,
+                });
+                const cube = new THREE.Mesh(geometry, material);
+                cube.uuid = data.uuid;
+                cube.position.set(data.position.x, 0, data.position.y);
+                cube.name = data.name;
+                objectDataMap[data.uuid] = { data: cube };
+                scene.add(cube);
+                resolve(cube);
+                break;
+        }
     });
 }
 
-async function updateObject(object: THREE.Object3D, entity: any){
-    object.position.lerp(new THREE.Vector3(entity.position.x, 0, entity.position.y), lerpFactor)
+async function updateObject(object: THREE.Object3D, entity: any) {
+    const target = new THREE.Vector3(entity.position.x, 0, entity.position.y);
+    object.lookAt(target);
+    object.position.lerp(target, lerpFactor);
 }
 
-async function deleteObject(uuid: string){
-    const object = getObjectByUUID(uuid)
-    if(object){
-        scene.remove(object)
+async function deleteObject(uuid: string) {
+    const object = getObjectByUUID(uuid);
+    if (object) {
+        scene.remove(object);
         //TODO: deleteobject ?
-        console.log(`Deleted object with uuid: ${uuid}`)
+        console.log(`Deleted object with uuid: ${uuid}`);
     } else {
-        console.log(`WARNING: tried to delete object but could not find it: ${uuid}`)
+        console.log(
+            `WARNING: tried to delete object but could not find it: ${uuid}`
+        );
     }
 }
 
-
 async function updateObjects(_data: any[]) {
+    let existingUUIDs: string[] = [];
 
-    let existingUUIDs: string[] = []
-
-    _data.forEach(entity => {
-        if(objectDataMap.hasOwnProperty(entity.uuid)){
-            const object = getObjectByUUID(entity.uuid)
-            if(object) {
-                updateObject(object, entity)
+    await Promise.all(_data.map(async (entity) => {
+        if (objectDataMap.hasOwnProperty(entity.uuid)) {
+            const object = getObjectByUUID(entity.uuid);
+            if (object) {
+                updateObject(object, entity);
             } else {
-                console.log(`WARNING: Could not find object for uuid: ${entity.uuid}`)
+
+                // FIXME: better asyncronous code: we are actually getting errors here
+                // console.log(
+                //     `WARNING: Could not find object for uuid: ${entity.uuid}`
+                // );
             }
-        } else{
-            createObject(entity)
+        } else {
+            createObject(entity);
         }
-        existingUUIDs.push(entity.uuid)
-    });
+        existingUUIDs.push(entity.uuid);
+    }));
 
-    for (const uuid in objectDataMap) {
-        if (!existingUUIDs.includes(uuid)) {
-          deleteObject(uuid);
-        }
-      }
-
-
+    await Promise.all(
+        Object.keys(objectDataMap)
+            .filter(uuid => !existingUUIDs.includes(uuid))
+            .map(uuid => deleteObject(uuid))
+    );
 }
 
 function getObjectByUUID(uuid: string) {
@@ -260,24 +296,23 @@ function getObjectByUUID(uuid: string) {
     return null;
 }
 
-
-async function createStars(){
-
+async function createStars() {
     const vertices: any = [];
 
-    for(let i = 0; i < 4096; i++){
-
+    for (let i = 0; i < 4096; i++) {
         const x = (Math.random() - 0.5) * 180;
         const y = (Math.random() - 0.8) * 60;
         const z = (Math.random() - 0.5) * 180;
-
     }
 
     const geometry = new THREE.BufferGeometry();
 
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(vertices, 3)
+    );
 
-    const material = new THREE.PointsMaterial({color: 0x888888, size: 0.08});
+    const material = new THREE.PointsMaterial({ color: 0x888888, size: 0.08 });
 
     const points = new THREE.Points(geometry, material) as any;
 

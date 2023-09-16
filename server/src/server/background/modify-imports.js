@@ -75,6 +75,10 @@ function fixThreeImport() {
             `import pako from '/pako';`
         );
 
+        modifiedData = modifiedData.replace(
+            `import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";`,
+            `import { GLTFLoader } from "/three/examples/jsm/loaders/GLTFLoader";`
+        )
 
         // Replace the import statement for "OrbitControls"
         const modifiedDataWithOrbitControls = modifiedData.replace(
