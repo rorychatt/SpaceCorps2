@@ -78,6 +78,26 @@ app.get("/three/examples/jsm/controls/OrbitControls", (req, res) => {
     );
 });
 
+app.get("/three/examples/jsm/loaders/GLTFLoader", (req, res) => {
+    res.sendFile(
+        path.join(
+            __dirname,
+            "..",
+            "..",
+            "dist",
+            "web",
+            "ts",
+            "GLTFLoader.js"
+        ),
+        {
+            headers: {
+                "Content-Type": "application/javascript",
+            },
+        }
+    );
+});
+
+
 server.listen(config.server.port, () => {
     console.log(`Node server is running at port: ${config.server.port}`);
 });

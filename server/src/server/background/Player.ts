@@ -3,11 +3,12 @@ import { Durability } from "./Alien";
 import { Entity } from "./Entity";
 
 export class Player extends Entity {
+    _type: string = "Player";
     socketId: string;
     hitPoints?: Durability;
     stats?: PlayerStats;
     damage?: PlayerDamageCharacteristic;
-    company?: string
+    company?: string;
 
     public constructor(socketId: string, username: string) {
         super(username);
@@ -17,7 +18,7 @@ export class Player extends Entity {
             shieldPoints: 0,
             shieldAbsorbance: 0,
         };
-        this._getDataFromSQL()
+        this._getDataFromSQL();
     }
 
     async _getDataFromSQL() {
@@ -59,7 +60,7 @@ export class Player extends Entity {
             honor: templateData.honor,
         };
 
-        console.log(this)
+        console.log(this);
     }
 
     receiveDamage(damage: number) {
