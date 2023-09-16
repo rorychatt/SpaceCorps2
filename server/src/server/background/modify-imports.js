@@ -70,11 +70,6 @@ function fixThreeImport() {
             'import * as THREE from "/three";'
         );
 
-        modifiedData = modifiedData.replace(
-            `import pako from 'pako';`,
-            `import pako from '/pako';`
-        );
-
 
         // Replace the import statement for "OrbitControls"
         const modifiedDataWithOrbitControls = modifiedData.replace(

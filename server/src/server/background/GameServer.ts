@@ -4,7 +4,6 @@ import { Spacemap, Spacemaps } from "./Spacemap";
 import { GameDataConfig, readGameDataConfigFiles } from "./loadGameData";
 import { Server } from "socket.io";
 import { savePlayerData } from "../db/db";
-import * as zlib from "zlib"
 
 export const tickrate = 120;
 
@@ -79,14 +78,8 @@ export class GameServer {
     async sendMapData() {
         this.players.forEach((player) => {
             const mapData = this.spacemaps[player.currentMap];
-            zlib.deflate(JSON.stringify(mapData), (err, compressedData) => {
-                if(!err){
-                    this.io.to(player.socketId).emit("mapData", compressedData)
-                } else {
-                    console.error(`Compression error: `, err)
-                }
-            })
-        })
+            this.io.to(player.socketId).emit("mapData", mapData);
+        });
     }
 
     async disconnectPlayerBySocketId(_socketId: string) {
@@ -107,9 +100,6 @@ export class GameServer {
                 spacemap.entities.splice(playerIndexInSpacemap, 1);
             }
 
-            // TODO: SPAC-49
-
-            // db.ts:: saveUserData()...
             if (disconnectedPlayer.stats) {
                 savePlayerData(disconnectedPlayer);
             }
