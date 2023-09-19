@@ -88,7 +88,21 @@ export class GameServer {
 
     async sendMapData() {
         this.players.forEach((player) => {
-            const mapData = this.spacemaps[player.currentMap];
+            let mapData: any = this.spacemaps[player.currentMap];
+
+            for(const key of mapData.entities) {
+                if(key._type === "Alien") {
+                    let unnecpar = ["oreDrop"]; // parameters for delete
+                    
+                    for(let i = 0; i <= unnecpar.length; i++) {
+                        if(key.hasOwnProperty(unnecpar[i])) {
+                            delete key[unnecpar[i]];
+                        }
+                    }
+                }
+            }
+
+            //console.log("MAPDATA:", mapData);
             this.io.to(player.socketId).emit("mapData", mapData);
         });
     }
