@@ -7,7 +7,7 @@ fixSpacemap();
 fixAlien();
 
 function fixGameServer() {
-    readFile("./dist/server/background/gameServer.js", "utf8", (err, data) => {
+    readFile("./dist/server/background/GameServer.js", "utf8", (err, data) => {
         if (err) {
             console.error(`Error reading file: ${err}`);
             return;
