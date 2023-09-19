@@ -31,6 +31,7 @@ let labelRenderer: CSS2DRenderer;
 const lerpFactor = 0.2;
 
 const objectDataMap: Record<string, { data: any }> = {};
+const labelMap: Record<string, CSS2DObject> = {};
 
 const raycaster = new THREE.Raycaster();
 
@@ -124,6 +125,7 @@ function initScene(): void {
     labelRenderer.domElement.style.position = "absolute";
     labelRenderer.domElement.style.top = "0px";
     labelRenderer.domElement.style.pointerEvents = "none";
+    labelRenderer.domElement.id = "entityLabelsDiv";
 
     canvas = document.getElementById(
         "THREEJSScene"
@@ -273,9 +275,9 @@ async function createObject(data: any) {
                         // text.textContent = `${data.name}\nHP: ${data.health}`;
                         text.textContent = `${data.name}`;
                         const label = new CSS2DObject(text);
-                        console.log(label)
+                        labelMap[data.uuid] = label;
                         label.position.y = -0.75;
-                        model.add(label)
+                        model.add(label);
                         scene.add(model);
                         objectDataMap[data.uuid] = { data: model };
                         resolve(model);
@@ -300,8 +302,10 @@ async function createObject(data: any) {
                         text.style.fontSize = "12";
                         text.textContent = `${data.name}`;
                         const label = new CSS2DObject(text);
+                        labelMap[data.uuid] = label;
                         label.position.y = -0.75;
-                        model.add(label)
+                        label.uuid = data.uuid;
+                        model.add(label);
                         scene.add(model);
                         objectDataMap[data.uuid] = { data: model };
                         resolve(model);
@@ -354,8 +358,25 @@ async function updateObject(object: THREE.Object3D, entity: any) {
 async function deleteObject(uuid: string) {
     const object = getObjectByUUID(uuid);
     if (object) {
+        const label = getLabelByUUID(uuid);
+
+        if (label) {
+            labelRenderer.domElement.removeChild(label.element);
+            delete labelMap[uuid];
+        }
+
+        const entityLabelsDiv = document.getElementById("entityLabelsDiv");
+
+        if (entityLabelsDiv) {
+            while (entityLabelsDiv.firstChild) {
+                entityLabelsDiv.removeChild(entityLabelsDiv.firstChild);
+            }
+        } else {
+            console.log("The element with id 'entityLabelsDiv' was not found.");
+        }
+
         scene.remove(object);
-        //TODO: deleteobject ?
+        delete objectDataMap[uuid];
         console.log(`Deleted object with uuid: ${uuid}`);
     } else {
         console.log(
@@ -431,4 +452,11 @@ async function createStars() {
 
     scene.add(points);
     points.layers.enable(0);
+}
+
+function getLabelByUUID(uuid: string): CSS2DObject | undefined {
+    const labels = scene.children.filter(
+        (child) => child instanceof CSS2DObject
+    ) as CSS2DObject[];
+    return labels.find((label) => label.uuid === uuid);
 }
