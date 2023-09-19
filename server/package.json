@@ -19,7 +19,8 @@
     "mysql2": "^3.6.0",
     "socket.io": "^4.7.2",
     "socket.io-client": "^4.7.2",
-    "three": "^0.156.0"
+    "three": "^0.156.0",
+    "three-spritetext": "^1.8.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",

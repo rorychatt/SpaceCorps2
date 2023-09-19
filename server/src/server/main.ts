@@ -187,4 +187,24 @@ function handleHTTPRequests() {
             }
         );
     });
+
+    app.get("/three/addons/renderers/CSS2DRenderer.js", (req, res) => {
+        res.sendFile(
+            path.join(
+                __dirname,
+                "..",
+                "..",
+                "dist",
+                "web",
+                "ts",
+                "CSS2DRenderer.js"
+            ),
+            {
+                headers: {
+                    "Content-Type": "application/javascript",
+                },
+            }
+        );
+    });
+
 }
