@@ -7,6 +7,8 @@ MMO RPG game in space. Node.js server, three.js frontend with mySQL database
 
 ## Project setup
 
+    Create a copy of `config.example.json`, name it `config.json` in the same root folder
+
     Navigate to front folder, run command `npm install`
 
     Navigate to server folder, run command `npm install`
