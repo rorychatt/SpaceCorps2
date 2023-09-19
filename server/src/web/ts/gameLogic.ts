@@ -4,19 +4,31 @@ export const socket = io("http://localhost:3000");
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import {
+    CSS2DRenderer,
+    CSS2DObject,
+    // @ts-ignore
+} from "./three/addons/renderers/CSS2DRenderer.js";
 
 let loginDiv = document.getElementById("loginDiv") as HTMLElement;
 let spacemapDiv = document.getElementById("spacemapDiv") as HTMLElement;
 let contentDiv = document.getElementById("content") as HTMLElement;
+
+let playerName: string;
 
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
 let renderer: THREE.Renderer;
 let currentMap: string;
 let controls: OrbitControls;
-let canvas: HTMLElement | null;
+let canvas: HTMLCanvasElement | null;
 
-const lerpFactor = 0.01;
+let playerObject: THREE.Object3D | undefined = undefined;
+let audioListener: THREE.AudioListener;
+
+let labelRenderer: CSS2DRenderer;
+
+const lerpFactor = 0.2;
 
 const objectDataMap: Record<string, { data: any }> = {};
 
@@ -28,6 +40,7 @@ socket.on("connect", () => {
 
 socket.on("loginSuccessful", (data: { username: string }) => {
     console.log(`Successful login as ${data.username}, starting game...`);
+    playerName = data.username;
     initScene();
     rescaleOnWindowResize();
 });
@@ -50,6 +63,7 @@ socket.on("mapData", (data: any) => {
     }
 
     updateObjects(data.entities);
+    playerObject = scene.getObjectByName(playerName);
 });
 
 async function loadNewSpacemap(data: any) {
@@ -105,12 +119,30 @@ function initScene(): void {
     renderer.domElement.id = "THREEJSScene";
     document.getElementById("spacemapDiv")?.appendChild(renderer.domElement);
 
-    canvas = document.getElementById("THREEJSScene") as HTMLElement;
+    labelRenderer = new CSS2DRenderer();
+    labelRenderer.setSize(window.innerWidth, window.innerHeight);
+    labelRenderer.domElement.style.position = "absolute";
+    labelRenderer.domElement.style.top = "0px";
+    labelRenderer.domElement.style.pointerEvents = "none";
+
+    canvas = document.getElementById(
+        "THREEJSScene"
+    ) as HTMLCanvasElement | null;
     spacemapDiv.appendChild(renderer.domElement);
+    spacemapDiv.appendChild(labelRenderer.domElement);
 
     createStars();
 
-    canvas.addEventListener("click", raycastFromCamera, false);
+    canvas?.addEventListener(
+        "mouseup",
+        function (event) {
+            if (event.button === 0) {
+                // Check if the left mouse button (button 0) was released
+                raycastFromCamera(event);
+            }
+        },
+        false
+    );
 
     // Position the camera
     camera.position.x = 4;
@@ -124,13 +156,34 @@ function initScene(): void {
         // Render the scene
         controls.update();
         renderer.render(scene, camera);
+        labelRenderer.render(scene, camera);
     };
 
     controls = new OrbitControls(camera, renderer.domElement);
+    controls.minDistance = 2;
+    controls.maxDistance = 10;
+    controls.minPolarAngle = 0.3490658504;
+    controls.maxPolarAngle = 1.0471975512;
     controls.enablePan = false;
-    controls.minPolarAngle = Math.PI * 0.05;
-    controls.maxPolarAngle = Math.PI / 2;
+    controls.mouseButtons = {
+        MIDDLE: THREE.MOUSE.DOLLY,
+        RIGHT: THREE.MOUSE.ROTATE,
+    };
+    controls.update();
 
+    audioListener = new THREE.AudioListener();
+    camera.add(audioListener);
+
+    const sound = new THREE.Audio(audioListener);
+
+    const audioLoader = new THREE.AudioLoader();
+
+    audioLoader.load("./assets/sounds/mainTheme.ogg", function (buffer) {
+        sound.setBuffer(buffer);
+        sound.setLoop(true);
+        sound.setVolume(0.25);
+        sound.play();
+    });
     // Call the animate function to start the animation loop
     animate();
 }
@@ -194,6 +247,7 @@ function rescaleOnWindowResize(): void {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
     });
 }
 
@@ -204,26 +258,52 @@ async function createObject(data: any) {
         objectDataMap[data.uuid] = { data: null };
         switch (data._type) {
             case "Alien":
-                loader.load(`./assets/models/ships/orion/orion.glb`, (glb) => {
-                    const model = glb.scene;
-                    model.uuid = data.uuid;
-                    model.position.set(data.position.x, 0, data.position.y);
-                    model.name = data.name;
-                    scene.add(model);
-                    objectDataMap[data.uuid] = { data: model };
-                    resolve(model);
-                });
-                break;
-            case "Player":
                 loader.load(
-                    `./assets/models/ships/ship008/Hercules.glb`,
-                    (glb) => {
+                    `./assets/models/ships/orion/orion.glb`,
+                    async (glb) => {
                         const model = glb.scene;
                         model.uuid = data.uuid;
                         model.position.set(data.position.x, 0, data.position.y);
                         model.name = data.name;
-                        objectDataMap[data.uuid] = { data: model };
+
+                        const text = document.createElement("div");
+                        text.className = "label";
+                        text.style.color = "rgb(255,255,255)";
+                        text.style.fontSize = "12";
+                        // text.textContent = `${data.name}\nHP: ${data.health}`;
+                        text.textContent = `${data.name}`;
+                        const label = new CSS2DObject(text);
+                        console.log(label)
+                        label.position.y = -0.75;
+                        model.add(label)
                         scene.add(model);
+                        objectDataMap[data.uuid] = { data: model };
+                        resolve(model);
+                    }
+                );
+                break;
+            case "Player":
+                loader.load(
+                    `./assets/models/ships/ship008/Hercules.glb`,
+                    async (glb) => {
+                        const model = glb.scene;
+                        model.uuid = data.uuid;
+                        model.position.set(data.position.x, 0, data.position.y);
+                        model.name = data.name;
+                        if (data.name == playerName) {
+                            controls.update();
+                        }
+
+                        const text = document.createElement("div");
+                        text.className = "label";
+                        text.style.color = "rgb(255,255,255)";
+                        text.style.fontSize = "12";
+                        text.textContent = `${data.name}`;
+                        const label = new CSS2DObject(text);
+                        label.position.y = -0.75;
+                        model.add(label)
+                        scene.add(model);
+                        objectDataMap[data.uuid] = { data: model };
                         resolve(model);
                     }
                 );
@@ -248,6 +328,26 @@ async function createObject(data: any) {
 async function updateObject(object: THREE.Object3D, entity: any) {
     const target = new THREE.Vector3(entity.position.x, 0, entity.position.y);
     object.lookAt(target);
+
+    if (object.name == playerName) {
+        const dx = entity.position.x - object.position.x;
+        const dz = entity.position.y - object.position.z;
+
+        camera.position.lerp(
+            new THREE.Vector3(
+                camera.position.x + dx,
+                camera.position.y,
+                camera.position.z + dz
+            ),
+            0.01
+        );
+        controls.target.lerp(
+            new THREE.Vector3(entity.position.x, 0, entity.position.y),
+            0.1
+        );
+        controls.update();
+    }
+
     object.position.lerp(target, lerpFactor);
 }
 

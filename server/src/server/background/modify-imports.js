@@ -76,14 +76,20 @@ function fixThreeImport() {
         )
 
         // Replace the import statement for "OrbitControls"
-        const modifiedDataWithOrbitControls = modifiedData.replace(
+        modifiedData = modifiedData.replace(
             /import \{ OrbitControls \} from "three\/examples\/jsm\/controls\/OrbitControls";/g,
             'import { OrbitControls } from "/three/examples/jsm/controls/OrbitControls";'
         );
+
+        modifiedData = modifiedData.replace(
+            ` } from "./three/addons/renderers/CSS2DRenderer.js";`,
+            ` } from "/three/addons/renderers/CSS2DRenderer.js";`
+        );
+
         // Write the modified content back to the file
         writeFile(
             "./dist/web/ts/gameLogic.js",
-            modifiedDataWithOrbitControls,
+            modifiedData,
             (err) => {
                 if (err) {
                     console.error(`Error writing file: ${err}`);
