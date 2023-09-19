@@ -46,7 +46,7 @@ function fixGameServer() {
 
         // Write the modified content back to the file
         writeFile(
-            "./dist/server/background/gameServer.js",
+            "./dist/server/background/GameServer.js",
             modifiedData,
             (err) => {
                 if (err) {
