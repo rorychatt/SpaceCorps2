@@ -370,7 +370,6 @@ h1 {
     cursor: pointer;
     border-radius: 4px;
     font-family: "Pacifico";
-    margin-left: 97.4%;
     right: auto;
     display: flex;
     justify-content: flex-end;
@@ -446,10 +445,10 @@ h1 {
 
 /* Container */
 .gameui {
-    position: relative;
+    position: absolute;
     width: 85%;
     padding: 1%;
-    height: 69vh; /* 60% of the viewport height */
+    height: 71vh; /* 60% of the viewport height */
     margin-top: 3%;
     margin-left: 5%; /* 10% margin from the top */
     background-color: rgba(30, 144, 255, 0.75); /* Container background color */
@@ -476,18 +475,21 @@ h1 {
 }
 
 .quit_container {
-    position: absolute;
+    position: relative;
     width: 20%;
     height: auto;
     min-height: 20vh;
 
     margin-left: 40%;
     margin-top: 15%;
+
     border-radius: 3px;
     background-color: rgba(30, 144, 255, 0.75);
 
     border: 2px solid white;
     display: none;
+
+    z-index: 10;
 }
 
 /* Additional classes */
@@ -587,18 +589,8 @@ h1 {
 
 .chat_info_modal {
     left: 1%;
-    bottom: 80%;
 }
 
-.spacemap_info_modal {
-    right: 80%;
-    bottom: 80%;
-}
-
-.log_info_modal {
-    left: 80%;
-    bottom: 80%;
-}
 
 .player_info_modal {
     left: 0;
@@ -648,9 +640,9 @@ h1 {
 
 .shopping_def {
     position: absolute;
-    margin-top: 1%;
+    margin-top: 3.5%;
     height: auto;
-    min-height: 60vh;
+    min-height: 57.5vh;
     width:100%;
     background-color: rgba(255, 255, 255, 0.1);
     z-index: 6;
@@ -694,7 +686,7 @@ h1 {
 
 .auc_container {
     position: absolute;
-    margin-top: 1%;
+    margin-top: 3.5%;
     height: auto;
     min-height: 60vh;
     width:100%;
@@ -727,9 +719,9 @@ h1 {
 
 .clan_container {
     position: absolute;
-    margin-top: 1%;
+    margin-top: 3.5%;
     height: auto;
-    min-height: 60vh;
+    min-height: 57vh;
     width:100%;
     background-color: rgba(255, 255, 255, 0.1);   
 }
@@ -756,7 +748,7 @@ h1 {
 
 .profile_container {
     position: absolute;
-    margin-top: 1%;
+    margin-top: 3.5%;
     height: auto;
     min-height: 60vh;
     width:100%;
