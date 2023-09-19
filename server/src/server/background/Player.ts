@@ -1,14 +1,18 @@
 import { PlayerEntityInterface, getUserDataByUsername } from "../db/db";
 import { Durability } from "./Alien";
 import { Entity } from "./Entity";
+import { tickrate } from "./GameServer";
 
 export class Player extends Entity {
     _type: string = "Player";
     socketId: string;
+    state: PlayerStateCharacteristic = "passive";
     hitPoints?: Durability;
     stats?: PlayerStats;
     damage?: PlayerDamageCharacteristic;
     company?: string;
+    destination?: { x: number; y: number } | null;
+    speed: number = 360;
 
     public constructor(socketId: string, username: string) {
         super(username);
@@ -94,6 +98,29 @@ export class Player extends Entity {
             );
         }
     }
+
+    async flyToDestination() {
+        if (this.destination) {
+            const travelledDistance = this.speed / tickrate / 100;
+            const direction = {
+                x: this.destination.x - this.position.x,
+                y: this.destination.y - this.position.y,
+            };
+            const totalDistance = Math.sqrt(
+                direction.x ** 2 + direction.y ** 2
+            );
+            if (travelledDistance < totalDistance) {
+                const dx = (travelledDistance / totalDistance) * direction.x;
+                const dy = (travelledDistance / totalDistance) * direction.y;
+                this.position = {
+                    x: this.position.x + dx,
+                    y: this.position.y + dy,
+                };
+            } else {
+                this.destination = null;
+            }
+        }
+    }
 }
 
 export interface PlayerDamageCharacteristic {
@@ -107,3 +134,5 @@ export interface PlayerStats {
     credits: number;
     thulium: number;
 }
+
+export type PlayerStateCharacteristic = "passive" | "attacking";

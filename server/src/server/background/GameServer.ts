@@ -2,7 +2,7 @@ import { Alien } from "./Alien";
 import { Player } from "./Player";
 import { Spacemap, Spacemaps } from "./Spacemap";
 import { GameDataConfig, readGameDataConfigFiles } from "./loadGameData";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { savePlayerData } from "../db/db";
 
 export const tickrate = 120;
@@ -24,6 +24,10 @@ export class GameServer {
 
         this._loadSpacemapsFromConfig();
         this._spacemapNames = Object.keys(this.spacemaps);
+    }
+
+    async getPlayerBySocketId(socketId: string): Promise<Player | undefined> {
+        return this.players.find((player) => player.socketId === socketId);
     }
 
     _loadSpacemapsFromConfig() {
@@ -49,7 +53,8 @@ export class GameServer {
             this.proccessRandomMovements(),
         ]);
     }
-    proccessRandomMovements() {
+
+    async proccessRandomMovements() {
         for (const spacemapName in this._spacemapNames) {
             this.spacemaps[this._spacemapNames[spacemapName]].entities.forEach(
                 (entity) => {
@@ -69,7 +74,13 @@ export class GameServer {
         }
     }
 
-    async processPlayerInputs() {}
+    async processPlayerInputs() {
+        this.players.forEach((player) => {
+            if (player.destination) {
+                player.flyToDestination();
+            }
+        });
+    }
 
     async handleDamage() {}
 
@@ -126,6 +137,16 @@ export class GameServer {
             console.log(
                 `Error in the game server: ${JSON.stringify(error as Error)}`
             );
+        }
+    }
+
+    async addPlayerMoveToDestination(
+        targetPosition: { x: number; y: number },
+        socketId: string
+    ) {
+        const player = await this.getPlayerBySocketId(socketId);
+        if (player) {
+            player.destination = targetPosition;
         }
     }
 

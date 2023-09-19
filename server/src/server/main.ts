@@ -28,75 +28,7 @@ setupDatabaseConnection();
 const config: Config = readServerConfigFile();
 const gameDataConfig: GameDataConfig = readGameDataConfigFiles();
 
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "..", "..", "src", "web")));
-app.use(express.static(path.join(__dirname, "..", "..", "dist", "web")));
-
-app.get("/", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "..", "..", "src", "web", "html", "index.html")
-    );
-});
-
-app.get("/three", (req, res) => {
-    res.sendFile(
-        path.join(
-            __dirname,
-            "..",
-            "..",
-            "dist",
-            "web",
-            "ts",
-            "three.module.js"
-        ),
-        {
-            headers: {
-                "Content-Type": "application/javascript",
-            },
-        }
-    );
-});
-
-app.get("/three/examples/jsm/controls/OrbitControls", (req, res) => {
-    res.sendFile(
-        path.join(
-            __dirname,
-            "..",
-            "..",
-            "dist",
-            "web",
-            "ts",
-            "OrbitControls.js"
-        ),
-        {
-            headers: {
-                "Content-Type": "application/javascript",
-            },
-        }
-    );
-});
-
-app.get("/three/examples/jsm/loaders/GLTFLoader", (req, res) => {
-    res.sendFile(
-        path.join(
-            __dirname,
-            "..",
-            "..",
-            "dist",
-            "web",
-            "ts",
-            "GLTFLoader.js"
-        ),
-        {
-            headers: {
-                "Content-Type": "application/javascript",
-            },
-        }
-    );
-});
-
+handleHTTPRequests();
 
 server.listen(config.server.port, () => {
     console.log(`Node server is running at port: ${config.server.port}`);
@@ -174,4 +106,85 @@ io.on("connection", (socket) => {
             }
         }
     );
+
+    socket.on(
+        "playerMoveToDestination",
+        (data: { targetPosition: { x: number; y: number } }) => {
+            gameServer.addPlayerMoveToDestination(
+                data.targetPosition,
+                socket.id
+            );
+        }
+    );
 });
+
+function handleHTTPRequests() {
+    app.use(cors());
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+    app.use(express.static(path.join(__dirname, "..", "..", "src", "web")));
+    app.use(express.static(path.join(__dirname, "..", "..", "dist", "web")));
+
+    app.get("/", (req, res) => {
+        res.sendFile(
+            path.join(__dirname, "..", "..", "src", "web", "html", "index.html")
+        );
+    });
+
+    app.get("/three", (req, res) => {
+        res.sendFile(
+            path.join(
+                __dirname,
+                "..",
+                "..",
+                "dist",
+                "web",
+                "ts",
+                "three.module.js"
+            ),
+            {
+                headers: {
+                    "Content-Type": "application/javascript",
+                },
+            }
+        );
+    });
+
+    app.get("/three/examples/jsm/controls/OrbitControls", (req, res) => {
+        res.sendFile(
+            path.join(
+                __dirname,
+                "..",
+                "..",
+                "dist",
+                "web",
+                "ts",
+                "OrbitControls.js"
+            ),
+            {
+                headers: {
+                    "Content-Type": "application/javascript",
+                },
+            }
+        );
+    });
+
+    app.get("/three/examples/jsm/loaders/GLTFLoader", (req, res) => {
+        res.sendFile(
+            path.join(
+                __dirname,
+                "..",
+                "..",
+                "dist",
+                "web",
+                "ts",
+                "GLTFLoader.js"
+            ),
+            {
+                headers: {
+                    "Content-Type": "application/javascript",
+                },
+            }
+        );
+    });
+}

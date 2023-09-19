@@ -111,6 +111,11 @@ function fixPlayer() {
             'import { getUserDataByUsername } from "../db/db.js";'
         );
 
+        modifiedData = modifiedData.replace(
+            'import { tickrate } from "./GameServer";',
+            'import { tickrate } from "./GameServer.js";'
+        );
+
         // Write the modified content back to the file
         writeFile("./dist/server/background/Player.js", modifiedData, (err) => {
             if (err) {
