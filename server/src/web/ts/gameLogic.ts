@@ -45,10 +45,10 @@ socket.on("registerUnsuccessful", (data: { username: string }) => {
 });
 
 socket.on("mapData", (data: any) => {
-    if(currentMap != data.name) {
+    if (currentMap != data.name) {
         loadNewSpacemap(data);
     }
-    
+
     updateObjects(data.entities);
 });
 
@@ -150,8 +150,21 @@ function raycastFromCamera(event: any) {
         intersects.forEach((intersect) => {
             _names.push(intersect.object.name);
         });
+
         console.log(`Got following intersects: ${JSON.stringify(_names)}`);
         console.log(intersects);
+
+        if (
+            intersects.length == 1 &&
+            intersects[0].object.name == "movingPlane"
+        ) {
+            socket.emit("playerMoveToDestination", {
+                targetPosition: {
+                    x: intersects[0].point.x,
+                    y: intersects[0].point.z,
+                },
+            });
+        }
     }
 }
 
@@ -186,9 +199,9 @@ function rescaleOnWindowResize(): void {
 
 async function createObject(data: any) {
     return new Promise(async (resolve) => {
-        console.log(`Spawning new object: ${data.name}`)
+        console.log(`Spawning new object: ${data.name}`);
         const loader = new GLTFLoader();
-        objectDataMap[data.uuid] = { data: null}
+        objectDataMap[data.uuid] = { data: null };
         switch (data._type) {
             case "Alien":
                 loader.load(`./assets/models/ships/orion/orion.glb`, (glb) => {
@@ -254,28 +267,29 @@ async function deleteObject(uuid: string) {
 async function updateObjects(_data: any[]) {
     let existingUUIDs: string[] = [];
 
-    await Promise.all(_data.map(async (entity) => {
-        if (objectDataMap.hasOwnProperty(entity.uuid)) {
-            const object = getObjectByUUID(entity.uuid);
-            if (object) {
-                updateObject(object, entity);
+    await Promise.all(
+        _data.map(async (entity) => {
+            if (objectDataMap.hasOwnProperty(entity.uuid)) {
+                const object = getObjectByUUID(entity.uuid);
+                if (object) {
+                    updateObject(object, entity);
+                } else {
+                    // FIXME: better asyncronous code: we are actually getting errors here
+                    // console.log(
+                    //     `WARNING: Could not find object for uuid: ${entity.uuid}`
+                    // );
+                }
             } else {
-
-                // FIXME: better asyncronous code: we are actually getting errors here
-                // console.log(
-                //     `WARNING: Could not find object for uuid: ${entity.uuid}`
-                // );
+                createObject(entity);
             }
-        } else {
-            createObject(entity);
-        }
-        existingUUIDs.push(entity.uuid);
-    }));
+            existingUUIDs.push(entity.uuid);
+        })
+    );
 
     await Promise.all(
         Object.keys(objectDataMap)
-            .filter(uuid => !existingUUIDs.includes(uuid))
-            .map(uuid => deleteObject(uuid))
+            .filter((uuid) => !existingUUIDs.includes(uuid))
+            .map((uuid) => deleteObject(uuid))
     );
 }
 
