@@ -146,6 +146,12 @@ function initScene(): void {
         false
     );
 
+    const sendChatMessageButton = document.getElementById('sendChatMessageButton');
+    sendChatMessageButton?.addEventListener("click", function (event) {
+        // Send contents with socket.emit
+        // Delete contents to enter new message
+    })
+
     // Position the camera
     camera.position.x = 4;
     camera.position.y = 5;
