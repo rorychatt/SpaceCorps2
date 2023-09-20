@@ -146,6 +146,8 @@ function initScene(): void {
         false
     );
 
+
+    // Chat
     const sendChatMessageButton: HTMLElement | null = document.getElementById('sendChatMessageButton');
     const chatModalContent: HTMLElement | null = document.getElementById('chat_modal_content');
     const chatModalInput = document.getElementById('chat_modal_input') as  HTMLInputElement | null;
@@ -164,6 +166,24 @@ function initScene(): void {
         }
         // Send contents with socket.emit
         // Delete contents to enter new message
+    })
+
+    // Console
+    const sendConsoleMessageButton: HTMLElement | null = document.getElementById('sendConsoleMessageButton');
+    const consoleContent: HTMLElement | null = document.getElementById('console_output');
+    const consoleInput = document.getElementById('console_input') as HTMLInputElement | null;
+
+    sendConsoleMessageButton?.addEventListener("click", function (event) {
+        const consoleMessageText = consoleInput?.value.trim();
+
+        if(consoleMessageText && consoleInput && consoleContent) {
+            const consoleMessageDiv = document.createElement('div');
+            const ccurrentTime = new Date().toLocaleTimeString();
+            consoleMessageDiv.textContent = `[${ccurrentTime}] User: ${consoleMessageText}`;
+
+            consoleContent.appendChild(consoleMessageDiv);
+            consoleInput.value = "";
+        }
     })
 
     // Position the camera

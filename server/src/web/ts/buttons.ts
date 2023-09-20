@@ -248,3 +248,21 @@ profileCloseBtn.addEventListener("click", function(): void {
     auctionDiv.style.display = "none";
     assemblyDiv.style.display = "none";     
 })
+
+// Console
+const consoleButton = document.getElementById("console_btn") as HTMLElement;
+const consoleDiv = document.getElementById("console_container") as HTMLElement;
+const consoleQuitButton = document.getElementById("console_quit_btn") as HTMLElement;
+
+consoleQuitButton.addEventListener("click", function(): void {
+    consoleDiv.style.display = "none";
+})
+
+consoleButton.addEventListener("click", function(): void {
+    if(consoleDiv.style.display === "none" || consoleDiv.style.display === "") {
+        consoleDiv.style.display = "block";
+    } else {
+        consoleDiv.style.display = "none";
+    }
+})
+
