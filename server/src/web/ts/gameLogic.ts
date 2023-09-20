@@ -154,10 +154,10 @@ function initScene(): void {
     sendChatMessageButton?.addEventListener("click", function (event) {
         const messageText = chatModalInput?.value.trim();
 
-        if (!messageText && chatModalInput && chatModalContent) {
+        if (messageText && chatModalInput && chatModalContent) {
             const messageDiv = document.createElement('div');
             const currentTime = new Date().toLocaleTimeString();
-            messageDiv.textContent = `[${currentTime} User : ${messageText}]`;
+            messageDiv.textContent = `[${currentTime}] User : ${messageText}`;
 
             chatModalContent.appendChild(messageDiv);
             chatModalInput.value = "";
