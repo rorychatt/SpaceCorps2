@@ -791,6 +791,7 @@ h1 {
     min-height: 13vh;
     height: auto;
     border: 1px solid white;
+    overflow-y: auto;
 }
 
 .chat_modal_footer {

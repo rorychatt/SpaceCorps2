@@ -146,8 +146,23 @@ function initScene(): void {
         false
     );
 
-    const sendChatMessageButton = document.getElementById('sendChatMessageButton');
+    const sendChatMessageButton = document.getElementById('sendChatMessageButton') as HTMLElement;
+    const chatModalContent = document.getElementById('chat_modal_content') as HTMLElement;
+    const chatModalInput = document.getElementById('chat_modal_input') as HTMLElement;
     sendChatMessageButton?.addEventListener("click", function (event) {
+        const messageText = chatModalInput.value.trim();
+
+        if (messageText !== "") {
+            const messageDiv = document.createElement('div');
+
+            const currentTime = new Date().toLocaleTimeString();
+
+            messageDiv.textContent = `[${currentTime} User : ${messageText}]`;
+
+            chatModalContent.appendChild(messageDiv);
+
+            chatModalInput.value = "";
+        }
         // Send contents with socket.emit
         // Delete contents to enter new message
     })
