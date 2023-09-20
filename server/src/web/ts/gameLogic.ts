@@ -146,6 +146,26 @@ function initScene(): void {
         false
     );
 
+    const sendChatMessageButton: HTMLElement | null = document.getElementById('sendChatMessageButton');
+    const chatModalContent: HTMLElement | null = document.getElementById('chat_modal_content');
+    const chatModalInput = document.getElementById('chat_modal_input') as  HTMLInputElement | null;
+
+
+    sendChatMessageButton?.addEventListener("click", function (event) {
+        const messageText = chatModalInput?.value.trim();
+
+        if (messageText && chatModalInput && chatModalContent) {
+            const messageDiv = document.createElement('div');
+            const currentTime = new Date().toLocaleTimeString();
+            messageDiv.textContent = `[${currentTime}] User : ${messageText}`;
+
+            chatModalContent.appendChild(messageDiv);
+            chatModalInput.value = "";
+        }
+        // Send contents with socket.emit
+        // Delete contents to enter new message
+    })
+
     // Position the camera
     camera.position.x = 4;
     camera.position.y = 5;
