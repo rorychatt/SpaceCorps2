@@ -15,6 +15,7 @@ import {
     readGameDataConfigFiles,
 } from "./background/loadGameData.js";
 import { GameServer } from "./background/GameServer.js";
+import { ChatMessage } from "./background/ChatServer.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -116,6 +117,16 @@ io.on("connection", (socket) => {
             );
         }
     );
+
+    // Handle chat message from client
+    socket.on("sendChatMessageToServer", (data: ChatMessage) => {
+        gameServer.chatServer.handleClientMessage(data);
+    });
+
+    // Handle console message from client (command too!!)
+    socket.on("sendConsoleMessageToServer", (data: ChatMessage) => {
+        gameServer.chatServer.handleConsoleMessage(data);
+    });
 });
 
 function handleHTTPRequests() {
@@ -206,5 +217,4 @@ function handleHTTPRequests() {
             }
         );
     });
-
 }

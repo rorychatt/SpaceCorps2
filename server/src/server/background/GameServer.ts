@@ -4,16 +4,19 @@ import { Spacemap, Spacemaps } from "./Spacemap";
 import { GameDataConfig, readGameDataConfigFiles } from "./loadGameData";
 import { Server, Socket } from "socket.io";
 import { savePlayerData } from "../db/db";
+import { ChatServer } from "./ChatServer";
 
 export const tickrate = 120;
 
 export class GameServer {
+
     spacemaps: Spacemaps;
     players: Player[];
     io: Server;
     tickRate: number;
     gameLoop: NodeJS.Timeout | null;
     _spacemapNames: string[];
+    chatServer: ChatServer;
 
     public constructor(io: Server) {
         this.players = [];
@@ -24,10 +27,15 @@ export class GameServer {
 
         this._loadSpacemapsFromConfig();
         this._spacemapNames = Object.keys(this.spacemaps);
+        this.chatServer = new ChatServer(this);
     }
 
-    async getPlayerBySocketId(socketId: string): Promise<Player | undefined> {
+    public async getPlayerBySocketId(socketId: string): Promise<Player | undefined> {
         return this.players.find((player) => player.socketId === socketId);
+    }
+
+    public async getPlayerByUsername(username: string): Promise<Player | undefined> {
+        return this.players.find((player) => player.name === username);
     }
 
     _loadSpacemapsFromConfig() {
