@@ -44,6 +44,11 @@ function fixGameServer() {
             'import { savePlayerData } from "../db/db.js";'
         );
 
+        modifiedData = modifiedData.replace(
+            'import { ChatServer } from "./ChatServer";',
+            'import { ChatServer } from "./ChatServer.js";'
+        );
+
         // Write the modified content back to the file
         writeFile(
             "./dist/server/background/GameServer.js",

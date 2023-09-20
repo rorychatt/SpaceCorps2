@@ -28,6 +28,13 @@ let audioListener: THREE.AudioListener;
 
 let labelRenderer: CSS2DRenderer;
 
+let sendChatMessageButton: HTMLElement | null;
+let chatModalContent: HTMLElement | null;
+let chatModalInput: HTMLInputElement | null;
+let sendConsoleMessageButton: HTMLElement | null;
+let consoleContent: HTMLElement | null;
+let consoleInput: HTMLInputElement | null;
+
 const lerpFactor = 0.2;
 
 const objectDataMap: Record<string, { data: any }> = {};
@@ -56,6 +63,18 @@ socket.on("registerSuccessful", (data: { username: string }) => {
 
 socket.on("registerUnsuccessful", (data: { username: string }) => {
     alert(`Could not register user: ${data.username}`);
+});
+
+socket.on("serverMessage", (data: { type: string; message: string }) => {
+    if (data.type == "chat") {
+        const messageDiv = document.createElement('div')
+        messageDiv.textContent = data.message
+        chatModalContent?.appendChild(messageDiv);
+    } else if (data.type == "console") {
+        const messageDiv = document.createElement('div')
+        messageDiv.textContent = data.message;
+        consoleContent?.appendChild(messageDiv)
+    }
 });
 
 socket.on("mapData", (data: any) => {
@@ -146,45 +165,41 @@ function initScene(): void {
         false
     );
 
+    sendChatMessageButton = document.getElementById("sendChatMessageButton");
+    chatModalContent = document.getElementById("chat_modal_content");
+    chatModalInput = document.getElementById(
+        "chat_modal_input"
+    ) as HTMLInputElement | null;
 
-    // Chat
-    const sendChatMessageButton: HTMLElement | null = document.getElementById('sendChatMessageButton');
-    const chatModalContent: HTMLElement | null = document.getElementById('chat_modal_content');
-    const chatModalInput = document.getElementById('chat_modal_input') as  HTMLInputElement | null;
-
+    sendConsoleMessageButton = document.getElementById(
+        "sendConsoleMessageButton"
+    );
+    consoleContent = document.getElementById("console_output");
+    consoleInput = document.getElementById(
+        "console_input"
+    ) as HTMLInputElement | null;
 
     sendChatMessageButton?.addEventListener("click", function (event) {
         const messageText = chatModalInput?.value.trim();
-
         if (messageText && chatModalInput && chatModalContent) {
-            const messageDiv = document.createElement('div');
-            const currentTime = new Date().toLocaleTimeString();
-            messageDiv.textContent = `[${currentTime}] User : ${messageText}`;
-
-            chatModalContent.appendChild(messageDiv);
+            socket.emit("sendChatMessageToServer", {
+                username: playerName,
+                message: messageText,
+            });
             chatModalInput.value = "";
         }
-        // Send contents with socket.emit
-        // Delete contents to enter new message
-    })
-
-    // Console
-    const sendConsoleMessageButton: HTMLElement | null = document.getElementById('sendConsoleMessageButton');
-    const consoleContent: HTMLElement | null = document.getElementById('console_output');
-    const consoleInput = document.getElementById('console_input') as HTMLInputElement | null;
+    });
 
     sendConsoleMessageButton?.addEventListener("click", function (event) {
         const consoleMessageText = consoleInput?.value.trim();
-
-        if(consoleMessageText && consoleInput && consoleContent) {
-            const consoleMessageDiv = document.createElement('div');
-            const ccurrentTime = new Date().toLocaleTimeString();
-            consoleMessageDiv.textContent = `[${ccurrentTime}] User: ${consoleMessageText}`;
-
-            consoleContent.appendChild(consoleMessageDiv);
+        if (consoleMessageText && consoleInput && consoleContent) {
+            socket.emit("sendConsoleMessageToServer", {
+                username: playerName,
+                message: consoleMessageText,
+            });
             consoleInput.value = "";
         }
-    })
+    });
 
     // Position the camera
     camera.position.x = 4;
