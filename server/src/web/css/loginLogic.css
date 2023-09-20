@@ -412,7 +412,6 @@ h1 {
 
     text-align: center;
     justify-content: center;
-    margin-top: 5%;
     height: auto;
     min-height: 1vh;
 }
@@ -585,6 +584,11 @@ h1 {
 .player_info_modal_header, .ship_info_modal_header, .chat_info_modal_header, .spacemap_info_modal_header, .log_info_modal_header, .assembly_info_modal_header {
     display: flex;
     justify-content: space-between;
+    z-index: 3;
+}
+
+.chat_info_modal_header {
+    z-index: 2;
 }
 
 .chat_info_modal {
@@ -778,4 +782,28 @@ h1 {
 
 #spacemapDiv {
   position: relative;
+}
+
+
+/* Chat Modal */
+.chat_modal_content {
+    width: 100%;
+    min-height: 13vh;
+    height: auto;
+    border: 1px solid white;
+}
+
+.chat_modal_footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    height: 2vh;
+    padding: 0;
+
+    margin-top: 0.5vh;
+}
+
+.chat_modal_send_btn {
+    padding: 0;
 }
