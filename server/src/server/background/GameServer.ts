@@ -1,5 +1,5 @@
-import { Alien } from "./Alien";
-import { Player } from "./Player";
+import { Alien, AlienDTO } from "./Alien";
+import { Player, PlayerDTO } from "./Player";
 import { Spacemap, Spacemaps } from "./Spacemap";
 import { GameDataConfig, readGameDataConfigFiles } from "./loadGameData";
 import { Server, Socket } from "socket.io";
@@ -87,23 +87,24 @@ export class GameServer {
     async handleCurrencyTransactions() {}
 
     async sendMapData() {
-        this.players.forEach((player) => {
-            let mapData: any = this.spacemaps[player.currentMap];
+        this.players.forEach((player) => {            
+            const mapData: any = this.spacemaps[player.currentMap];
 
-            for(const key of mapData.entities) {
-                if(key._type === "Alien") {
-                    let unnecpar = ["oreDrop"]; // parameters for delete
-                    
-                    for(let i = 0; i <= unnecpar.length; i++) {
-                        if(key.hasOwnProperty(unnecpar[i])) {
-                            delete key[unnecpar[i]];
-                        }
-                    }
+            const entitiesDTO = mapData.entities.map((entity: Alien | Player) => {
+                if(entity instanceof Alien) {
+                    return new AlienDTO(entity);
+                } else if(entity instanceof Player) {
+                    return new PlayerDTO(entity);
+                } else {
+                    return entity;
                 }
-            }
+            });
 
-            //console.log("MAPDATA:", mapData);
-            this.io.to(player.socketId).emit("mapData", mapData);
+            this.io.to(player.socketId).emit("mapData", {
+                name: mapData.name,
+                entities: entitiesDTO,
+                size: mapData.size
+            });
         });
     }
 

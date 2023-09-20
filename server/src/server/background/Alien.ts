@@ -125,6 +125,22 @@ export class Alien extends Entity {
     }
 }
 
+export class AlienDTO {
+    name: string;
+    position: { x: number; y: number };
+    uuid: string;
+    _type: string;
+    hitPoints?: Durability;
+
+    constructor(alien: Alien) {
+        this.name = alien.name;
+        this.position = alien.position;
+        this.uuid = alien.uuid;
+        this._type = alien._type;
+        this.hitPoints = alien.hitPoints;
+    }
+}
+
 export interface KillReward {
     credits: number;
     thulium: number;

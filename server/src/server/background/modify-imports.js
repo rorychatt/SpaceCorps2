@@ -25,8 +25,8 @@ function fixGameServer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { Player } from "./Player";',
-            'import { Player } from "./Player.js";'
+            'import { Player, PlayerDTO } from "./Player";',
+            'import { Player, PlayerDTO } from "./Player.js";'
         );
 
         modifiedData = modifiedData.replace(
@@ -35,8 +35,8 @@ function fixGameServer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { Alien } from "./Alien";',
-            'import { Alien } from "./Alien.js";'
+            'import { Alien, AlienDTO } from "./Alien";',
+            'import { Alien, AlienDTO } from "./Alien.js";'
         );
 
         modifiedData = modifiedData.replace(
