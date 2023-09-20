@@ -20,7 +20,7 @@ MMO RPG game in space. Node.js server, three.js frontend with mySQL database
 
 ## Git workflow
 
-    git status
+     git status
     git switch master
     git pull 
     git checkout -b bugfix/HUJNJA
