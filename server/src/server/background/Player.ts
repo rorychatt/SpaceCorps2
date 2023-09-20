@@ -10,7 +10,7 @@ export class Player extends Entity {
     hitPoints?: Durability;
     stats?: PlayerStats;
     damage?: PlayerDamageCharacteristic;
-    company?: string;
+    company?: string = "MMF";
     destination?: { x: number; y: number } | null;
     speed: number = 360;
 
@@ -28,6 +28,7 @@ export class Player extends Entity {
     async _getDataFromSQL() {
         let templateData = {
             currentMap: "M-1",
+            company: "MMF",
             positionX: 0,
             positionY: 0,
             credits: 0,
@@ -44,6 +45,7 @@ export class Player extends Entity {
             const data = res[0];
             templateData = {
                 currentMap: data.mapName,
+                company: data.company,
                 positionX: data.positionX,
                 positionY: data.positionY,
                 credits: data.credits,

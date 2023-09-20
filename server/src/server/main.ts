@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import express from "express";
 import cors from "cors";
 import http from "http";
@@ -16,6 +17,8 @@ import {
 } from "./background/loadGameData.js";
 import { GameServer } from "./background/GameServer.js";
 import { ChatMessage } from "./background/ChatServer.js";
+
+const aliensData = JSON.parse(fs.readFileSync("./src/server/data/aliens.json", 'utf-8'));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -90,7 +93,16 @@ io.on("connection", (socket) => {
 
     socket.on(
         "attemptRegister",
-        async (data: { username: string; password: string }) => {
+        async (data: { username: string; password: string }) => {     
+            for (const key in aliensData) {
+                if(data.username == key) {
+                    socket.emit("registerUnsuccessful", {
+                        username: data.username,
+                    });
+                    return;
+                }
+            }
+
             const [userCredentials] = await getUserByUsername(data.username);
             if (userCredentials) {
                 socket.emit("registerUnsuccessful", {

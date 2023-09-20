@@ -11,6 +11,7 @@ export interface UserCredentials {
 
 export interface PlayerEntityInterface {
     username: string;
+    company: string;
     mapName: string;
     positionX: number;
     positionY: number;
@@ -165,6 +166,7 @@ function executeQuery<T>(query: string): Promise<T[]> {
 }
 
 export function savePlayerData(player: Player) {
+
     const sql = `UPDATE playerEntity SET positionX = "${player.position.x}", positionY = "${player.position.y}", credits = "${player.stats?.credits}", thulium = "${player.stats?.thulium}", experience = "${player.stats?.experience}", honor = "${player.stats?.honor}", mapname = "${player.currentMap}", company = "${player.company}" WHERE username = "${player.name}"`;
     executeQuery(sql);
 }
