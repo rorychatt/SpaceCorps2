@@ -125,6 +125,26 @@ export class Player extends Entity {
     }
 }
 
+export class PlayerDTO {
+    name: string;
+    position: { x: number; y: number };
+    _type: string;
+    hitPoints?: Durability;
+    stats?: PlayerStats;
+    company?: string;
+    uuid: string;
+
+    constructor(player: Player) {
+        this.name = player.name;
+        this.position = player.position;
+        this._type = player._type;
+        this.hitPoints = player.hitPoints;
+        this.stats = player.stats;
+        this.company = player.company;
+        this.uuid = player.uuid;
+    }
+}
+
 export interface PlayerDamageCharacteristic {
     maxDamage: number;
     variance: number;

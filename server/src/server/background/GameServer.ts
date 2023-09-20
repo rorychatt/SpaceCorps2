@@ -1,5 +1,5 @@
-import { Alien } from "./Alien";
-import { Player } from "./Player";
+import { Alien, AlienDTO } from "./Alien";
+import { Player, PlayerDTO } from "./Player";
 import { Spacemap, Spacemaps } from "./Spacemap";
 import { GameDataConfig, readGameDataConfigFiles } from "./loadGameData";
 import { Server, Socket } from "socket.io";
@@ -95,9 +95,24 @@ export class GameServer {
     async handleCurrencyTransactions() {}
 
     async sendMapData() {
-        this.players.forEach((player) => {
-            const mapData = this.spacemaps[player.currentMap];
-            this.io.to(player.socketId).emit("mapData", mapData);
+        this.players.forEach((player) => {            
+            const mapData: any = this.spacemaps[player.currentMap];
+
+            const entitiesDTO = mapData.entities.map((entity: Alien | Player) => {
+                if(entity instanceof Alien) {
+                    return new AlienDTO(entity);
+                } else if(entity instanceof Player) {
+                    return new PlayerDTO(entity);
+                } else {
+                    return entity;
+                }
+            });
+
+            this.io.to(player.socketId).emit("mapData", {
+                name: mapData.name,
+                entities: entitiesDTO,
+                size: mapData.size
+            });
         });
     }
 
