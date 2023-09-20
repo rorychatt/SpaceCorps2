@@ -808,3 +808,67 @@ h1 {
 .chat_modal_send_btn {
     padding: 0;
 }
+
+/* Console Modal */
+
+.console_container {
+    position: absolute;
+    display: none;
+
+    min-height: 60vh;
+    width: 40%;
+
+    padding: 0;
+    top: 15vh;
+    left: 45vh;
+
+    border: 1px solid white;
+    background-color:rgba(65, 105, 255, 0.95);
+
+    z-index: 6;
+}
+
+.console_header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    font-family: 'Pacifico';
+    font-size: 2vh;
+    color: white;
+}
+
+.console_header_name {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.console_input {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    height: 2vh;
+    padding: 0;
+
+    margin-top: 0.5vh;
+}
+
+.console_output {
+    width: 100%;
+    min-height: 53vh;
+    height: auto;
+    border: 1px solid white;
+    overflow-y: auto;
+}
+.console_send_btn {
+    padding: 0;
+    text-align: center;
+    flex-grow: 1;
+    border: 1px solid white;
+}
+
+.console_send_btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}

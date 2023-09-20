@@ -122,7 +122,7 @@
           <button class="btn"><i class="fa fa-gear"></i> Settings</button>
         </div>
         <div class="console_button">
-          <button class="btn">
+          <button class="btn"  id="console_btn">
             <i class="fa fa-deviantart"></i> Console
           </button>
         </div>
@@ -330,8 +330,17 @@
     <div class="settings_container">
 
     </div>
-    <div class="console_container">
+    <div class="console_container" id="console_container">
+      <div class="console_header" id="console_header"> <p class="console_header_name">Console</p> <button class="modal_btn" id="console_quit_btn"><i class="fa fa-remove"></i></button></div>
+      <div class="console_content">
+        <div class="console_output" id="console_output">
 
+        </div>
+        <div class="console_input">
+          <input type="text" id="console_input" placeholder="Enter console command...">
+          <button class="console_send_btn" id="sendConsoleMessageButton"><i class="fa fa-telegram"></i></button>
+        </div>
+      </div>      
     </div>
     <div class="quit_container" id="quit_container">
       <p class="quit_text">
@@ -374,7 +383,7 @@
       </div>
       <div class="chat_modal_footer">
         <input type="text" id="chat_modal_input" placeholder="Enter text message...">
-        <button class="chat_modal_send_btn" id="sendChatMessageButton"><i class="fa fa-telegram"></i></button>        
+        <button class="chat_modal_send_btn" id="sendConsoleMessageButton"><i class="fa fa-telegram"></i></button>        
       </div>
     </div>
     <div class="spacemap_info_modal movable-div" id="spacemap_info_modal">
