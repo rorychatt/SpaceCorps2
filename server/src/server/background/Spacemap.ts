@@ -26,9 +26,9 @@ export class Spacemap {
         }
     }
 
-    spawnAlien(name: string, position?: { x: number; y: number }) {
-        const alien = new Alien(name, position)
-        this.entities.push(alien)
+    spawnAlien(name: string, position?: Vector2D) {
+        const alien = new Alien(name, position);
+        this.entities.push(alien);
     }
 
     randomSpawnAlien() {
@@ -48,7 +48,7 @@ export class Spacemap {
             ) {
                 this.spawnAlien(this._allowedAliens[0], {
                     // TODO: Tweak parameters so aliens spawn accross the map, avoiding areas where there are portals
-                    
+
                     x: (0.5 - Math.random()) * 10,
                     y: (0.5 - Math.random()) * 10,
                 });
@@ -59,6 +59,11 @@ export class Spacemap {
 
 export interface Spacemaps {
     [key: string]: Spacemap;
+}
+
+export interface Vector2D {
+    x: number;
+    y: number;
 }
 
 export interface PortalConfig {

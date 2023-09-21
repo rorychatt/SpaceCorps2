@@ -1,6 +1,7 @@
 import { Entity } from "./Entity";
 import * as fs from "fs";
 import { tickrate } from "./GameServer";
+import { Vector2D } from "./Spacemap";
 
 export class Alien extends Entity {
     _type: string = "Alien"
@@ -9,9 +10,9 @@ export class Alien extends Entity {
     oreDrop?: OreDrop;
     damage?: AlienDamageCharacteristic;
     movement?: AlienMovementCharacteristic;
-    _roamDestination: { x: number; y: number } | null = null;
+    _roamDestination: Vector2D | null = null;
 
-    public constructor(name: string, position?: { x: number; y: number }) {
+    public constructor(name: string, position?: Vector2D) {
         super(name, position);
 
         this._getData();
@@ -127,7 +128,7 @@ export class Alien extends Entity {
 
 export class AlienDTO {
     name: string;
-    position: { x: number; y: number };
+    position: Vector2D;
     uuid: string;
     _type: string;
     hitPoints?: Durability;
