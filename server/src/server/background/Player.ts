@@ -2,6 +2,7 @@ import { PlayerEntityInterface, getUserDataByUsername } from "../db/db";
 import { Durability } from "./Alien";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
+import { Vector2D } from "./Spacemap";
 
 export class Player extends Entity {
     _type: string = "Player";
@@ -11,7 +12,7 @@ export class Player extends Entity {
     stats?: PlayerStats;
     damage?: PlayerDamageCharacteristic;
     company?: string = "MMF";
-    destination?: { x: number; y: number } | null;
+    destination?: Vector2D | null;
     speed: number = 360;
 
     public constructor(socketId: string, username: string) {
@@ -127,7 +128,7 @@ export class Player extends Entity {
 
 export class PlayerDTO {
     name: string;
-    position: { x: number; y: number };
+    position: Vector2D;
     _type: string;
     hitPoints?: Durability;
     stats?: PlayerStats;

@@ -1,11 +1,12 @@
 import { randomBytes } from "crypto";
+import { Vector2D } from "./Spacemap";
 export class Entity {
     name: string;
     currentMap: string;
-    position: { x: number; y: number };
+    position: Vector2D;
     uuid = randomBytes(16).toString('hex')
 
-    public constructor(name: string, position?: { x: number; y: number }) {
+    public constructor(name: string, position?: Vector2D) {
         this.name = name;
         this.currentMap = "M-1";
         if (position) {
