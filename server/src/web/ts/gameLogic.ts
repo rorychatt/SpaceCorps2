@@ -34,6 +34,7 @@ let chatModalInput: HTMLInputElement | null;
 let sendConsoleMessageButton: HTMLElement | null;
 let consoleContent: HTMLElement | null;
 let consoleInput: HTMLInputElement | null;
+let lockOnCircle: THREE.Object3D | null;
 
 const lerpFactor = 0.2;
 
@@ -67,13 +68,13 @@ socket.on("registerUnsuccessful", (data: { username: string }) => {
 
 socket.on("serverMessage", (data: { type: string; message: string }) => {
     if (data.type == "chat") {
-        const messageDiv = document.createElement('div')
-        messageDiv.textContent = data.message
+        const messageDiv = document.createElement("div");
+        messageDiv.textContent = data.message;
         chatModalContent?.appendChild(messageDiv);
     } else if (data.type == "console") {
-        const messageDiv = document.createElement('div')
+        const messageDiv = document.createElement("div");
         messageDiv.textContent = data.message;
-        consoleContent?.appendChild(messageDiv)
+        consoleContent?.appendChild(messageDiv);
     }
 });
 
@@ -154,52 +155,7 @@ function initScene(): void {
 
     createStars();
 
-    canvas?.addEventListener(
-        "mouseup",
-        function (event) {
-            if (event.button === 0) {
-                // Check if the left mouse button (button 0) was released
-                raycastFromCamera(event);
-            }
-        },
-        false
-    );
-
-    sendChatMessageButton = document.getElementById("sendChatMessageButton");
-    chatModalContent = document.getElementById("chat_modal_content");
-    chatModalInput = document.getElementById(
-        "chat_modal_input"
-    ) as HTMLInputElement | null;
-
-    sendConsoleMessageButton = document.getElementById(
-        "sendConsoleMessageButton"
-    );
-    consoleContent = document.getElementById("console_output");
-    consoleInput = document.getElementById(
-        "console_input"
-    ) as HTMLInputElement | null;
-
-    sendChatMessageButton?.addEventListener("click", function (event) {
-        const messageText = chatModalInput?.value.trim();
-        if (messageText && chatModalInput && chatModalContent) {
-            socket.emit("sendChatMessageToServer", {
-                username: playerName,
-                message: messageText,
-            });
-            chatModalInput.value = "";
-        }
-    });
-
-    sendConsoleMessageButton?.addEventListener("click", function (event) {
-        const consoleMessageText = consoleInput?.value.trim();
-        if (consoleMessageText && consoleInput && consoleContent) {
-            socket.emit("sendConsoleMessageToServer", {
-                username: playerName,
-                message: consoleMessageText,
-            });
-            consoleInput.value = "";
-        }
-    });
+    loadEventListeners();
 
     // Position the camera
     camera.position.x = 4;
@@ -238,9 +194,20 @@ function initScene(): void {
     audioLoader.load("./assets/sounds/mainTheme.ogg", function (buffer) {
         sound.setBuffer(buffer);
         sound.setLoop(true);
-        sound.setVolume(0.25);
+        sound.setVolume(0.15);
         sound.play();
     });
+
+    const lockOnCircleGeometry = new THREE.RingGeometry(1.5, 1.55, 32);
+    const lockOnCirleMaterial = new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        side: THREE.DoubleSide,
+    });
+    lockOnCircle = new THREE.Mesh(lockOnCircleGeometry, lockOnCirleMaterial);
+    lockOnCircle.rotation.x = 1.57079633;
+    lockOnCircle.position.set(0, 0, 0);
+    lockOnCircle.name = "lockOnCircle";
+
     // Call the animate function to start the animation loop
     animate();
 }
@@ -274,6 +241,30 @@ function raycastFromCamera(event: any) {
                     y: intersects[0].point.z,
                 },
             });
+        } else {
+            let object = intersects[0].object;
+            if (object.name != playerName && lockOnCircle) {
+                lockOnCircle?.removeFromParent();
+                object.parent?.add(lockOnCircle);
+            }
+        }
+    }
+}
+
+function handleKeyboardButton(e: KeyboardEvent) {
+    if (playerName) {
+        switch (e.key) {
+            case "1":
+                if (lockOnCircle?.parent != undefined) {
+                }
+                break;
+            case "Enter":
+                // TODO: add logic of enter button here
+                break;
+
+            case "o":
+                console.log(scene);
+                break;
         }
     }
 }
@@ -321,8 +312,7 @@ async function createObject(data: any) {
                         const model = glb.scene;
                         model.uuid = data.uuid;
                         model.position.set(data.position.x, 0, data.position.y);
-                        model.name = data.name;
-
+                        setNameRecursivelly(model, data.name);
                         const text = document.createElement("div");
                         text.className = "label";
                         text.style.color = "rgb(255,255,255)";
@@ -346,7 +336,7 @@ async function createObject(data: any) {
                         const model = glb.scene;
                         model.uuid = data.uuid;
                         model.position.set(data.position.x, 0, data.position.y);
-                        model.name = data.name;
+                        setNameRecursivelly(model, data.name);
                         if (data.name == playerName) {
                             controls.update();
                         }
@@ -514,4 +504,64 @@ function getLabelByUUID(uuid: string): CSS2DObject | undefined {
         (child) => child instanceof CSS2DObject
     ) as CSS2DObject[];
     return labels.find((label) => label.uuid === uuid);
+}
+
+function setNameRecursivelly(object: THREE.Object3D, name: string) {
+    object.name = name;
+
+    for (let i = 0; i < object.children.length; i++) {
+        setNameRecursivelly(object.children[i], name);
+    }
+}
+
+async function loadEventListeners() {
+
+    canvas?.addEventListener(
+        "mouseup",
+        function (event) {
+            if (event.button === 0) {
+                // Check if the left mouse button (button 0) was released
+                raycastFromCamera(event);
+            }
+        },
+        false
+    );
+
+    sendChatMessageButton = document.getElementById("sendChatMessageButton");
+    chatModalContent = document.getElementById("chat_modal_content");
+    chatModalInput = document.getElementById(
+        "chat_modal_input"
+    ) as HTMLInputElement | null;
+
+    sendConsoleMessageButton = document.getElementById(
+        "sendConsoleMessageButton"
+    );
+    consoleContent = document.getElementById("console_output");
+    consoleInput = document.getElementById(
+        "console_input"
+    ) as HTMLInputElement | null;
+
+    sendChatMessageButton?.addEventListener("click", function (event) {
+        const messageText = chatModalInput?.value.trim();
+        if (messageText && chatModalInput && chatModalContent) {
+            socket.emit("sendChatMessageToServer", {
+                username: playerName,
+                message: messageText,
+            });
+            chatModalInput.value = "";
+        }
+    });
+
+    sendConsoleMessageButton?.addEventListener("click", function (event) {
+        const consoleMessageText = consoleInput?.value.trim();
+        if (consoleMessageText && consoleInput && consoleContent) {
+            socket.emit("sendConsoleMessageToServer", {
+                username: playerName,
+                message: consoleMessageText,
+            });
+            consoleInput.value = "";
+        }
+    });
+
+    window.addEventListener("keypress", handleKeyboardButton);
 }
