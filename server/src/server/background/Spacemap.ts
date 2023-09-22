@@ -1,10 +1,11 @@
 import { Alien } from "./Alien";
 import { Entity } from "./Entity";
+import { Player } from "./Player";
 
 export class Spacemap {
     name: string;
     size: SpacemapSize;
-    entities: Entity[];
+    entities: (Player | Alien | Entity)[];
     _config: SpacemapConfig;
     _maxAliens?: number;
     _allowedAliens?: string[];

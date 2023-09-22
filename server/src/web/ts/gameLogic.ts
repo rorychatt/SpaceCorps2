@@ -256,6 +256,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
         switch (e.key) {
             case "1":
                 if (lockOnCircle?.parent != undefined) {
+                    socket.emit("shootEvent", {playerName: playerName, targetUUID: lockOnCircle.parent.uuid})
                 }
                 break;
             case "Enter":
@@ -312,7 +313,7 @@ async function createObject(data: any) {
                         const model = glb.scene;
                         model.uuid = data.uuid;
                         model.position.set(data.position.x, 0, data.position.y);
-                        setNameRecursivelly(model, data.name);
+                        setNameRecursivelly(model, data.name, data.uuid);
                         const text = document.createElement("div");
                         text.className = "label";
                         text.style.color = "rgb(255,255,255)";
@@ -336,7 +337,7 @@ async function createObject(data: any) {
                         const model = glb.scene;
                         model.uuid = data.uuid;
                         model.position.set(data.position.x, 0, data.position.y);
-                        setNameRecursivelly(model, data.name);
+                        setNameRecursivelly(model, data.name, data.uuid);
                         if (data.name == playerName) {
                             controls.update();
                         }
@@ -506,11 +507,12 @@ function getLabelByUUID(uuid: string): CSS2DObject | undefined {
     return labels.find((label) => label.uuid === uuid);
 }
 
-function setNameRecursivelly(object: THREE.Object3D, name: string) {
+function setNameRecursivelly(object: THREE.Object3D, name: string, uuid: string) {
     object.name = name;
+    object.uuid = uuid
 
     for (let i = 0; i < object.children.length; i++) {
-        setNameRecursivelly(object.children[i], name);
+        setNameRecursivelly(object.children[i], name, uuid);
     }
 }
 

@@ -3,7 +3,7 @@
         "hitPoints":{
             "hullPoints": 2000,
             "shieldPoints": 1000,
-            "shieldAbsorbance": 50
+            "shieldAbsorbance": 0.5
         },
         "damage":{
             "maxDamage": 100,
@@ -29,7 +29,7 @@
         "hitPoints":{
             "hullPoints": 4000,
             "shieldPoints": 4000,
-            "shieldAbsorbance": 60
+            "shieldAbsorbance": 0.6
         },
         "damage":{
             "maxDamage": 130,

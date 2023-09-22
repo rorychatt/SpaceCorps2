@@ -139,6 +139,10 @@ io.on("connection", (socket) => {
     socket.on("sendConsoleMessageToServer", (data: ChatMessage) => {
         gameServer.chatServer.handleConsoleMessage(data);
     });
+
+    socket.on("shootEvent", (data: {playerName: string, targetUUID: string}) => {
+        gameServer.registerPlayerAttackEvent(data)
+    })
 });
 
 function handleHTTPRequests() {

@@ -4,17 +4,39 @@ import { tickrate } from "./GameServer";
 import { Vector2D } from "./Spacemap";
 
 export class Alien extends Entity {
-    _type: string = "Alien"
-    hitPoints?: Durability;
-    killReward?: KillReward;
-    oreDrop?: OreDrop;
-    damage?: AlienDamageCharacteristic;
-    movement?: AlienMovementCharacteristic;
+    _type: string = "Alien";
+    hitPoints: Durability;
+    killReward: _KillReward;
+    oreDrop: OreDrop;
+    damage: AlienDamageCharacteristic;
+    movement: AlienMovementCharacteristic;
     _roamDestination: Vector2D | null = null;
+    lastAttackedByUUID?: string;
 
     public constructor(name: string, position?: Vector2D) {
         super(name, position);
-
+        this.hitPoints = {
+            hullPoints: 1000,
+            shieldPoints: 1000,
+            shieldAbsorbance: 0.5,
+        };
+        this.killReward = {
+            credits: 1000,
+            thulium: 1000,
+            experience: 1,
+            honor: 1,
+        };
+        this.oreDrop = {};
+        this.damage = {
+            maxDamage: 100,
+            variance: 0.2,
+            criticalChance: 0.01,
+            criticalMultiplier: 2,
+        };
+        this.movement = {
+            behaviour: "passive",
+            speed: 360,
+        };
         this._getData();
     }
 
@@ -32,31 +54,38 @@ export class Alien extends Entity {
         }
     }
 
-    receiveDamage(damage: number) {
-        if (this.hitPoints) {
-            let shieldDamage: number = damage * this.hitPoints.shieldAbsorbance;
-            let hullDamage: number = damage - shieldDamage;
-            if (shieldDamage > this.hitPoints.shieldPoints) {
-                let excessDamage = shieldDamage - this.hitPoints.shieldPoints;
-                hullDamage = hullDamage + excessDamage;
-                this.hitPoints.shieldPoints = 0;
-            }
-            this.hitPoints.hullPoints = this.hitPoints.hullPoints - hullDamage;
+    receiveDamage(damage: number, attackerUUID?: string) {
+        let shieldDamage: number = damage * this.hitPoints.shieldAbsorbance;
+        let hullDamage: number = damage - shieldDamage;
+
+        if (shieldDamage > this.hitPoints.shieldPoints) {
+            let excessDamage = shieldDamage - this.hitPoints.shieldPoints;
+            hullDamage = hullDamage + excessDamage;
+            this.hitPoints.shieldPoints = 0;
+        } else {
+            this.hitPoints.shieldPoints =
+                this.hitPoints.shieldPoints - shieldDamage;
         }
+
+        this.hitPoints.hullPoints = this.hitPoints.hullPoints - hullDamage;
+
+        if (attackerUUID) {
+            this.lastAttackedByUUID = attackerUUID;
+        }
+
+        console.log(
+            `${this.name} got shot by ${damage} damage and now has ${this.hitPoints.hullPoints} HP and ${this.hitPoints.shieldPoints} SP`
+        );
     }
 
     giveDamage() {
-        if (this.damage) {
-            const rawDamage =
-                this.damage.maxDamage *
-                (1 - Math.random() * this.damage.variance);
-            const isCritical = Math.random() <= this.damage.criticalChance;
-            const damageMultiplier = isCritical
-                ? this.damage.criticalChance
-                : 1;
-            const damage = rawDamage * damageMultiplier;
-            return damage;
-        }
+        const rawDamage =
+            this.damage.maxDamage * (1 - Math.random() * this.damage.variance);
+        const isCritical = Math.random() <= this.damage.criticalChance;
+        const damageMultiplier = isCritical ? this.damage.criticalChance : 1;
+        const damage = rawDamage * damageMultiplier;
+        console.log(`${this.uuid} tried to shoot and dealt ${damage} damage.`);
+        return damage;
     }
 
     roam(): { x: number; y: number } {
@@ -77,7 +106,6 @@ export class Alien extends Entity {
     passiveRoam() {
         if (this.movement?.behaviour === "passive") {
             if (this._roamDestination == null) {
-
                 // TODO: add boundaries here
                 // const maxX = mapsProperties[`${this.currentMap}`].width;
                 // const maxY = mapsProperties[`${this.currentMap}`].height;
@@ -142,7 +170,7 @@ export class AlienDTO {
     }
 }
 
-export interface KillReward {
+export interface _KillReward {
     credits: number;
     thulium: number;
     experience: number;
