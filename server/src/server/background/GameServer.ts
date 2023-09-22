@@ -207,11 +207,38 @@ export class GameServer {
         playerName: string;
         targetUUID: string;
     }) {
-        const attacker = await this.getPlayerByUsername(data.playerName);
-        if (attacker) {
-            this.damageEvents.push(
-                new DamageEvent(data.targetUUID, attacker.uuid)
+        const [attacker, target] = await Promise.all([
+            this.getPlayerByUsername(data.playerName),
+            this.getEntityByUUID(data.targetUUID),
+        ]);
+        if (attacker && target) {
+            this.spacemaps[
+                attacker.currentMap
+            ].projectileServer.createProjectile(
+                "LaserProjectile",
+                attacker,
+                target
             );
+        }
+    }
+
+    async handleProjectiles() {
+        for (const spacemapName of this._spacemapNames) {
+            for (const projectile of this.spacemaps[spacemapName]
+                .projectileServer.projectiles) {
+                console.log("AAAAAAAA");
+                projectile.moveToTarget();
+                if (projectile.getDistanceToTarget() < 0.5) {
+                    this.damageEvents.push(
+                        new DamageEvent(
+                            projectile.target.uuid,
+                            projectile.attacker.uuid
+                        )
+                    );
+                    console.log(`Projectile reached target!`);
+                    // TODO: Delete projectile!!!
+                }
+            }
         }
     }
 
@@ -250,6 +277,7 @@ export class GameServer {
             await Promise.all([
                 this.processAILogic(),
                 this.processPlayerInputs(),
+                this.handleProjectiles(),
                 this.handleDamage(),
                 this.handleEntityKills(),
                 this.handleCurrencyTransactions(),
