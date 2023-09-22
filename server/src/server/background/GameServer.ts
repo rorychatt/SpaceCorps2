@@ -7,6 +7,7 @@ import { savePlayerData } from "../db/db";
 import { ChatServer } from "./ChatServer";
 import { DamageEvent } from "./DamageEvent";
 import { Entity } from "./Entity";
+import { RewardServer } from "./RewardServer";
 
 export const tickrate = 120;
 
@@ -19,6 +20,7 @@ export class GameServer {
     gameLoop: NodeJS.Timeout | null;
     _spacemapNames: string[];
     chatServer: ChatServer;
+    rewardServer: RewardServer;
 
     public constructor(io: Server) {
         this.players = [];
@@ -30,6 +32,7 @@ export class GameServer {
         this._loadSpacemapsFromConfig();
         this._spacemapNames = Object.keys(this.spacemaps);
         this.chatServer = new ChatServer(this);
+        this.rewardServer = new RewardServer();
     }
 
     public async getPlayerBySocketId(
@@ -42,6 +45,10 @@ export class GameServer {
         username: string
     ): Promise<Player | undefined> {
         return this.players.find((player) => player.name === username);
+    }
+
+    public async getPlayerByUUID(uuid: string): Promise<Player | undefined> {
+        return this.players.find((player) => player.uuid === uuid);
     }
 
     _loadSpacemapsFromConfig() {
@@ -118,15 +125,59 @@ export class GameServer {
                         damage = _damage;
                     }
                 }
-                if(defenderEntity && (defenderEntity instanceof Player || defenderEntity instanceof Alien)){
-                    defenderEntity.receiveDamage(damage)
+                if (
+                    defenderEntity &&
+                    (defenderEntity instanceof Player ||
+                        defenderEntity instanceof Alien)
+                ) {
+                    defenderEntity.receiveDamage(damage, attackerEntity?.uuid);
                 }
             }
         });
         this.damageEvents = [];
     }
 
-    async handleCurrencyTransactions() {}
+    async handleCurrencyTransactions() {
+        for (const reward of this.rewardServer.pendingRewards) {
+            console.log(
+                `Registered following reward: ${JSON.stringify(reward)}`
+            );
+            const player = await this.getPlayerByUUID(reward.recipientUUID);
+            if (player) {
+                this.rewardServer.issueReward(player, reward);
+            } else {
+                console.log(
+                    `Could not find player with uuid ${reward.recipientUUID} to issue them a reward.`
+                );
+            }
+        }
+        this.rewardServer.pendingRewards = [];
+    }
+
+    async handleEntityKills() {
+        // TODO: Kill players too, for now only aliens
+        for (const spacemapName of this._spacemapNames) {
+            const spacemap = this.spacemaps[spacemapName];
+            spacemap.entities = spacemap.entities.filter((entity) => {
+                if (
+                    entity instanceof Alien &&
+                    entity.hitPoints.hullPoints <= 0
+                ) {
+                    if (entity.lastAttackedByUUID) {
+                        this.rewardServer.registerAlienKillReward(
+                            entity.lastAttackedByUUID,
+                            entity.killReward
+                        );
+                    }
+                    console.log(
+                        `Removed ${entity.name} from map ${spacemapName} because its HP finished.`
+                    );
+                    return false;
+                }
+                return true;
+            });
+        }
+    }
 
     async sendMapData() {
         this.players.forEach((player) => {
@@ -200,6 +251,7 @@ export class GameServer {
                 this.processAILogic(),
                 this.processPlayerInputs(),
                 this.handleDamage(),
+                this.handleEntityKills(),
                 this.handleCurrencyTransactions(),
             ]);
 

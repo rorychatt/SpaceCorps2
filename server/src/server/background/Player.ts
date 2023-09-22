@@ -1,5 +1,5 @@
 import { PlayerEntityInterface, getUserDataByUsername } from "../db/db";
-import { Durability } from "./Alien";
+import { Alien, Durability } from "./Alien";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
 import { Vector2D } from "./Spacemap";
@@ -9,24 +9,32 @@ export class Player extends Entity {
     socketId: string;
     state: PlayerStateCharacteristic = "passive";
     hitPoints: Durability;
-    stats?: PlayerStats;
+    stats: PlayerStats;
     damage: PlayerDamageCharacteristic;
     company: string = "MMF";
     destination?: Vector2D | null;
     reloadState: ReloadStateCharacteristic = "canShoot";
+    lastAttackedByUUID?: string;
     speed: number = 360;
 
     public constructor(socketId: string, username: string) {
         super(username);
         this.socketId = socketId;
         this.damage = {
-            maxDamage: 100,
+            maxDamage: 800,
             variance: 0.1,
         };
         this.hitPoints = {
             hullPoints: 10000,
             shieldPoints: 0,
             shieldAbsorbance: 0,
+        };
+
+        this.stats = {
+            experience: 0,
+            honor: 0,
+            credits: 0,
+            thulium: 0,
         };
 
         this._getDataFromSQL();
@@ -72,7 +80,7 @@ export class Player extends Entity {
         };
     }
 
-    async receiveDamage(damage: number) {
+    async receiveDamage(damage: number, attackerUUID?: string) {
         let shieldDamage: number = damage * this.hitPoints.shieldAbsorbance;
         let hullDamage: number = damage - shieldDamage;
 
@@ -86,6 +94,10 @@ export class Player extends Entity {
         }
 
         this.hitPoints.hullPoints = this.hitPoints.hullPoints - hullDamage;
+
+        if (attackerUUID) {
+            this.lastAttackedByUUID = attackerUUID;
+        }
 
         console.log(
             `${this.name} got shot by ${damage} damage and now has ${this.hitPoints.hullPoints} HP and ${this.hitPoints.shieldPoints} SP`
@@ -133,6 +145,38 @@ export class Player extends Entity {
                 this.destination = null;
             }
         }
+    }
+
+    addHonor(honor: number) {
+        this.stats.honor = this.stats.honor + honor;
+    }
+
+    addExperience(experience: number) {
+        this.stats.experience = this.stats.experience + experience;
+    }
+
+    addThulium(thulium: number) {
+        this.stats.thulium = this.stats.thulium + thulium;
+    }
+
+    addCredits(credits: number) {
+        this.stats.credits = this.stats.credits + credits;
+    }
+
+    removeHonor(honor: number) {
+        this.stats.honor = this.stats.honor - honor;
+    }
+
+    removeExperience(experience: number) {
+        this.stats.experience = this.stats.experience - experience;
+    }
+
+    removeCredits(credits: number) {
+        this.stats.credits = this.stats.credits - credits;
+    }
+
+    removeThulium(thulium: number) {
+        this.stats.thulium = this.stats.thulium - thulium;
     }
 }
 

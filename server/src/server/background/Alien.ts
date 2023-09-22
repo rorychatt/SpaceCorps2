@@ -6,11 +6,12 @@ import { Vector2D } from "./Spacemap";
 export class Alien extends Entity {
     _type: string = "Alien";
     hitPoints: Durability;
-    killReward: KillReward;
+    killReward: _KillReward;
     oreDrop: OreDrop;
     damage: AlienDamageCharacteristic;
     movement: AlienMovementCharacteristic;
     _roamDestination: Vector2D | null = null;
+    lastAttackedByUUID?: string;
 
     public constructor(name: string, position?: Vector2D) {
         super(name, position);
@@ -53,7 +54,7 @@ export class Alien extends Entity {
         }
     }
 
-    receiveDamage(damage: number) {
+    receiveDamage(damage: number, attackerUUID?: string) {
         let shieldDamage: number = damage * this.hitPoints.shieldAbsorbance;
         let hullDamage: number = damage - shieldDamage;
 
@@ -67,6 +68,10 @@ export class Alien extends Entity {
         }
 
         this.hitPoints.hullPoints = this.hitPoints.hullPoints - hullDamage;
+
+        if (attackerUUID) {
+            this.lastAttackedByUUID = attackerUUID;
+        }
 
         console.log(
             `${this.name} got shot by ${damage} damage and now has ${this.hitPoints.hullPoints} HP and ${this.hitPoints.shieldPoints} SP`
@@ -165,7 +170,7 @@ export class AlienDTO {
     }
 }
 
-export interface KillReward {
+export interface _KillReward {
     credits: number;
     thulium: number;
     experience: number;

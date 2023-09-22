@@ -5,6 +5,7 @@ fixGameServer();
 fixPlayer();
 fixSpacemap();
 fixAlien();
+fixReward();
 
 function fixGameServer() {
     readFile("./dist/server/background/GameServer.js", "utf8", (err, data) => {
@@ -54,6 +55,11 @@ function fixGameServer() {
             'import { DamageEvent } from "./DamageEvent.js";'
         );
 
+        modifiedData = modifiedData.replace(
+            'import { RewardServer } from "./RewardServer";',
+            'import { RewardServer } from "./RewardServer.js";'
+        );
+
         // Write the modified content back to the file
         writeFile(
             "./dist/server/background/GameServer.js",
@@ -83,7 +89,7 @@ function fixThreeImport() {
         modifiedData = modifiedData.replace(
             `import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";`,
             `import { GLTFLoader } from "/three/examples/jsm/loaders/GLTFLoader";`
-        )
+        );
 
         // Replace the import statement for "OrbitControls"
         modifiedData = modifiedData.replace(
@@ -97,15 +103,11 @@ function fixThreeImport() {
         );
 
         // Write the modified content back to the file
-        writeFile(
-            "./dist/web/ts/gameLogic.js",
-            modifiedData,
-            (err) => {
-                if (err) {
-                    console.error(`Error writing file: ${err}`);
-                }
+        writeFile("./dist/web/ts/gameLogic.js", modifiedData, (err) => {
+            if (err) {
+                console.error(`Error writing file: ${err}`);
             }
-        );
+        });
     });
 }
 
@@ -192,4 +194,34 @@ function fixAlien() {
             }
         });
     });
+}
+
+function fixReward() {
+    readFile(
+        "./dist/server/background/RewardServer.js",
+        "utf8",
+        (err, data) => {
+            if (err) {
+                console.error(`Error reading file: ${err}`);
+                return;
+            }
+
+            // Replace the import statement for "THREE" module
+            let modifiedData = data.replace(
+                'import { AlienKillReward, CreditsReward, ExperienceReward, HonorReward, PlayerKillReward, ThulimReward, } from "./Reward";',
+                'import { AlienKillReward, CreditsReward, ExperienceReward, HonorReward, PlayerKillReward, ThulimReward, } from "./Reward.js";'
+            );
+
+            // Write the modified content back to the file
+            writeFile(
+                "./dist/server/background/RewardServer.js",
+                modifiedData,
+                (err) => {
+                    if (err) {
+                        console.error(`Error writing file: ${err}`);
+                    }
+                }
+            );
+        }
+    );
 }
