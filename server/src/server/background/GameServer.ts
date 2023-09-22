@@ -5,13 +5,15 @@ import { GameDataConfig, readGameDataConfigFiles } from "./loadGameData";
 import { Server, Socket } from "socket.io";
 import { savePlayerData } from "../db/db";
 import { ChatServer } from "./ChatServer";
+import { DamageEvent } from "./DamageEvent";
+import { Entity } from "./Entity";
 
 export const tickrate = 120;
 
 export class GameServer {
-
     spacemaps: Spacemaps;
     players: Player[];
+    damageEvents: DamageEvent[];
     io: Server;
     tickRate: number;
     gameLoop: NodeJS.Timeout | null;
@@ -21,20 +23,24 @@ export class GameServer {
     public constructor(io: Server) {
         this.players = [];
         this.spacemaps = {};
+        this.damageEvents = [];
         this.io = io;
         this.tickRate = tickrate;
         this.gameLoop = null;
-
         this._loadSpacemapsFromConfig();
         this._spacemapNames = Object.keys(this.spacemaps);
         this.chatServer = new ChatServer(this);
     }
 
-    public async getPlayerBySocketId(socketId: string): Promise<Player | undefined> {
+    public async getPlayerBySocketId(
+        socketId: string
+    ): Promise<Player | undefined> {
         return this.players.find((player) => player.socketId === socketId);
     }
 
-    public async getPlayerByUsername(username: string): Promise<Player | undefined> {
+    public async getPlayerByUsername(
+        username: string
+    ): Promise<Player | undefined> {
         return this.players.find((player) => player.name === username);
     }
 
@@ -90,30 +96,72 @@ export class GameServer {
         });
     }
 
-    async handleDamage() {}
+    async handleDamage() {
+        this.damageEvents.forEach(async (damageEvent) => {
+            if (damageEvent.attackerUUID) {
+                let damage: number = 0;
+                const attackerEntity: Entity | Alien | Player | undefined =
+                    await this.getEntityByUUID(damageEvent.attackerUUID);
+
+                const defenderEntity: Entity | Alien | Player | undefined =
+                    await this.getEntityByUUID(damageEvent.defenderUUID);
+
+                if (damageEvent.damage) {
+                    damage = damageEvent.damage;
+                }
+                if (
+                    (attackerEntity && attackerEntity instanceof Player) ||
+                    attackerEntity instanceof Alien
+                ) {
+                    const _damage = await attackerEntity.giveDamage();
+                    if (_damage) {
+                        damage = _damage;
+                    }
+                }
+                if(defenderEntity && (defenderEntity instanceof Player || defenderEntity instanceof Alien)){
+                    defenderEntity.receiveDamage(damage)
+                }
+            }
+        });
+        this.damageEvents = [];
+    }
 
     async handleCurrencyTransactions() {}
 
     async sendMapData() {
-        this.players.forEach((player) => {            
+        this.players.forEach((player) => {
             const mapData: any = this.spacemaps[player.currentMap];
 
-            const entitiesDTO = mapData.entities.map((entity: Alien | Player) => {
-                if(entity instanceof Alien) {
-                    return new AlienDTO(entity);
-                } else if(entity instanceof Player) {
-                    return new PlayerDTO(entity);
-                } else {
-                    return entity;
+            const entitiesDTO = mapData.entities.map(
+                (entity: Alien | Player) => {
+                    if (entity instanceof Alien) {
+                        return new AlienDTO(entity);
+                    } else if (entity instanceof Player) {
+                        return new PlayerDTO(entity);
+                    } else {
+                        return entity;
+                    }
                 }
-            });
+            );
 
             this.io.to(player.socketId).emit("mapData", {
                 name: mapData.name,
                 entities: entitiesDTO,
-                size: mapData.size
+                size: mapData.size,
             });
         });
+    }
+
+    async registerPlayerAttackEvent(data: {
+        playerName: string;
+        targetUUID: string;
+    }) {
+        const attacker = await this.getPlayerByUsername(data.playerName);
+        if (attacker) {
+            this.damageEvents.push(
+                new DamageEvent(data.targetUUID, attacker.uuid)
+            );
+        }
     }
 
     async disconnectPlayerBySocketId(_socketId: string) {
@@ -171,6 +219,26 @@ export class GameServer {
         if (player) {
             player.destination = targetPosition;
         }
+    }
+
+    public async getEntityByUUID(
+        uuid: string
+    ): Promise<Alien | Player | Entity | undefined> {
+        return new Promise<Alien | Player | Entity | undefined>(
+            (resolve, reject) => {
+                for (const spacemapName of this._spacemapNames) {
+                    const spacemap = this.spacemaps[spacemapName];
+                    const entity = spacemap.entities.find(
+                        (e) => e.uuid === uuid
+                    );
+                    if (entity) {
+                        resolve(entity);
+                        return;
+                    }
+                }
+                resolve(undefined);
+            }
+        );
     }
 
     startServer() {
