@@ -212,6 +212,9 @@ export class GameServer {
             this.getEntityByUUID(data.targetUUID),
         ]);
         if (attacker && target) {
+            if (attacker.reloadState == "canShoot") {
+                attacker.reloadState = "reloading";
+            }
             this.spacemaps[
                 attacker.currentMap
             ].projectileServer.createProjectile(
@@ -219,6 +222,7 @@ export class GameServer {
                 attacker,
                 target
             );
+            attacker._reload();
         }
     }
 
@@ -236,7 +240,13 @@ export class GameServer {
                         )
                     );
                     console.log(`Projectile reached target!`);
-                    // TODO: Delete projectile!!!
+                    this.spacemaps[spacemapName].projectileServer.projectiles =
+                        this.spacemaps[
+                            spacemapName
+                        ].projectileServer.projectiles.filter(
+                            (_projectile) =>
+                                _projectile.uuid !== projectile.uuid
+                        );
                 }
             }
         }

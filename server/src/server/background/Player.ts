@@ -105,17 +105,9 @@ export class Player extends Entity {
     }
 
     async giveDamage() {
-        if (this.reloadState == "canShoot") {
-            this.reloadState = "reloading";
-            const damage =
-                this.damage.maxDamage *
-                (1 - Math.random() * this.damage.variance);
-            console.log(
-                `${this.name} tried to shoot and dealt ${damage} damage.`
-            );
-            this._reload();
-            return damage;
-        }
+        return (
+            this.damage.maxDamage * (1 - Math.random() * this.damage.variance)
+        );
     }
 
     async _reload() {

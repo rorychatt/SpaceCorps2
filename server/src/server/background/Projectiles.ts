@@ -25,14 +25,14 @@ export class Projectile extends Entity {
         const dy = this.target.position.y - this.position.y;
         const distanceToMove = this.speed / tickrate;
         const distanceToTarget = this.getDistanceToTarget();
-        console.log(distanceToTarget)
+        console.log(distanceToTarget);
         if (distanceToTarget <= distanceToMove) {
             this.position = {
                 x: this.target.position.x,
                 y: this.target.position.y,
             };
         } else {
-            const ratio = distanceToMove / distanceToTarget;
+            const ratio = distanceToMove / Math.sqrt(dx * dx + dy * dy);
             this.position = {
                 x: this.position.x + dx * ratio,
                 y: this.position.y + dy * ratio,
@@ -40,14 +40,12 @@ export class Projectile extends Entity {
         }
         console.log(`New position: ${JSON.stringify(this.position)}`);
     }
-
     getDistanceToTarget() {
-        return (
+        return Math.sqrt(
             (this.target.position.x - this.position.x) ** 2 +
-            (this.target.position.y - this.position.y) ** 2
+                (this.target.position.y - this.position.y) ** 2
         );
     }
-    
 }
 
 export class LaserProjectile extends Projectile {
