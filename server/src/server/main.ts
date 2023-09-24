@@ -38,7 +38,7 @@ server.listen(config.server.port, () => {
     console.log(`Node server is running at port: ${config.server.port}`);
 });
 
-const gameServer: GameServer = new GameServer(io);
+export const gameServer: GameServer = new GameServer(io);
 gameServer.startServer();
 
 io.on("connection", (socket) => {
