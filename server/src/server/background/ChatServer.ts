@@ -30,8 +30,6 @@ export class ChatServer {
 
         const message = consoleMessage.message.split(" ");
 
-        // to do command /d e, /c e
-
         switch(message[0]) {
             case "/i":
                 switch(message[1]) {
