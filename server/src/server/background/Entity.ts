@@ -1,14 +1,14 @@
 import { randomBytes } from "crypto";
-import { PortalLocations, SpacemapSize, Vector2D } from "./Spacemap";
+import { PortalLocations, Spacemap, SpacemapSize, Vector2D } from "./Spacemap";
 export class Entity {
     name: string;
-    currentMap: string;
     position: Vector2D;
+    currentMap: string;
     uuid = randomBytes(16).toString("hex");
 
-    public constructor(name: string, position?: Vector2D) {
+    public constructor(currentMap: string, name: string, position?: Vector2D) {
         this.name = name;
-        this.currentMap = "M-1";
+        this.currentMap = currentMap;
         if (position) {
             this.position = position;
         } else {
@@ -24,14 +24,15 @@ export class Portal extends Entity {
     _type: String;
 
     constructor(
-        mapSize: SpacemapSize,
+        map: Spacemap,
         location: PortalLocations,
         destination: string
     ) {
-        super("Portal");
+        super(map.name, "Portal");
         this.location = location;
         this.destination = destination;
-        this.mapSize = mapSize;
+        this.mapSize = map.size;
+        this.currentMap = map._config.name;
         this._type = "Portal";
 
         this.calculatePosition();

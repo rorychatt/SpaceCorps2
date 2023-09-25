@@ -6,10 +6,15 @@ import {
     PossibleProjectiles,
     ProjectileTypes,
 } from "./Projectiles";
-import { Vector2D } from "./Spacemap";
+import { Spacemap } from "./Spacemap";
 
 export class ProjectileServer {
     projectiles: PossibleProjectiles[] = [];
+    spacemap: Spacemap;
+
+    constructor(spacemap: Spacemap) {
+        this.spacemap = spacemap;
+    }
 
     createProjectile(
         type: ProjectileTypes,
@@ -18,7 +23,7 @@ export class ProjectileServer {
     ) {
         if (type == "LaserProjectile") {
             this.projectiles.push(
-                new LaserProjectile(targetEntity, attackerEntity)
+                new LaserProjectile(this.spacemap, targetEntity, attackerEntity)
             );
         }
     }

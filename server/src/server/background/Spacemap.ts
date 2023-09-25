@@ -17,7 +17,7 @@ export class Spacemap {
         this._config = config;
         this.name = config.name;
         this.size = config.size;
-        this.projectileServer = new ProjectileServer();
+        this.projectileServer = new ProjectileServer(this);
 
         this._maxAliens = 0;
         if (this._config.spawnableAliens) {
@@ -31,7 +31,7 @@ export class Spacemap {
     }
 
     spawnAlien(name: string, position?: Vector2D) {
-        const alien = new Alien(name, position);
+        const alien = new Alien(this, name, position);
         this.entities.push(alien);
     }
 
@@ -68,7 +68,7 @@ export class Spacemap {
         for (const portal in this._config.staticEntities.portals) {
             const _cfg = this._config.staticEntities.portals[portal];
             this.entities.push(
-                new Portal(this.size, _cfg.location, _cfg.destination)
+                new Portal(this, _cfg.location, _cfg.destination)
             );
         }
     }

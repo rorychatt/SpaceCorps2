@@ -102,7 +102,8 @@ export class GameServer {
                 const oldMap = this.spacemaps[player.currentMap];
                 oldMap.entities.filter((e) => e.name !== playerName);
 
-                console.log(closestPortal);
+                console.log(portals)
+                console.log("AAAAAAAAAAAAAAAAAAAAAAAA")
 
                 if (closestPortal) {
                     const targetPos = this.spacemaps[
@@ -141,7 +142,7 @@ export class GameServer {
     }
 
     async loadNewPlayer(socketId: string, username: string) {
-        const player = new Player(socketId, username);
+        const player = new Player(socketId, this.spacemaps["M-1"], username);
     }
 
     async processAILogic() {

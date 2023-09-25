@@ -3,7 +3,7 @@ import { gameServer } from "../main";
 import { Alien, Durability } from "./Alien";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
-import { Vector2D } from "./Spacemap";
+import { Spacemap, Vector2D } from "./Spacemap";
 
 export class Player extends Entity {
     _type: string = "Player";
@@ -18,8 +18,10 @@ export class Player extends Entity {
     lastAttackedByUUID?: string;
     speed: number = 2000;
 
-    public constructor(socketId: string, username: string) {
-        super(username);
+    public constructor(socketId: string, map: Spacemap, username: string) {
+
+        super(map.name, username);
+        
         this.socketId = socketId;
         this.damage = {
             maxDamage: 800,
@@ -42,6 +44,7 @@ export class Player extends Entity {
             gameServer.players.push(this);
             gameServer.spacemaps[this.currentMap].entities.push(this);    
         })
+        
     }
 
     private async _initializePlayerData() {
