@@ -35,7 +35,7 @@ export class GameServer {
         this._spacemapNames = Object.keys(this.spacemaps);
         this.chatServer = new ChatServer(this);
         this.rewardServer = new RewardServer();
-        this.admins = ["rostik", "rory"];
+        this.admins = ["rostik", "rory", "duma"];
     }
 
     public async getPlayerBySocketId(
