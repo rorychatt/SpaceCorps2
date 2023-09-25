@@ -53,9 +53,12 @@ export class GameServer {
     }
 
     public async attemptTeleport(playerName: string): Promise<void> {
-        function _findClosestPortal(portals: Portal[], targetPos: Vector2D) {
+        function _findClosestPortal(
+            portals: (Portal | Alien | Entity | Player)[],
+            targetPos: Vector2D
+        ): Portal | undefined {
             if (portals.length === 0) {
-                return null; // Return null if the array is empty
+                return undefined; // Return null if the array is empty
             }
 
             let closestPortal = portals[0]; // Initialize with the first portal
@@ -75,7 +78,9 @@ export class GameServer {
                 }
             }
 
-            return closestPortal;
+            if (closestPortal instanceof Portal) {
+                return closestPortal;
+            }
         }
 
         function _getBADDistance(position1: Vector2D, position2: Vector2D) {
@@ -89,15 +94,32 @@ export class GameServer {
                 const portals = this.spacemaps[
                     player.currentMap
                 ].entities.filter((ent) => ent instanceof Portal);
+
                 const closestPortal = _findClosestPortal(
-                    portals as Portal[],
+                    portals,
                     player.position
                 );
                 const oldMap = this.spacemaps[player.currentMap];
-                oldMap.entities.filter((e) => e.name !== playerName)
+                oldMap.entities.filter((e) => e.name !== playerName);
+
+                console.log(closestPortal);
+
                 if (closestPortal) {
-                    player.currentMap = closestPortal.destination;
-                    this.spacemaps[player.currentMap].entities.push(player);
+                    const targetPos = this.spacemaps[
+                        closestPortal.destination
+                    ].entities.filter((e) => {
+                        if (e instanceof Portal) {
+                            if ((e.destination = oldMap.name)) {
+                                return true;
+                            }
+                        }
+                    })[0].position;
+                    console.log(targetPos);
+                    this.sendPlayerToNewMap(
+                        player,
+                        closestPortal.destination,
+                        targetPos
+                    );
                 }
             } else {
                 console.error("Player not found");
@@ -127,6 +149,20 @@ export class GameServer {
             this.proccessRandomSpawns(),
             this.proccessRandomMovements(),
         ]);
+    }
+
+    async sendPlayerToNewMap(
+        player: Player,
+        newMapName: string,
+        targetPos?: Vector2D
+    ) {
+        player.currentMap = newMapName;
+        this.spacemaps[player.currentMap].entities.push(player);
+        if (targetPos) {
+            player.position = { x: targetPos.x, y: targetPos.y };
+        } else {
+            player.position = { x: 0, y: 0 };
+        }
     }
 
     async proccessRandomMovements() {
