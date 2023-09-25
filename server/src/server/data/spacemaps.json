@@ -1,6 +1,6 @@
 {
     "M-1": {
-        "name": "MCC-Homemap",
+        "name": "M-1",
         "size": {
             "width": 160,
             "height": 90
@@ -24,7 +24,7 @@
         }
     },
     "O-1": {
-        "name": "ORO-Homemap",
+        "name": "O-1",
         "size": {
             "width": 160,
             "height": 90
@@ -48,7 +48,7 @@
         }
     },
     "K-1": {
-        "name": "KGB-Homemap",
+        "name": "K-1",
         "size": {
             "width": 160,
             "height": 90
@@ -72,7 +72,7 @@
         }
     },
     "T-1": {
-        "name": "TRU-Homemap",
+        "name": "T-1",
         "size": {
             "width": 160,
             "height": 90
@@ -96,7 +96,7 @@
         }
     },
     "P-1": {
-        "name": "PVP-Map",
+        "name": "P-1",
         "size": {
             "width": 160,
             "height": 90

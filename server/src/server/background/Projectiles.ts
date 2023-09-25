@@ -2,7 +2,7 @@ import { Alien } from "./Alien";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
 import { Player } from "./Player";
-import { Vector2D } from "./Spacemap";
+import { Spacemap, Vector2D } from "./Spacemap";
 
 export class Projectile extends Entity {
     target: Entity | Alien | Player;
@@ -10,11 +10,12 @@ export class Projectile extends Entity {
     speed: number = 10;
 
     constructor(
+        map: Spacemap,
         name: string,
         target: Entity | Alien | Player,
         attacker: Entity | Alien | Player
     ) {
-        super(name, attacker.position);
+        super(map.name, name, attacker.position);
         this.target = target;
         this.attacker = attacker;
     }
@@ -51,11 +52,12 @@ export class LaserProjectile extends Projectile {
     speed: number;
 
     constructor(
+        map: Spacemap,
         target: Entity | Alien | Player,
         attacker: Entity | Alien | Player,
         color?: LaserColors
     ) {
-        super("laserProjectile", target, attacker);
+        super(map, "laserProjectile", target, attacker);
         this._type = "LaserProjectile";
         this.color = color ? color : "blue";
         this.speed = 100;
@@ -69,10 +71,11 @@ export class RocketProjectile extends Projectile {
     // TODO: Discuss!
 
     constructor(
+        map: Spacemap,
         target: Entity | Alien | Player,
         attacker: Entity | Alien | Player
     ) {
-        super("rocketProjectile", target, attacker);
+        super(map, "rocketProjectile", target, attacker);
         this._type = "RocketProjectile";
         this.speed = 10;
     }

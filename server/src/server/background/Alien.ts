@@ -1,7 +1,7 @@
 import { Entity } from "./Entity";
 import * as fs from "fs";
 import { tickrate } from "./GameServer";
-import { Vector2D } from "./Spacemap";
+import { Spacemap, Vector2D } from "./Spacemap";
 
 export class Alien extends Entity {
     _type: string = "Alien";
@@ -13,8 +13,8 @@ export class Alien extends Entity {
     _roamDestination: Vector2D | null = null;
     lastAttackedByUUID?: string;
 
-    public constructor(name: string, position?: Vector2D) {
-        super(name, position);
+    public constructor(map: Spacemap, name: string, position?: Vector2D) {
+        super(map.name, name, position)
         this.hitPoints = {
             hullPoints: 1000,
             shieldPoints: 1000,
