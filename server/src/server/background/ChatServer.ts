@@ -1,9 +1,6 @@
 import { Server } from "socket.io";
 import { GameServer } from "./GameServer";
 import { gameServer } from "../main";
-import { Spacemap } from "./Spacemap";
-import { Entity } from "./Entity";
-import { Player } from "./Player";
 
 export class ChatServer {
     io: Server;

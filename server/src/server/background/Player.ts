@@ -1,4 +1,5 @@
 import { PlayerEntityInterface, getUserDataByUsername } from "../db/db";
+import { gameServer } from "../main";
 import { Alien, Durability } from "./Alien";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
@@ -15,7 +16,7 @@ export class Player extends Entity {
     destination?: Vector2D | null;
     reloadState: ReloadStateCharacteristic = "canShoot";
     lastAttackedByUUID?: string;
-    speed: number = 360;
+    speed: number = 2000;
 
     public constructor(socketId: string, username: string) {
         super(username);
@@ -37,7 +38,14 @@ export class Player extends Entity {
             thulium: 0,
         };
 
-        this._getDataFromSQL();
+        this._initializePlayerData().then(()=>{
+            gameServer.players.push(this);
+            gameServer.spacemaps[this.currentMap].entities.push(this);    
+        })
+    }
+
+    private async _initializePlayerData() {
+        await this._getDataFromSQL();
     }
 
     async _getDataFromSQL() {

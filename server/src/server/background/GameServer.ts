@@ -1,12 +1,12 @@
 import { Alien, AlienDTO } from "./Alien";
 import { Player, PlayerDTO } from "./Player";
-import { Spacemap, Spacemaps } from "./Spacemap";
+import { Spacemap, Spacemaps, Vector2D } from "./Spacemap";
 import { GameDataConfig, readGameDataConfigFiles } from "./loadGameData";
 import { Server, Socket } from "socket.io";
 import { savePlayerData } from "../db/db";
 import { ChatServer } from "./ChatServer";
 import { DamageEvent } from "./DamageEvent";
-import { Entity } from "./Entity";
+import { Entity, Portal } from "./Entity";
 import { RewardServer } from "./RewardServer";
 import { LaserProjectile, LaserProjectileDTO } from "./Projectiles";
 
@@ -52,12 +52,67 @@ export class GameServer {
         return this.players.find((player) => player.uuid === uuid);
     }
 
+    public async attemptTeleport(playerName: string): Promise<void> {
+        function _findClosestPortal(portals: Portal[], targetPos: Vector2D) {
+            if (portals.length === 0) {
+                return null; // Return null if the array is empty
+            }
+
+            let closestPortal = portals[0]; // Initialize with the first portal
+            let closestDistance = _getBADDistance(
+                portals[0].position,
+                targetPos
+            );
+
+            for (let i = 1; i < portals.length; i++) {
+                const currentDistance = _getBADDistance(
+                    portals[i].position,
+                    targetPos
+                );
+                if (currentDistance < closestDistance) {
+                    closestPortal = portals[i];
+                    closestDistance = currentDistance;
+                }
+            }
+
+            return closestPortal;
+        }
+
+        function _getBADDistance(position1: Vector2D, position2: Vector2D) {
+            const dx = position1.x - position2.x;
+            const dy = position1.y - position2.y;
+            return dx * dx + dy * dy;
+        }
+        try {
+            const player = await this.getPlayerByUsername(playerName);
+            if (player) {
+                const portals = this.spacemaps[
+                    player.currentMap
+                ].entities.filter((ent) => ent instanceof Portal);
+                const closestPortal = _findClosestPortal(
+                    portals as Portal[],
+                    player.position
+                );
+                const oldMap = this.spacemaps[player.currentMap];
+                oldMap.entities.filter((e) => e.name !== playerName)
+                if (closestPortal) {
+                    player.currentMap = closestPortal.destination;
+                    this.spacemaps[player.currentMap].entities.push(player);
+                }
+            } else {
+                console.error("Player not found");
+            }
+        } catch (error) {
+            console.error("An error occurred:", error);
+        }
+    }
     _loadSpacemapsFromConfig() {
         const gameDataConfig: GameDataConfig = readGameDataConfigFiles();
         for (const key in gameDataConfig) {
             if (gameDataConfig.hasOwnProperty(key)) {
                 const _spacemapConfig = gameDataConfig[key];
                 const _spacemap: Spacemap = new Spacemap(_spacemapConfig);
+                _spacemap.loadStaticEntities();
                 this.spacemaps[key] = _spacemap;
             }
         }
@@ -65,8 +120,6 @@ export class GameServer {
 
     async loadNewPlayer(socketId: string, username: string) {
         const player = new Player(socketId, username);
-        this.players.push(player);
-        this.spacemaps[player.currentMap].entities.push(player);
     }
 
     async processAILogic() {

@@ -68,6 +68,11 @@ function fixGameServer() {
             'import { LaserProjectile, LaserProjectileDTO } from "./Projectiles.js";'
         );
 
+        modifiedData = modifiedData.replace(
+            'import { Portal } from "./Entity";',
+            'import { Portal } from "./Entity.js";'
+        );
+
         // Write the modified content back to the file
         writeFile(
             "./dist/server/background/GameServer.js",
@@ -142,6 +147,11 @@ function fixPlayer() {
             'import { tickrate } from "./GameServer.js";'
         );
 
+        modifiedData = modifiedData.replace(
+            'import { gameServer } from "../main";',
+            'import { gameServer } from "../main.js";'
+        );
+
         // Write the modified content back to the file
         writeFile("./dist/server/background/Player.js", modifiedData, (err) => {
             if (err) {
@@ -168,6 +178,12 @@ function fixSpacemap() {
             'import { ProjectileServer } from "./ProjectileServer";',
             'import { ProjectileServer } from "./ProjectileServer.js";'
         );
+
+        modifiedData = modifiedData.replace(
+            'import { Portal } from "./Entity";',
+            'import { Portal } from "./Entity.js";'
+        );
+
 
         // Write the modified content back to the file
         writeFile(
