@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import * as fs from "fs";
 import express from "express";
 import cors from "cors";
 import http from "http";
@@ -18,7 +18,9 @@ import {
 import { GameServer } from "./background/GameServer.js";
 import { ChatMessage } from "./background/ChatServer.js";
 
-const aliensData = JSON.parse(fs.readFileSync("./src/server/data/aliens.json", 'utf-8'));
+const aliensData = JSON.parse(
+    fs.readFileSync("./src/server/data/aliens.json", "utf-8")
+);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,9 +95,9 @@ io.on("connection", (socket) => {
 
     socket.on(
         "attemptRegister",
-        async (data: { username: string; password: string }) => {     
+        async (data: { username: string; password: string }) => {
             for (const key in aliensData) {
-                if(data.username == key) {
+                if (data.username == key) {
                     socket.emit("registerUnsuccessful", {
                         username: data.username,
                     });
@@ -130,6 +132,10 @@ io.on("connection", (socket) => {
         }
     );
 
+    socket.on("attemptTeleport", (data: { playerName: string }) => {
+        gameServer.attemptTeleport(data.playerName);
+    });
+
     // Handle chat message from client
     socket.on("sendChatMessageToServer", (data: ChatMessage) => {
         gameServer.chatServer.handleClientMessage(data);
@@ -140,9 +146,12 @@ io.on("connection", (socket) => {
         gameServer.chatServer.handleConsoleMessage(data);
     });
 
-    socket.on("shootEvent", (data: {playerName: string, targetUUID: string}) => {
-        gameServer.registerPlayerAttackEvent(data)
-    })
+    socket.on(
+        "shootEvent",
+        (data: { playerName: string; targetUUID: string }) => {
+            gameServer.registerPlayerAttackEvent(data);
+        }
+    );
 });
 
 function handleHTTPRequests() {

@@ -1,12 +1,12 @@
 import { Alien } from "./Alien";
-import { Entity } from "./Entity";
+import { Entity, Portal } from "./Entity";
 import { Player } from "./Player";
 import { ProjectileServer } from "./ProjectileServer";
 
 export class Spacemap {
     name: string;
     size: SpacemapSize;
-    entities: (Player | Alien | Entity)[];
+    entities: (Player | Alien | Entity | Portal)[];
     _config: SpacemapConfig;
     _maxAliens?: number;
     _allowedAliens?: string[];
@@ -17,7 +17,7 @@ export class Spacemap {
         this._config = config;
         this.name = config.name;
         this.size = config.size;
-        this.projectileServer = new ProjectileServer()
+        this.projectileServer = new ProjectileServer();
 
         this._maxAliens = 0;
         if (this._config.spawnableAliens) {
@@ -36,7 +36,7 @@ export class Spacemap {
     }
 
     deleteAlienByuuid(uuid: any) {
-        this.entities.filter(el => el !== uuid);
+        this.entities.filter((el) => el !== uuid);
     }
 
     randomSpawnAlien() {
@@ -63,6 +63,15 @@ export class Spacemap {
             }
         }
     }
+
+    loadStaticEntities() {
+        for (const portal in this._config.staticEntities.portals) {
+            const _cfg = this._config.staticEntities.portals[portal];
+            this.entities.push(
+                new Portal(this.size, _cfg.location, _cfg.destination)
+            );
+        }
+    }
 }
 
 export interface Spacemaps {
@@ -75,7 +84,7 @@ export interface Vector2D {
 }
 
 export interface PortalConfig {
-    location: string;
+    location: PortalLocations;
     destination: string;
 }
 
@@ -104,3 +113,14 @@ export interface SpawnableAliens {
         spawnLimit: number;
     };
 }
+
+export type PortalLocations =
+    | "top-left"
+    | "top"
+    | "top-right"
+    | "right"
+    | "bottom-right"
+    | "bottom"
+    | "bottom-left"
+    | "left"
+    | "middle";

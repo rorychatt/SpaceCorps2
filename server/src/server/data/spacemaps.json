@@ -99,7 +99,7 @@
         "name": "PVP-Map",
         "size": {
             "width": 160,
-            "heigh": 90
+            "height": 90
         },
         "staticEntities": {
             "portals": [

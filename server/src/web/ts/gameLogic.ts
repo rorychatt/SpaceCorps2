@@ -87,6 +87,7 @@ socket.on("mapData", (data: any) => {
 });
 
 async function loadNewSpacemap(data: any) {
+    clearScene(scene);
     try {
         currentMap = data.name;
         await Promise.all([
@@ -117,6 +118,16 @@ async function loadSpacemapPlane(data: any) {
 
 async function loadStaticEntities(data: any) {
     return;
+}
+
+function clearScene(scene: THREE.Scene) {
+    for (const object in objectDataMap) {
+        deleteObject(object);
+    }
+
+    while (scene.children.length > 0) {
+        scene.remove(scene.children[0]);
+    }
 }
 
 function initScene(): void {
@@ -265,6 +276,12 @@ function handleKeyboardButton(e: KeyboardEvent) {
                 // TODO: add logic of enter button here
                 break;
 
+            case "j":
+                socket.emit("attemptTeleport", {
+                    playerName: playerName,
+                });
+                break;
+
             case "o":
                 console.log(scene);
                 break;
@@ -360,6 +377,21 @@ async function createObject(data: any) {
                     }
                 );
                 break;
+            case "Portal":
+                loader.load(
+                    `./assets/models/portals/portal.glb`,
+                    async (glb) => {
+                        const model = glb.scene;
+                        model.uuid = data.uuid;
+                        model.position.set(data.position.x, 0, data.position.y);
+                        setNameRecursivelly(model, data.name, data.uuid);
+                        scene.add(model);
+                        model.lookAt(new THREE.Vector3(0, 0, 0));
+                        objectDataMap[data.uuid] = { data: model };
+                        resolve(model);
+                    }
+                );
+                break;
             case "LaserProjectile":
                 const lineMaterial = new THREE.LineBasicMaterial({
                     color: "green",
@@ -373,28 +405,25 @@ async function createObject(data: any) {
                 line.uuid = data.uuid;
                 line.name = data.name;
                 line.position.set(data.position.x, 0, data.position.y);
-                line.lookAt(data.targetPosition.x, 0, data.targetPosition.y)
-                scene.add(line)
+                line.lookAt(data.targetPosition.x, 0, data.targetPosition.y);
+                scene.add(line);
                 objectDataMap[data.uuid] = { data: line };
 
                 const sound = new THREE.PositionalAudio(audioListener);
 
                 const audioLoader = new THREE.AudioLoader();
-            
-                let ref = '../assets/sounds/laser01.ogg'
-            
-                if(Math.random() > 0.8) ref = '../assets/sounds/laser02.ogg'
-            
-                audioLoader.load(ref, function(buffer){
-            
+
+                let ref = "../assets/sounds/laser01.ogg";
+
+                if (Math.random() > 0.8) ref = "../assets/sounds/laser02.ogg";
+
+                audioLoader.load(ref, function (buffer) {
                     sound.setBuffer(buffer);
                     sound.setRefDistance(20);
                     sound.play();
-            
-                })
-            
-                break;
+                });
 
+                break;
             default:
                 console.log(data._type);
                 const geometry = new THREE.BoxGeometry();
