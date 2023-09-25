@@ -8,6 +8,7 @@ fixAlien();
 fixReward();
 fixProjectileServer();
 fixProjectiles();
+fixChatServer();
 
 function fixGameServer() {
     readFile("./dist/server/background/GameServer.js", "utf8", (err, data) => {
@@ -289,6 +290,31 @@ function fixProjectiles() {
         // Write the modified content back to the file
         writeFile(
             "./dist/server/background/Projectiles.js",
+            modifiedData,
+            (err) => {
+                if (err) {
+                    console.error(`Error writing file: ${err}`);
+                }
+            }
+        );
+    });
+}
+
+function fixChatServer() {
+    readFile("./dist/server/background/ChatServer.js", "utf8", (err, data) => {
+        if (err) {
+            console.error(`Error reading file: ${err}`);
+            return;
+        }
+
+        // Replace the import statement for "THREE" module
+        let modifiedData = data.replace(
+            'import { gameServer } from "../main";',
+            'import { gameServer } from "../main.js";'
+        );
+
+        writeFile(
+            "./dist/server/background/ChatServer.js",
             modifiedData,
             (err) => {
                 if (err) {
