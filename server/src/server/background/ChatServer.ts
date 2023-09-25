@@ -66,6 +66,32 @@ export class ChatServer {
                                 break;
                         }
                         break;
+                    case "/exp":
+                        const player = await gameServer.getPlayerByUsername(message[2]);
+                        if(player) {
+                            switch(message[1]) {
+                                case "give":
+                                    gameServer.rewardServer.registerExperienceReward(player.uuid, Number(message[3]));
+                                    break;
+                                case "take":
+                                    gameServer.rewardServer.registerExperienceReward(player.uuid, -Number(message[3]))
+                                    break;
+                            }
+                        }
+                        break;
+                    case "/thulium":
+                        const _player = await gameServer.getPlayerByUsername(message[2]);
+                        if(_player) {
+                            switch(message[1]) {
+                                case "give":
+                                    gameServer.rewardServer.registerThuliumReward(_player.uuid, Number([message[3]]));
+                                    break;
+                                case "take":
+                                    gameServer.rewardServer.registerThuliumReward(_player.uuid, -Number(message[3]));
+                                    break;
+                            }
+                        }
+                        break;
                 }
             }
         }
