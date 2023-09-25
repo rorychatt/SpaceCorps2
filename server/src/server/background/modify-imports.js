@@ -62,6 +62,11 @@ function fixGameServer() {
             'import { RewardServer } from "./RewardServer.js";'
         );
 
+        modifiedData = modifiedData.replace(
+            'import { LaserProjectile, LaserProjectileDTO } from "./Projectiles";',
+            'import { LaserProjectile, LaserProjectileDTO } from "./Projectiles.js";'
+        );
+
         // Write the modified content back to the file
         writeFile(
             "./dist/server/background/GameServer.js",

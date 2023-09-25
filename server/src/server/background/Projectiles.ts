@@ -20,12 +20,10 @@ export class Projectile extends Entity {
     }
 
     moveToTarget() {
-        console.log(`Old position: ${JSON.stringify(this.position)}`);
         const dx = this.target.position.x - this.position.x;
         const dy = this.target.position.y - this.position.y;
         const distanceToMove = this.speed / tickrate;
         const distanceToTarget = this.getDistanceToTarget();
-        console.log(distanceToTarget);
         if (distanceToTarget <= distanceToMove) {
             this.position = {
                 x: this.target.position.x,
@@ -38,7 +36,6 @@ export class Projectile extends Entity {
                 y: this.position.y + dy * ratio,
             };
         }
-        console.log(`New position: ${JSON.stringify(this.position)}`);
     }
     getDistanceToTarget() {
         return Math.sqrt(
@@ -61,7 +58,7 @@ export class LaserProjectile extends Projectile {
         super("laserProjectile", target, attacker);
         this._type = "LaserProjectile";
         this.color = color ? color : "blue";
-        this.speed = 10;
+        this.speed = 100;
     }
 }
 
@@ -77,7 +74,39 @@ export class RocketProjectile extends Projectile {
     ) {
         super("rocketProjectile", target, attacker);
         this._type = "RocketProjectile";
-        this.speed = 1;
+        this.speed = 10;
+    }
+}
+
+export class LaserProjectileDTO {
+    name: string;
+    position: Vector2D;
+    targetPosition: Vector2D;
+    color: LaserColors;
+    uuid: string;
+    _type: string;
+
+    constructor(laserProjectile: LaserProjectile) {
+        this.name = laserProjectile.name;
+        this.position = laserProjectile.position;
+        this.targetPosition = laserProjectile.target.position;
+        this.color = laserProjectile.color;
+        this.uuid = laserProjectile.uuid;
+        this._type = laserProjectile._type;
+    }
+}
+
+export class RocketProjectileDTO {
+    name: string;
+    position: Vector2D;
+    uuid: string;
+    _type: string;
+
+    constructor(rocketProjectile: RocketProjectile) {
+        this.name = rocketProjectile.name;
+        this.position = rocketProjectile.position;
+        this.uuid = rocketProjectile.uuid;
+        this._type = rocketProjectile._type;
     }
 }
 

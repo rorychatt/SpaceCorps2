@@ -82,8 +82,7 @@ socket.on("mapData", (data: any) => {
     if (currentMap != data.name) {
         loadNewSpacemap(data);
     }
-
-    updateObjects(data.entities);
+    updateObjects(data.entities.concat(data.projectiles));
     playerObject = scene.getObjectByName(playerName);
 });
 
@@ -256,7 +255,10 @@ function handleKeyboardButton(e: KeyboardEvent) {
         switch (e.key) {
             case "1":
                 if (lockOnCircle?.parent != undefined) {
-                    socket.emit("shootEvent", {playerName: playerName, targetUUID: lockOnCircle.parent.uuid})
+                    socket.emit("shootEvent", {
+                        playerName: playerName,
+                        targetUUID: lockOnCircle.parent.uuid,
+                    });
                 }
                 break;
             case "Enter":
@@ -358,7 +360,26 @@ async function createObject(data: any) {
                     }
                 );
                 break;
+            case "LaserProjectile":
+                const lineMaterial = new THREE.LineBasicMaterial({
+                    color: "green",
+                    linewidth: 4,
+                });
+                const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(0, 0, 0),
+                    new THREE.Vector3(0, 0, 1),
+                ]);
+                const line = new THREE.Line(lineGeometry, lineMaterial);
+                line.uuid = data.uuid;
+                line.name = data.name;
+                line.position.set(data.position.x, 0, data.position.y);
+                line.lookAt(data.targetPosition.x, 0, data.targetPosition.y)
+                scene.add(line)
+                objectDataMap[data.uuid] = { data: line };
+                break;
+
             default:
+                console.log(data._type);
                 const geometry = new THREE.BoxGeometry();
                 const material = new THREE.MeshBasicMaterial({
                     color: 0x00ff00,
@@ -507,9 +528,13 @@ function getLabelByUUID(uuid: string): CSS2DObject | undefined {
     return labels.find((label) => label.uuid === uuid);
 }
 
-function setNameRecursivelly(object: THREE.Object3D, name: string, uuid: string) {
+function setNameRecursivelly(
+    object: THREE.Object3D,
+    name: string,
+    uuid: string
+) {
     object.name = name;
-    object.uuid = uuid
+    object.uuid = uuid;
 
     for (let i = 0; i < object.children.length; i++) {
         setNameRecursivelly(object.children[i], name, uuid);
@@ -517,7 +542,6 @@ function setNameRecursivelly(object: THREE.Object3D, name: string, uuid: string)
 }
 
 async function loadEventListeners() {
-
     canvas?.addEventListener(
         "mouseup",
         function (event) {

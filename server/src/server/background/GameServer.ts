@@ -8,6 +8,7 @@ import { ChatServer } from "./ChatServer";
 import { DamageEvent } from "./DamageEvent";
 import { Entity } from "./Entity";
 import { RewardServer } from "./RewardServer";
+import { LaserProjectile, LaserProjectileDTO } from "./Projectiles";
 
 export const tickrate = 120;
 
@@ -181,16 +182,22 @@ export class GameServer {
 
     async sendMapData() {
         this.players.forEach((player) => {
-            const mapData: any = this.spacemaps[player.currentMap];
+            const mapData: Spacemap = this.spacemaps[player.currentMap];
 
-            const entitiesDTO = mapData.entities.map(
-                (entity: Alien | Player) => {
-                    if (entity instanceof Alien) {
-                        return new AlienDTO(entity);
-                    } else if (entity instanceof Player) {
-                        return new PlayerDTO(entity);
-                    } else {
-                        return entity;
+            let entitiesDTO = mapData.entities.map((entity) => {
+                if (entity instanceof Alien) {
+                    return new AlienDTO(entity);
+                } else if (entity instanceof Player) {
+                    return new PlayerDTO(entity);
+                } else {
+                    return entity;
+                }
+            });
+
+            const projectilesDTO = mapData.projectileServer.projectiles.map(
+                (projectile) => {
+                    if (projectile instanceof LaserProjectile) {
+                        return new LaserProjectileDTO(projectile);
                     }
                 }
             );
@@ -198,6 +205,7 @@ export class GameServer {
             this.io.to(player.socketId).emit("mapData", {
                 name: mapData.name,
                 entities: entitiesDTO,
+                projectiles: projectilesDTO,
                 size: mapData.size,
             });
         });
@@ -211,10 +219,8 @@ export class GameServer {
             this.getPlayerByUsername(data.playerName),
             this.getEntityByUUID(data.targetUUID),
         ]);
-        if (attacker && target) {
-            if (attacker.reloadState == "canShoot") {
-                attacker.reloadState = "reloading";
-            }
+        if (attacker && target && attacker.reloadState == "canShoot") {
+            attacker.reloadState = "reloading";
             this.spacemaps[
                 attacker.currentMap
             ].projectileServer.createProjectile(
@@ -230,16 +236,14 @@ export class GameServer {
         for (const spacemapName of this._spacemapNames) {
             for (const projectile of this.spacemaps[spacemapName]
                 .projectileServer.projectiles) {
-                console.log("AAAAAAAA");
                 projectile.moveToTarget();
-                if (projectile.getDistanceToTarget() < 0.5) {
+                if (projectile.getDistanceToTarget() < 0.1) {
                     this.damageEvents.push(
                         new DamageEvent(
                             projectile.target.uuid,
                             projectile.attacker.uuid
                         )
                     );
-                    console.log(`Projectile reached target!`);
                     this.spacemaps[spacemapName].projectileServer.projectiles =
                         this.spacemaps[
                             spacemapName
