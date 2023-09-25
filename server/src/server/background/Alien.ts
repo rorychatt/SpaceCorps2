@@ -88,7 +88,7 @@ export class Alien extends Entity {
         return damage;
     }
 
-    roam(): { x: number; y: number } {
+    roam(): Vector2D {
         let target = { x: 0, y: 0 };
         const currentPosition = this.position;
         if (this.movement) {
@@ -131,17 +131,17 @@ export class Alien extends Entity {
         if (this.movement) {
             const travelledDistance = this.movement.speed / tickrate / 100;
 
-            let direction = {
+            const direction = {
                 x: this._roamDestination.x - this.position.x,
                 y: this._roamDestination.y - this.position.y,
             };
 
-            let totalDistance = Math.sqrt(direction.x ** 2 + direction.y ** 2);
+            const totalDistance = Math.sqrt(direction.x ** 2 + direction.y ** 2);
 
             if (travelledDistance - totalDistance < 0) {
-                let dx = (travelledDistance / totalDistance) * direction.x;
+                const dx = (travelledDistance / totalDistance) * direction.x;
 
-                let dy = (travelledDistance / totalDistance) * direction.y;
+                const dy = (travelledDistance / totalDistance) * direction.y;
 
                 this.position = {
                     x: this.position.x + dx,

@@ -6,6 +6,8 @@ fixPlayer();
 fixSpacemap();
 fixAlien();
 fixReward();
+fixProjectileServer();
+fixProjectiles();
 
 function fixGameServer() {
     readFile("./dist/server/background/GameServer.js", "utf8", (err, data) => {
@@ -58,6 +60,11 @@ function fixGameServer() {
         modifiedData = modifiedData.replace(
             'import { RewardServer } from "./RewardServer";',
             'import { RewardServer } from "./RewardServer.js";'
+        );
+
+        modifiedData = modifiedData.replace(
+            'import { LaserProjectile, LaserProjectileDTO } from "./Projectiles";',
+            'import { LaserProjectile, LaserProjectileDTO } from "./Projectiles.js";'
         );
 
         // Write the modified content back to the file
@@ -156,6 +163,11 @@ function fixSpacemap() {
             'import { Alien } from "./Alien.js";'
         );
 
+        modifiedData = modifiedData.replace(
+            'import { ProjectileServer } from "./ProjectileServer";',
+            'import { ProjectileServer } from "./ProjectileServer.js";'
+        );
+
         // Write the modified content back to the file
         writeFile(
             "./dist/server/background/Spacemap.js",
@@ -224,4 +236,65 @@ function fixReward() {
             );
         }
     );
+}
+
+function fixProjectileServer() {
+    readFile(
+        "./dist/server/background/ProjectileServer.js",
+        "utf8",
+        (err, data) => {
+            if (err) {
+                console.error(`Error reading file: ${err}`);
+                return;
+            }
+
+            // Replace the import statement for "THREE" module
+            let modifiedData = data.replace(
+                'import { LaserProjectile, } from "./Projectiles";',
+                'import { LaserProjectile, } from "./Projectiles.js";'
+            );
+
+            // Write the modified content back to the file
+            writeFile(
+                "./dist/server/background/ProjectileServer.js",
+                modifiedData,
+                (err) => {
+                    if (err) {
+                        console.error(`Error writing file: ${err}`);
+                    }
+                }
+            );
+        }
+    );
+}
+
+function fixProjectiles() {
+    readFile("./dist/server/background/Projectiles.js", "utf8", (err, data) => {
+        if (err) {
+            console.error(`Error reading file: ${err}`);
+            return;
+        }
+
+        // Replace the import statement for "THREE" module
+        let modifiedData = data.replace(
+            'import { Entity } from "./Entity";',
+            'import { Entity } from "./Entity.js";'
+        );
+
+        modifiedData = modifiedData.replace(
+            'import { tickrate } from "./GameServer";',
+            'import { tickrate } from "./GameServer.js";'
+        );
+
+        // Write the modified content back to the file
+        writeFile(
+            "./dist/server/background/Projectiles.js",
+            modifiedData,
+            (err) => {
+                if (err) {
+                    console.error(`Error writing file: ${err}`);
+                }
+            }
+        );
+    });
 }

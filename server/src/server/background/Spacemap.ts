@@ -1,6 +1,7 @@
 import { Alien } from "./Alien";
 import { Entity } from "./Entity";
 import { Player } from "./Player";
+import { ProjectileServer } from "./ProjectileServer";
 
 export class Spacemap {
     name: string;
@@ -9,12 +10,14 @@ export class Spacemap {
     _config: SpacemapConfig;
     _maxAliens?: number;
     _allowedAliens?: string[];
+    projectileServer: ProjectileServer;
 
     public constructor(config: SpacemapConfig) {
         this.entities = [];
         this._config = config;
         this.name = config.name;
         this.size = config.size;
+        this.projectileServer = new ProjectileServer()
 
         this._maxAliens = 0;
         if (this._config.spawnableAliens) {
