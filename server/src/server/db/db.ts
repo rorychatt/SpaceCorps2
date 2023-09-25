@@ -120,7 +120,6 @@ export async function registerNewUser(username: string, password: string) {
     }
 }
 
-// Function to execute a query
 function executeQuery<T>(query: string): Promise<T[]> {
     return new Promise<T[]>((resolve, reject) => {
         try {
@@ -165,8 +164,21 @@ function executeQuery<T>(query: string): Promise<T[]> {
     });
 }
 
-export function savePlayerData(player: Player) {
-
-    const sql = `UPDATE playerEntity SET positionX = "${player.position.x}", positionY = "${player.position.y}", credits = "${player.stats?.credits}", thulium = "${player.stats?.thulium}", experience = "${player.stats?.experience}", honor = "${player.stats?.honor}", mapname = "${player.currentMap}", company = "${player.company}" WHERE username = "${player.name}"`;
+export function savePlayerData(player: Player): void {
+    const sql = `
+      UPDATE playerEntity
+      SET
+        positionX = "${player.position.x}",
+        positionY = "${player.position.y}",
+        credits = "${player.stats.credits}",
+        thulium = "${player.stats.thulium}",
+        experience = "${player.stats.experience}",
+        honor = "${player.stats.honor}",
+        mapname = "${player.currentMap}",
+        company = "${player.company}"
+      WHERE
+        username = "${player.name}"
+    `;
+  
     executeQuery(sql);
-}
+  }
