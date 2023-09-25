@@ -13,6 +13,8 @@ import {
 let loginDiv = document.getElementById("loginDiv") as HTMLElement;
 let spacemapDiv = document.getElementById("spacemapDiv") as HTMLElement;
 let contentDiv = document.getElementById("content") as HTMLElement;
+let uiDiv = document.querySelector(".ui") as HTMLElement;
+let consoleDiv = document.querySelector(".console_button") as HTMLElement;
 
 let playerName: string;
 
@@ -47,11 +49,17 @@ socket.on("connect", () => {
     console.log("Connected to the socket.io server");
 });
 
+socket.on("userisAdmin", () => {
+    consoleDiv.hidden = false;
+});
+
 socket.on("loginSuccessful", (data: { username: string }) => {
     console.log(`Successful login as ${data.username}, starting game...`);
     playerName = data.username;
     initScene();
     rescaleOnWindowResize();
+    uiDiv.hidden = false;
+    socket.emit("checkisAdmin", data.username);
 });
 
 socket.on("loginUnsuccessful", (data: { username: string }) => {

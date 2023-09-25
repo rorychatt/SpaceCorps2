@@ -51,6 +51,14 @@ io.on("connection", (socket) => {
         gameServer.disconnectPlayerBySocketId(socket.id);
     });
 
+    socket.on("checkisAdmin", (data) => {
+        for(let i = 0; i < gameServer.admins.length; i++) {
+            if(gameServer.admins[i] == data) {
+                socket.emit("userisAdmin");
+            }
+        }
+    });
+
     socket.on(
         "authenticate",
         async (data: { username: string; password: string }) => {
