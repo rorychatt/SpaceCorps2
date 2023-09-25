@@ -376,6 +376,23 @@ async function createObject(data: any) {
                 line.lookAt(data.targetPosition.x, 0, data.targetPosition.y)
                 scene.add(line)
                 objectDataMap[data.uuid] = { data: line };
+
+                const sound = new THREE.PositionalAudio(audioListener);
+
+                const audioLoader = new THREE.AudioLoader();
+            
+                let ref = '../assets/sounds/laser01.ogg'
+            
+                if(Math.random() > 0.8) ref = '../assets/sounds/laser02.ogg'
+            
+                audioLoader.load(ref, function(buffer){
+            
+                    sound.setBuffer(buffer);
+                    sound.setRefDistance(20);
+                    sound.play();
+            
+                })
+            
                 break;
 
             default:
