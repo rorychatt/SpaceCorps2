@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import { GameServer } from "./GameServer";
 import { gameServer } from "../main";
+import { Spacemap } from "./Spacemap";
 
 export class ChatServer {
     io: Server;
@@ -36,49 +37,60 @@ export class ChatServer {
         */
 
         const message = consoleMessage.message.split(" ");
+        let entity;
+
+        // gameServer.spacemaps["map"].spawnAlien("1231");
+        // to do command /d e, /c e
 
         switch(message[0]) {
             case "/i":
                 switch(message[1]) {
                     case "e":
-                        gameServer.getEntityByUUID(message[2]);
+                        entity = await gameServer.getEntityByUUID(message[2]);
+                        console.log(entity);
                         break;
                     case "p":
-                        gameServer.getPlayerByUsername(message[2]);
+                        entity = await gameServer.getPlayerByUsername(message[2]);
+                        console.log(entity);
                         break;
                 }
                 break;
             case "/c":
                 switch(message[1]) {
                     case "e": 
-                        
+                        gameServer.spacemaps["mapName"].spawnAlien(message[2], {
+                            x: (0.5 - Math.random()) * 10,
+                            y: (0.5 - Math.random()) * 10,
+                        });
                         break;
                 }
                 break;
             case "/d":
                 switch(message[1]) {
                     case "e":
-                        
+                        gameServer.spacemaps["mapName"].deleteAlienByuuid(message[2]);
                         break;
                 }
                 break;
         }
 
+        this._sendConsoleMessageToAll(consoleMessage.message);
+
         // TODO: main logic
     }
 
-    async _sendChatMessageToAll(message: Message) {
-        const formattedMessage = `<CONSOLE>: ${message.message}`;
+    async _sendChatMessageToAll(message: string) {
+        const formattedMessage = `<CONSOLE>: ${message}`;
         this.io.emit(`serverMessage`, {
             type: "chat",
             message: formattedMessage,
         });
     }
 
-    async _sendConsoleMessageToAll(message: Message) {
+    async _sendConsoleMessageToAll(message: string) {
         const formattedMessage = `<CONSOLE>: ${message}`;
         this.io.emit(`serverMessage`, {
-            type: "chat",
+            type: "console",
             message: formattedMessage,
         });
     }

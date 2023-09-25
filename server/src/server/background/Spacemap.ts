@@ -27,15 +27,13 @@ export class Spacemap {
         }
     }
 
-    // вызывать в ChatServer при выполнении команды, данный коментарий удалить
     spawnAlien(name: string, position?: Vector2D) {
         const alien = new Alien(name, position);
         this.entities.push(alien);
     }
 
-    // тут надо дописать метод и вызывать его в Chat.Server при выполнении команде, данный коментарий удалить
-    deleteAlien(name: string) {
-        // this.entities.splice(name);
+    deleteAlienByuuid(uuid: any) {
+        this.entities.filter(el => el !== uuid);
     }
 
     randomSpawnAlien() {
