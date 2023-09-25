@@ -35,6 +35,10 @@ export class Spacemap {
         this.entities.push(alien);
     }
 
+    deleteAlienByuuid(uuid: any) {
+        this.entities.filter(el => el !== uuid);
+    }
+
     randomSpawnAlien() {
         // TODO: maybe implement better storing of what entities are spawned, for loop is slow
         // BUG: this suggests there is a single type of aliens
