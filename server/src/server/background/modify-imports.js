@@ -152,6 +152,11 @@ function fixPlayer() {
             'import { gameServer } from "../main.js";'
         );
 
+        modifiedData = modifiedData.replace(
+            'import { Inventory } from "./Inventory";',
+            'import { Inventory } from "./Inventory.js";'
+        );
+
         // Write the modified content back to the file
         writeFile("./dist/server/background/Player.js", modifiedData, (err) => {
             if (err) {

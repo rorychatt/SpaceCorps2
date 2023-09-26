@@ -3,6 +3,7 @@ import { gameServer } from "../main";
 import { Alien, Durability } from "./Alien";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
+import { Inventory } from "./Inventory";
 import { Spacemap, Vector2D } from "./Spacemap";
 
 export class Player extends Entity {
@@ -17,6 +18,7 @@ export class Player extends Entity {
     reloadState: ReloadStateCharacteristic = "canShoot";
     lastAttackedByUUID?: string;
     speed: number = 2000;
+    inventory: Inventory = new Inventory();
 
     public constructor(socketId: string, map: Spacemap, username: string) {
 
