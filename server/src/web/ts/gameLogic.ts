@@ -16,6 +16,11 @@ let contentDiv = document.getElementById("content") as HTMLElement;
 let uiDiv = document.querySelector(".ui") as HTMLElement;
 let consoleDiv = document.querySelector(".console_button") as HTMLElement;
 
+const creditsElement = document.getElementById("credits_value");
+const thuliumElement = document.getElementById("thulium_value");
+const experienceElement = document.getElementById("experience_value");
+const honorElement = document.getElementById("honor_value");
+
 let playerName: string;
 
 let scene: THREE.Scene;
@@ -511,6 +516,9 @@ async function updateObjects(_data: any[]) {
 
     await Promise.all(
         _data.map(async (entity) => {
+            if(entity.name == playerName){
+                updatePlayerInfo(entity);
+            }
             if (objectDataMap.hasOwnProperty(entity.uuid)) {
                 const object = getObjectByUUID(entity.uuid);
                 if (object) {
@@ -533,6 +541,16 @@ async function updateObjects(_data: any[]) {
             .filter((uuid) => !existingUUIDs.includes(uuid))
             .map((uuid) => deleteObject(uuid))
     );
+}
+
+async function updatePlayerInfo(entity: any){
+    if(creditsElement && thuliumElement && experienceElement && honorElement){
+        console.log(entity)
+        creditsElement.textContent = entity.stats.credits;
+        thuliumElement.textContent = entity.stats.thulium;
+        experienceElement.textContent = entity.stats.experience;
+        honorElement.textContent = entity.stats.honor;
+    }
 }
 
 function getObjectByUUID(uuid: string) {
