@@ -545,7 +545,6 @@ async function updateObjects(_data: any[]) {
 
 async function updatePlayerInfo(entity: any){
     if(creditsElement && thuliumElement && experienceElement && honorElement){
-        console.log(entity)
         creditsElement.textContent = entity.stats.credits;
         thuliumElement.textContent = entity.stats.thulium;
         experienceElement.textContent = entity.stats.experience;

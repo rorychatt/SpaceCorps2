@@ -1,0 +1,11 @@
+{
+    "protos": {
+        "maxHealth": 8000,
+        "baseSpeed": 150,
+        "maxLasers": 2,
+        "maxGenerators": 2,
+        "price": {
+            "credits": 10000
+        }
+    }
+}

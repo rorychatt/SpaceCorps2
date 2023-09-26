@@ -23,32 +23,42 @@ export class ChatServer {
 
     async handleConsoleMessage(consoleMessage: ChatMessage) {
         this.time = new Date();
-        // TODO: check for privileges here!!!
-
-        for(let i = 0; i < gameServer.admins.length; i++) {
-            if(consoleMessage.username == gameServer.admins[i]) {
-
+        for (let i = 0; i < gameServer.admins.length; i++) {
+            if (consoleMessage.username == gameServer.admins[i]) {
                 const message = consoleMessage.message.split(" ");
-
-                switch(message[0]) {
+                switch (message[0]) {
                     case "/i":
-                        switch(message[1]) {
+                        switch (message[1]) {
                             case "e":
-                                const entity = await gameServer.getEntityByUUID(message[2]);
-                                this._sendConsoleMessageToAll(JSON.stringify(entity));
+                                const entity = await gameServer.getEntityByUUID(
+                                    message[2]
+                                );
+                                this._sendConsoleMessageToAll(
+                                    JSON.stringify(entity)
+                                );
                                 break;
                             case "p":
-                                const player = await gameServer.getPlayerByUsername(message[2]);
-                                this._sendConsoleMessageToAll(JSON.stringify(player));
+                                const player =
+                                    await gameServer.getPlayerByUsername(
+                                        message[2]
+                                    );
+                                this._sendConsoleMessageToAll(
+                                    JSON.stringify(player)
+                                );
                                 break;
                         }
                         break;
                     case "/c":
-                        switch(message[1]) {
-                            case "e": 
-                                const player = await gameServer.getPlayerByUsername(consoleMessage.username);
-                                if(player?.currentMap) {
-                                    gameServer.spacemaps[player.currentMap].spawnAlien(message[2], {
+                        switch (message[1]) {
+                            case "e":
+                                const player =
+                                    await gameServer.getPlayerByUsername(
+                                        consoleMessage.username
+                                    );
+                                if (player?.currentMap) {
+                                    gameServer.spacemaps[
+                                        player.currentMap
+                                    ].spawnAlien(message[2], {
                                         x: (0.5 - Math.random()) * 10,
                                         y: (0.5 - Math.random()) * 10,
                                     });
@@ -57,37 +67,58 @@ export class ChatServer {
                         }
                         break;
                     case "/d":
-                        switch(message[1]) {
+                        switch (message[1]) {
                             case "e":
-                                const player = await gameServer.getPlayerByUsername(consoleMessage.username);
-                                if(player?.currentMap) {
-                                    gameServer.spacemaps[player.currentMap].deleteAlienByuuid(message[2]);
+                                const player =
+                                    await gameServer.getPlayerByUsername(
+                                        consoleMessage.username
+                                    );
+                                if (player?.currentMap) {
+                                    gameServer.spacemaps[
+                                        player.currentMap
+                                    ].deleteAlienByuuid(message[2]);
                                 }
                                 break;
                         }
                         break;
                     case "/exp":
-                        const player = await gameServer.getPlayerByUsername(message[2]);
-                        if(player) {
-                            switch(message[1]) {
+                        const player = await gameServer.getPlayerByUsername(
+                            message[2]
+                        );
+                        if (player) {
+                            switch (message[1]) {
                                 case "give":
-                                    gameServer.rewardServer.registerExperienceReward(player.uuid, Number(message[3]));
+                                    gameServer.rewardServer.registerExperienceReward(
+                                        player.uuid,
+                                        Number(message[3])
+                                    );
                                     break;
                                 case "take":
-                                    gameServer.rewardServer.registerExperienceReward(player.uuid, -Number(message[3]))
+                                    gameServer.rewardServer.registerExperienceReward(
+                                        player.uuid,
+                                        -Number(message[3])
+                                    );
                                     break;
                             }
                         }
                         break;
                     case "/thulium":
-                        const _player = await gameServer.getPlayerByUsername(message[2]);
-                        if(_player) {
-                            switch(message[1]) {
+                        const _player = await gameServer.getPlayerByUsername(
+                            message[2]
+                        );
+                        if (_player) {
+                            switch (message[1]) {
                                 case "give":
-                                    gameServer.rewardServer.registerThuliumReward(_player.uuid, Number([message[3]]));
+                                    gameServer.rewardServer.registerThuliumReward(
+                                        _player.uuid,
+                                        Number([message[3]])
+                                    );
                                     break;
                                 case "take":
-                                    gameServer.rewardServer.registerThuliumReward(_player.uuid, -Number(message[3]));
+                                    gameServer.rewardServer.registerThuliumReward(
+                                        _player.uuid,
+                                        -Number(message[3])
+                                    );
                                     break;
                             }
                         }
@@ -95,8 +126,6 @@ export class ChatServer {
                 }
             }
         }
-
-        // TODO: main logic
     }
 
     async _sendChatMessageToAll(message: string) {
