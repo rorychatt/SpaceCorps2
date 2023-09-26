@@ -872,3 +872,39 @@ h1 {
 .console_send_btn:hover {
     background-color: rgba(255, 255, 255, 0.2);
 }
+
+/* Shop Item default div */
+.shop_item {
+    position: absolute;
+    width: 100%;
+    max-width: 100px;
+    margin: 0 auto;
+    text-align: center;
+    border: 1px solid white;
+    padding: 0.5vh;
+    border-radius: 10px;
+}
+
+.item_logo, .item_price, .buy_button {
+    width: 100%;
+}
+
+.item_logo {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.item_price {
+    font-size: 1vh;
+    color: white;
+    font-family: 'Pacifico';
+    margin-top: 1vh;
+}
+
+.buy_button {
+    background: rgba(50, 205, 50, 0.6);
+    color: white;
+    padding: 0.1vh 0.2vh;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
