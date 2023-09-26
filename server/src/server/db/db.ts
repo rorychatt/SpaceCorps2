@@ -57,9 +57,18 @@ export function setupDatabaseConnection(): void {
                       experience INT DEFAULT 0,
                       honor INT DEFAULT 0
                     );`;
+                const inventoryQuery: string = `
+                    CREATE TABLE IF NOT EXISTS inventory (
+                        username VARCHAR(255) PRIMARY KEY,
+                        lasers JSON,
+                        shieldGenerators JSON,
+                        speedGenerators JSON,
+                        ships JSON
+                    );`;
                 await Promise.all([
                     executeQuery(loginTableQuery),
                     executeQuery(playerEntityQuery),
+                    executeQuery(inventoryQuery),
                 ]);
             }
         } finally {
@@ -109,15 +118,42 @@ export async function registerNewUser(username: string, password: string) {
         if (userCredentials == undefined) {
             const loginTableQuery = `INSERT INTO login (username, password, lastLogin) VALUES ("${username}", "${password}", NOW())`;
             const playerEntityQuery = `INSERT INTO playerEntity (username) VALUES ("${username}")`;
+            const intentoryQuery = `INSERT INTO inventory (username, lasers, shieldGenerators, speedGenerators, ships) VALUES ("${username}", "{}", "{}", "{}", "{}")`;
 
             executeQuery(loginTableQuery);
             executeQuery(playerEntityQuery);
+            executeQuery(intentoryQuery);
         } else {
             console.log("Can't register user");
         }
     } catch (error) {
         console.log(error);
     }
+}
+
+export function updateInventoryData(
+    username: string,
+    inventoryData: any
+): Promise<any> {
+    const query = `
+        UPDATE inventory
+        SET
+            lasers = "${JSON.stringify(inventoryData.lasers)}",
+            shieldGenerators = "${JSON.stringify(
+                inventoryData.shieldGenerators
+            )}",
+            speedGenerators = "${JSON.stringify(
+                inventoryData.speedGenerators
+            )}",
+            ships = "${JSON.stringify(inventoryData.ships)}"
+        WHERE username = "${username}"`;
+
+    return executeQuery(query);
+}
+
+export function getInventoryData(username: string): Promise<any> {
+    const query = `SELECT * FROM inventory WHERE username = ${username}`;
+    return executeQuery(query);
 }
 
 function executeQuery<T>(query: string): Promise<T[]> {
@@ -179,6 +215,6 @@ export function savePlayerData(player: Player): void {
       WHERE
         username = "${player.name}"
     `;
-  
+
     executeQuery(sql);
-  }
+}
