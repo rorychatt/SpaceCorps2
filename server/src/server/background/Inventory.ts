@@ -1,12 +1,12 @@
 import * as fs from "fs";
 
-const shipData = JSON.parse(
+export const shipData = JSON.parse(
     fs.readFileSync("./src/server/data/ships.json").toString("utf-8")
 );
-const laserData = JSON.parse(
+export const laserData = JSON.parse(
     fs.readFileSync("./src/server/data/lasers.json").toString("utf-8")
 );
-const generatorData = JSON.parse(
+export const generatorData = JSON.parse(
     fs.readFileSync("./src/server/data/generators.json").toString("utf-8")
 );
 

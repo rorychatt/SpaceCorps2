@@ -99,6 +99,10 @@ socket.on("mapData", (data: any) => {
     playerObject = scene.getObjectByName(playerName);
 });
 
+socket.on("shopData", (data: {lasers: any[], ships: any[], generators: any[]}) => {
+    console.log(data)
+})
+
 async function loadNewSpacemap(data: any) {
     clearScene(scene);
     try {
@@ -516,7 +520,7 @@ async function updateObjects(_data: any[]) {
 
     await Promise.all(
         _data.map(async (entity) => {
-            if(entity.name == playerName){
+            if (entity.name == playerName) {
                 updatePlayerInfo(entity);
             }
             if (objectDataMap.hasOwnProperty(entity.uuid)) {
@@ -543,8 +547,8 @@ async function updateObjects(_data: any[]) {
     );
 }
 
-async function updatePlayerInfo(entity: any){
-    if(creditsElement && thuliumElement && experienceElement && honorElement){
+async function updatePlayerInfo(entity: any) {
+    if (creditsElement && thuliumElement && experienceElement && honorElement) {
         creditsElement.textContent = entity.stats.credits;
         thuliumElement.textContent = entity.stats.thulium;
         experienceElement.textContent = entity.stats.experience;

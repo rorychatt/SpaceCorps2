@@ -17,6 +17,7 @@ import {
 } from "./background/loadGameData.js";
 import { GameServer } from "./background/GameServer.js";
 import { ChatMessage } from "./background/ChatServer.js";
+import { generatorData, laserData, shipData } from "./background/Inventory.js";
 
 const aliensData = JSON.parse(
     fs.readFileSync("./src/server/data/aliens.json", "utf-8")
@@ -73,6 +74,12 @@ io.on("connection", (socket) => {
                     socket.emit("loginSuccessful", {
                         username: userCredentials.username,
                     });
+                    socket.emit("shopData", {
+                        lasers: laserData,
+                        generators: generatorData,
+                        ships: shipData,
+                    });
+                    
                     console.log(
                         `${userCredentials.username} logs into the game`
                     );
