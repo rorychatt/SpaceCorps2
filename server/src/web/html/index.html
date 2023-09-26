@@ -92,44 +92,44 @@
   </div>
   <div class="ui" hidden>
     <!-- <div class="top_container"> -->
-      <div class="ui_container">
-        <div class="pilot_button">
-          <button class="btn" id="player_modal_btn"><i class="fa fa-user"></i></button>
-        </div>
-        <div class="ship_button">
-          <button class="btn" id="ship_modal_btn"><i class="fa fa-space-shuttle"></i></button>
-        </div>
-        <div class="chat_button" id="chat_modal_btn">
-          <button class="btn"><i class="fa fa-wechat"></i></button>
-        </div>
-        <div class="spacemap_button" id="spacemap_modal_btn">
-          <button class="btn"><i class="fa fa-map"></i></button>
-        </div>
-        <div class="log_button" id="log_modal_btn">
-          <button class="btn"><i class="fa fa-th-list"></i></button>
-        </div>
-        <div class="assembly_button" id="assembly_modal_btn">
-          <button class="btn"><i class="fa fa-creative-commons"></i></button>
-        </div>
+    <div class="ui_container">
+      <div class="pilot_button">
+        <button class="btn" id="player_modal_btn"><i class="fa fa-user"></i></button>
       </div>
-      <div class="menu_container">
-        <div class="menu_button">
-          <button class="btn" id="menu_btn">
-            <i class="fa fa-bars"></i> Menu
-          </button>
-        </div>
-        <div class="settings_button">
-          <button class="btn"><i class="fa fa-gear"></i> Settings</button>
-        </div>
-        <div class="console_button" hidden>
-          <button class="btn"  id="console_btn">
-            <i class="fa fa-deviantart"></i> Console
-          </button>
-        </div>
-        <div class="disconnect_button">
-          <button class="btn" id="quit_btn"><i class="fa fa-power-off"></i> Quit</button>
-        </div>
+      <div class="ship_button">
+        <button class="btn" id="ship_modal_btn"><i class="fa fa-space-shuttle"></i></button>
       </div>
+      <div class="chat_button" id="chat_modal_btn">
+        <button class="btn"><i class="fa fa-wechat"></i></button>
+      </div>
+      <div class="spacemap_button" id="spacemap_modal_btn">
+        <button class="btn"><i class="fa fa-map"></i></button>
+      </div>
+      <div class="log_button" id="log_modal_btn">
+        <button class="btn"><i class="fa fa-th-list"></i></button>
+      </div>
+      <div class="assembly_button" id="assembly_modal_btn">
+        <button class="btn"><i class="fa fa-creative-commons"></i></button>
+      </div>
+    </div>
+    <div class="menu_container">
+      <div class="menu_button">
+        <button class="btn" id="menu_btn">
+          <i class="fa fa-bars"></i> Menu
+        </button>
+      </div>
+      <div class="settings_button">
+        <button class="btn"><i class="fa fa-gear"></i> Settings</button>
+      </div>
+      <div class="console_button" hidden>
+        <button class="btn" id="console_btn">
+          <i class="fa fa-deviantart"></i> Console
+        </button>
+      </div>
+      <div class="disconnect_button">
+        <button class="btn" id="quit_btn"><i class="fa fa-power-off"></i> Quit</button>
+      </div>
+    </div>
     <!-- </div> -->
     <div class="main_menu_container" id="main_menu_container">
       <div class="return_to_game">
@@ -181,22 +181,10 @@
             </button>
           </div>
         </div>
-        <div
-          class="profile_container profile_container_pilot"
-          id="profile_pilot"
-        ></div>
-        <div
-          class="profile_container profile_container_ranking"
-          id="profile_ranking"
-        ></div>
-        <div
-          class="profile_container profile_container_hangar"
-          id="profile_hangar"
-        ></div>
-        <div
-          class="profile_container profile_container_workroom"
-          id="profile_workroom"
-        ></div>
+        <div class="profile_container profile_container_pilot" id="profile_pilot"></div>
+        <div class="profile_container profile_container_ranking" id="profile_ranking"></div>
+        <div class="profile_container profile_container_hangar" id="profile_hangar"></div>
+        <div class="profile_container profile_container_workroom" id="profile_workroom"></div>
       </div>
       <div class="clan_information" id="c_info">
         <div class="shop_top">
@@ -223,18 +211,9 @@
           </div>
         </div>
         <div class="clan_container clan_container_info" id="clan_info"></div>
-        <div
-          class="clan_container clan_container_members"
-          id="clan_members"
-        ></div>
-        <div
-          class="clan_container clan_container_politics"
-          id="clan_politics"
-        ></div>
-        <div
-          class="clan_container clan_container_economics"
-          id="clan_economics"
-        ></div>
+        <div class="clan_container clan_container_members" id="clan_members"></div>
+        <div class="clan_container clan_container_politics" id="clan_politics"></div>
+        <div class="clan_container clan_container_economics" id="clan_economics"></div>
       </div>
       <div class="shopping" id="shop">
         <div class="shop_top">
@@ -276,18 +255,9 @@
           </div>
         </div>
         <div class="shopping_def shopping_ships" id="shopping_ships"></div>
-        <div
-          class="shopping_def shopping_weapons"
-          id="shopping_weapons"
-        ></div>
-        <div
-          class="shopping_def shopping_ammunition"
-          id="shopping_ammunition"
-        ></div>
-        <div
-          class="shopping_def shopping_generators"
-          id="shopping_generators"
-        ></div>
+        <div class="shopping_def shopping_weapons" id="shopping_weapons"></div>
+        <div class="shopping_def shopping_ammunition" id="shopping_ammunition"></div>
+        <div class="shopping_def shopping_generators" id="shopping_generators"></div>
         <div class="shopping_def shopping_extras" id="shopping_extras"></div>
         <div class="shopping_def shopping_design" id="shopping_design"></div>
         <div class="shopping_def shopping_donate" id="shopping_donate"></div>
@@ -331,7 +301,10 @@
 
     </div>
     <div class="console_container" id="console_container">
-      <div class="console_header" id="console_header"> <p class="console_header_name">Console</p> <button class="modal_btn" id="console_quit_btn"><i class="fa fa-remove"></i></button></div>
+      <div class="console_header" id="console_header">
+        <p class="console_header_name">Console</p> <button class="modal_btn" id="console_quit_btn"><i
+            class="fa fa-remove"></i></button>
+      </div>
       <div class="console_content">
         <div class="console_output" id="console_output">
 
@@ -340,7 +313,7 @@
           <input type="text" id="console_input" placeholder="Enter console command...">
           <button class="console_send_btn" id="sendConsoleMessageButton"><i class="fa fa-telegram"></i></button>
         </div>
-      </div>      
+      </div>
     </div>
     <div class="quit_container" id="quit_container">
       <p class="quit_text">
@@ -361,6 +334,25 @@
         <button class="modal_btn" id="modal_quit_btn">
           <i class="fa fa-remove"></i>
         </button>
+      </div>
+      <div class="player_info_credits">
+        <label>Credits:</label>
+        <span id="credits_value">0</span>
+      </div>
+
+      <div class="player_info_thulium">
+        <label>Thulium:</label>
+        <span id="thulium_value">0</span>
+      </div>
+
+      <div class="player_info_experience">
+        <label>Experience:</label>
+        <span id="experience_value">0</span>
+      </div>
+
+      <div class="player_info_honor">
+        <label>Honor:</label>
+        <span id="honor_value">0</span>
       </div>
     </div>
     <div class="ship_info_modal movable-div" id="ship_info_modal">
@@ -383,7 +375,7 @@
       </div>
       <div class="chat_modal_footer">
         <input type="text" id="chat_modal_input" placeholder="Enter text message...">
-        <button class="chat_modal_send_btn" id="sendChatMessageButton"><i class="fa fa-telegram"></i></button>        
+        <button class="chat_modal_send_btn" id="sendChatMessageButton"><i class="fa fa-telegram"></i></button>
       </div>
     </div>
     <div class="spacemap_info_modal movable-div" id="spacemap_info_modal">

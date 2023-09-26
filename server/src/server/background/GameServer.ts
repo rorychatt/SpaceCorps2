@@ -103,10 +103,6 @@ export class GameServer {
                 );
                 const oldMap = this.spacemaps[player.currentMap];
                 oldMap.entities.filter((e) => e.name !== playerName);
-
-                console.log(portals)
-                console.log("AAAAAAAAAAAAAAAAAAAAAAAA")
-
                 if (closestPortal) {
                     const targetPos = this.spacemaps[
                         closestPortal.destination
@@ -117,7 +113,6 @@ export class GameServer {
                             }
                         }
                     })[0].position;
-                    console.log(targetPos);
                     this.sendPlayerToNewMap(
                         player,
                         closestPortal.destination,
@@ -280,7 +275,11 @@ export class GameServer {
                 if (entity instanceof Alien) {
                     return new AlienDTO(entity);
                 } else if (entity instanceof Player) {
-                    return new PlayerDTO(entity);
+                    if (entity.name == player.name) {
+                        return entity;
+                    } else {
+                        return new PlayerDTO(entity);
+                    }
                 } else {
                     return entity;
                 }
