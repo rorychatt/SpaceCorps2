@@ -290,7 +290,14 @@ function handleKeyboardButton(e: KeyboardEvent) {
                 }
                 break;
             case "Enter":
-                // TODO: add logic of enter button here
+                const consoleMessageText = consoleInput?.value.trim();
+                if (consoleMessageText && consoleInput && consoleContent) {
+                    socket.emit("sendConsoleMessageToServer", {
+                        username: playerName,
+                        message: consoleMessageText,
+                    });
+                    consoleInput.value = "";
+                }
                 break;
 
             case "j":
