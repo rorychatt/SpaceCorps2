@@ -53,8 +53,8 @@ io.on("connection", (socket) => {
     });
 
     socket.on("checkisAdmin", (data) => {
-        for(let i = 0; i < gameServer.admins.length; i++) {
-            if(gameServer.admins[i] == data) {
+        for (let i = 0; i < gameServer.admins.length; i++) {
+            if (gameServer.admins[i] == data) {
                 socket.emit("userisAdmin");
             }
         }
@@ -79,7 +79,7 @@ io.on("connection", (socket) => {
                         generators: generatorData,
                         ships: shipData,
                     });
-                    
+
                     console.log(
                         `${userCredentials.username} logs into the game`
                     );
@@ -165,6 +165,14 @@ io.on("connection", (socket) => {
         "shootEvent",
         (data: { playerName: string; targetUUID: string }) => {
             gameServer.registerPlayerAttackEvent(data);
+        }
+    );
+
+    socket.on(
+        "playerPurchaseEvent",
+        (data: { playerName: string; itemName: string }) => {
+            console.log(data)
+            gameServer.shop.sellItem(data.playerName, data.itemName);
         }
     );
 });

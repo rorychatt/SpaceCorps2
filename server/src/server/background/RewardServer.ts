@@ -1,9 +1,12 @@
+import { updateInventoryData } from "../db/db";
+import { PossibleItems } from "./Inventory";
 import { Player } from "./Player";
 import {
     AlienKillReward,
     CreditsReward,
     ExperienceReward,
     HonorReward,
+    ItemReward,
     PlayerKillReward,
     PossibleRewards,
     ThulimReward,
@@ -60,6 +63,10 @@ export class RewardServer {
         );
     }
 
+    registerItemReward(recipientUUID: string, reward: PossibleItems) {
+        this.pendingRewards.push(new ItemReward(recipientUUID, reward));
+    }
+
     issueReward(player: Player, reward: PossibleRewards) {
         if (reward instanceof HonorReward) {
             player.addHonor(reward.honor);
@@ -79,6 +86,9 @@ export class RewardServer {
             player.addThulium(reward.thulium);
             player.addExperience(reward.experience);
             player.addHonor(reward.honor);
+        } else if (reward instanceof ItemReward) {
+            player.inventory.addItem(reward.item);
+            updateInventoryData(player.name, player.inventory)
         }
     }
 }

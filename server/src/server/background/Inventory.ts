@@ -11,10 +11,29 @@ export const generatorData = JSON.parse(
 );
 
 export class Inventory {
-    lasers: Laser[] = [];
-    shieldGenerators: ShieldGenerator[] = [];
-    speedGenerators: SpeedGenerator[] = [];
-    ships: ShipItem[] = [];
+    lasers: Laser[];
+    shieldGenerators: ShieldGenerator[];
+    speedGenerators: SpeedGenerator[];
+    ships: ShipItem[];
+
+    constructor() {
+        this.lasers = [];
+        this.shieldGenerators = [];
+        this.speedGenerators = [];
+        this.ships = [];
+    }
+
+    async addItem(item: PossibleItems) {
+        if (item instanceof Laser) {
+            this.lasers.push(item);
+        } else if (item instanceof ShieldGenerator) {
+            this.shieldGenerators.push(item);
+        } else if (item instanceof SpeedGenerator) {
+            this.speedGenerators.push(item);
+        } else if (item instanceof ShipItem) {
+            this.ships.push(item);
+        }
+    }
 
     async putLaserToShip(laserName: string, shipName: string) {
         const laser = this.findLaserByName(laserName);
@@ -342,3 +361,5 @@ export class ShipItem extends Item {
 }
 
 export type ItemPrice = { credits?: number; thulium?: number };
+
+export type PossibleItems = Laser | ShieldGenerator | SpeedGenerator | ShipItem;

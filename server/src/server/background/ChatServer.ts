@@ -123,6 +123,27 @@ export class ChatServer {
                             }
                         }
                         break;
+                    case "/credits":
+                        const _player2 = await gameServer.getPlayerByUsername(
+                            message[2]
+                        );
+                        if (_player2) {
+                            switch (message[1]) {
+                                case "give":
+                                    gameServer.rewardServer.registerCreditsReward(
+                                        _player2.uuid,
+                                        Number([message[3]])
+                                    );
+                                    break;
+                                case "take":
+                                    gameServer.rewardServer.registerCreditsReward(
+                                        _player2.uuid,
+                                        -Number(message[3])
+                                    );
+                                    break;
+                            }
+                        }
+                        break;
                 }
             }
         }

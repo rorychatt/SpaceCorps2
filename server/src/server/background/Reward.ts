@@ -1,3 +1,5 @@
+import { PossibleItems } from "./Inventory";
+
 export class Reward {
     recipientUUID: string;
     constructor(recipientUUID: string) {
@@ -87,10 +89,20 @@ export class HonorReward extends Reward {
     }
 }
 
+export class ItemReward extends Reward {
+    item: PossibleItems;
+
+    constructor(recipientUUID: string, item: PossibleItems) {
+        super(recipientUUID);
+        this.item = item;
+    }
+}
+
 export type PossibleRewards =
     | HonorReward
     | ExperienceReward
     | ThulimReward
     | CreditsReward
     | PlayerKillReward
-    | AlienKillReward;
+    | AlienKillReward
+    | ItemReward;

@@ -9,6 +9,7 @@ import { DamageEvent } from "./DamageEvent";
 import { Entity, Portal } from "./Entity";
 import { RewardServer } from "./RewardServer";
 import { LaserProjectile, LaserProjectileDTO } from "./Projectiles";
+import { Shop } from "./Shop";
 
 export const tickrate = 120;
 
@@ -22,6 +23,7 @@ export class GameServer {
     _spacemapNames: string[];
     chatServer: ChatServer;
     rewardServer: RewardServer;
+    shop: Shop;
     admins: string[];
 
     public constructor(io: Server) {
@@ -35,6 +37,7 @@ export class GameServer {
         this._spacemapNames = Object.keys(this.spacemaps);
         this.chatServer = new ChatServer(this);
         this.rewardServer = new RewardServer();
+        this.shop = new Shop();
         this.admins = ["rostik", "rory", "duma"];
     }
 
