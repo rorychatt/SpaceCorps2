@@ -61,5 +61,6 @@ registerBtn?.addEventListener("click", (event: Event) => {
     console.log("Attempting to register...")
     const username = (document.getElementById("registerUsername") as HTMLInputElement).value
     const password = (document.getElementById("registerPassword") as HTMLInputElement).value
+    if(username.length <= 0 || password.length <= 0) return;
     socket.emit("attemptRegister", {username: username, password: password})
 })

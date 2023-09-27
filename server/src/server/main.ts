@@ -67,6 +67,9 @@ io.on("connection", (socket) => {
                 const [userCredentials] = await getUserByUsername(
                     data.username
                 );
+                
+                if(data.username.length <= 0 || data.password.length <= 0) return;
+
                 if (
                     userCredentials &&
                     userCredentials.password === data.password
@@ -191,20 +194,6 @@ io.on("connection", (socket) => {
             gameServer.shop.sellItem(data.playerName, data.itemName);
         }
     );
-
-    socket.on("equipItemEvent", async (data: {playerName: string, itemName: string}) => {
-        const player = await gameServer.getPlayerByUsername(data.playerName);
-        if(player){
-            player.inventory.equipItem(data.itemName)
-        }
-    });
-
-    socket.on("unequipItemEvent", async(data: {playerName: string, itemName: string}) => {
-        const player = await gameServer.getPlayerByUsername(data.playerName);
-        if(player){
-            player.inventory.unequipItem(data.itemName)
-        }
-    })
 });
 
 function handleHTTPRequests() {
