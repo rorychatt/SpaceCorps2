@@ -301,7 +301,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                 }
                 break;
             case "Enter":
-                if(chatModalDiv.style.display == "block") {
+                if (chatModalDiv.style.display == "block") {
                     const messageText = chatModalInput?.value.trim();
                     if (messageText && chatModalInput && chatModalContent) {
                         socket.emit("sendChatMessageToServer", {
@@ -310,7 +310,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                         });
                         chatModalInput.value = "";
                     }
-                } else if(consoleDiv.style.display == "block") {
+                } else if (consoleDiv.style.display == "block") {
                     const consoleMessageText = consoleInput?.value.trim();
                     if (consoleMessageText && consoleInput && consoleContent) {
                         socket.emit("sendConsoleMessageToServer", {
@@ -585,6 +585,8 @@ async function updatePlayerInfo(entity: any) {
     if (JSON.stringify(playerInventory) != JSON.stringify(entity.inventory)) {
         playerInventory = entity.inventory;
         displayShipsInHangar();
+        displayItemsInWorkroom();
+        displayActiveItems();
     }
 }
 
@@ -713,6 +715,10 @@ async function displayShoppingItems() {
                 continue;
             }
 
+            while (categoryContainer?.firstChild) {
+                categoryContainer.removeChild(categoryContainer.firstChild);
+            }
+
             for (const itemName in categoryItems) {
                 if (categoryItems.hasOwnProperty(itemName)) {
                     const item = categoryItems[itemName];
@@ -757,6 +763,10 @@ async function displayShoppingItems() {
 
 async function displayShipsInHangar() {
     const categoryContainer = document.getElementById("hangar_storage");
+    while (categoryContainer?.firstChild) {
+        categoryContainer.removeChild(categoryContainer.firstChild);
+    }
+
     if (categoryContainer) {
         for (const _ship in playerInventory.ships) {
             const ship = playerInventory.ships[_ship];
@@ -770,6 +780,7 @@ async function displayShipsInHangar() {
             const shipIcon = document.createElement("div");
             shipIcon.classList.add("item_icon");
             const equipButton = document.createElement("button");
+            equipButton.classList.add("profile_btn");
             equipButton.classList.add("profile_equip_btn");
             equipButton.textContent = "EQUIP";
 
@@ -782,6 +793,215 @@ async function displayShipsInHangar() {
             equipButton.addEventListener("click", () => {
                 console.log(`You clicked equip button for ship ${ship.name}`);
             });
+        }
+    }
+}
+
+async function displayItemsInWorkroom() {
+    const categoryContainer = document.getElementById("workroom_storage");
+    while (categoryContainer?.firstChild) {
+        categoryContainer.removeChild(categoryContainer.firstChild);
+    }
+    console.log(playerInventory);
+    if (categoryContainer) {
+        for (const _laser in playerInventory.lasers) {
+            const laser = playerInventory.lasers[_laser];
+            const workroomItemContainer = document.createElement("div");
+            workroomItemContainer.classList.add("workroom_item");
+
+            const itemNameElement = document.createElement("div");
+            itemNameElement.classList.add("item_name");
+            itemNameElement.textContent = laser.name;
+
+            const itemIcon = document.createElement("div");
+            itemIcon.classList.add("item_icon");
+
+            const equipButton = document.createElement("button");
+            equipButton.classList.add("profile_btn");
+            equipButton.classList.add("profile_equip_btn");
+            equipButton.textContent = "EQUIP";
+
+            workroomItemContainer.appendChild(itemNameElement);
+            workroomItemContainer.appendChild(itemIcon);
+            workroomItemContainer.appendChild(equipButton);
+
+            categoryContainer.appendChild(workroomItemContainer);
+
+            equipButton.addEventListener("click", () => {
+                console.log(`Tried to equip item: ${laser.name}`);
+                socket.emit(`equipItemEvent`, {
+                    playerName: playerName,
+                    itemName: laser.name,
+                });
+            });
+        }
+        for (const _shieldGenerator in playerInventory.shieldGenerators) {
+            const shieldGenerator =
+                playerInventory.shieldGenerators[_shieldGenerator];
+            const workroomItemContainer = document.createElement("div");
+            workroomItemContainer.classList.add("workroom_item");
+
+            const itemNameElement = document.createElement("div");
+            itemNameElement.classList.add("item_name");
+            itemNameElement.textContent = shieldGenerator.name;
+
+            const itemIcon = document.createElement("div");
+            itemIcon.classList.add("item_icon");
+
+            const equipButton = document.createElement("button");
+            equipButton.classList.add("profile_btn");
+            equipButton.classList.add("profile_equip_btn");
+            equipButton.textContent = "EQUIP";
+
+            workroomItemContainer.appendChild(itemNameElement);
+            workroomItemContainer.appendChild(itemIcon);
+            workroomItemContainer.appendChild(equipButton);
+
+            categoryContainer.appendChild(workroomItemContainer);
+
+            equipButton.addEventListener("click", () => {
+                console.log(`Tried to equip item: ${shieldGenerator.name}`);
+                socket.emit(`equipItemEvent`, {
+                    playerName: playerName,
+                    itemName: shieldGenerator.name,
+                });
+            });
+        }
+
+        for (const _speedGenerator in playerInventory.speedGenerators) {
+            const speedGenerator =
+                playerInventory.speedGenerators[_speedGenerator];
+            const workroomItemContainer = document.createElement("div");
+            workroomItemContainer.classList.add("workroom_item");
+
+            const itemNameElement = document.createElement("div");
+            itemNameElement.classList.add("item_name");
+            itemNameElement.textContent = speedGenerator.name;
+
+            const itemIcon = document.createElement("div");
+            itemIcon.classList.add("item_icon");
+
+            const equipButton = document.createElement("button");
+            equipButton.classList.add("profile_btn");
+            equipButton.classList.add("profile_equip_btn");
+            equipButton.textContent = "EQUIP";
+
+            workroomItemContainer.appendChild(itemNameElement);
+            workroomItemContainer.appendChild(itemIcon);
+            workroomItemContainer.appendChild(equipButton);
+
+            categoryContainer.appendChild(workroomItemContainer);
+
+            equipButton.addEventListener("click", () => {
+                console.log(`Tried to equip item: ${speedGenerator.name}`);
+                socket.emit(`equipItemEvent`, {
+                    playerName: playerName,
+                    itemName: speedGenerator.name,
+                });
+            });
+        }
+    }
+}
+
+async function displayActiveItems() {
+    for (const ship in playerInventory.ships) {
+        if (playerInventory.ships[ship].isActive) {
+            const categoryContainer1 = document.getElementById(
+                "workroom_active_lasers"
+            );
+            const categoryContainer2 = document.getElementById(
+                "workroom_active_generators"
+            );
+            const categoryContainer3 = document.getElementById(
+                "workroom_active_extras"
+            );
+
+            while (categoryContainer1?.firstChild) {
+                categoryContainer1.removeChild(categoryContainer1.firstChild);
+            }
+            while (categoryContainer2?.firstChild) {
+                categoryContainer2.removeChild(categoryContainer2.firstChild);
+            }
+            while (categoryContainer3?.firstChild) {
+                categoryContainer3.removeChild(categoryContainer3.firstChild);
+            }
+            if (categoryContainer1) {
+                for (const _laser in playerInventory.ships[ship]
+                    .currentLasers) {
+                    const laser =
+                        playerInventory.ships[ship].currentLasers[_laser];
+                    const workroomItemContainer = document.createElement("div");
+                    workroomItemContainer.classList.add("workroom_item");
+
+                    const itemNameElement = document.createElement("div");
+                    itemNameElement.classList.add("item_name");
+                    itemNameElement.textContent = laser.name;
+
+                    const itemIcon = document.createElement("div");
+                    itemIcon.classList.add("item_icon");
+
+                    const unequipButton = document.createElement("button");
+                    unequipButton.classList.add("profile_btn");
+                    unequipButton.classList.add("profile_equip_btn");
+                    unequipButton.textContent = "UNEQUIP";
+
+                    workroomItemContainer.appendChild(itemNameElement);
+                    workroomItemContainer.appendChild(itemIcon);
+                    workroomItemContainer.appendChild(unequipButton);
+
+                    categoryContainer1.appendChild(workroomItemContainer);
+
+                    unequipButton.addEventListener("click", () => {
+                        console.log(`Tried to unequip item: ${laser.name}`);
+                        socket.emit(`unequipItemEvent`, {
+                            playerName: playerName,
+                            itemName: laser.name,
+                        });
+                    });
+                }
+            }
+            if (categoryContainer2) {
+                for (const _shieldGenerator in playerInventory.ships[ship]
+                    .currentGenerators) {
+                    const shieldGenerator =
+                        playerInventory.ships[ship].currentGenerators[
+                            _shieldGenerator
+                        ];
+                    const workroomItemContainer = document.createElement("div");
+                    workroomItemContainer.classList.add("workroom_item");
+
+                    const itemNameElement = document.createElement("div");
+                    itemNameElement.classList.add("item_name");
+                    itemNameElement.textContent = shieldGenerator.name;
+
+                    const itemIcon = document.createElement("div");
+                    itemIcon.classList.add("item_icon");
+
+                    const unequipButton = document.createElement("button");
+                    unequipButton.classList.add("profile_btn");
+                    unequipButton.classList.add("profile_equip_btn");
+                    unequipButton.textContent = "UNEQUIP";
+
+                    workroomItemContainer.appendChild(itemNameElement);
+                    workroomItemContainer.appendChild(itemIcon);
+                    workroomItemContainer.appendChild(unequipButton);
+
+                    categoryContainer2.appendChild(workroomItemContainer);
+
+                    unequipButton.addEventListener("click", () => {
+                        console.log(
+                            `Tried to unequip item: ${shieldGenerator.name}`
+                        );
+                        socket.emit(`unequipItemEvent`, {
+                            playerName: playerName,
+                            itemName: shieldGenerator.name,
+                        });
+                    });
+                }
+            }
+            if (categoryContainer3) {
+                // TODO: Complete logic here later when extras are done
+            }
         }
     }
 }

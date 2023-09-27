@@ -88,7 +88,9 @@ export class RewardServer {
             player.addHonor(reward.honor);
         } else if (reward instanceof ItemReward) {
             player.inventory.addItem(reward.item);
-            updateInventoryData(player.name, player.inventory)
         }
+
+        // updateInventoryData(player.name, player.inventory)
+
     }
 }

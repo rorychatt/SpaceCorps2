@@ -191,6 +191,20 @@ io.on("connection", (socket) => {
             gameServer.shop.sellItem(data.playerName, data.itemName);
         }
     );
+
+    socket.on("equipItemEvent", async (data: {playerName: string, itemName: string}) => {
+        const player = await gameServer.getPlayerByUsername(data.playerName);
+        if(player){
+            player.inventory.equipItem(data.itemName)
+        }
+    });
+
+    socket.on("unequipItemEvent", async(data: {playerName: string, itemName: string}) => {
+        const player = await gameServer.getPlayerByUsername(data.playerName);
+        if(player){
+            player.inventory.unequipItem(data.itemName)
+        }
+    })
 });
 
 function handleHTTPRequests() {

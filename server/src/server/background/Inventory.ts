@@ -46,9 +46,13 @@ export class Inventory {
             console.log(`Ship '${shipName}' not found.`);
             return;
         }
-        await ship.equipLaser(laserName);
-        console.log(`Equipped '${laserName}' to '${shipName}'.`);
-        this.removeFirstItemByProperty(this.lasers, "name", laserName);
+        if (ship.currentLasers.length >= ship.maxLasers) {
+            console.log(`Can not equip item, ship already full`);
+        } else {
+            await ship.equipLaser(laserName);
+            console.log(`Equipped '${laserName}' to '${shipName}'.`);
+            this.removeFirstItemByProperty(this.lasers, "name", laserName);
+        }
     }
 
     async putSpeedGeneratorToShip(generatorName: string, shipName: string) {
@@ -64,13 +68,17 @@ export class Inventory {
             console.log(`Ship '${shipName}' not found.`);
             return;
         }
-        await ship.equipSpeedGenerator(generatorName);
-        console.log(`Equipped '${generatorName}' to '${shipName}'.`);
-        this.removeFirstItemByProperty(
-            this.shieldGenerators,
-            "name",
-            generatorName
-        );
+        if (ship.currentGenerators.length >= ship.maxGenerators) {
+            console.log(`Can not equip item, ship already full`);
+        } else {
+            await ship.equipSpeedGenerator(generatorName);
+            console.log(`Equipped '${generatorName}' to '${shipName}'.`);
+            this.removeFirstItemByProperty(
+                this.shieldGenerators,
+                "name",
+                generatorName
+            );
+        }
     }
 
     async putShieldGeneratorToShip(generatorName: string, shipName: string) {
@@ -86,13 +94,17 @@ export class Inventory {
             console.log(`Ship '${shipName}' not found.`);
             return;
         }
-        await ship.equipShieldGenerator(generatorName);
-        console.log(`Equipped '${generatorName}' to '${shipName}'.`);
-        this.removeFirstItemByProperty(
-            this.shieldGenerators,
-            "name",
-            generatorName
-        );
+        if (ship.currentGenerators.length >= ship.maxGenerators) {
+            console.log(`Can not equip item, ship already full`);
+        } else {
+            await ship.equipShieldGenerator(generatorName);
+            console.log(`Equipped '${generatorName}' to '${shipName}'.`);
+            this.removeFirstItemByProperty(
+                this.shieldGenerators,
+                "name",
+                generatorName
+            );
+        }
     }
 
     async removeLaserFromShip(laserName: string, shipName: string) {
@@ -161,6 +173,94 @@ export class Inventory {
 
     async getActiveShip() {
         return this.ships.find((s) => s.isActive == true);
+    }
+
+    async equipItem(itemName: string) {
+        let itemToEquip: PossibleItems | undefined;
+
+        if (this.lasers.some((laser) => laser.name === itemName)) {
+            itemToEquip = this.findLaserByName(itemName);
+        } else if (
+            this.shieldGenerators.some(
+                (generator) => generator.name === itemName
+            )
+        ) {
+            itemToEquip = this.findShieldGeneratorByName(itemName);
+        } else if (
+            this.speedGenerators.some(
+                (generator) => generator.name === itemName
+            )
+        ) {
+            itemToEquip = this.findSpeedGeneratorByName(itemName);
+        }
+
+        if (!itemToEquip) {
+            console.log(`Item '${itemName}' not found in the inventory.`);
+            return;
+        }
+
+        const activeShip = await this.getActiveShip();
+
+        if (activeShip) {
+            if (itemToEquip instanceof Laser) {
+                await this.putLaserToShip(itemName, activeShip.name);
+            } else if (itemToEquip instanceof ShieldGenerator) {
+                await this.putShieldGeneratorToShip(itemName, activeShip.name);
+            } else if (itemToEquip instanceof SpeedGenerator) {
+                await this.putSpeedGeneratorToShip(itemName, activeShip.name);
+            }
+        } else {
+            console.log(`Could not find active ship.`);
+        }
+    }
+
+    async unequipItem(itemName: string) {
+        const activeShip = await this.getActiveShip();
+
+        if (!activeShip) {
+            console.log("No active ship found. Cannot remove item.");
+            return;
+        }
+
+        let itemToRemove: PossibleItems | undefined;
+
+        // Find the item by name in the active ship
+        if (activeShip.currentLasers.some((laser) => laser.name === itemName)) {
+            itemToRemove = activeShip.currentLasers.find(
+                (laser) => laser.name == itemName
+            );
+        } else if (
+            activeShip.currentGenerators.some(
+                (generator) => generator.name == itemName
+            )
+        ) {
+            itemToRemove = activeShip.currentGenerators.find(
+                (generator) => generator.name == itemName
+            );
+        }
+
+        if (!itemToRemove) {
+            console.log(`Item '${itemName}' not found in active ship.`);
+            return;
+        }
+
+        if (itemToRemove instanceof Laser) {
+            await this.removeLaserFromShip(itemToRemove.name, activeShip.name);
+        } else if (itemToRemove instanceof ShieldGenerator) {
+            await this.removeShieldGeneratorFromShip(
+                itemToRemove.name,
+                activeShip.name
+            );
+        } else if (itemToRemove instanceof SpeedGenerator) {
+            await this.removeShieldGeneratorFromShip(
+                itemToRemove.name,
+                activeShip.name
+            );
+        } else {
+            console.log(
+                `Unhandled item type in removing items from active ship`
+            );
+        }
     }
 
     private findLaserByName(name: string): Laser | undefined {

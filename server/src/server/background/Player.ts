@@ -61,7 +61,6 @@ export class Player extends Entity {
     private async _initializePlayerData() {
         await this._getDataFromSQL();
         this._activeShip = await this.inventory.getActiveShip()
-        console.log(this._activeShip)
     }
 
     async _getDataFromSQL() {
