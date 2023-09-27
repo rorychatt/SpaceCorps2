@@ -926,3 +926,83 @@ h1 {
     border-radius: 5px;
     cursor: pointer;
 }
+
+/* Inventory DIV */
+
+/* Hangar */
+.hangar_half {
+    width: 50%;
+    height: 100%;
+    float: left;
+    min-height: 60vh;
+}
+
+.hangar_storage {
+    border: 1px solid green;
+}
+
+.hangar_active_ship {
+    border: 1px solid white;
+}
+
+.hangar_item {
+    width: 100%;
+    max-width: 100px;
+
+    margin-top: 1vh;
+    margin-left: 1vh;
+
+    text-align: center;
+    border: 1px solid white;
+    padding: 0.5vh;
+    border-radius: 10px;
+
+    max-height: 10vh;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.hangar_logo, .hangar_price, .hangar_item_footer {
+    width: 100%;
+}
+
+.hangar_price {
+    font-size: 1vh;
+    color: white;
+    font-family: 'Pacifico';
+    margin-top: 1vh;    
+}
+
+.hangar_footer {
+    display: flex;
+    height: auto;
+}
+
+.profile_btn {
+    flex: 1;
+}
+
+.profile_btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1vh;
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+.profile_btn:first-child {
+    margin-right: 0.1vh;
+}
+
+.profile_sell_btn {
+    background-color: red;
+}
+
+.profile_equip_btn {
+    background-color: rgba(255, 255, 255, 0.2);
+}
