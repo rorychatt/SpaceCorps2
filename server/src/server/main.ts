@@ -120,7 +120,24 @@ io.on("connection", (socket) => {
                 }
             }
 
+            let regex = /^[A-Za-z0-9! =]+$/;
             const [userCredentials] = await getUserByUsername(data.username);
+            if(data.username.length < 4 && data.password.length < 4) {
+                socket.emit("registerUnsuccessful", {
+                    username: data.username,
+                });
+
+                return;
+            }
+
+            if (!regex.test(data.username)) {
+                socket.emit("registerUnsuccessful", {
+                    username: data.username,
+                });
+
+                return;
+            } 
+
             if (userCredentials) {
                 socket.emit("registerUnsuccessful", {
                     username: userCredentials.username,

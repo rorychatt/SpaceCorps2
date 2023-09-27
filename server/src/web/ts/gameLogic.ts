@@ -14,7 +14,7 @@ let loginDiv = document.getElementById("loginDiv") as HTMLElement;
 let spacemapDiv = document.getElementById("spacemapDiv") as HTMLElement;
 let contentDiv = document.getElementById("content") as HTMLElement;
 let uiDiv = document.querySelector(".ui") as HTMLElement;
-let consoleDiv = document.querySelector(".console_button") as HTMLElement;
+let consoleBtn = document.querySelector(".console_button") as HTMLElement;
 
 const creditsElement = document.getElementById("credits_value");
 const thuliumElement = document.getElementById("thulium_value");
@@ -55,7 +55,7 @@ socket.on("connect", () => {
 });
 
 socket.on("userisAdmin", () => {
-    consoleDiv.hidden = false;
+    consoleBtn.hidden = false;
 });
 
 socket.on("loginSuccessful", (data: { username: string }) => {
@@ -290,16 +290,26 @@ function handleKeyboardButton(e: KeyboardEvent) {
                 }
                 break;
             case "Enter":
-                const consoleMessageText = consoleInput?.value.trim();
-                if (consoleMessageText && consoleInput && consoleContent) {
-                    socket.emit("sendConsoleMessageToServer", {
-                        username: playerName,
-                        message: consoleMessageText,
-                    });
-                    consoleInput.value = "";
+                if(chatModalDiv.style.display == "block") {
+                    const messageText = chatModalInput?.value.trim();
+                    if (messageText && chatModalInput && chatModalContent) {
+                        socket.emit("sendChatMessageToServer", {
+                            username: playerName,
+                            message: messageText,
+                        });
+                        chatModalInput.value = "";
+                    }
+                } else if(consoleDiv.style.display == "block") {
+                    const consoleMessageText = consoleInput?.value.trim();
+                    if (consoleMessageText && consoleInput && consoleContent) {
+                        socket.emit("sendConsoleMessageToServer", {
+                            username: playerName,
+                            message: consoleMessageText,
+                        });
+                        consoleInput.value = "";
+                    }
                 }
                 break;
-
             case "j":
                 socket.emit("attemptTeleport", {
                     playerName: playerName,
