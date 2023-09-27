@@ -7,7 +7,13 @@ import { gameServer } from "../main";
 import { Alien, Durability } from "./Alien";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
-import { Inventory, Laser, ShieldGenerator, ShipItem, SpeedGenerator } from "./Inventory";
+import {
+    Inventory,
+    Laser,
+    ShieldGenerator,
+    ShipItem,
+    SpeedGenerator,
+} from "./Inventory";
 import { Spacemap, Vector2D } from "./Spacemap";
 
 export class Player extends Entity {
@@ -23,6 +29,7 @@ export class Player extends Entity {
     lastAttackedByUUID?: string;
     speed: number = 2000;
     inventory: Inventory = new Inventory();
+    _activeShip: ShipItem | undefined;
 
     public constructor(socketId: string, map: Spacemap, username: string) {
         super(map.name, username);
@@ -53,6 +60,8 @@ export class Player extends Entity {
 
     private async _initializePlayerData() {
         await this._getDataFromSQL();
+        this._activeShip = await this.inventory.getActiveShip()
+        console.log(this._activeShip)
     }
 
     async _getDataFromSQL() {
@@ -83,7 +92,7 @@ export class Player extends Entity {
                 honor: data.honor,
             };
         }
-        
+
         if (res2[0]) {
             for (const laser in res2[0].lasers) {
                 this.inventory.lasers.push(
@@ -92,17 +101,24 @@ export class Player extends Entity {
             }
             for (const shieldGenerator in res2[0].shieldGenerators) {
                 this.inventory.shieldGenerators.push(
-                    new ShieldGenerator(res2[0].shieldGenerators[shieldGenerator].name)
+                    new ShieldGenerator(
+                        res2[0].shieldGenerators[shieldGenerator].name
+                    )
                 );
             }
             for (const speedGenerator in res2[0].speedGenerators) {
                 this.inventory.speedGenerators.push(
-                    new SpeedGenerator(res2[0].speedGenerators[speedGenerator].name)
+                    new SpeedGenerator(
+                        res2[0].speedGenerators[speedGenerator].name
+                    )
                 );
             }
             for (const ship in res2[0].ships) {
                 this.inventory.ships.push(
-                    new ShipItem(res2[0].ships[ship].name)
+                    new ShipItem(
+                        res2[0].ships[ship].name,
+                        res2[0].ships[ship].isActive
+                    )
                 );
             }
         }

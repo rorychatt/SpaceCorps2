@@ -1,5 +1,6 @@
 {
     "sh1": {
+        "name": "sh1",
         "shieldPoints": 10000,
         "shieldAbsorbance": 0.7,
         "price": {
@@ -7,6 +8,7 @@
         }
     },
     "sh2": {
+        "name": "sh2",
         "shieldPoints": 15000,
         "shieldAbsorbance": 0.8,
         "price": {
@@ -14,12 +16,14 @@
         }
     },
     "sp1": {
+        "name": "sp1",
         "baseSpeed": 10,
         "price": {
             "credits": 10000
         }
     },
     "sp2": {
+        "name": "sp2",
         "baseSpeed": 20,
         "price": {
             "credits": 2000

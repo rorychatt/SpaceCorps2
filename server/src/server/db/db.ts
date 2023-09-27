@@ -118,11 +118,11 @@ export async function registerNewUser(username: string, password: string) {
         if (userCredentials == undefined) {
             const loginTableQuery = `INSERT INTO login (username, password, lastLogin) VALUES ("${username}", "${password}", NOW())`;
             const playerEntityQuery = `INSERT INTO playerEntity (username) VALUES ("${username}")`;
-            const intentoryQuery = `INSERT INTO inventory (username, lasers, shieldGenerators, speedGenerators, ships) VALUES ("${username}", "{}", "{}", "{}", "{}")`;
+            const inventoryQuery = `INSERT INTO inventory (username, lasers, shieldGenerators, speedGenerators, ships) VALUES ("${username}", "{}", "{}", "{}", '{"protos":{"name":"protos","maxHealth":8000,"baseSpeed":150,"maxLasers":2,"maxGenerators":2,"isActive":true,"price":{"credits":10000}}}')`;
 
             executeQuery(loginTableQuery);
             executeQuery(playerEntityQuery);
-            executeQuery(intentoryQuery);
+            executeQuery(inventoryQuery);
         } else {
             console.log("Can't register user");
         }

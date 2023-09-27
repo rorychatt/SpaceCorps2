@@ -1,5 +1,6 @@
 {
     "laser1": {
+        "name": "laser1",
         "maxDamage": 100,
         "damageVariance": 0.1,
         "criticalChance": 0.02,
@@ -9,6 +10,7 @@
         }
     },
     "laser2": {
+        "name": "laser2",
         "maxDamage": 160,
         "damageVariance": 0.1,
         "criticalChance": 0.05,

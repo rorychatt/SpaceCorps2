@@ -155,8 +155,8 @@ function fixPlayer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { Inventory, Laser, ShieldGenerator, ShipItem, SpeedGenerator } from "./Inventory";',
-            'import { Inventory, Laser, ShieldGenerator, ShipItem, SpeedGenerator } from "./Inventory.js";'
+            'import { Inventory, Laser, ShieldGenerator, ShipItem, SpeedGenerator, } from "./Inventory";',
+            'import { Inventory, Laser, ShieldGenerator, ShipItem, SpeedGenerator, } from "./Inventory.js";'
         );
 
         

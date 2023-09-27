@@ -159,6 +159,10 @@ export class Inventory {
         }
     }
 
+    async getActiveShip() {
+        return this.ships.find((s) => s.isActive == true);
+    }
+
     private findLaserByName(name: string): Laser | undefined {
         return this.lasers.find((laser) => laser.name === name);
     }
@@ -265,17 +269,22 @@ export class ShipItem extends Item {
 
     currentLasers: Laser[] = [];
     currentGenerators: (ShieldGenerator | SpeedGenerator)[] = [];
+    isActive: boolean;
 
-    constructor(shipName: string) {
+    constructor(shipName: string, activeShip?: boolean) {
         super(shipName);
         this.maxHealth = shipData[shipName].maxHealth;
         this.baseSpeed = shipData[shipName].baseSpeed;
         this.maxLasers = shipData[shipName].maxLasers;
         this.maxGenerators = shipData[shipName].maxGenerators;
         this.price = {
-            credits: shipData.price.credits,
-            thulium: shipData.price.thulium,
+            credits: shipData[shipName].price.credits,
+            thulium: shipData[shipName].price.thulium,
         };
+        this.isActive = false;
+        if (activeShip) {
+            this.isActive = activeShip;
+        }
     }
 
     async equipLaser(laserName: string) {

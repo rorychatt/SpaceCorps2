@@ -1,5 +1,6 @@
 {
     "protos": {
+        "name": "protos",
         "maxHealth": 8000,
         "baseSpeed": 150,
         "maxLasers": 2,
