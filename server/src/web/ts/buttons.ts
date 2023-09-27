@@ -20,7 +20,7 @@ const shoppingDonateButton = document.getElementById("shop_donate") as HTMLEleme
 // Button eventListeners
 
 shoppingShipsButton.addEventListener ("click", function(): void {
-    shoppingShipsDiv.style.display = "block";
+    shoppingShipsDiv.style.display = "flex";
     shoppingWeaponsDiv.style.display = "none";
     shoppingAmmoDiv.style.display = "none";
     shoppingGeneratorDiv.style.display = "none";
@@ -31,7 +31,7 @@ shoppingShipsButton.addEventListener ("click", function(): void {
 
 shoppingWeaponsButton.addEventListener ("click", function(): void {
     shoppingShipsDiv.style.display = "none";
-    shoppingWeaponsDiv.style.display = "block";
+    shoppingWeaponsDiv.style.display = "flex";
     shoppingAmmoDiv.style.display = "none";
     shoppingGeneratorDiv.style.display = "none";
     shoppingExtrasDiv.style.display = "none";
@@ -42,7 +42,7 @@ shoppingWeaponsButton.addEventListener ("click", function(): void {
 shoppingAmmoButton.addEventListener ("click", function(): void {
     shoppingShipsDiv.style.display = "none";
     shoppingWeaponsDiv.style.display = "none";
-    shoppingAmmoDiv.style.display = "block";
+    shoppingAmmoDiv.style.display = "flex";
     shoppingGeneratorDiv.style.display = "none";
     shoppingExtrasDiv.style.display = "none";
     shoppingDesignDiv.style.display = "none";
@@ -53,7 +53,7 @@ shoppingGeneratorButton.addEventListener ("click", function(): void {
     shoppingShipsDiv.style.display = "none";
     shoppingWeaponsDiv.style.display = "none";
     shoppingAmmoDiv.style.display = "none";
-    shoppingGeneratorDiv.style.display = "block";
+    shoppingGeneratorDiv.style.display = "flex";
     shoppingExtrasDiv.style.display = "none";
     shoppingDesignDiv.style.display = "none";
     shoppingDonateDiv.style.display = "none";
@@ -64,7 +64,7 @@ shoppingExtrasButton.addEventListener ("click", function(): void {
     shoppingWeaponsDiv.style.display = "none";
     shoppingAmmoDiv.style.display = "none";
     shoppingGeneratorDiv.style.display = "none";
-    shoppingExtrasDiv.style.display = "block";
+    shoppingExtrasDiv.style.display = "flex";
     shoppingDesignDiv.style.display = "none";
     shoppingDonateDiv.style.display = "none";
 })
@@ -75,7 +75,7 @@ shoppingDesignButton.addEventListener ("click", function(): void {
     shoppingAmmoDiv.style.display = "none";
     shoppingGeneratorDiv.style.display = "none";
     shoppingExtrasDiv.style.display = "none";
-    shoppingDesignDiv.style.display = "block";
+    shoppingDesignDiv.style.display = "flex";
     shoppingDonateDiv.style.display = "none";
 })
 
@@ -86,7 +86,7 @@ shoppingDonateButton.addEventListener ("click", function(): void {
     shoppingGeneratorDiv.style.display = "none";
     shoppingExtrasDiv.style.display = "none";
     shoppingDesignDiv.style.display = "none";
-    shoppingDonateDiv.style.display = "block";
+    shoppingDonateDiv.style.display = "flex";
 })
 
 // Auction (Hourly Daily Weekly Monthly)
