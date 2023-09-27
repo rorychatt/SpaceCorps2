@@ -20,7 +20,9 @@ const creditsElement = document.getElementById("credits_value");
 const thuliumElement = document.getElementById("thulium_value");
 const experienceElement = document.getElementById("experience_value");
 const honorElement = document.getElementById("honor_value");
+
 let shoppingData: any;
+let playerInventory: any;
 
 let playerName: string;
 
@@ -563,6 +565,10 @@ async function updatePlayerInfo(entity: any) {
         experienceElement.textContent = entity.stats.experience;
         honorElement.textContent = entity.stats.honor;
     }
+    if (JSON.stringify(playerInventory) != JSON.stringify(entity.inventory)) {
+        playerInventory = entity.inventory;
+        displayShipsInHangar();
+    }
 }
 
 function getObjectByUUID(uuid: string) {
@@ -728,6 +734,37 @@ async function displayShoppingItems() {
                     });
                 }
             }
+        }
+    }
+}
+
+async function displayShipsInHangar() {
+    const categoryContainer = document.getElementById("hangar_storage");
+    if (categoryContainer) {
+        for (const _ship in playerInventory.ships) {
+            const ship = playerInventory.ships[_ship];
+            const hangarItemContainer = document.createElement("div");
+            hangarItemContainer.classList.add("hangar_item");
+
+            const shipNameElement = document.createElement("div");
+            shipNameElement.classList.add("item_name");
+            shipNameElement.textContent = ship.name;
+
+            const shipIcon = document.createElement("div");
+            shipIcon.classList.add("item_icon");
+            const equipButton = document.createElement("button");
+            equipButton.classList.add("profile_equip_btn");
+            equipButton.textContent = "EQUIP";
+
+            hangarItemContainer.appendChild(shipNameElement);
+            hangarItemContainer.appendChild(shipIcon);
+            hangarItemContainer.appendChild(equipButton);
+
+            categoryContainer.appendChild(hangarItemContainer);
+
+            equipButton.addEventListener("click", () => {
+                console.log(`You clicked equip button for ship ${ship.name}`);
+            });
         }
     }
 }
