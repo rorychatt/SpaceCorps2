@@ -256,7 +256,7 @@ const consoleQuitButton = document.getElementById("console_quit_btn") as HTMLEle
 
 consoleQuitButton.addEventListener("click", function(): void {
     consoleDiv.style.display = "none";
-})
+});
 
 consoleButton.addEventListener("click", function(): void {
     if(consoleDiv.style.display === "none" || consoleDiv.style.display === "") {
@@ -264,5 +264,5 @@ consoleButton.addEventListener("click", function(): void {
     } else {
         consoleDiv.style.display = "none";
     }
-})
+});
 
