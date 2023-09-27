@@ -140,8 +140,8 @@ function fixPlayer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { getUserDataByUsername } from "../db/db";',
-            'import { getUserDataByUsername } from "../db/db.js";'
+            'import { getInventoryData, getUserDataByUsername, } from "../db/db";',
+            'import { getInventoryData, getUserDataByUsername, } from "../db/db.js";'
         );
 
         modifiedData = modifiedData.replace(
@@ -155,9 +155,11 @@ function fixPlayer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { Inventory } from "./Inventory";',
-            'import { Inventory } from "./Inventory.js";'
+            'import { Inventory, Laser, ShieldGenerator, ShipItem, SpeedGenerator } from "./Inventory";',
+            'import { Inventory, Laser, ShieldGenerator, ShipItem, SpeedGenerator } from "./Inventory.js";'
         );
+
+        
 
         writeFile("./dist/server/background/Player.js", modifiedData, (err) => {
             if (err) {

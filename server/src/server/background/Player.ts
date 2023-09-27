@@ -1,9 +1,13 @@
-import { PlayerEntityInterface, getUserDataByUsername } from "../db/db";
+import {
+    PlayerEntityInterface,
+    getInventoryData,
+    getUserDataByUsername,
+} from "../db/db";
 import { gameServer } from "../main";
 import { Alien, Durability } from "./Alien";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
-import { Inventory } from "./Inventory";
+import { Inventory, Laser, ShieldGenerator, ShipItem, SpeedGenerator } from "./Inventory";
 import { Spacemap, Vector2D } from "./Spacemap";
 
 export class Player extends Entity {
@@ -21,9 +25,8 @@ export class Player extends Entity {
     inventory: Inventory = new Inventory();
 
     public constructor(socketId: string, map: Spacemap, username: string) {
-
         super(map.name, username);
-        
+
         this.socketId = socketId;
         this.damage = {
             maxDamage: 800,
@@ -42,11 +45,10 @@ export class Player extends Entity {
             thulium: 0,
         };
 
-        this._initializePlayerData().then(()=>{
+        this._initializePlayerData().then(() => {
             gameServer.players.push(this);
-            gameServer.spacemaps[this.currentMap].entities.push(this);    
-        })
-        
+            gameServer.spacemaps[this.currentMap].entities.push(this);
+        });
     }
 
     private async _initializePlayerData() {
@@ -67,6 +69,7 @@ export class Player extends Entity {
         const res = (await getUserDataByUsername(
             this.name
         )) as PlayerEntityInterface[];
+        const res2 = await getInventoryData(this.name);
         if (res && res.length > 0) {
             const data = res[0];
             templateData = {
@@ -79,6 +82,29 @@ export class Player extends Entity {
                 experience: data.experience,
                 honor: data.honor,
             };
+        }
+        
+        if (res2[0]) {
+            for (const laser in res2[0].lasers) {
+                this.inventory.lasers.push(
+                    new Laser(res2[0].lasers[laser].name)
+                );
+            }
+            for (const shieldGenerator in res2[0].shieldGenerators) {
+                this.inventory.shieldGenerators.push(
+                    new ShieldGenerator(res2[0].shieldGenerators[shieldGenerator].name)
+                );
+            }
+            for (const speedGenerator in res2[0].speedGenerators) {
+                this.inventory.speedGenerators.push(
+                    new SpeedGenerator(res2[0].speedGenerators[speedGenerator].name)
+                );
+            }
+            for (const ship in res2[0].ships) {
+                this.inventory.ships.push(
+                    new ShipItem(res2[0].ships[ship].name)
+                );
+            }
         }
         this.currentMap = templateData.currentMap;
         this.position = {

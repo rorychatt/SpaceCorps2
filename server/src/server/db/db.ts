@@ -152,7 +152,7 @@ export function updateInventoryData(
 }
 
 export function getInventoryData(username: string): Promise<any> {
-    const query = `SELECT * FROM inventory WHERE username = ${username}`;
+    const query = `SELECT * FROM inventory WHERE username = "${username}"`;
     return executeQuery(query);
 }
 
