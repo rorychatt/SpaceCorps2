@@ -661,37 +661,37 @@ h1 {
 
 .shopping_weapons {
     border: 1px solid green;
-    display: flex;
+    display: none;
     flex-direction: row;
 }
 
 .shopping_ammunition {
     border: 1px solid white;
-    display: flex;
+    display: none;
     flex-direction: row;
 }
 
 .shopping_generators {
     border: 1px solid purple;
-    display: flex;
+    display: none;
     flex-direction: row;
 }
 
 .shopping_extras {
     border: 1px solid black;
-    display: flex;
+    display: none;
     flex-direction: row;
 }
 
 .shopping_design {
     border: 1px solid blue;
-    display: flex;
+    display: none;
     flex-direction: row;
 }
 
 .shopping_donate {
     border: 1px solid salmon;
-    display: flex;
+    display: none;
     flex-direction: row;
 }
 
@@ -885,11 +885,22 @@ h1 {
     /* position: absolute; */
     width: 100%;
     max-width: 100px;
-    margin: 0 auto;
+
+    margin-top: 1vh;
+    margin-left: 1vh;
+
     text-align: center;
     border: 1px solid white;
     padding: 0.5vh;
     border-radius: 10px;
+
+    max-height: 10vh;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
 }
 
 .item_logo, .item_price, .buy_button {
