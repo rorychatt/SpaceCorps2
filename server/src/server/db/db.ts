@@ -138,15 +138,15 @@ export function updateInventoryData(
     const query = `
         UPDATE inventory
         SET
-            lasers = "${JSON.stringify(inventoryData.lasers)}",
-            shieldGenerators = "${JSON.stringify(
+            lasers = '${JSON.stringify(inventoryData.lasers)}',
+            shieldGenerators = '${JSON.stringify(
                 inventoryData.shieldGenerators
-            )}",
-            speedGenerators = "${JSON.stringify(
+            )}',
+            speedGenerators = '${JSON.stringify(
                 inventoryData.speedGenerators
-            )}",
-            ships = "${JSON.stringify(inventoryData.ships)}"
-        WHERE username = "${username}"`;
+            )}',
+            ships = '${JSON.stringify(inventoryData.ships)}'
+        WHERE username = '${username}'`;
 
     return executeQuery(query);
 }
@@ -217,4 +217,5 @@ export function savePlayerData(player: Player): void {
     `;
 
     executeQuery(sql);
+    updateInventoryData(player.name, player.inventory);
 }

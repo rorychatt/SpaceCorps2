@@ -721,6 +721,10 @@ async function displayShoppingItems() {
                         console.log(
                             `You clicked BUY for ${category} - ${itemName}`
                         );
+                        socket.emit(`playerPurchaseEvent`, {
+                            playerName: playerName,
+                            itemName: itemName,
+                        });
                     });
                 }
             }
