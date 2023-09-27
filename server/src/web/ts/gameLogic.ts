@@ -20,6 +20,7 @@ const creditsElement = document.getElementById("credits_value");
 const thuliumElement = document.getElementById("thulium_value");
 const experienceElement = document.getElementById("experience_value");
 const honorElement = document.getElementById("honor_value");
+let shoppingData: any;
 
 let playerName: string;
 
@@ -99,9 +100,17 @@ socket.on("mapData", (data: any) => {
     playerObject = scene.getObjectByName(playerName);
 });
 
-socket.on("shopData", (data: {lasers: any[], ships: any[], generators: any[]}) => {
-    console.log(data)
-})
+socket.on(
+    "shopData",
+    (data: { lasers: any[]; ships: any[]; generators: any[] }) => {
+        shoppingData = {
+            weapons: data.lasers,
+            ships: data.ships,
+            generators: data.generators,
+        };
+        displayShoppingItems();
+    }
+);
 
 async function loadNewSpacemap(data: any) {
     clearScene(scene);
@@ -665,4 +674,56 @@ async function loadEventListeners() {
     });
 
     window.addEventListener("keypress", handleKeyboardButton);
+}
+
+async function displayShoppingItems() {
+    for (const category in shoppingData) {
+        if (shoppingData.hasOwnProperty(category)) {
+            const categoryItems = shoppingData[category];
+
+            const categoryContainer = document.getElementById(
+                `shopping_${category}`
+            );
+
+            if (!categoryContainer) {
+                console.error(`Category container not found for '${category}'`);
+                continue;
+            }
+
+            for (const itemName in categoryItems) {
+                if (categoryItems.hasOwnProperty(itemName)) {
+                    const item = categoryItems[itemName];
+                    const itemContainer = document.createElement("div");
+                    itemContainer.classList.add("shop_item");
+
+                    // Create an element for the item name
+                    const itemNameElement = document.createElement("div");
+                    itemNameElement.classList.add("item_name");
+                    itemNameElement.textContent = itemName;
+
+                    const itemIcon = document.createElement("div");
+                    itemIcon.classList.add("item_icon");
+                    const itemPrice = document.createElement("div");
+                    itemPrice.classList.add("item_price");
+                    itemPrice.textContent = `Price: ${item.price.credits} credits`;
+                    const buyButton = document.createElement("button");
+                    buyButton.classList.add("buy_button");
+                    buyButton.textContent = "BUY";
+
+                    // Append the item name element before the item icon
+                    itemContainer.appendChild(itemNameElement);
+                    itemContainer.appendChild(itemIcon);
+                    itemContainer.appendChild(itemPrice);
+                    itemContainer.appendChild(buyButton);
+                    categoryContainer.appendChild(itemContainer);
+
+                    buyButton.addEventListener("click", () => {
+                        console.log(
+                            `You clicked BUY for ${category} - ${itemName}`
+                        );
+                    });
+                }
+            }
+        }
+    }
 }

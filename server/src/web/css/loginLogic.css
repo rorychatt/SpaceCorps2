@@ -654,38 +654,45 @@ h1 {
 
 .shopping_ships {
     border: 1px solid red;
-    display: block;
+    display: flex;
+    flex-direction: row;
     z-index: 6;
 }
 
 .shopping_weapons {
     border: 1px solid green;
-    display: none;
+    display: flex;
+    flex-direction: row;
 }
 
 .shopping_ammunition {
     border: 1px solid white;
-    display: none;
+    display: flex;
+    flex-direction: row;
 }
 
 .shopping_generators {
     border: 1px solid purple;
-    display: none;
+    display: flex;
+    flex-direction: row;
 }
 
 .shopping_extras {
     border: 1px solid black;
-    display: none;
+    display: flex;
+    flex-direction: row;
 }
 
 .shopping_design {
     border: 1px solid blue;
-    display: none;
+    display: flex;
+    flex-direction: row;
 }
 
 .shopping_donate {
     border: 1px solid salmon;
-    display: none;
+    display: flex;
+    flex-direction: row;
 }
 
 .auc_container {
@@ -875,7 +882,7 @@ h1 {
 
 /* Shop Item default div */
 .shop_item {
-    position: absolute;
+    /* position: absolute; */
     width: 100%;
     max-width: 100px;
     margin: 0 auto;
