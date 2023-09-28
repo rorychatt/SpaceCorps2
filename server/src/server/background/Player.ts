@@ -122,20 +122,35 @@ export class Player extends Entity {
                 for (const laser in res2[0].ships[ship].currentLasers) {
                     this.inventory.putLaserToShip(
                         res2[0].ships[ship].currentLasers[laser].name,
-                        res2[0].ships[ship].name
+                        res2[0].ships[ship].name,
+                        true
                     );
                 }
                 for (const generator in res2[0].ships[ship].currentGenerators) {
-                    if(res2[0].ships[ship].currentGeneratorsGenerators[generator]._type =="ShielGenerator"){
+                    if (
+                        res2[0].ships[ship].currentGeneratorsGenerators[
+                            generator
+                        ]._type == "ShielGenerator"
+                    ) {
                         this.inventory.putShieldGeneratorToShip(
-                            res2[0].ships[ship].currentGeneratorsGenerators[generator].name,
-                            res2[0].ships[ship].name
-                        );    
-                    } else if(res2[0].ships[ship].currentGeneratorsGenerators[generator]._type =="SpeedGenerator"){
+                            res2[0].ships[ship].currentGeneratorsGenerators[
+                                generator
+                            ].name,
+                            res2[0].ships[ship].name,
+                            true
+                        );
+                    } else if (
+                        res2[0].ships[ship].currentGeneratorsGenerators[
+                            generator
+                        ]._type == "SpeedGenerator"
+                    ) {
                         this.inventory.putSpeedGeneratorToShip(
-                            res2[0].ships[ship].currentGeneratorsGenerators[generator].name,
-                            res2[0].ships[ship].name
-                        );    
+                            res2[0].ships[ship].currentGeneratorsGenerators[
+                                generator
+                            ].name,
+                            res2[0].ships[ship].name,
+                            true
+                        );
                     }
                 }
             }

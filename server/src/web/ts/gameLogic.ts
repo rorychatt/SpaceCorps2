@@ -50,6 +50,7 @@ let lockOnCircle: THREE.Object3D | null;
 const lerpFactor = 0.2;
 const rayCastLayerNo = 1;
 const particles: any[] = [];
+const damageIndicators: any[] = [];
 
 const objectDataMap: Record<string, { data: any }> = {};
 const labelMap: Record<string, CSS2DObject> = {};
@@ -125,13 +126,26 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
         for (const key in data.reward) {
             if (data.reward.hasOwnProperty(key)) {
                 if (key != "recipientUUID") {
+                    const maxEventCount = 8;
+                    let currentEventCount =
+                        notificationContainer.children.length;
+
+                    while (maxEventCount < currentEventCount) {
+                        notificationContainer.firstChild?.remove();
+                        currentEventCount--;
+                    }
+
                     if (data.reward[key]._type) {
                         const messageContainer = document.createElement("div");
                         messageContainer.classList.add("notification");
                         messageContainer.textContent = `You received 1 ${data.reward[key].name} ${data.reward[key]._type}.`;
                         notificationContainer.appendChild(messageContainer);
                         setTimeout(() => {
-                            notificationContainer.removeChild(messageContainer);
+                            try {
+                                notificationContainer.removeChild(
+                                    messageContainer
+                                );
+                            } catch (err) {}
                         }, 5000);
                     } else {
                         const messageContainer = document.createElement("div");
@@ -141,7 +155,11 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
                         )} ${key}.`;
                         notificationContainer.appendChild(messageContainer);
                         setTimeout(() => {
-                            notificationContainer.removeChild(messageContainer);
+                            try {
+                                notificationContainer.removeChild(
+                                    messageContainer
+                                );
+                            } catch (err) {}
                         }, 5000);
                     }
                 }
@@ -255,6 +273,10 @@ function initScene(): void {
                     particle.position.add(particle.velocity);
                 }
             );
+        });
+
+        damageIndicators.forEach((damageIndicator) => {
+            damageIndicator.position.add(new THREE.Vector3(0, 0.01, 0));
         });
     };
 
@@ -432,7 +454,7 @@ async function createObject(data: any) {
                             rayCastLayerNo
                         );
                         const text = document.createElement("div");
-                        text.className = "label";
+                        text.className = "nicknameLabel";
                         text.style.color = "rgb(255,255,255)";
                         text.style.fontSize = "12";
                         // text.textContent = `${data.name}\nHP: ${data.health}`;
@@ -440,6 +462,7 @@ async function createObject(data: any) {
                         const label = new CSS2DObject(text);
                         labelMap[data.uuid] = label;
                         label.position.y = -0.75;
+                        (model as any).hitPoints = data.hitPoints;
                         model.add(label);
                         scene.add(model);
                         objectDataMap[data.uuid] = { data: model };
@@ -465,7 +488,7 @@ async function createObject(data: any) {
                         }
 
                         const text = document.createElement("div");
-                        text.className = "label";
+                        text.className = "nicknameLabel";
                         text.style.color = "rgb(255,255,255)";
                         text.style.fontSize = "12";
                         text.textContent = `${data.name}`;
@@ -473,6 +496,7 @@ async function createObject(data: any) {
                         labelMap[data.uuid] = label;
                         label.position.y = -0.75;
                         label.uuid = data.uuid;
+                        (model as any).hitPoints = data.hitPoints;
                         model.add(label);
                         scene.add(model);
                         objectDataMap[data.uuid] = { data: model };
@@ -566,6 +590,51 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         );
         controls.update();
     }
+
+    if ((object as any).hitPoints) {
+        const dhp =
+            (object as any).hitPoints.hullPoints - entity.hitPoints.hullPoints;
+        const dsp =
+            (object as any).hitPoints.shieldPoints -
+            entity.hitPoints.shieldPoints;
+
+        if (dhp + dsp > 0) {
+            const text = document.createElement("div");
+            text.className = "damageIndicator";
+            text.style.color = "rgb(255,0,0)";
+            text.style.fontSize = "12";
+            text.textContent = `-${await beautifyNumberToUser(
+                Math.round(dhp + dsp)
+            )}`;
+
+            const damageLabel = new CSS2DObject(text);
+            damageLabel.position.copy(object.position);
+            damageIndicators.push(damageLabel);
+            scene.add(damageLabel);
+
+            setTimeout(() => {
+                scene.remove(damageLabel);
+
+                const entityLabelsDiv =
+                    document.getElementById("entityLabelsDiv");
+                if (entityLabelsDiv) {
+                    for (let i = 0; i < entityLabelsDiv.children.length; i++) {
+                        const child = entityLabelsDiv.children[i];
+                        if (child.textContent === text.textContent) {
+                            entityLabelsDiv.removeChild(child);
+                            break;
+                        }
+                    }
+                }
+                const index = damageIndicators.indexOf(damageLabel);
+                if (index !== -1) {
+                    damageIndicators.splice(index, 1);
+                }
+            }, 1000);
+        }
+    }
+
+    (object as any).hitPoints = entity.hitPoints;
 
     object.position.lerp(target, lerpFactor);
 }
