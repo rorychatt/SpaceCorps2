@@ -331,7 +331,7 @@ export class GameServer {
             for (const projectile of this.spacemaps[spacemapName]
                 .projectileServer.projectiles) {
                 projectile.moveToTarget();
-                if (projectile.getDistanceToTarget() < 0.1) {
+                if (projectile.getDistanceToTarget() < 0.01) {
                     this.damageEvents.push(
                         new DamageEvent(
                             projectile.target.uuid,

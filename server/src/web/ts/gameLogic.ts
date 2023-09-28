@@ -48,6 +48,7 @@ let lockOnCircle: THREE.Object3D | null;
 
 const lerpFactor = 0.2;
 const rayCastLayerNo = 1;
+const particles: any[] = [];
 
 const objectDataMap: Record<string, { data: any }> = {};
 const labelMap: Record<string, CSS2DObject> = {};
@@ -211,6 +212,17 @@ function initScene(): void {
         controls.update();
         renderer.render(scene, camera);
         labelRenderer.render(scene, camera);
+
+        particles.forEach((_particles) => {
+            _particles.forEach(
+                (particle: {
+                    position: { add: (arg0: any) => void };
+                    velocity: any;
+                }) => {
+                    particle.position.add(particle.velocity);
+                }
+            );
+        });
     };
 
     controls = new OrbitControls(camera, renderer.domElement);
@@ -546,13 +558,19 @@ async function deleteObject(uuid: string) {
             console.log("The element with id 'entityLabelsDiv' was not found.");
         }
 
+        console.log(object)
+
+        createAndTriggerExplosion(object.position);
+
         scene.remove(object);
-        delete objectDataMap[uuid];
+        
         console.log(`Deleted object with uuid: ${uuid}`);
     } else {
         console.log(
             `WARNING: tried to delete object but could not find it: ${uuid}`
         );
+        console.log(objectDataMap);
+        
     }
 }
 
@@ -1025,4 +1043,37 @@ async function displayActiveItems() {
             }
         }
     }
+}
+
+
+async function createAndTriggerExplosion(position: THREE.Vector3) {
+    const particleGeometry = new THREE.SphereGeometry(0.02, 16, 16);
+    const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+
+    const _particles: any = [];
+
+    for (let i = 0; i < 100; i++) {
+        const particle = new THREE.Mesh(
+            particleGeometry,
+            particleMaterial
+        ) as any;
+        const randomDirection = new THREE.Vector3(
+            Math.random() - 0.5,
+            Math.random() - 0.5,
+            Math.random() - 0.5
+        ).normalize();
+        particle.position.copy(position);
+        particle.velocity = randomDirection.multiplyScalar(0.01);
+        _particles.push(particle);
+        scene.add(particle);
+    }
+
+    particles.push(_particles);
+    
+
+    setTimeout(() => {
+        _particles.forEach((particle: any) => scene.remove(particle));
+        
+        _particles.length = 0;
+    }, 500);
 }
