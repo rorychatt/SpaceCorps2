@@ -581,6 +581,7 @@ h1 {
     min-height: 20vh;
     width: auto;
     min-width: 15vh;
+    max-width: 21vh;
 
     padding: 0.1%;
 
@@ -807,6 +808,7 @@ h1 {
     height: auto;
     border: 1px solid white;
     overflow-y: auto;
+    max-height: 14.5vh;
 }
 
 .chat_modal_footer {
@@ -876,6 +878,7 @@ h1 {
     height: auto;
     border: 1px solid white;
     overflow-y: auto;
+    max-height: 53vh;
 }
 .console_send_btn {
     padding: 0;
@@ -1077,4 +1080,19 @@ h1 {
 
     font-size: 1.8vh;
     font-family: 'AudioWide';
+}
+
+/* Chat Message */
+.chat_message {
+    color: white;
+    font-size: 1.3vh;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+/* Console Message */
+
+.console_message {
+    color: white;
+    font-size: 1.3vh;
+    font-family: 'Times New Roman', Times, serif;
 }
