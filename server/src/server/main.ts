@@ -67,8 +67,9 @@ io.on("connection", (socket) => {
                 const [userCredentials] = await getUserByUsername(
                     data.username
                 );
-                
-                if(data.username.length <= 0 || data.password.length <= 0) return;
+
+                if (data.username.length <= 0 || data.password.length <= 0)
+                    return;
 
                 if (
                     userCredentials &&
@@ -125,7 +126,7 @@ io.on("connection", (socket) => {
 
             let regex = /^[A-Za-z0-9! =]+$/;
             const [userCredentials] = await getUserByUsername(data.username);
-            if(data.username.length < 4 && data.password.length < 4) {
+            if (data.username.length < 4 && data.password.length < 4) {
                 socket.emit("registerUnsuccessful", {
                     username: data.username,
                 });
@@ -139,7 +140,7 @@ io.on("connection", (socket) => {
                 });
 
                 return;
-            } 
+            }
 
             if (userCredentials) {
                 socket.emit("registerUnsuccessful", {
@@ -192,6 +193,30 @@ io.on("connection", (socket) => {
         "playerPurchaseEvent",
         (data: { playerName: string; itemName: string }) => {
             gameServer.shop.sellItem(data.playerName, data.itemName);
+        }
+    );
+
+    socket.on(
+        "equipItemEvent",
+        async (data: { playerName: string; itemName: string }) => {
+            const player = await gameServer.getPlayerByUsername(
+                data.playerName
+            );
+            if (player) {
+                player.inventory.equipItem(data.itemName);
+            }
+        }
+    );
+
+    socket.on(
+        "unequipItemEvent",
+        async (data: { playerName: string; itemName: string }) => {
+            const player = await gameServer.getPlayerByUsername(
+                data.playerName
+            );
+            if (player) {
+                player.inventory.unequipItem(data.itemName);
+            }
         }
     );
 });
