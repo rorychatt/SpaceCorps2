@@ -60,7 +60,7 @@ export class Player extends Entity {
 
     private async _initializePlayerData() {
         await this._getDataFromSQL();
-        this._activeShip = await this.inventory.getActiveShip()
+        this._activeShip = await this.inventory.getActiveShip();
     }
 
     async _getDataFromSQL() {
@@ -159,9 +159,21 @@ export class Player extends Entity {
     }
 
     async giveDamage() {
-        return (
-            this.damage.maxDamage * (1 - Math.random() * this.damage.variance)
-        );
+        let totalDamage = 0;
+        if (this._activeShip) {
+            for (const _laser in this._activeShip.currentLasers) {
+                const laser = this._activeShip.currentLasers[_laser];
+                const isCritical = Math.random() <= laser.criticalChance;
+                const damageMultiplier = isCritical
+                    ? laser.criticalMultiplier
+                    : 1;
+                totalDamage +=
+                    laser.maxDamage *
+                    (1 - Math.random() * laser.damageVariance) *
+                    damageMultiplier;
+            }
+        }
+        return totalDamage;
     }
 
     async _reload() {

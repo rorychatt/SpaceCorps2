@@ -82,7 +82,7 @@ export class Alien extends Entity {
         const rawDamage =
             this.damage.maxDamage * (1 - Math.random() * this.damage.variance);
         const isCritical = Math.random() <= this.damage.criticalChance;
-        const damageMultiplier = isCritical ? this.damage.criticalChance : 1;
+        const damageMultiplier = isCritical ? this.damage.criticalMultiplier : 1;
         const damage = rawDamage * damageMultiplier;
         console.log(`${this.uuid} tried to shoot and dealt ${damage} damage.`);
         return damage;
