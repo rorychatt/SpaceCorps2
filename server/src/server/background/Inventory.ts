@@ -175,7 +175,7 @@ export class Inventory {
         return this.ships.find((s) => s.isActive == true);
     }
 
-    async equipItem(itemName: string) {
+    async equipItem(itemName: string, shipName?: string) {
         let itemToEquip: PossibleItems | undefined;
 
         if (this.lasers.some((laser) => laser.name === itemName)) {

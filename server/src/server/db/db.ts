@@ -171,7 +171,7 @@ function executeQuery<T>(query: string): Promise<T[]> {
                         return;
                     }
                     connection.query(query, (queryError, results) => {
-                        connection.release(); // Release the connection
+                        connection.release();
 
                         if (queryError) {
                             console.error(
@@ -186,7 +186,6 @@ function executeQuery<T>(query: string): Promise<T[]> {
                         if (Array.isArray(results)) {
                             resolve(results as T[]);
                         } else {
-                            // If the results are not an array, wrap them in an array
                             resolve([results as T]);
                         }
                     });

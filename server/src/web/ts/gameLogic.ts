@@ -48,6 +48,7 @@ let lockOnCircle: THREE.Object3D | null;
 
 const lerpFactor = 0.2;
 const rayCastLayerNo = 1;
+const particles: any[] = [];
 
 const objectDataMap: Record<string, { data: any }> = {};
 const labelMap: Record<string, CSS2DObject> = {};
@@ -211,6 +212,17 @@ function initScene(): void {
         controls.update();
         renderer.render(scene, camera);
         labelRenderer.render(scene, camera);
+
+        particles.forEach((_particles) => {
+            _particles.forEach(
+                (particle: {
+                    position: { add: (arg0: any) => void };
+                    velocity: any;
+                }) => {
+                    particle.position.add(particle.velocity);
+                }
+            );
+        });
     };
 
     controls = new OrbitControls(camera, renderer.domElement);
@@ -473,8 +485,7 @@ async function createObject(data: any) {
 
                 let ref = "../assets/sounds/laser01.ogg";
 
-                if (Math.random() > 0.8) ref = "../assets/sounds/laser02.ogg";
-
+                // ref = "../assets/sounds/laser02.ogg"
                 audioLoader.load(ref, function (buffer) {
                     sound.setBuffer(buffer);
                     sound.setRefDistance(20);
@@ -546,13 +557,21 @@ async function deleteObject(uuid: string) {
             console.log("The element with id 'entityLabelsDiv' was not found.");
         }
 
-        scene.remove(object);
+        if (
+            object.name != "laserProjectile"
+        ) {
+            createAndTriggerExplosion(object.position);
+        }
+
         delete objectDataMap[uuid];
+        scene.remove(object);
+
         console.log(`Deleted object with uuid: ${uuid}`);
     } else {
         console.log(
             `WARNING: tried to delete object but could not find it: ${uuid}`
         );
+        console.log(objectDataMap);
     }
 }
 
@@ -1025,4 +1044,55 @@ async function displayActiveItems() {
             }
         }
     }
+}
+
+async function createAndTriggerExplosion(position: THREE.Vector3) {
+    const particleGeometry = new THREE.SphereGeometry(0.02, 16, 16);
+    const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+
+    const _particles: any = [];
+
+    for (let i = 0; i < 100; i++) {
+        const particle = new THREE.Mesh(
+            particleGeometry,
+            particleMaterial
+        ) as any;
+        const randomDirection = new THREE.Vector3(
+            Math.random() - 0.5,
+            Math.random() - 0.5,
+            Math.random() - 0.5
+        ).normalize();
+        particle.position.copy(position);
+        particle.velocity = randomDirection.multiplyScalar(0.01);
+        _particles.push(particle);
+
+        const sound = new THREE.PositionalAudio(audioListener);
+
+        const audioLoader = new THREE.AudioLoader();
+
+        let ref = "../assets/sounds/explosion.ogg"
+
+        audioLoader.load(ref, function (buffer) {
+            sound.setBuffer(buffer);
+            sound.setRefDistance(30);
+            sound.play();
+        });
+
+
+
+        scene.add(particle);
+    }
+
+    particles.push(_particles);
+
+    setTimeout(() => {
+        _particles.forEach((particle: any) => scene.remove(particle));
+
+        const index = particles.indexOf(_particles);
+        if (index !== -1) {
+            particles.splice(index, 1);
+        }
+
+        _particles.length = 0;
+    }, 500);
 }
