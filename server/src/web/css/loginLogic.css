@@ -295,13 +295,11 @@ body {
 
 h1 {
     color: white;
-    font-family: "Pacifico";
-    font-size: 1.5vh;
+    font-family: "AudioWide";
+    font-size: 1.25vh;
+
     text-align: center;
-    text-decoration: underline;
-    margin: 0;
-    padding: 0;
-    margin-left: 20%;
+    flex-grow: 1;
 }
 
 .content {
@@ -325,7 +323,7 @@ h1 {
     font-size: 14px;
     cursor: pointer;
     border-radius: 4px;
-    font-family: "Pacifico";
+    font-family: "AudioWide";
 }
 
 .btn:hover {
@@ -339,7 +337,7 @@ h1 {
     padding: 6px 8px;
     cursor: pointer;
     border-radius: 4px;
-    font-family: "Pacifico";
+    font-family: "AudioWide";
     text-align: center;
 }
 
@@ -359,6 +357,10 @@ h1 {
     font-size: 2.5vh;
 }
 
+.mm_btn_text {
+    font-size: 1.9vh;
+}
+
 .close_btn {
     margin: 0;
     padding: 0;
@@ -369,7 +371,7 @@ h1 {
     font-size: 200%;
     cursor: pointer;
     border-radius: 4px;
-    font-family: "Pacifico";
+    font-family: "AudioWide";
     right: auto;
     display: flex;
     justify-content: flex-end;
@@ -405,15 +407,15 @@ h1 {
     flex-direction: row;
     background-color: rgba(255, 255, 255, 0.1);
     border: 1px solid white;
-    cursor: pointer;
-    border-radius: 4px;
-    text-align: center;
+    border-radius: 7px;
     color: white;
 
     text-align: center;
     justify-content: center;
     height: auto;
-    min-height: 1vh;
+
+    padding: 1px;
+    width: 10%;
 }
 
 .modal_btn:hover {
@@ -459,8 +461,7 @@ h1 {
 
 .main_menu_container {
     position: absolute;
-    width: 16%;
-    padding: 1%;
+    
     height: auto;
     min-height: 52vh;
     border: 1px solid white;
@@ -471,6 +472,9 @@ h1 {
     background-color: rgba(30, 144, 255, 0.75);
 
     display: none;
+    flex-direction: column;
+    width: auto;
+    max-width: 17%;
 }
 
 .quit_container {
@@ -501,6 +505,10 @@ h1 {
     justify-content: center;
     text-align: center;
     margin-top: 4%;
+}
+
+.assembly {
+    margin-bottom: 4%;
 }
 
 .profile_info,
@@ -537,7 +545,7 @@ h1 {
 .quit_text {
     color: white;
 
-    font-family: "Pacifico";
+    font-family: "AudioWide";
     font-size: 160%;
     text-align: center;
 }
@@ -633,7 +641,7 @@ h1 {
     padding: 6px 8px;
     cursor: pointer;
     border-radius: 4px;
-    font-family: 'Pacifico';
+    font-family: 'AudioWide';
     font-size: 2.5vh;
     position: absolute;
 }
@@ -795,7 +803,7 @@ h1 {
 /* Chat Modal */
 .chat_modal_content {
     width: 100%;
-    min-height: 13vh;
+    min-height: 14.5vh;
     height: auto;
     border: 1px solid white;
     overflow-y: auto;
@@ -841,7 +849,7 @@ h1 {
     justify-content: space-between;
     align-items: center;
 
-    font-family: 'Pacifico';
+    font-family: 'AudioWide';
     font-size: 2vh;
     color: white;
 }
@@ -914,7 +922,7 @@ h1 {
 .item_price {
     font-size: 1vh;
     color: white;
-    font-family: 'Pacifico';
+    font-family: 'AudioWide';
     margin-top: 1vh;
 }
 
@@ -931,10 +939,11 @@ h1 {
 
 /* Hangar */
 .hangar_half, .workroom_half {
-    width: 50%;
+    width: 49.8%;
     height: 100%;
     float: left;
     min-height: 60vh;
+    display: flex;
 }
 
 .hangar_storage, .workroom_storage {
@@ -957,7 +966,7 @@ h1 {
     padding: 0.5vh;
     border-radius: 10px;
 
-    max-height: 10vh;
+    max-height: 100px;
     height: auto;
     display: flex;
     flex-direction: column;
@@ -972,7 +981,7 @@ h1 {
 .hangar_price, .workroom_price, .workroom_active_item_price {
     font-size: 1vh;
     color: white;
-    font-family: 'Pacifico';
+    font-family: 'AudioWide';
     margin-top: 1vh;    
 }
 
@@ -992,11 +1001,8 @@ h1 {
     justify-content: center;
     align-items: center;
     font-size: 1vh;
-    cursor: pointer;
-    border: none;
-    outline: none;
-    width: 50%;
-    max-width: 4vh;
+
+    max-height: 1vh;
 }
 
 .profile_btn:first-child {
@@ -1032,10 +1038,20 @@ h1 {
     color: white;
     font-size: 4vh;
     padding: 1vh;
-    font-family: 'Pacifico';
+    font-family: 'AudioWide';
 }
 
 .workroom_content {
     flex: 1;
     padding: 1vh;
+}
+
+.player_info_credits, .player_info_thulium, .player_info_experience, .player_info_honor {
+    color: white;
+    display: flex;
+    flex-direction: column;
+
+    font-family: "AudioWide";
+    font-size: 1vh;
+    margin-top: 1.5vh;
 }
