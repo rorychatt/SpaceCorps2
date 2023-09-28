@@ -35,11 +35,17 @@ export class Inventory {
         }
     }
 
-    async putLaserToShip(laserName: string, shipName: string) {
+    async putLaserToShip(
+        laserName: string,
+        shipName: string,
+        ignoreInventoryCheck: boolean = false
+    ) {
         const laser = this.findLaserByName(laserName);
-        if (!laser) {
-            console.log(`Laser '${laserName}' not found in the inventory.`);
-            return;
+        if (!ignoreInventoryCheck) {
+            if (!laser) {
+                console.log(`Laser '${laserName}' not found in the inventory.`);
+                return;
+            }
         }
         const ship = this.ships.find((s) => s.name === shipName);
         if (!ship) {
@@ -55,13 +61,19 @@ export class Inventory {
         }
     }
 
-    async putSpeedGeneratorToShip(generatorName: string, shipName: string) {
+    async putSpeedGeneratorToShip(
+        generatorName: string,
+        shipName: string,
+        ignoreInventoryCheck: boolean = false
+    ) {
         const speedGenerator = this.findSpeedGeneratorByName(generatorName);
-        if (!speedGenerator) {
-            console.log(
-                `Speed Generator '${generatorName}' not found in the inventory.`
-            );
-            return;
+        if (!ignoreInventoryCheck) {
+            if (!speedGenerator) {
+                console.log(
+                    `Speed Generator '${generatorName}' not found in the inventory.`
+                );
+                return;
+            }
         }
         const ship = this.ships.find((s) => s.name === shipName);
         if (!ship) {
@@ -81,13 +93,19 @@ export class Inventory {
         }
     }
 
-    async putShieldGeneratorToShip(generatorName: string, shipName: string) {
+    async putShieldGeneratorToShip(
+        generatorName: string,
+        shipName: string,
+        ignoreInventoryCheck: boolean = false
+    ) {
         const shieldGenerator = this.findShieldGeneratorByName(generatorName);
-        if (!shieldGenerator) {
-            console.log(
-                `Shield Generator '${generatorName}' not found in the inventory.`
-            );
-            return;
+        if (!ignoreInventoryCheck) {
+            if (!shieldGenerator) {
+                console.log(
+                    `Shield Generator '${generatorName}' not found in the inventory.`
+                );
+                return;
+            }
         }
         const ship = this.ships.find((s) => s.name === shipName);
         if (!ship) {

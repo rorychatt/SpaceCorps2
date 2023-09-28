@@ -948,6 +948,7 @@ h1 {
     min-height: 60vh;
     display: flex;
     flex-wrap: wrap;
+    overflow-y: auto;
 }
 
 .hangar_storage, .workroom_storage {
@@ -1079,7 +1080,7 @@ h1 {
     color: white;
     background-color: rgba(255, 255, 255, 0.01);
 
-    font-size: 1.8vh;
+    font-size: 1vh;
     font-family: 'AudioWide';
 }
 
