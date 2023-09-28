@@ -4,7 +4,7 @@
         "maxDamage": 100,
         "damageVariance": 0.1,
         "criticalChance": 0.02,
-        "criticalMultipler": 1.75,
+        "criticalMultiplier": 1.75,
         "price": {
             "credits": 10000
         }
@@ -14,7 +14,7 @@
         "maxDamage": 160,
         "damageVariance": 0.1,
         "criticalChance": 0.05,
-        "criticalMultipler": 1.6,
+        "criticalMultiplier": 1.6,
         "price": {
             "credits": 20000
         }
