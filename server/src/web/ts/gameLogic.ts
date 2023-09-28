@@ -485,8 +485,7 @@ async function createObject(data: any) {
 
                 let ref = "../assets/sounds/laser01.ogg";
 
-                if (Math.random() > 0.8) ref = "../assets/sounds/laser02.ogg";
-
+                // ref = "../assets/sounds/laser02.ogg"
                 audioLoader.load(ref, function (buffer) {
                     sound.setBuffer(buffer);
                     sound.setRefDistance(20);
@@ -558,20 +557,21 @@ async function deleteObject(uuid: string) {
             console.log("The element with id 'entityLabelsDiv' was not found.");
         }
 
-        console.log(object)
-
-        createAndTriggerExplosion(object.position);
+        if (
+            object.name != "laserProjectile"
+        ) {
+            createAndTriggerExplosion(object.position);
+        }
 
         delete objectDataMap[uuid];
         scene.remove(object);
-        
+
         console.log(`Deleted object with uuid: ${uuid}`);
     } else {
         console.log(
             `WARNING: tried to delete object but could not find it: ${uuid}`
         );
         console.log(objectDataMap);
-        
     }
 }
 
@@ -1046,7 +1046,6 @@ async function displayActiveItems() {
     }
 }
 
-
 async function createAndTriggerExplosion(position: THREE.Vector3) {
     const particleGeometry = new THREE.SphereGeometry(0.02, 16, 16);
     const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
@@ -1066,15 +1065,34 @@ async function createAndTriggerExplosion(position: THREE.Vector3) {
         particle.position.copy(position);
         particle.velocity = randomDirection.multiplyScalar(0.01);
         _particles.push(particle);
+
+        const sound = new THREE.PositionalAudio(audioListener);
+
+        const audioLoader = new THREE.AudioLoader();
+
+        let ref = "../assets/sounds/explosion.ogg"
+
+        audioLoader.load(ref, function (buffer) {
+            sound.setBuffer(buffer);
+            sound.setRefDistance(30);
+            sound.play();
+        });
+
+
+
         scene.add(particle);
     }
 
     particles.push(_particles);
-    
 
     setTimeout(() => {
         _particles.forEach((particle: any) => scene.remove(particle));
-        
+
+        const index = particles.indexOf(_particles);
+        if (index !== -1) {
+            particles.splice(index, 1);
+        }
+
         _particles.length = 0;
     }, 500);
 }
