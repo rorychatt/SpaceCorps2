@@ -125,16 +125,25 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
         for (const key in data.reward) {
             if (data.reward.hasOwnProperty(key)) {
                 if (key != "recipientUUID") {
-                    const messageContainer = document.createElement("div");
-                    messageContainer.classList.add("notification");
-                    messageContainer.textContent = `You received ${await beautifyNumberToUser(
-                        data.reward[key]
-                    )} ${key}.`;
-                    notificationContainer.appendChild(messageContainer);
-
-                    setTimeout(() => {
-                        notificationContainer.removeChild(messageContainer);
-                    }, 5000);
+                    if (data.reward[key]._type) {
+                        const messageContainer = document.createElement("div");
+                        messageContainer.classList.add("notification");
+                        messageContainer.textContent = `You received 1 ${data.reward[key].name} ${data.reward[key]._type}.`;
+                        notificationContainer.appendChild(messageContainer);
+                        setTimeout(() => {
+                            notificationContainer.removeChild(messageContainer);
+                        }, 5000);
+                    } else {
+                        const messageContainer = document.createElement("div");
+                        messageContainer.classList.add("notification");
+                        messageContainer.textContent = `You received ${await beautifyNumberToUser(
+                            data.reward[key]
+                        )} ${key}.`;
+                        notificationContainer.appendChild(messageContainer);
+                        setTimeout(() => {
+                            notificationContainer.removeChild(messageContainer);
+                        }, 5000);
+                    }
                 }
             }
         }
@@ -803,7 +812,9 @@ async function displayShoppingItems() {
                     itemIcon.classList.add("item_icon");
                     const itemPrice = document.createElement("div");
                     itemPrice.classList.add("item_price");
-                    itemPrice.textContent = `Price: ${item.price.credits} credits`;
+                    itemPrice.textContent = `Price: ${await beautifyNumberToUser(
+                        item.price.credits
+                    )} credits`;
                     const buyButton = document.createElement("button");
                     buyButton.classList.add("buy_button");
                     buyButton.textContent = "BUY";
