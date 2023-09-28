@@ -947,6 +947,7 @@ h1 {
     float: left;
     min-height: 60vh;
     display: flex;
+    flex-wrap: wrap;
 }
 
 .hangar_storage, .workroom_storage {
