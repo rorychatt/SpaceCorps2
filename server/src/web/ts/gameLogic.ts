@@ -47,11 +47,13 @@ let consoleInput: HTMLInputElement | null;
 let lockOnCircle: THREE.Object3D | null;
 
 const lerpFactor = 0.2;
+const rayCastLayerNo = 1;
 
 const objectDataMap: Record<string, { data: any }> = {};
 const labelMap: Record<string, CSS2DObject> = {};
 
 const raycaster = new THREE.Raycaster();
+raycaster.layers.set(rayCastLayerNo);
 
 socket.on("connect", () => {
     console.log("Connected to the socket.io server");
@@ -141,6 +143,7 @@ async function loadSpacemapPlane(data: any) {
     plane.position.set(0, 0, 0);
     plane.rotation.x = -Math.PI / 2;
     plane.name = "movingPlane";
+    plane.layers.enable(rayCastLayerNo);
     scene.add(plane);
 }
 
@@ -377,7 +380,12 @@ async function createObject(data: any) {
                         const model = glb.scene;
                         model.uuid = data.uuid;
                         model.position.set(data.position.x, 0, data.position.y);
-                        setNameRecursivelly(model, data.name, data.uuid);
+                        setNameRecursivelly(
+                            model,
+                            data.name,
+                            data.uuid,
+                            rayCastLayerNo
+                        );
                         const text = document.createElement("div");
                         text.className = "label";
                         text.style.color = "rgb(255,255,255)";
@@ -401,7 +409,12 @@ async function createObject(data: any) {
                         const model = glb.scene;
                         model.uuid = data.uuid;
                         model.position.set(data.position.x, 0, data.position.y);
-                        setNameRecursivelly(model, data.name, data.uuid);
+                        setNameRecursivelly(
+                            model,
+                            data.name,
+                            data.uuid,
+                            rayCastLayerNo
+                        );
                         if (data.name == playerName) {
                             controls.update();
                         }
@@ -640,13 +653,21 @@ function getLabelByUUID(uuid: string): CSS2DObject | undefined {
 function setNameRecursivelly(
     object: THREE.Object3D,
     name: string,
-    uuid: string
+    uuid: string,
+    layerNo?: number
 ) {
     object.name = name;
     object.uuid = uuid;
+    if (layerNo) {
+        object.layers.enable(layerNo);
+    }
 
     for (let i = 0; i < object.children.length; i++) {
-        setNameRecursivelly(object.children[i], name, uuid);
+        if (layerNo) {
+            setNameRecursivelly(object.children[i], name, uuid, layerNo);
+        } else {
+            setNameRecursivelly(object.children[i], name, uuid);
+        }
     }
 }
 
