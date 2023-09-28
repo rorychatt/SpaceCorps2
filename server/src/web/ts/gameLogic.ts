@@ -562,6 +562,7 @@ async function deleteObject(uuid: string) {
 
         createAndTriggerExplosion(object.position);
 
+        delete objectDataMap[uuid];
         scene.remove(object);
         
         console.log(`Deleted object with uuid: ${uuid}`);
