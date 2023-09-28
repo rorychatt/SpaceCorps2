@@ -20,6 +20,7 @@ const creditsElement = document.getElementById("credits_value");
 const thuliumElement = document.getElementById("thulium_value");
 const experienceElement = document.getElementById("experience_value");
 const honorElement = document.getElementById("honor_value");
+const notificationContainer = document.getElementById("notification_container");
 
 let shoppingData: any;
 let playerInventory: any;
@@ -88,10 +89,12 @@ socket.on("registerUnsuccessful", (data: { username: string }) => {
 socket.on("serverMessage", (data: { type: string; message: string }) => {
     if (data.type == "chat") {
         const messageDiv = document.createElement("div");
+        messageDiv.classList.add("chat_message");
         messageDiv.textContent = data.message;
         chatModalContent?.appendChild(messageDiv);
     } else if (data.type == "console") {
         const messageDiv = document.createElement("div");
+        messageDiv.classList.add("console_message");
         messageDiv.textContent = data.message;
         consoleContent?.appendChild(messageDiv);
     }
@@ -116,6 +119,27 @@ socket.on(
         displayShoppingItems();
     }
 );
+
+socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
+    if (notificationContainer) {
+        for (const key in data.reward) {
+            if (data.reward.hasOwnProperty(key)) {
+                if (key != "recipientUUID") {
+                    const messageContainer = document.createElement("div");
+                    messageContainer.classList.add("notification");
+                    messageContainer.textContent = `You received ${await beautifyNumberToUser(
+                        data.reward[key]
+                    )} ${key}.`;
+                    notificationContainer.appendChild(messageContainer);
+
+                    setTimeout(() => {
+                        notificationContainer.removeChild(messageContainer);
+                    }, 5000);
+                }
+            }
+        }
+    }
+});
 
 async function loadNewSpacemap(data: any) {
     clearScene(scene);
@@ -557,9 +581,7 @@ async function deleteObject(uuid: string) {
             console.log("The element with id 'entityLabelsDiv' was not found.");
         }
 
-        if (
-            object.name != "laserProjectile"
-        ) {
+        if (object.name != "laserProjectile") {
             createAndTriggerExplosion(object.position);
         }
 
@@ -609,10 +631,17 @@ async function updateObjects(_data: any[]) {
 
 async function updatePlayerInfo(entity: any) {
     if (creditsElement && thuliumElement && experienceElement && honorElement) {
-        creditsElement.textContent = entity.stats.credits;
-        thuliumElement.textContent = entity.stats.thulium;
-        experienceElement.textContent = entity.stats.experience;
-        honorElement.textContent = entity.stats.honor;
+        const [credits, thulium, experience, honor] = await Promise.all([
+            beautifyNumberToUser(entity.stats.credits),
+            beautifyNumberToUser(entity.stats.thulium),
+            beautifyNumberToUser(entity.stats.experience),
+            beautifyNumberToUser(entity.stats.honor),
+        ]);
+
+        creditsElement.textContent = credits;
+        thuliumElement.textContent = thulium;
+        experienceElement.textContent = experience;
+        honorElement.textContent = honor;
     }
     if (JSON.stringify(playerInventory) != JSON.stringify(entity.inventory)) {
         playerInventory = entity.inventory;
@@ -1070,15 +1099,13 @@ async function createAndTriggerExplosion(position: THREE.Vector3) {
 
         const audioLoader = new THREE.AudioLoader();
 
-        let ref = "../assets/sounds/explosion.ogg"
+        let ref = "../assets/sounds/explosion.ogg";
 
         audioLoader.load(ref, function (buffer) {
             sound.setBuffer(buffer);
             sound.setRefDistance(30);
             sound.play();
         });
-
-
 
         scene.add(particle);
     }
@@ -1095,4 +1122,8 @@ async function createAndTriggerExplosion(position: THREE.Vector3) {
 
         _particles.length = 0;
     }, 500);
+}
+
+async function beautifyNumberToUser(number: number) {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }

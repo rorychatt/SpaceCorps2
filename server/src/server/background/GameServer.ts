@@ -236,6 +236,9 @@ export class GameServer {
             const player = await this.getPlayerByUUID(reward.recipientUUID);
             if (player) {
                 this.rewardServer.issueReward(player, reward);
+                this.io.to(player.socketId).emit("emitRewardInfoToUser", {
+                    reward: reward,
+                });
             } else {
                 console.log(
                     `Could not find player with uuid ${reward.recipientUUID} to issue them a reward.`
