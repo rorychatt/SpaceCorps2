@@ -570,24 +570,25 @@ async function createObject(data: any) {
 
 async function updateObject(object: THREE.Object3D, entity: any) {
     const target = new THREE.Vector3(entity.position.x, 0, entity.position.y);
-    object.lookAt(target);
+
+    if (
+        (entity.position.x - object.position.x) ** 2 +
+            (entity.position.y - object.position.z) ** 2 >
+        0.00001
+    ) {
+        object.lookAt(target)
+    }
 
     if (object.name == playerName) {
         const dx = entity.position.x - object.position.x;
         const dz = entity.position.y - object.position.z;
 
-        camera.position.lerp(
-            new THREE.Vector3(
-                camera.position.x + dx,
-                camera.position.y,
-                camera.position.z + dz
-            ),
-            0.01
+        camera.position.set(
+            camera.position.x + dx,
+            camera.position.y,
+            camera.position.z + dz
         );
-        controls.target.lerp(
-            new THREE.Vector3(entity.position.x, 0, entity.position.y),
-            0.1
-        );
+        controls.target.set(entity.position.x, 0, entity.position.y);
         controls.update();
     }
 
@@ -636,7 +637,7 @@ async function updateObject(object: THREE.Object3D, entity: any) {
 
     (object as any).hitPoints = entity.hitPoints;
 
-    object.position.lerp(target, lerpFactor);
+    object.position.set(target.x, 0, target.z);
 }
 
 async function deleteObject(uuid: string) {
