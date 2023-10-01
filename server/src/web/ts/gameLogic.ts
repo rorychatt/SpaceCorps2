@@ -674,12 +674,13 @@ async function updateObject(object: THREE.Object3D, entity: any) {
                     damageIndicators.splice(index, 1);
                 }
             }, 1000);
+        }
+        if (dhp != 0 || dsp != 0) {
             if (entityLabelsDiv) {
                 for (let i = 0; i < entityLabelsDiv.children.length; i++) {
                     if (
-                        entityLabelsDiv.children[i].getAttribute(
-                            "uuid"
-                        ) == object.uuid
+                        entityLabelsDiv.children[i].getAttribute("uuid") ==
+                        object.uuid
                     ) {
                         const label = entityLabelsDiv.children[i].children[1];
                         const hpBar = label.children[0];
@@ -1246,7 +1247,7 @@ async function createAndTriggerExplosion(position: THREE.Vector3) {
         audioLoader.load(ref, function (buffer) {
             sound.setBuffer(buffer);
             sound.setRefDistance(30);
-            sound.setVolume(0.2);
+            sound.setVolume(0.05);
             sound.play();
         });
 
