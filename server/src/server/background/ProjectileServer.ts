@@ -1,5 +1,6 @@
 import { Alien } from "./Alien";
 import { Entity } from "./Entity";
+import { LaserAmmo } from "./Inventory";
 import { Player } from "./Player";
 import {
     LaserProjectile,
@@ -19,21 +20,25 @@ export class ProjectileServer {
 
     createProjectile(
         type: ProjectileTypes,
-        attackerEntity: Player | Alien | Entity,
-        targetEntity: Player | Alien | Entity
+        attackerEntity: Player | Alien,
+        targetEntity: Player | Alien
     ) {
         if (type == "LaserProjectile") {
             this.projectiles.push(
                 new LaserProjectile(this.spacemap, targetEntity, attackerEntity)
             );
         } else if (type == "RocketProjectile") {
-            this.projectiles.push(
-                new RocketProjectile(
-                    this.spacemap,
-                    targetEntity,
-                    attackerEntity
-                )
-            );
+            const ammo = (attackerEntity as Player).inventory.getCurrentRocketAmmo();
+            if(ammo){
+                this.projectiles.push(
+                    new RocketProjectile(
+                        this.spacemap,
+                        targetEntity,
+                        attackerEntity,
+                        ammo
+                    )
+                );    
+            }
         }
     }
 }

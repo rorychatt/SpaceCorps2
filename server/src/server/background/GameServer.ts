@@ -350,12 +350,12 @@ export class GameServer {
                     if (data.weapons == "lasers") {
                         attacker.isShooting = true;
                         attacker.targetUUID = target.uuid;
-                        attacker.shootLaserProjectileAtTarget(target);
+                        attacker.shootLaserProjectileAtTarget(target as Player | Alien);
                     }
                 }
             } else if (data.weapons == "rockets") {
                 attacker.targetUUID = target.uuid;
-                attacker.shootRocketProjectileAtTarget(target);
+                attacker.shootRocketProjectileAtTarget(target as Player | Alien);
             }
         }
     }

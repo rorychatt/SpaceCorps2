@@ -1,12 +1,15 @@
 import { gameServer } from "../main";
 import {
     Laser,
+    LaserAmmo,
     PossibleItems,
     ShieldGenerator,
     ShipItem,
     SpeedGenerator,
     generatorData,
+    laserAmmoData,
     laserData,
+    rocketAmmoData,
     shipData,
 } from "./Inventory";
 import { ItemReward } from "./Reward";
@@ -38,6 +41,21 @@ export class Shop {
                 this.addItem(shipName, shipItem);
             }
         }
+
+        for (const laserAmmoName in laserAmmoData){
+            if(laserAmmoData.laserAmmoName){
+                const laserAmmoItem = new LaserAmmo(laserAmmoName);
+                this.addItem(laserAmmoName, laserAmmoItem)
+            }
+        }
+
+        for (const rocketAmmoName in rocketAmmoData){
+            if(laserAmmoData.laserAmmoName){
+                const laserAmmoItem = new LaserAmmo(rocketAmmoName);
+                this.addItem(rocketAmmoName, laserAmmoItem)
+            }
+        }
+
     }
 
     findItemByName(name: string): PossibleItems | undefined {

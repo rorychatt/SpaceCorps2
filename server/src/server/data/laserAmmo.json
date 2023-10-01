@@ -1,0 +1,10 @@
+{
+    "x1":{
+        "name": "x1",
+        "damageMultiplier": 1,
+        "shieldDamageMultiplier": 0,
+        "price":{
+            "credits": 10
+        }
+    }
+}

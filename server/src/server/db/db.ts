@@ -136,9 +136,8 @@ export async function updateInventoryData(
     username: string,
     inventoryData: Inventory
 ): Promise<any> {
-
-    const _inventoryData = new InventoryDataDTO()
-    await _inventoryData.convertInventory(inventoryData)
+    const _inventoryData = new InventoryDataDTO();
+    await _inventoryData.convertInventory(inventoryData);
 
     const query = `
         UPDATE inventory
@@ -151,6 +150,7 @@ export async function updateInventoryData(
                 _inventoryData.speedGenerators
             )}',
             ships = '${JSON.stringify(_inventoryData.ships)}'
+            ammunition = '${JSON.stringify(_inventoryData.ammunition)}'
         WHERE username = '${username}'`;
 
     return executeQuery(query);

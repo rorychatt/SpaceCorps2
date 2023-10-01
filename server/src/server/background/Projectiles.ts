@@ -1,14 +1,9 @@
 import { Alien } from "./Alien";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
+import { RocketAmmo } from "./Inventory";
 import { Player } from "./Player";
 import { Spacemap, Vector2D } from "./Spacemap";
-
-import * as fs from "fs";
-
-export const rocketData = JSON.parse(
-    fs.readFileSync("./src/server/data/rockets.json").toString("utf-8")
-);
 
 export class Projectile extends Entity {
     target: Entity | Alien | Player;
@@ -85,7 +80,7 @@ export class RocketProjectile extends Projectile {
         map: Spacemap,
         target: Entity | Alien | Player,
         attacker: Entity | Alien | Player,
-        rocketName?: string
+        rocketAmmo: RocketAmmo
     ) {
         super(map, "rocketProjectile", target, attacker);
         this._type = "RocketProjectile";
@@ -95,22 +90,17 @@ export class RocketProjectile extends Projectile {
         this.criticalChance = 0.1;
         this.criticalMultiplier = 2;
         this.speed = 20;
-
-        if (rocketName) {
-            this._getData(rocketName);
-        } else {
-            this._getData("rocket1");
-        }
+        this._getData(rocketAmmo)
     }
 
-    _getData(rocketName: string) {
-        const rd = rocketData[rocketName];
-        this.maxDamage = rd.maxDamage;
-        this.damageRadius = rd.damageRadius;
-        this.damageVariance = rd.damageVariance;
-        this.criticalChance = rd.criticalChance;
-        this.criticalMultiplier = rd.criticalMultiplier;
-        this.speed = rd.speed;
+    _getData(rocketAmmo: RocketAmmo) {
+        this.name = rocketAmmo.name
+        this.maxDamage = rocketAmmo.maxDamage;
+        this.damageRadius = rocketAmmo.damageRadius;
+        this.damageVariance = rocketAmmo.damageVariance;
+        this.criticalChance = rocketAmmo.criticalChance;
+        this.criticalMultiplier = rocketAmmo.criticalMultiplier;
+        this.speed = rocketAmmo.speed;
     }
 
     getDamage(): number {
