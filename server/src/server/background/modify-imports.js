@@ -10,7 +10,7 @@ await Promise.all([
     fixProjectileServer(),
     fixProjectiles(),
     fixChatServer(),
-    fixShop()
+    fixShop(),
 ]);
 
 function fixGameServer() {
@@ -66,8 +66,8 @@ function fixGameServer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { LaserProjectile, LaserProjectileDTO } from "./Projectiles";',
-            'import { LaserProjectile, LaserProjectileDTO } from "./Projectiles.js";'
+            'import { LaserProjectile, LaserProjectileDTO, RocketProjectile, RocketProjectileDTO, } from "./Projectiles";',
+            'import { LaserProjectile, LaserProjectileDTO, RocketProjectile, RocketProjectileDTO, } from "./Projectiles.js";'
         );
 
         modifiedData = modifiedData.replace(
@@ -158,8 +158,6 @@ function fixPlayer() {
             'import { Inventory, Laser, ShieldGenerator, ShipItem, SpeedGenerator, } from "./Inventory";',
             'import { Inventory, Laser, ShieldGenerator, ShipItem, SpeedGenerator, } from "./Inventory.js";'
         );
-
-        
 
         writeFile("./dist/server/background/Player.js", modifiedData, (err) => {
             if (err) {
@@ -272,8 +270,8 @@ function fixProjectileServer() {
             }
 
             let modifiedData = data.replace(
-                'import { LaserProjectile, } from "./Projectiles";',
-                'import { LaserProjectile, } from "./Projectiles.js";'
+                'import { LaserProjectile, RocketProjectile, } from "./Projectiles";',
+                'import { LaserProjectile, RocketProjectile, } from "./Projectiles.js";'
             );
 
             writeFile(
@@ -358,7 +356,6 @@ function fixShop() {
             'import { Laser, ShieldGenerator, ShipItem, SpeedGenerator, generatorData, laserData, shipData, } from "./Inventory";',
             'import { Laser, ShieldGenerator, ShipItem, SpeedGenerator, generatorData, laserData, shipData, } from "./Inventory.js";'
         );
-
 
         writeFile("./dist/server/background/Shop.js", modifiedData, (err) => {
             if (err) {

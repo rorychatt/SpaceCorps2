@@ -184,7 +184,7 @@ io.on("connection", (socket) => {
 
     socket.on(
         "shootEvent",
-        (data: { playerName: string; targetUUID: string }) => {
+        (data: { playerName: string; targetUUID: string; weapons: string }) => {
             gameServer.registerPlayerAttackEvent(data);
         }
     );

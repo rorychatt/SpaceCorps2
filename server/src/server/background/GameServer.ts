@@ -8,7 +8,12 @@ import { ChatServer } from "./ChatServer";
 import { DamageEvent } from "./DamageEvent";
 import { Entity, Portal } from "./Entity";
 import { RewardServer } from "./RewardServer";
-import { LaserProjectile, LaserProjectileDTO } from "./Projectiles";
+import {
+    LaserProjectile,
+    LaserProjectileDTO,
+    RocketProjectile,
+    RocketProjectileDTO,
+} from "./Projectiles";
 import { Shop } from "./Shop";
 
 export const tickrate = 120;
@@ -228,7 +233,7 @@ export class GameServer {
                     attackerEntity instanceof Alien
                 ) {
                     const _damage = await attackerEntity.giveDamage();
-                    if (_damage) {
+                    if (_damage && damage == 0) {
                         damage = _damage;
                     }
                 }
@@ -311,6 +316,8 @@ export class GameServer {
                 (projectile) => {
                     if (projectile instanceof LaserProjectile) {
                         return new LaserProjectileDTO(projectile);
+                    } else if (projectile instanceof RocketProjectile) {
+                        return new RocketProjectileDTO(projectile);
                     }
                 }
             );
@@ -327,6 +334,7 @@ export class GameServer {
     async registerPlayerAttackEvent(data: {
         playerName: string;
         targetUUID: string;
+        weapons: string;
     }) {
         const [attacker, target] = await Promise.all([
             this.getPlayerByUsername(data.playerName),
@@ -334,13 +342,20 @@ export class GameServer {
         ]);
 
         if (attacker && target) {
-            if (attacker.isShooting) {
-                attacker.isShooting = false;
-                attacker.targetUUID = undefined;
-            } else {
-                attacker.isShooting = true;
+            if (data.weapons == "lasers") {
+                if (attacker.isShooting) {
+                    attacker.isShooting = false;
+                    attacker.targetUUID = undefined;
+                } else {
+                    if (data.weapons == "lasers") {
+                        attacker.isShooting = true;
+                        attacker.targetUUID = target.uuid;
+                        attacker.shootLaserProjectileAtTarget(target);
+                    }
+                }
+            } else if (data.weapons == "rockets") {
                 attacker.targetUUID = target.uuid;
-                attacker.shootProjectileAtTarget(target);
+                attacker.shootRocketProjectileAtTarget(target);
             }
         }
     }
@@ -351,12 +366,42 @@ export class GameServer {
                 .projectileServer.projectiles) {
                 projectile.moveToTarget();
                 if (projectile.getDistanceToTarget() < 0.01) {
-                    this.damageEvents.push(
-                        new DamageEvent(
-                            projectile.target.uuid,
-                            projectile.attacker.uuid
-                        )
-                    );
+                    if (projectile instanceof LaserProjectile) {
+                        this.damageEvents.push(
+                            new DamageEvent(
+                                projectile.target.uuid,
+                                projectile.attacker.uuid
+                            )
+                        );
+                    } else if (projectile instanceof RocketProjectile) {
+                        const hittableAliens = this.spacemaps[
+                            spacemapName
+                        ].entities.filter((entity) => {
+                            if (entity instanceof Alien) {
+                                if (
+                                    (projectile.position.x -
+                                        entity.position.x) **
+                                        2 +
+                                        (projectile.position.y -
+                                            entity.position.y) **
+                                            2 <=
+                                    projectile.damageRadius
+                                ) {
+                                    return true;
+                                }
+                            }
+                        });
+
+                        hittableAliens.forEach((alien) => {
+                            this.damageEvents.push(
+                                new DamageEvent(
+                                    alien.uuid,
+                                    projectile.attacker.uuid,
+                                    projectile.getDamage()
+                                )
+                            );
+                        });
+                    }
                     this.spacemaps[spacemapName].projectileServer.projectiles =
                         this.spacemaps[
                             spacemapName

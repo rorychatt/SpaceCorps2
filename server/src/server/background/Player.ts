@@ -131,26 +131,22 @@ export class Player extends Entity {
                 }
                 for (const generator in res2[0].ships[ship].currentGenerators) {
                     if (
-                        res2[0].ships[ship].currentGenerators[
-                            generator
-                        ]._type == "ShieldGenerator"
+                        res2[0].ships[ship].currentGenerators[generator]
+                            ._type == "ShieldGenerator"
                     ) {
                         this.inventory.putShieldGeneratorToShip(
-                            res2[0].ships[ship].currentGenerators[
-                                generator
-                            ].name,
+                            res2[0].ships[ship].currentGenerators[generator]
+                                .name,
                             res2[0].ships[ship].name,
                             true
                         );
                     } else if (
-                        res2[0].ships[ship].currentGenerators[
-                            generator
-                        ]._type == "SpeedGenerator"
+                        res2[0].ships[ship].currentGenerators[generator]
+                            ._type == "SpeedGenerator"
                     ) {
                         this.inventory.putSpeedGeneratorToShip(
-                            res2[0].ships[ship].currentGenerators[
-                                generator
-                            ].name,
+                            res2[0].ships[ship].currentGenerators[generator]
+                                .name,
                             res2[0].ships[ship].name,
                             true
                         );
@@ -184,9 +180,7 @@ export class Player extends Entity {
         }
     }
 
-    async _calculateShields() {
-
-    }
+    async _calculateShields() {}
 
     async receiveDamage(damage: number, attackerUUID?: string) {
         let shieldDamage: number = damage * this.hitPoints.shieldAbsorbance;
@@ -230,7 +224,7 @@ export class Player extends Entity {
         return totalDamage;
     }
 
-    shootProjectileAtTarget(target: Alien | Player | Entity) {
+    shootLaserProjectileAtTarget(target: Alien | Player | Entity) {
         if (this.reloadState == "canShoot") {
             this.reloadState = "reloading";
             gameServer.spacemaps[
@@ -244,6 +238,14 @@ export class Player extends Entity {
         }
     }
 
+    shootRocketProjectileAtTarget(target: Alien | Player | Entity) {
+        gameServer.spacemaps[this.currentMap].projectileServer.createProjectile(
+            "RocketProjectile",
+            this,
+            target
+        );
+    }
+
     async _reload() {
         setTimeout(async () => {
             this.reloadState = "canShoot";
@@ -252,7 +254,7 @@ export class Player extends Entity {
                     this.targetUUID
                 );
                 if (target) {
-                    this.shootProjectileAtTarget(target);
+                    this.shootLaserProjectileAtTarget(target);
                 } else {
                     this.targetUUID = undefined;
                     this.isShooting = false;
