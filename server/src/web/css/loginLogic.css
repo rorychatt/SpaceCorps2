@@ -1208,3 +1208,22 @@ h1 {
     font-family: "AudioWide";
     font-size: 1.5vh;
 }
+
+/* Hotbar */
+
+.hotbar {
+    height: 40px;
+    position: absolute;
+    display: flex;
+    top: 90vh;
+    left: 40%;
+}
+
+.hotbar_def {
+    height: auto;
+    max-height: 40px;
+    width: 40px;
+    border: 1px solid white;
+    border-radius: 5px;
+    margin: 1px;
+}
