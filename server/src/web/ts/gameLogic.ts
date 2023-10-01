@@ -994,7 +994,7 @@ async function loadEventListeners() {
 
 async function displayShoppingItems() {
     for (const category in shoppingData) {
-        if (shoppingData.hasOwnProperty(category)) {
+        if (shoppingData.hasOwnProperty(category) && shoppingData[category].length == 1) {
             const categoryItems = shoppingData[category];
 
             const categoryContainer = document.getElementById(
@@ -1009,49 +1009,44 @@ async function displayShoppingItems() {
             while (categoryContainer?.firstChild) {
                 categoryContainer.removeChild(categoryContainer.firstChild);
             }
-
             for (const itemName in categoryItems) {
-                if (categoryItems != "ammunition") {
-                    if (categoryItems.hasOwnProperty(itemName)) {
-                        const item = categoryItems[itemName];
-                        const itemContainer = document.createElement("div");
-                        itemContainer.classList.add("shop_item");
+                if (categoryItems.hasOwnProperty(itemName)) {
+                    const item = categoryItems[itemName];
+                    const itemContainer = document.createElement("div");
+                    itemContainer.classList.add("shop_item");
 
-                        // Create an element for the item name
-                        const itemNameElement = document.createElement("div");
-                        itemNameElement.classList.add("item_name");
-                        itemNameElement.textContent = itemName;
+                    // Create an element for the item name
+                    const itemNameElement = document.createElement("div");
+                    itemNameElement.classList.add("item_name");
+                    itemNameElement.textContent = itemName;
 
-                        const itemIcon = document.createElement("div");
-                        itemIcon.classList.add("item_icon");
-                        const itemPrice = document.createElement("div");
-                        itemPrice.classList.add("item_price");
-                        itemPrice.textContent = `Price: ${await beautifyNumberToUser(
-                            item.price.credits
-                        )} credits`;
-                        const buyButton = document.createElement("button");
-                        buyButton.classList.add("buy_button");
-                        buyButton.textContent = "BUY";
+                    const itemIcon = document.createElement("div");
+                    itemIcon.classList.add("item_icon");
+                    const itemPrice = document.createElement("div");
+                    itemPrice.classList.add("item_price");
+                    itemPrice.textContent = `Price: ${await beautifyNumberToUser(
+                        item.price.credits
+                    )} credits`;
+                    const buyButton = document.createElement("button");
+                    buyButton.classList.add("buy_button");
+                    buyButton.textContent = "BUY";
 
-                        // Append the item name element before the item icon
-                        itemContainer.appendChild(itemNameElement);
-                        itemContainer.appendChild(itemIcon);
-                        itemContainer.appendChild(itemPrice);
-                        itemContainer.appendChild(buyButton);
-                        categoryContainer.appendChild(itemContainer);
+                    // Append the item name element before the item icon
+                    itemContainer.appendChild(itemNameElement);
+                    itemContainer.appendChild(itemIcon);
+                    itemContainer.appendChild(itemPrice);
+                    itemContainer.appendChild(buyButton);
+                    categoryContainer.appendChild(itemContainer);
 
-                        buyButton.addEventListener("click", () => {
-                            console.log(
-                                `You clicked BUY for ${category} - ${itemName}`
-                            );
-                            socket.emit(`playerPurchaseEvent`, {
-                                playerName: playerName,
-                                itemName: itemName,
-                            });
+                    buyButton.addEventListener("click", () => {
+                        console.log(
+                            `You clicked BUY for ${category} - ${itemName}`
+                        );
+                        socket.emit(`playerPurchaseEvent`, {
+                            playerName: playerName,
+                            itemName: itemName,
                         });
-                    }
-                } else {
-                    console.log(categoryItems[itemName])
+                    });
                 }
             }
         }
