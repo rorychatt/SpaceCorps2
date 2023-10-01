@@ -571,12 +571,25 @@ async function createObject(data: any) {
 async function updateObject(object: THREE.Object3D, entity: any) {
     const target = new THREE.Vector3(entity.position.x, 0, entity.position.y);
 
-    if (
-        (entity.position.x - object.position.x) ** 2 +
-            (entity.position.y - object.position.z) ** 2 >
-        0.00001
-    ) {
-        object.lookAt(target)
+    const targetDirection = new THREE.Vector3(
+        entity.position.x,
+        0,
+        entity.position.y
+    );
+
+    if (entity.targetUUID) {
+        const targetObject = getObjectByUUID(entity.targetUUID);
+        if (targetObject) {
+            object.lookAt(targetObject.position);
+        }
+    } else {
+        if (
+            (entity.position.x - object.position.x) ** 2 +
+                (entity.position.y - object.position.z) ** 2 >
+            0.00001
+        ) {
+            object.lookAt(targetDirection);
+        }    
     }
 
     if (object.name == playerName) {
