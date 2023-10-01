@@ -21,6 +21,7 @@ const thuliumElement = document.getElementById("thulium_value");
 const experienceElement = document.getElementById("experience_value");
 const honorElement = document.getElementById("honor_value");
 const notificationContainer = document.getElementById("notification_container");
+let entityLabelsDiv = document.getElementById("entityLabelsDiv");
 
 let shoppingData: any;
 let playerInventory: any;
@@ -246,6 +247,8 @@ function initScene(): void {
     spacemapDiv.appendChild(renderer.domElement);
     spacemapDiv.appendChild(labelRenderer.domElement);
 
+    entityLabelsDiv = document.getElementById("entityLabelsDiv");
+
     createStars();
 
     loadEventListeners();
@@ -437,6 +440,7 @@ function rescaleOnWindowResize(): void {
 async function createObject(data: any) {
     return new Promise(async (resolve) => {
         console.log(`Spawning new object: ${data.name}`);
+        console.log(data);
         const loader = new GLTFLoader();
         objectDataMap[data.uuid] = { data: null };
         switch (data._type) {
@@ -453,13 +457,41 @@ async function createObject(data: any) {
                             data.uuid,
                             rayCastLayerNo
                         );
-                        const text = document.createElement("div");
-                        text.className = "nicknameLabel";
-                        text.style.color = "rgb(255,255,255)";
-                        text.style.fontSize = "12";
-                        // text.textContent = `${data.name}\nHP: ${data.health}`;
-                        text.textContent = `${data.name}`;
-                        const label = new CSS2DObject(text);
+
+                        const nickBarContainer = document.createElement("div");
+                        const nickname = document.createElement("div");
+                        nickname.className = "nicknameLabel";
+                        nickname.textContent = `${data.name}`;
+
+                        const healthBar = document.createElement("div");
+                        healthBar.className = "health_bar";
+
+                        const hpBar = document.createElement("div");
+                        hpBar.className = "hp_health_bar";
+
+                        const spBar = document.createElement("div");
+                        spBar.className = "sp_health_bar";
+
+                        const maxHP = data.maxHealth;
+                        const maxSP = data.maxShields;
+
+                        hpBar.style.width = `${
+                            data.hitPoints.hullPoints / maxHP
+                        }`;
+
+                        spBar.style.width = `${
+                            data.hitPoints.shieldPoints / maxSP
+                        }`;
+
+                        healthBar.appendChild(hpBar);
+                        healthBar.appendChild(spBar);
+
+                        nickBarContainer.appendChild(nickname);
+                        nickBarContainer.appendChild(healthBar);
+                        nickBarContainer.setAttribute("uuid", data.uuid);
+
+                        const label = new CSS2DObject(nickBarContainer);
+
                         labelMap[data.uuid] = label;
                         label.position.y = -0.75;
                         (model as any).hitPoints = data.hitPoints;
@@ -589,7 +621,7 @@ async function updateObject(object: THREE.Object3D, entity: any) {
             0.00001
         ) {
             object.lookAt(targetDirection);
-        }    
+        }
     }
 
     if (object.name == playerName) {
@@ -628,9 +660,6 @@ async function updateObject(object: THREE.Object3D, entity: any) {
 
             setTimeout(() => {
                 scene.remove(damageLabel);
-
-                const entityLabelsDiv =
-                    document.getElementById("entityLabelsDiv");
                 if (entityLabelsDiv) {
                     for (let i = 0; i < entityLabelsDiv.children.length; i++) {
                         const child = entityLabelsDiv.children[i];
@@ -645,6 +674,25 @@ async function updateObject(object: THREE.Object3D, entity: any) {
                     damageIndicators.splice(index, 1);
                 }
             }, 1000);
+            if (entityLabelsDiv) {
+                for (let i = 0; i < entityLabelsDiv.children.length; i++) {
+                    if (
+                        entityLabelsDiv.children[i].getAttribute(
+                            "uuid"
+                        ) == object.uuid
+                    ) {
+                        const label = entityLabelsDiv.children[i].children[1];
+                        const hpBar = label.children[0];
+                        const spBar = label.children[1];
+                        const maxHp = entity.maxHealth || 100;
+                        const maxSp = entity.maxShields || 100;
+                        (hpBar as any).style.width =
+                            (entity.hitPoints.hullPoints / maxHp) * 100 + "%";
+                        (spBar as any).style.width =
+                            (entity.hitPoints.shieldPoints / maxSp) * 100 + "%";
+                    }
+                }
+            }
         }
     }
 
@@ -1198,6 +1246,7 @@ async function createAndTriggerExplosion(position: THREE.Vector3) {
         audioLoader.load(ref, function (buffer) {
             sound.setBuffer(buffer);
             sound.setRefDistance(30);
+            sound.setVolume(0.2);
             sound.play();
         });
 

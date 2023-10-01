@@ -11,10 +11,12 @@ export class Alien extends Entity {
     damage: AlienDamageCharacteristic;
     movement: AlienMovementCharacteristic;
     _roamDestination: Vector2D | null = null;
+    _maxHP: number;
+    _maxSP: number;
     lastAttackedByUUID?: string;
 
     public constructor(map: Spacemap, name: string, position?: Vector2D) {
-        super(map.name, name, position)
+        super(map.name, name, position);
         this.hitPoints = {
             hullPoints: 1000,
             shieldPoints: 1000,
@@ -37,6 +39,8 @@ export class Alien extends Entity {
             behaviour: "passive",
             speed: 360,
         };
+        this._maxHP = 1000;
+        this._maxSP = 1000;
         this._getData();
     }
 
@@ -49,6 +53,8 @@ export class Alien extends Entity {
             this.oreDrop = aliensData[this.name].oreDrop;
             this.damage = aliensData[this.name].damage;
             this.movement = aliensData[this.name].movement;
+            this._maxHP = aliensData[this.name].hitPoints.hullPoints;
+            this._maxSP = aliensData[this.name].hitPoints.shieldPoints;
         } catch (error) {
             console.error("Error reading the file:", error);
         }
@@ -82,7 +88,9 @@ export class Alien extends Entity {
         const rawDamage =
             this.damage.maxDamage * (1 - Math.random() * this.damage.variance);
         const isCritical = Math.random() <= this.damage.criticalChance;
-        const damageMultiplier = isCritical ? this.damage.criticalMultiplier : 1;
+        const damageMultiplier = isCritical
+            ? this.damage.criticalMultiplier
+            : 1;
         const damage = rawDamage * damageMultiplier;
         console.log(`${this.uuid} tried to shoot and dealt ${damage} damage.`);
         return damage;
@@ -136,7 +144,9 @@ export class Alien extends Entity {
                 y: this._roamDestination.y - this.position.y,
             };
 
-            const totalDistance = Math.sqrt(direction.x ** 2 + direction.y ** 2);
+            const totalDistance = Math.sqrt(
+                direction.x ** 2 + direction.y ** 2
+            );
 
             if (travelledDistance - totalDistance < 0) {
                 const dx = (travelledDistance / totalDistance) * direction.x;
@@ -159,7 +169,9 @@ export class AlienDTO {
     position: Vector2D;
     uuid: string;
     _type: string;
-    hitPoints?: Durability;
+    maxHealth: number;
+    maxShields: number;
+    hitPoints: Durability;
 
     constructor(alien: Alien) {
         this.name = alien.name;
@@ -167,6 +179,8 @@ export class AlienDTO {
         this.uuid = alien.uuid;
         this._type = alien._type;
         this.hitPoints = alien.hitPoints;
+        this.maxHealth = alien._maxHP;
+        this.maxShields = alien._maxSP;
     }
 }
 
