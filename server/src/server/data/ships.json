@@ -2,7 +2,7 @@
     "protos": {
         "name": "protos",
         "maxHealth": 8000,
-        "baseSpeed": 150,
+        "baseSpeed": 400,
         "maxLasers": 2,
         "maxGenerators": 2,
         "price": {

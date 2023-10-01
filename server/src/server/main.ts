@@ -204,6 +204,8 @@ io.on("connection", (socket) => {
             );
             if (player) {
                 player.inventory.equipItem(data.itemName);
+                player._calculateSpeed();
+                player._calculateShields();
             }
         }
     );
@@ -216,6 +218,8 @@ io.on("connection", (socket) => {
             );
             if (player) {
                 player.inventory.unequipItem(data.itemName);
+                player._calculateSpeed();
+                player._calculateShields();
             }
         }
     );
