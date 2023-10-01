@@ -316,16 +316,16 @@ export class GameServer {
             this.getPlayerByUsername(data.playerName),
             this.getEntityByUUID(data.targetUUID),
         ]);
-        if (attacker && target && attacker.reloadState == "canShoot") {
-            attacker.reloadState = "reloading";
-            this.spacemaps[
-                attacker.currentMap
-            ].projectileServer.createProjectile(
-                "LaserProjectile",
-                attacker,
-                target
-            );
-            attacker._reload();
+
+        if(attacker && target){
+            if(attacker.isShooting){
+                attacker.isShooting = false
+                attacker.targetUUID = undefined;
+            } else {
+                attacker.isShooting = true;
+                attacker.targetUUID = target.uuid
+                attacker.shootProjectileAtTarget(target)
+            }
         }
     }
 

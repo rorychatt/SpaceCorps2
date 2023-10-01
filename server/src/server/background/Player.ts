@@ -30,6 +30,8 @@ export class Player extends Entity {
     speed: number = 2000;
     inventory: Inventory = new Inventory();
     _activeShip: ShipItem | undefined;
+    isShooting: boolean = false;
+    targetUUID: string | undefined = undefined;
 
     public constructor(socketId: string, map: Spacemap, username: string) {
         super(map.name, username);
@@ -210,9 +212,34 @@ export class Player extends Entity {
         return totalDamage;
     }
 
+    shootProjectileAtTarget(target: Alien | Player | Entity) {
+        if (this.reloadState == "canShoot") {
+            this.reloadState = "reloading";
+            gameServer.spacemaps[
+                this.currentMap
+            ].projectileServer.createProjectile(
+                "LaserProjectile",
+                this,
+                target
+            );
+            this._reload();
+        }
+    }
+
     async _reload() {
-        setTimeout(() => {
+        setTimeout(async () => {
             this.reloadState = "canShoot";
+            if (this.targetUUID && this.isShooting) {
+                const target = await gameServer.getEntityByUUID(
+                    this.targetUUID
+                );
+                if (target) {
+                    this.shootProjectileAtTarget(target);
+                } else {
+                    this.targetUUID = undefined;
+                    this.isShooting = false;
+                }
+            }
         }, 1000);
     }
 
