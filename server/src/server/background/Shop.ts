@@ -23,7 +23,7 @@ export class Shop {
         }
 
         for (const generatorName in generatorData) {
-            if (generatorData.baseSpeed) {
+            if (generatorData[generatorName].baseSpeed) {
                 const generator = new SpeedGenerator(generatorName);
                 this.addItem(generatorName, generator);
             } else {

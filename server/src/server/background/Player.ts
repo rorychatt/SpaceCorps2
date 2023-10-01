@@ -27,7 +27,7 @@ export class Player extends Entity {
     destination?: Vector2D | null;
     reloadState: ReloadStateCharacteristic = "canShoot";
     lastAttackedByUUID?: string;
-    speed: number = 2000;
+    speed: number = 150;
     inventory: Inventory = new Inventory();
     _activeShip: ShipItem | undefined;
     isShooting: boolean = false;
@@ -63,6 +63,7 @@ export class Player extends Entity {
     private async _initializePlayerData() {
         await this._getDataFromSQL();
         this._activeShip = await this.inventory.getActiveShip();
+        this._calculateSpeed();
     }
 
     async _getDataFromSQL() {
@@ -130,24 +131,24 @@ export class Player extends Entity {
                 }
                 for (const generator in res2[0].ships[ship].currentGenerators) {
                     if (
-                        res2[0].ships[ship].currentGeneratorsGenerators[
+                        res2[0].ships[ship].currentGenerators[
                             generator
-                        ]._type == "ShielGenerator"
+                        ]._type == "ShieldGenerator"
                     ) {
                         this.inventory.putShieldGeneratorToShip(
-                            res2[0].ships[ship].currentGeneratorsGenerators[
+                            res2[0].ships[ship].currentGenerators[
                                 generator
                             ].name,
                             res2[0].ships[ship].name,
                             true
                         );
                     } else if (
-                        res2[0].ships[ship].currentGeneratorsGenerators[
+                        res2[0].ships[ship].currentGenerators[
                             generator
                         ]._type == "SpeedGenerator"
                     ) {
                         this.inventory.putSpeedGeneratorToShip(
-                            res2[0].ships[ship].currentGeneratorsGenerators[
+                            res2[0].ships[ship].currentGenerators[
                                 generator
                             ].name,
                             res2[0].ships[ship].name,
@@ -168,6 +169,23 @@ export class Player extends Entity {
             experience: templateData.experience,
             honor: templateData.honor,
         };
+    }
+
+    async _calculateSpeed() {
+        if (this._activeShip) {
+            const shipSpeed = this._activeShip.baseSpeed;
+            let speedFromGenerators = 0;
+            this._activeShip.currentGenerators.forEach((generator) => {
+                if (generator instanceof SpeedGenerator) {
+                    speedFromGenerators += generator.baseSpeed;
+                }
+            });
+            this.speed = shipSpeed + speedFromGenerators;
+        }
+    }
+
+    async _calculateShields() {
+
     }
 
     async receiveDamage(damage: number, attackerUUID?: string) {
