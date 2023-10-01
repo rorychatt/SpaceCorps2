@@ -10,6 +10,8 @@ import { tickrate } from "./GameServer";
 import {
     Inventory,
     Laser,
+    LaserAmmo,
+    RocketAmmo,
     ShieldGenerator,
     ShipItem,
     SpeedGenerator,
@@ -153,6 +155,23 @@ export class Player extends Entity {
                     }
                 }
             }
+            for (const ammo in res2[0].ammunition) {
+                if (res2[0].ammunition[ammo]._type == "LaserAmmo") {
+                    this.inventory.ammunition.push(
+                        new LaserAmmo(
+                            res2[0].ammunition[ammo].name,
+                            res2[0].ammunition[ammo].amount
+                        )
+                    );
+                } else if (res2[0].ammunition[ammo]._type == "RocketAmmo") {
+                    this.inventory.ammunition.push(
+                        new RocketAmmo(
+                            res2[0].ammunition[ammo].name,
+                            res2[0].ammunition[ammo].amount
+                        )
+                    );
+                }
+            }
         }
         this.currentMap = templateData.currentMap;
         this.position = {
@@ -224,7 +243,7 @@ export class Player extends Entity {
         return totalDamage;
     }
 
-    shootLaserProjectileAtTarget(target: Alien | Player | Entity) {
+    shootLaserProjectileAtTarget(target: Alien | Player) {
         if (this.reloadState == "canShoot") {
             this.reloadState = "reloading";
             gameServer.spacemaps[
@@ -238,7 +257,7 @@ export class Player extends Entity {
         }
     }
 
-    shootRocketProjectileAtTarget(target: Alien | Player | Entity) {
+    shootRocketProjectileAtTarget(target: Alien | Player) {
         gameServer.spacemaps[this.currentMap].projectileServer.createProjectile(
             "RocketProjectile",
             this,
@@ -252,7 +271,7 @@ export class Player extends Entity {
             if (this.targetUUID && this.isShooting) {
                 const target = await gameServer.getEntityByUUID(
                     this.targetUUID
-                );
+                ) as Alien | Player;
                 if (target) {
                     this.shootLaserProjectileAtTarget(target);
                 } else {

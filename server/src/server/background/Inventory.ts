@@ -10,10 +10,20 @@ export const generatorData = JSON.parse(
     fs.readFileSync("./src/server/data/generators.json").toString("utf-8")
 );
 
+export const laserAmmoData = JSON.parse(
+    fs.readFileSync("./src/server/data/laserAmmo.json").toString("utf-8")
+);
+export const rocketAmmoData = JSON.parse(
+    fs.readFileSync("./src/server/data/rocketAmmo.json").toString("utf-8")
+);
+
 export class Inventory {
     lasers: Laser[];
     shieldGenerators: ShieldGenerator[];
     speedGenerators: SpeedGenerator[];
+    ammunition: (LaserAmmo | RocketAmmo)[];
+    selectedLaserAmmo?: LaserAmmo;
+    selectedRocketAmmo?: RocketAmmo;
     ships: ShipItem[];
 
     constructor() {
@@ -21,6 +31,31 @@ export class Inventory {
         this.shieldGenerators = [];
         this.speedGenerators = [];
         this.ships = [];
+        this.ammunition = [];
+    }
+
+    getCurrentLasertAmmo() {
+        if (!this.selectedLaserAmmo) {
+            this.ammunition.forEach((ammo) => {
+                if (ammo instanceof LaserAmmo) {
+                    return ammo;
+                }
+            });
+        } else {
+            return this.selectedLaserAmmo;
+        }
+    }
+
+    getCurrentRocketAmmo() {
+        if (!this.selectedRocketAmmo) {
+            this.ammunition.forEach((ammo) => {
+                if (ammo instanceof RocketAmmo) {
+                    return ammo;
+                }
+            });
+        } else {
+            return this.selectedRocketAmmo;
+        }
     }
 
     async addItem(item: PossibleItems) {
@@ -32,6 +67,10 @@ export class Inventory {
             this.speedGenerators.push(item);
         } else if (item instanceof ShipItem) {
             this.ships.push(item);
+        } else if (item instanceof LaserAmmo) {
+            this.ammunition.push(item);
+        } else if (item instanceof RocketAmmo) {
+            this.ammunition.push(item);
         }
     }
 
@@ -487,10 +526,62 @@ export class ShipItem extends Item {
     }
 }
 
+export class LaserAmmo extends Item {
+    amount: number = 0;
+    damageMultiplier: number;
+    shieldDamageMultiplier: number = 0;
+    _type: string = "LaserAmmo";
+    price: { credits?: number; thulium?: number };
+
+    constructor(name: string, amount?: number) {
+        super(name);
+        this.damageMultiplier = laserAmmoData[name].damageMultiplier;
+        this.shieldDamageMultiplier =
+            laserAmmoData[name].shieldDamageMultiplier;
+        this.price = {
+            credits: laserData[name].price.credits,
+            thulium: laserAmmoData[name].price.thulium,
+        };
+        if (amount) {
+            this.amount = amount;
+        }
+    }
+}
+
+export class RocketAmmo extends Item {
+    amount: number = 0;
+    maxDamage: number;
+    damageVariance: number;
+    criticalChance: number;
+    criticalMultiplier: number;
+    damageRadius: number;
+    speed: number;
+    _type: string = "LaserAmmo";
+    price: { credits?: number; thulium?: number };
+
+    constructor(name: string, amount?: number) {
+        super(name);
+        this.maxDamage = rocketAmmoData[name].maxDamage;
+        this.criticalChance = rocketAmmoData[name].criticalChance;
+        this.damageVariance = rocketAmmoData[name].damageVariance;
+        this.criticalMultiplier = rocketAmmoData[name].criticalMultiplier;
+        this.damageRadius = rocketAmmoData[name].damageRadius;
+        this.speed = rocketAmmoData[name].speed;
+        this.price = {
+            credits: rocketAmmoData[name].price.credits,
+            thulium: rocketAmmoData[name].price.thulium,
+        };
+        if (amount) {
+            this.amount = amount;
+        }
+    }
+}
+
 export class InventoryDataDTO {
     lasers: LaserDTO[] = [];
     shieldGenerators: ShieldGeneratorDTO[] = [];
     speedGenerators: SpeedGeneratorDTO[] = [];
+    ammunition: (LaserAmmo | RocketAmmo)[] = [];
     ships: ShipItemDTO[] = [];
 
     async convertInventory(inventory: Inventory): Promise<void> {
@@ -500,6 +591,7 @@ export class InventoryDataDTO {
             this.convertSpeedGenerators(inventory.speedGenerators),
             this.convertShips(inventory.ships),
         ]);
+        this.ammunition = inventory.ammunition;
     }
 
     private async convertLasers(lasers: Laser[]): Promise<void> {
@@ -508,15 +600,24 @@ export class InventoryDataDTO {
         );
     }
 
-    private async convertShieldGenerators(shieldGenerators: ShieldGenerator[]): Promise<void> {
+    private async convertShieldGenerators(
+        shieldGenerators: ShieldGenerator[]
+    ): Promise<void> {
         this.shieldGenerators = await Promise.all(
-            shieldGenerators.map(async (shieldGenerator) => new ShieldGeneratorDTO(shieldGenerator))
+            shieldGenerators.map(
+                async (shieldGenerator) =>
+                    new ShieldGeneratorDTO(shieldGenerator)
+            )
         );
     }
 
-    private async convertSpeedGenerators(speedGenerators: SpeedGenerator[]): Promise<void> {
+    private async convertSpeedGenerators(
+        speedGenerators: SpeedGenerator[]
+    ): Promise<void> {
         this.speedGenerators = await Promise.all(
-            speedGenerators.map(async (speedGenerator) => new SpeedGeneratorDTO(speedGenerator))
+            speedGenerators.map(
+                async (speedGenerator) => new SpeedGeneratorDTO(speedGenerator)
+            )
         );
     }
 
@@ -536,7 +637,7 @@ export class LaserDTO {
 
 export class ShieldGeneratorDTO {
     name: string;
-    _type: string = "ShieldGenerator"
+    _type: string = "ShieldGenerator";
     constructor(shieldGenerator: ShieldGenerator) {
         this.name = shieldGenerator.name;
     }
@@ -544,7 +645,7 @@ export class ShieldGeneratorDTO {
 
 export class SpeedGeneratorDTO {
     name: string;
-    _type: string = "SpeedGenerator"
+    _type: string = "SpeedGenerator";
     constructor(speedGenerator: SpeedGenerator) {
         this.name = speedGenerator.name;
     }
@@ -574,4 +675,10 @@ export class ShipItemDTO {
 
 export type ItemPrice = { credits?: number; thulium?: number };
 
-export type PossibleItems = Laser | ShieldGenerator | SpeedGenerator | ShipItem;
+export type PossibleItems =
+    | Laser
+    | ShieldGenerator
+    | SpeedGenerator
+    | ShipItem
+    | RocketAmmo
+    | LaserAmmo;

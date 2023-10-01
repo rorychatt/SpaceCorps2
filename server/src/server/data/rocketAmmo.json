@@ -6,6 +6,9 @@
         "criticalChance": 0.1,
         "criticalMultiplier": 2,
         "damageRadius": 100,
-        "speed": 20
+        "speed": 20,
+        "price": {
+            "credits": 1000
+        }
     }
 }

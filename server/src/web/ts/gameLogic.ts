@@ -113,11 +113,20 @@ socket.on("mapData", (data: any) => {
 
 socket.on(
     "shopData",
-    (data: { lasers: any[]; ships: any[]; generators: any[] }) => {
+    (data: {
+        lasers: any[];
+        ships: any[];
+        generators: any[];
+        ammunition: { laserAmmo: any[]; rocketAmmo: any[] };
+    }) => {
         shoppingData = {
             weapons: data.lasers,
             ships: data.ships,
             generators: data.generators,
+            ammunition: {
+                laserAmmo: data.ammunition.laserAmmo,
+                rocketAmmo: data.ammunition.rocketAmmo,
+            },
         };
         displayShoppingItems();
     }
@@ -199,7 +208,7 @@ async function loadSpacemapPlane(data: any) {
     plane.rotation.x = -Math.PI / 2;
     plane.name = "movingPlane";
     plane.layers.enable(rayCastLayerNo);
-    console.log(plane)
+    console.log(plane);
     scene.add(plane);
 }
 
@@ -898,7 +907,7 @@ async function createStars() {
     const points = new THREE.Points(geometry, material);
 
     (points as any).uuid = Math.random();
-    points.name = "stars"
+    points.name = "stars";
 
     scene.add(points);
     points.layers.enable(0);
@@ -1002,43 +1011,47 @@ async function displayShoppingItems() {
             }
 
             for (const itemName in categoryItems) {
-                if (categoryItems.hasOwnProperty(itemName)) {
-                    const item = categoryItems[itemName];
-                    const itemContainer = document.createElement("div");
-                    itemContainer.classList.add("shop_item");
+                if (categoryItems != "ammunition") {
+                    if (categoryItems.hasOwnProperty(itemName)) {
+                        const item = categoryItems[itemName];
+                        const itemContainer = document.createElement("div");
+                        itemContainer.classList.add("shop_item");
 
-                    // Create an element for the item name
-                    const itemNameElement = document.createElement("div");
-                    itemNameElement.classList.add("item_name");
-                    itemNameElement.textContent = itemName;
+                        // Create an element for the item name
+                        const itemNameElement = document.createElement("div");
+                        itemNameElement.classList.add("item_name");
+                        itemNameElement.textContent = itemName;
 
-                    const itemIcon = document.createElement("div");
-                    itemIcon.classList.add("item_icon");
-                    const itemPrice = document.createElement("div");
-                    itemPrice.classList.add("item_price");
-                    itemPrice.textContent = `Price: ${await beautifyNumberToUser(
-                        item.price.credits
-                    )} credits`;
-                    const buyButton = document.createElement("button");
-                    buyButton.classList.add("buy_button");
-                    buyButton.textContent = "BUY";
+                        const itemIcon = document.createElement("div");
+                        itemIcon.classList.add("item_icon");
+                        const itemPrice = document.createElement("div");
+                        itemPrice.classList.add("item_price");
+                        itemPrice.textContent = `Price: ${await beautifyNumberToUser(
+                            item.price.credits
+                        )} credits`;
+                        const buyButton = document.createElement("button");
+                        buyButton.classList.add("buy_button");
+                        buyButton.textContent = "BUY";
 
-                    // Append the item name element before the item icon
-                    itemContainer.appendChild(itemNameElement);
-                    itemContainer.appendChild(itemIcon);
-                    itemContainer.appendChild(itemPrice);
-                    itemContainer.appendChild(buyButton);
-                    categoryContainer.appendChild(itemContainer);
+                        // Append the item name element before the item icon
+                        itemContainer.appendChild(itemNameElement);
+                        itemContainer.appendChild(itemIcon);
+                        itemContainer.appendChild(itemPrice);
+                        itemContainer.appendChild(buyButton);
+                        categoryContainer.appendChild(itemContainer);
 
-                    buyButton.addEventListener("click", () => {
-                        console.log(
-                            `You clicked BUY for ${category} - ${itemName}`
-                        );
-                        socket.emit(`playerPurchaseEvent`, {
-                            playerName: playerName,
-                            itemName: itemName,
+                        buyButton.addEventListener("click", () => {
+                            console.log(
+                                `You clicked BUY for ${category} - ${itemName}`
+                            );
+                            socket.emit(`playerPurchaseEvent`, {
+                                playerName: playerName,
+                                itemName: itemName,
+                            });
                         });
-                    });
+                    }
+                } else {
+                    console.log(categoryItems[itemName])
                 }
             }
         }
