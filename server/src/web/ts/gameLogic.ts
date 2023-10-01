@@ -57,6 +57,7 @@ const objectDataMap: Record<string, { data: any }> = {};
 const labelMap: Record<string, CSS2DObject> = {};
 
 const raycaster = new THREE.Raycaster();
+
 raycaster.layers.set(rayCastLayerNo);
 
 socket.on("connect", () => {
@@ -370,6 +371,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                     socket.emit("shootEvent", {
                         playerName: playerName,
                         targetUUID: lockOnCircle.parent.uuid,
+                        weapons: "lasers",
                     });
                 }
                 break;
@@ -402,6 +404,16 @@ function handleKeyboardButton(e: KeyboardEvent) {
 
             case "o":
                 console.log(scene);
+                break;
+
+            case " ":
+                if (lockOnCircle?.parent != undefined) {
+                    socket.emit("shootEvent", {
+                        playerName: playerName,
+                        targetUUID: lockOnCircle.parent.uuid,
+                        weapons: "rockets",
+                    });
+                }
                 break;
         }
     }
@@ -440,7 +452,6 @@ function rescaleOnWindowResize(): void {
 async function createObject(data: any) {
     return new Promise(async (resolve) => {
         console.log(`Spawning new object: ${data.name}`);
-        console.log(data);
         const loader = new GLTFLoader();
         objectDataMap[data.uuid] = { data: null };
         switch (data._type) {
@@ -553,7 +564,7 @@ async function createObject(data: any) {
                 break;
             case "LaserProjectile":
                 const lineMaterial = new THREE.LineBasicMaterial({
-                    color: "green",
+                    color: "red",
                     linewidth: 4,
                 });
                 const lineGeometry = new THREE.BufferGeometry().setFromPoints([
@@ -570,15 +581,45 @@ async function createObject(data: any) {
 
                 const sound = new THREE.PositionalAudio(audioListener);
 
+                const laserRef = "../assets/sounds/laser01.ogg";
+
                 const audioLoader = new THREE.AudioLoader();
 
-                let ref = "../assets/sounds/laser01.ogg";
-
-                // ref = "../assets/sounds/laser02.ogg"
-                audioLoader.load(ref, function (buffer) {
+                audioLoader.load(laserRef, function (buffer) {
+                    sound.position.set(data.position.x, 0, data.position.y);
                     sound.setBuffer(buffer);
                     sound.setRefDistance(20);
                     sound.play();
+                });
+
+                break;
+            case "RocketProjectile":
+                const rocketMaterial = new THREE.LineBasicMaterial({
+                    color: "red",
+                    linewidth: 16,
+                });
+                const rocketGeometry = new THREE.BufferGeometry().setFromPoints(
+                    [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0.5)]
+                );
+                const rocket = new THREE.Line(rocketGeometry, rocketMaterial);
+                rocket.uuid = data.uuid;
+                rocket.name = data.name;
+                rocket.position.set(data.position.x, 0, data.position.y);
+                rocket.lookAt(data.targetPosition.x, 0, data.targetPosition.y);
+                scene.add(rocket);
+                objectDataMap[data.uuid] = { data: rocket };
+
+                const rocketSound = new THREE.PositionalAudio(audioListener);
+
+                let ref = "../assets/sounds/rocketLaunch.ogg";
+
+                const audioLoader2 = new THREE.AudioLoader();
+
+                audioLoader2.load(ref, function (buffer) {
+                    rocketSound.setBuffer(buffer);
+                    rocketSound.setRefDistance(20);
+                    rocketSound.setVolume(0.4);
+                    rocketSound.play();
                 });
 
                 break;
@@ -722,10 +763,34 @@ async function deleteObject(uuid: string) {
             console.log("The element with id 'entityLabelsDiv' was not found.");
         }
 
-        if (object.name != "laserProjectile") {
+        if (
+            object.name !== "laserProjectile" &&
+            object.name !== "rocketProjectile"
+        ) {
             createAndTriggerExplosion(object.position);
         }
 
+        if (object.name == "laserProjectile") {
+            const audioLoader3 = new THREE.AudioLoader();
+            const sound = new THREE.PositionalAudio(audioListener);
+            sound.position.copy(object.position);
+            const ref = "../assets/sounds/laserHit.ogg";
+            audioLoader3.load(ref, function (buffer) {
+                sound.setBuffer(buffer);
+                sound.setVolume(0.5);
+                sound.play();
+            });
+        } else if (object.name == "rocketProjectile") {
+            const audioLoader4 = new THREE.AudioLoader();
+            const sound = new THREE.PositionalAudio(audioListener);
+            sound.position.copy(object.position);
+            const ref = "../assets/sounds/rocketHit.ogg";
+            audioLoader4.load(ref, function (buffer) {
+                sound.setBuffer(buffer);
+                sound.setVolume(0.5);
+                sound.play();
+            });
+        }
         delete objectDataMap[uuid];
         scene.remove(object);
 
@@ -1240,11 +1305,12 @@ async function createAndTriggerExplosion(position: THREE.Vector3) {
 
         const sound = new THREE.PositionalAudio(audioListener);
 
-        const audioLoader = new THREE.AudioLoader();
-
         let ref = "../assets/sounds/explosion.ogg";
 
+        const audioLoader = new THREE.AudioLoader();
+
         audioLoader.load(ref, function (buffer) {
+            sound.position.copy(position);
             sound.setBuffer(buffer);
             sound.setRefDistance(30);
             sound.setVolume(0.05);

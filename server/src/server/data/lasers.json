@@ -3,7 +3,7 @@
         "name": "laser1",
         "maxDamage": 100,
         "damageVariance": 0.1,
-        "criticalChance": 0.02,
+        "criticalChance": 0.1,
         "criticalMultiplier": 1.75,
         "price": {
             "credits": 10000
@@ -13,8 +13,8 @@
         "name": "laser2",
         "maxDamage": 160,
         "damageVariance": 0.1,
-        "criticalChance": 0.05,
-        "criticalMultiplier": 1.6,
+        "criticalChance": 0.2,
+        "criticalMultiplier": 3,
         "price": {
             "credits": 20000
         }

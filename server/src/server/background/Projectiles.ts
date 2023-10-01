@@ -4,6 +4,12 @@ import { tickrate } from "./GameServer";
 import { Player } from "./Player";
 import { Spacemap, Vector2D } from "./Spacemap";
 
+import * as fs from "fs";
+
+export const rocketData = JSON.parse(
+    fs.readFileSync("./src/server/data/rockets.json").toString("utf-8")
+);
+
 export class Projectile extends Entity {
     target: Entity | Alien | Player;
     attacker: Entity | Alien | Player;
@@ -67,17 +73,54 @@ export class LaserProjectile extends Projectile {
 export class RocketProjectile extends Projectile {
     _type: ProjectileTypes;
     speed: number;
+    maxDamage: number;
+    damageRadius: number;
+    damageVariance: number;
+    criticalChance: number;
+    criticalMultiplier: number;
 
     // TODO: Discuss!
 
     constructor(
         map: Spacemap,
         target: Entity | Alien | Player,
-        attacker: Entity | Alien | Player
+        attacker: Entity | Alien | Player,
+        rocketName?: string
     ) {
         super(map, "rocketProjectile", target, attacker);
         this._type = "RocketProjectile";
-        this.speed = 10;
+        this.maxDamage = 100;
+        this.damageRadius = 10;
+        this.damageVariance = 0.1;
+        this.criticalChance = 0.1;
+        this.criticalMultiplier = 2;
+        this.speed = 20;
+
+        if (rocketName) {
+            this._getData(rocketName);
+        } else {
+            this._getData("rocket1");
+        }
+    }
+
+    _getData(rocketName: string) {
+        const rd = rocketData[rocketName];
+        this.maxDamage = rd.maxDamage;
+        this.damageRadius = rd.damageRadius;
+        this.damageVariance = rd.damageVariance;
+        this.criticalChance = rd.criticalChance;
+        this.criticalMultiplier = rd.criticalMultiplier;
+        this.speed = rd.speed;
+    }
+
+    getDamage(): number {
+        const isCritical = Math.random() <= this.criticalChance;
+        const damageMultiplier = isCritical ? this.criticalMultiplier : 1;
+        return (
+            this.maxDamage *
+            (1 - Math.random() * this.damageVariance) *
+            damageMultiplier
+        );
     }
 }
 
@@ -102,12 +145,14 @@ export class LaserProjectileDTO {
 export class RocketProjectileDTO {
     name: string;
     position: Vector2D;
+    targetPosition: Vector2D;
     uuid: string;
     _type: string;
 
     constructor(rocketProjectile: RocketProjectile) {
         this.name = rocketProjectile.name;
         this.position = rocketProjectile.position;
+        this.targetPosition = rocketProjectile.target.position;
         this.uuid = rocketProjectile.uuid;
         this._type = rocketProjectile._type;
     }

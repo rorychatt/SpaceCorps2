@@ -5,6 +5,7 @@ import {
     LaserProjectile,
     PossibleProjectiles,
     ProjectileTypes,
+    RocketProjectile,
 } from "./Projectiles";
 import { Spacemap } from "./Spacemap";
 
@@ -24,6 +25,14 @@ export class ProjectileServer {
         if (type == "LaserProjectile") {
             this.projectiles.push(
                 new LaserProjectile(this.spacemap, targetEntity, attackerEntity)
+            );
+        } else if (type == "RocketProjectile") {
+            this.projectiles.push(
+                new RocketProjectile(
+                    this.spacemap,
+                    targetEntity,
+                    attackerEntity
+                )
             );
         }
     }
