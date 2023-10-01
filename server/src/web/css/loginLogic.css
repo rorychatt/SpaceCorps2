@@ -461,7 +461,7 @@ h1 {
 
 .main_menu_container {
     position: absolute;
-    
+
     height: auto;
     min-height: 52vh;
     border: 1px solid white;
@@ -573,7 +573,12 @@ h1 {
     background-color: rgba(255, 0, 0, 0.6);
 }
 
-.player_info_modal, .ship_info_modal, .chat_info_modal, .spacemap_info_modal, .log_info_modal, .assembly_info_modal {
+.player_info_modal,
+.ship_info_modal,
+.chat_info_modal,
+.spacemap_info_modal,
+.log_info_modal,
+.assembly_info_modal {
     position: absolute;
     border: 1px solid white;
 
@@ -590,7 +595,12 @@ h1 {
     display: none;
 }
 
-.player_info_modal_header, .ship_info_modal_header, .chat_info_modal_header, .spacemap_info_modal_header, .log_info_modal_header, .assembly_info_modal_header {
+.player_info_modal_header,
+.ship_info_modal_header,
+.chat_info_modal_header,
+.spacemap_info_modal_header,
+.log_info_modal_header,
+.assembly_info_modal_header {
     display: flex;
     justify-content: space-between;
     z-index: 3;
@@ -603,7 +613,6 @@ h1 {
 .chat_info_modal {
     left: 1%;
 }
-
 
 .player_info_modal {
     left: 0;
@@ -622,7 +631,13 @@ h1 {
     justify-content: space-between;
 }
 
-.shop_ships, .shop_weapons, .shop_ammunition, .shop_generators, .shop_extras, .shop_designs, .shop_donate {
+.shop_ships,
+.shop_weapons,
+.shop_ammunition,
+.shop_generators,
+.shop_extras,
+.shop_designs,
+.shop_donate {
     height: 4vh;
     width: 7%;
     border-radius: 4px;
@@ -642,7 +657,7 @@ h1 {
     padding: 6px 8px;
     cursor: pointer;
     border-radius: 4px;
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
     font-size: 2.5vh;
     position: absolute;
 }
@@ -656,7 +671,7 @@ h1 {
     margin-top: 3.5%;
     height: auto;
     min-height: 57.5vh;
-    width:100%;
+    width: 100%;
     background-color: rgba(255, 255, 255, 0.1);
     z-index: 6;
 }
@@ -709,8 +724,8 @@ h1 {
     margin-top: 3.5%;
     height: auto;
     min-height: 60vh;
-    width:100%;
-    background-color: rgba(255, 255, 255, 0.1);    
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .auc_hourly {
@@ -742,28 +757,28 @@ h1 {
     margin-top: 3.5%;
     height: auto;
     min-height: 57vh;
-    width:100%;
-    background-color: rgba(255, 255, 255, 0.1);   
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .clan_container_info {
     border: 1px solid white;
-    display: block;    
+    display: block;
 }
 
 .clan_container_members {
     border: 1px solid purple;
-    display: none;    
+    display: none;
 }
 
 .clan_container_politics {
     border: 1px solid green;
-    display: none;    
+    display: none;
 }
 
 .clan_container_economics {
     border: 1px solid salmon;
-    display: none;   
+    display: none;
 }
 
 .profile_container {
@@ -771,13 +786,13 @@ h1 {
     margin-top: 3.5%;
     height: auto;
     min-height: 60vh;
-    width:100%;
-    background-color: rgba(255, 255, 255, 0.1);        
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .profile_container_pilot {
     border: 1px solid white;
-    display: block;    
+    display: block;
 }
 
 .profile_container_ranking {
@@ -792,14 +807,12 @@ h1 {
 
 .profile_container_workroom {
     border: 1px solid salmon;
-    display: none; 
+    display: none;
 }
-
 
 #spacemapDiv {
-  position: relative;
+    position: relative;
 }
-
 
 /* Chat Modal */
 .chat_modal_content {
@@ -840,7 +853,7 @@ h1 {
     left: 45vh;
 
     border: 1px solid white;
-    background-color:rgba(65, 105, 255, 0.95);
+    background-color: rgba(65, 105, 255, 0.95);
 
     z-index: 6;
 }
@@ -851,7 +864,7 @@ h1 {
     justify-content: space-between;
     align-items: center;
 
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
     font-size: 2vh;
     color: white;
 }
@@ -911,10 +924,11 @@ h1 {
     flex-direction: column;
     justify-content: space-between;
     flex-wrap: wrap;
-
 }
 
-.item_logo, .item_price, .buy_button {
+.item_logo,
+.item_price,
+.buy_button {
     width: 100%;
 }
 
@@ -925,7 +939,7 @@ h1 {
 .item_price {
     font-size: 1vh;
     color: white;
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
     margin-top: 1vh;
 }
 
@@ -941,7 +955,8 @@ h1 {
 /* Inventory DIV */
 
 /* Hangar */
-.hangar_half, .workroom_half {
+.hangar_half,
+.workroom_half {
     width: 49.8%;
     height: 100%;
     float: left;
@@ -951,15 +966,19 @@ h1 {
     overflow-y: auto;
 }
 
-.hangar_storage, .workroom_storage {
+.hangar_storage,
+.workroom_storage {
     border: 1px solid green;
 }
 
-.hangar_active_ship, .workroom_active_loadout {
+.hangar_active_ship,
+.workroom_active_loadout {
     border: 1px solid white;
 }
 
-.hangar_item, .workroom_item, .workroom_active_item {
+.hangar_item,
+.workroom_item,
+.workroom_active_item {
     width: 100%;
     max-width: 100px;
 
@@ -979,18 +998,28 @@ h1 {
     flex-wrap: wrap;
 }
 
-.hangar_logo, .hangar_price, .hangar_item_footer, .workroom_logo, .workroom_price, .workroom_footer, .workroom_active_logo, .workroom_active_price {
+.hangar_logo,
+.hangar_price,
+.hangar_item_footer,
+.workroom_logo,
+.workroom_price,
+.workroom_footer,
+.workroom_active_logo,
+.workroom_active_price {
     width: 100%;
 }
 
-.hangar_price, .workroom_price, .workroom_active_item_price {
+.hangar_price,
+.workroom_price,
+.workroom_active_item_price {
     font-size: 1vh;
     color: white;
-    font-family: 'AudioWide';
-    margin-top: 1vh;    
+    font-family: "AudioWide";
+    margin-top: 1vh;
 }
 
-.hangar_footer, .workroom_footer {
+.hangar_footer,
+.workroom_footer {
     display: flex;
     height: auto;
     width: 100%;
@@ -1043,7 +1072,7 @@ h1 {
     color: white;
     font-size: 4vh;
     padding: 1vh;
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
 }
 
 .workroom_content {
@@ -1051,7 +1080,10 @@ h1 {
     padding: 1vh;
 }
 
-.player_info_credits, .player_info_thulium, .player_info_experience, .player_info_honor {
+.player_info_credits,
+.player_info_thulium,
+.player_info_experience,
+.player_info_honor {
     color: white;
     display: flex;
     flex-direction: column;
@@ -1069,7 +1101,7 @@ h1 {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    
+
     max-height: 16vh;
     width: 25%;
 
@@ -1081,14 +1113,14 @@ h1 {
     background-color: rgba(255, 255, 255, 0.01);
 
     font-size: 1vh;
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
 }
 
 /* Chat Message */
 .chat_message {
     color: white;
     font-size: 1.3vh;
-    font-family: 'Times New Roman', Times, serif;
+    font-family: "Times New Roman", Times, serif;
 }
 
 /* Console Message */
@@ -1096,5 +1128,41 @@ h1 {
 .console_message {
     color: white;
     font-size: 1.3vh;
-    font-family: 'Times New Roman', Times, serif;
+    font-family: "Times New Roman", Times, serif;
+}
+
+.nicknameLabel {
+    color: white;
+    font-size: 1vh;
+}
+
+.health_bar {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 200px;
+    height: 30px;
+    padding: 5px;
+    background: #ddd;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    position: relative;
+}
+.hp_health_bar {
+    background: #c54;
+    width: 100%;
+    height: 10px;
+    position: relative;
+
+    transition: width 0.5s linear;
+}
+
+.sp_health_bar {
+    background: #c54;
+    width: 100%;
+    height: 10px;
+    position: relative;
+
+    transition: width 0.5s linear;
 }
