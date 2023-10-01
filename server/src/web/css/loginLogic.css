@@ -29,7 +29,7 @@ button {
     background-color: #007bff;
     color: white;
     border: none;
-    padding: 10px 20px;
+    /* padding: 10px 20px; */
     border-radius: 4px;
     cursor: pointer;
 }
@@ -929,8 +929,16 @@ h1 {
 
 .item_logo,
 .item_price,
+.item_amount,
 .buy_button {
     width: 100%;
+}
+
+.item_name {
+    font-family: 'AudioWide';
+    font-size: 1vh;
+    color: white;
+    text-transform: uppercase;
 }
 
 .item_logo {
@@ -942,6 +950,30 @@ h1 {
     color: white;
     font-family: "AudioWide";
     margin-top: 1vh;
+}
+
+.item_amount_input {
+    border: 1px solid white;
+    background-color: rgba(255, 255, 255, 0.05);
+    max-height: 10px;
+    
+    font-family: 'AudioWide';
+    font-size: 10px;
+    color: white;
+}
+
+.item_amount_input::placeholder {
+    font-family: 'AudioWide';
+    font-size: 8px;
+    color: white;
+    text-align: center;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
 }
 
 .buy_button {
@@ -981,7 +1013,7 @@ h1 {
 .workroom_item,
 .workroom_active_item {
     width: 100%;
-    max-width: 100px;
+    max-width: 60px;
 
     margin-top: 1vh;
     margin-left: 1vh;
@@ -991,7 +1023,7 @@ h1 {
     padding: 0.5vh;
     border-radius: 10px;
 
-    max-height: 100px;
+    max-height: 60px;
     height: auto;
     display: flex;
     flex-direction: column;
@@ -1035,7 +1067,8 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1vh;
+    font-size: 8px;
+    font-family: 'AudioWide';
 
     max-height: 1vh;
 }
@@ -1071,7 +1104,7 @@ h1 {
 .workroom_header {
     text-align: center;
     color: white;
-    font-size: 4vh;
+    font-size: 2vh;
     padding: 1vh;
     font-family: "AudioWide";
 }
@@ -1079,6 +1112,9 @@ h1 {
 .workroom_content {
     flex: 1;
     padding: 1vh;
+
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .player_info_credits,
@@ -1226,4 +1262,73 @@ h1 {
     border: 1px solid white;
     border-radius: 5px;
     margin: 1px;
+
+    display: flex;
+    flex-direction: column;
 }
+
+.hotbar_logo {
+    height: 28px;
+    width: 100%;
+
+    border: 1px solid red;
+    border-radius: 5px 5px 0px 0px;
+}
+
+.hotbar_amount {
+    height: 10px;
+    width: 100%;
+
+    font-family: 'AudioWide';
+    font-size: 7px;
+    color: white;
+    text-align: center;
+
+    border-radius: 0px 0px 5px 5px;
+}
+
+/* Ammunition */
+.workroom_ammo {
+    display: flex;
+    flex-direction: row;
+
+    height: 100%;
+}
+
+.ammo_rockets {
+    flex: 1;
+    text-align: center;
+}
+
+.ammo_lasers {
+    flex: 1;
+    text-align: center;
+}
+
+.ammo_text {
+    font-family: 'AudioWide';
+    font-size: 10px;
+    color: white;
+}
+
+/* Shopping Ammunition */
+.shopping_ammunition_container {
+    width: 100%;
+    max-width: 100px;
+
+    margin-top: 1vh;
+    margin-left: 1vh;
+
+    text-align: center;
+    border: 1px solid white;
+    padding: 0.5vh;
+    border-radius: 10px;
+
+    max-height: 10vh;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+

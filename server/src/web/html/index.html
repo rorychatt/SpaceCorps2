@@ -234,7 +234,20 @@
               <div class="workroom_content" id="workroom_active_extras">
               </div>
             </div>
-          </div>
+            <div class="workroom_active workroom_ammunition">
+              <div class="workroom_header">
+                <p>Ammunition</p>
+              </div>
+              <div class="workroom_content workroom_ammo" id="workroom_ammunition">
+                <div class="ammo_lasers" id="ammo_lasers">
+                  <p class="ammo_text">SP-001 :</p><p class="ammo_text" id="laser_amount"></p>
+                </div>
+                <div class="ammo_rockets" id="ammo_rockets">
+                  <p class="ammo_text">ROC-001 :</p><p class="ammo_text" id="rocket_amount"></p>
+                </div>
+              </div>
+            </div>
+          </div>   
         </div>
       </div>
       <div class="clan_information" id="c_info">
@@ -307,7 +320,23 @@
         </div>
         <div class="shopping_def shopping_ships" id="shopping_ships"></div>
         <div class="shopping_def shopping_weapons" id="shopping_weapons"></div>
-        <div class="shopping_def shopping_ammunition" id="shopping_ammunition"></div>
+        <div class="shopping_def shopping_ammunition" id="shopping_ammunition">
+          <div class="shopping_ammunition_container">
+            <div class="item_name">
+
+            </div>
+            <div class="item_icon">
+
+            </div>
+            <div class="item_amount">
+              <input type="number" class="item_amount_input" placeholder="Amount">
+            </div>
+            <div class="item_price">
+              
+            </div>
+            <button class="buy_button">BUY</button>
+          </div>
+        </div>
         <div class="shopping_def shopping_generators" id="shopping_generators"></div>
         <div class="shopping_def shopping_extras" id="shopping_extras"></div>
         <div class="shopping_def shopping_design" id="shopping_design"></div>
@@ -466,12 +495,54 @@
       </div>
     </div>
     <div class="hotbar">
-      <div class="hotbar_def hotbar1"></div>
-      <div class="hotbar_def hotbar2"></div>
-      <div class="hotbar_def hotbar3"></div>
-      <div class="hotbar_def hotbar4"></div>
-      <div class="hotbar_def hotbar5"></div>
-      <div class="hotbar_def hotbar6"></div>
+      <div class="hotbar_def hotbar1">
+        <div class="hotbar_logo">
+
+        </div>
+        <div class="hotbar_amount" id="hotbar_laser">
+          100000
+        </div>
+      </div>
+      <div class="hotbar_def hotbar2">
+        <div class="hotbar_logo">
+
+        </div>
+        <div class="hotbar_amount" id="hotbar_rocket">
+
+        </div>
+      </div>
+      <div class="hotbar_def hotbar3">
+        <div class="hotbar_logo">
+
+        </div>
+        <div class="hotbar_amount">
+
+        </div>
+      </div>
+      <div class="hotbar_def hotbar4">
+        <div class="hotbar_logo">
+
+        </div>
+        <div class="hotbar_amount">
+
+        </div>
+      </div>
+      <div class="hotbar_def hotbar5">
+        <div class="hotbar_logo">
+
+        </div>
+        <div class="hotbar_amount">
+
+        </div>
+      </div>
+      <div class="hotbar_def hotbar6">
+        <div class="hotbar_logo">
+
+        </div>
+        <div class="hotbar_amount">
+
+        </div>
+      </div>
     </div>
   </div>
   <div id="spacemapDiv" hidden>
