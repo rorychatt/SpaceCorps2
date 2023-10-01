@@ -25,6 +25,7 @@ export class GameServer {
     rewardServer: RewardServer;
     shop: Shop;
     admins: string[];
+    tickCount: number = 0;
 
     public constructor(io: Server) {
         this.players = [];
@@ -149,6 +150,7 @@ export class GameServer {
         await Promise.all([
             this.proccessRandomSpawns(),
             this.proccessRandomMovements(),
+            this.processAlienRepairs(),
         ]);
     }
 
@@ -163,6 +165,20 @@ export class GameServer {
             player.position = { x: targetPos.x, y: targetPos.y };
         } else {
             player.position = { x: 0, y: 0 };
+        }
+    }
+
+    async processAlienRepairs() {
+        if (this.tickCount == tickrate - 1) {
+            for (const spacemapName in this._spacemapNames) {
+                this.spacemaps[
+                    this._spacemapNames[spacemapName]
+                ].entities.forEach((entity) => {
+                    if (entity instanceof Alien) {
+                        entity.repair();
+                    }
+                });
+            }
         }
     }
 
@@ -317,14 +333,14 @@ export class GameServer {
             this.getEntityByUUID(data.targetUUID),
         ]);
 
-        if(attacker && target){
-            if(attacker.isShooting){
-                attacker.isShooting = false
+        if (attacker && target) {
+            if (attacker.isShooting) {
+                attacker.isShooting = false;
                 attacker.targetUUID = undefined;
             } else {
                 attacker.isShooting = true;
-                attacker.targetUUID = target.uuid
-                attacker.shootProjectileAtTarget(target)
+                attacker.targetUUID = target.uuid;
+                attacker.shootProjectileAtTarget(target);
             }
         }
     }
@@ -438,6 +454,10 @@ export class GameServer {
         if (this.gameLoop === null) {
             this.gameLoop = setInterval(() => {
                 this.updateGameWorld();
+                this.tickCount++;
+                if (this.tickCount >= tickrate) {
+                    this.tickCount = 0;
+                }
             }, 1000 / this.tickRate);
         }
     }

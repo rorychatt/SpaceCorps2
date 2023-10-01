@@ -10,6 +10,7 @@ export class Alien extends Entity {
     oreDrop: OreDrop;
     damage: AlienDamageCharacteristic;
     movement: AlienMovementCharacteristic;
+    canRepair: boolean = false;
     _roamDestination: Vector2D | null = null;
     _maxHP: number;
     _maxSP: number;
@@ -61,6 +62,7 @@ export class Alien extends Entity {
     }
 
     receiveDamage(damage: number, attackerUUID?: string) {
+        this.canRepair = false;
         let shieldDamage: number = damage * this.hitPoints.shieldAbsorbance;
         let hullDamage: number = damage - shieldDamage;
 
@@ -78,6 +80,19 @@ export class Alien extends Entity {
         if (attackerUUID) {
             this.lastAttackedByUUID = attackerUUID;
         }
+
+        const hitPointsAfterFirstHit =  {...this.hitPoints};
+
+        setTimeout(() => {
+            if (
+                hitPointsAfterFirstHit.hullPoints <=
+                    this.hitPoints.hullPoints &&
+                hitPointsAfterFirstHit.shieldPoints <=
+                    this.hitPoints.shieldPoints
+            ) {
+                this.canRepair = true;
+            }
+        }, 15000);
 
         console.log(
             `${this.name} got shot by ${damage} damage and now has ${this.hitPoints.hullPoints} HP and ${this.hitPoints.shieldPoints} SP`
@@ -159,6 +174,28 @@ export class Alien extends Entity {
                 };
             } else {
                 this._roamDestination = null;
+            }
+        }
+    }
+
+    repair() {
+        if (this.canRepair) {
+            if (
+                this.hitPoints.hullPoints < this._maxHP ||
+                this.hitPoints.shieldPoints < this._maxSP
+            ) {
+                const dhp = this._maxHP / 80;
+                const dsp = this._maxSP / 10;
+
+                this.hitPoints.hullPoints += dhp;
+                this.hitPoints.shieldPoints += dsp;
+
+                if (this.hitPoints.hullPoints > this._maxHP) {
+                    this.hitPoints.hullPoints = this._maxHP;
+                }
+                if (this.hitPoints.shieldPoints > this._maxSP) {
+                    this.hitPoints.shieldPoints = this._maxSP;
+                }
             }
         }
     }
