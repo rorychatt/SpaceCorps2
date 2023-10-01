@@ -1,6 +1,7 @@
 import * as mysql from "mysql2";
 import { Config, readServerConfigFile } from "../background/ServerConfig.js";
 import { Player } from "../background/Player.js";
+import { Inventory, InventoryDataDTO } from "../background/Inventory.js";
 
 export interface UserCredentials {
     username: string;
@@ -131,21 +132,25 @@ export async function registerNewUser(username: string, password: string) {
     }
 }
 
-export function updateInventoryData(
+export async function updateInventoryData(
     username: string,
-    inventoryData: any
+    inventoryData: Inventory
 ): Promise<any> {
+
+    const _inventoryData = new InventoryDataDTO()
+    await _inventoryData.convertInventory(inventoryData)
+
     const query = `
         UPDATE inventory
         SET
-            lasers = '${JSON.stringify(inventoryData.lasers)}',
+            lasers = '${JSON.stringify(_inventoryData.lasers)}',
             shieldGenerators = '${JSON.stringify(
-                inventoryData.shieldGenerators
+                _inventoryData.shieldGenerators
             )}',
             speedGenerators = '${JSON.stringify(
-                inventoryData.speedGenerators
+                _inventoryData.speedGenerators
             )}',
-            ships = '${JSON.stringify(inventoryData.ships)}'
+            ships = '${JSON.stringify(_inventoryData.ships)}'
         WHERE username = '${username}'`;
 
     return executeQuery(query);

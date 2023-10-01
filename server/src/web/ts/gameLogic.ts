@@ -176,6 +176,7 @@ async function loadNewSpacemap(data: any) {
         currentMap = data.name;
         await Promise.all([
             loadSpacemapPlane(data),
+            createStars(),
             createLighting(),
             createSkybox(data.name),
             loadStaticEntities(data),
@@ -198,6 +199,7 @@ async function loadSpacemapPlane(data: any) {
     plane.rotation.x = -Math.PI / 2;
     plane.name = "movingPlane";
     plane.layers.enable(rayCastLayerNo);
+    console.log(plane)
     scene.add(plane);
 }
 
@@ -776,6 +778,7 @@ async function deleteObject(uuid: string) {
             sound.position.copy(object.position);
             const ref = "../assets/sounds/laserHit.ogg";
             audioLoader3.load(ref, function (buffer) {
+                sound.setRefDistance(20);
                 sound.setBuffer(buffer);
                 sound.setVolume(0.5);
                 sound.play();
@@ -786,6 +789,7 @@ async function deleteObject(uuid: string) {
             sound.position.copy(object.position);
             const ref = "../assets/sounds/rocketHit.ogg";
             audioLoader4.load(ref, function (buffer) {
+                sound.setRefDistance(20);
                 sound.setBuffer(buffer);
                 sound.setVolume(0.5);
                 sound.play();
@@ -872,12 +876,14 @@ function getObjectByUUID(uuid: string) {
 }
 
 async function createStars() {
-    const vertices: any = [];
+    const vertices = [];
 
     for (let i = 0; i < 4096; i++) {
         const x = (Math.random() - 0.5) * 180;
         const y = (Math.random() - 0.8) * 60;
         const z = (Math.random() - 0.5) * 180;
+
+        vertices.push(x, y, z);
     }
 
     const geometry = new THREE.BufferGeometry();
@@ -889,9 +895,10 @@ async function createStars() {
 
     const material = new THREE.PointsMaterial({ color: 0x888888, size: 0.08 });
 
-    const points = new THREE.Points(geometry, material) as any;
+    const points = new THREE.Points(geometry, material);
 
-    points.uuid = Math.random();
+    (points as any).uuid = Math.random();
+    points.name = "stars"
 
     scene.add(points);
     points.layers.enable(0);

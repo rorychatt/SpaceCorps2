@@ -487,6 +487,91 @@ export class ShipItem extends Item {
     }
 }
 
+export class InventoryDataDTO {
+    lasers: LaserDTO[] = [];
+    shieldGenerators: ShieldGeneratorDTO[] = [];
+    speedGenerators: SpeedGeneratorDTO[] = [];
+    ships: ShipItemDTO[] = [];
+
+    async convertInventory(inventory: Inventory): Promise<void> {
+        await Promise.all([
+            this.convertLasers(inventory.lasers),
+            this.convertShieldGenerators(inventory.shieldGenerators),
+            this.convertSpeedGenerators(inventory.speedGenerators),
+            this.convertShips(inventory.ships),
+        ]);
+    }
+
+    private async convertLasers(lasers: Laser[]): Promise<void> {
+        this.lasers = await Promise.all(
+            lasers.map(async (laser) => new LaserDTO(laser))
+        );
+    }
+
+    private async convertShieldGenerators(shieldGenerators: ShieldGenerator[]): Promise<void> {
+        this.shieldGenerators = await Promise.all(
+            shieldGenerators.map(async (shieldGenerator) => new ShieldGeneratorDTO(shieldGenerator))
+        );
+    }
+
+    private async convertSpeedGenerators(speedGenerators: SpeedGenerator[]): Promise<void> {
+        this.speedGenerators = await Promise.all(
+            speedGenerators.map(async (speedGenerator) => new SpeedGeneratorDTO(speedGenerator))
+        );
+    }
+
+    private async convertShips(ships: ShipItem[]): Promise<void> {
+        this.ships = await Promise.all(
+            ships.map(async (shipItem) => new ShipItemDTO(shipItem))
+        );
+    }
+}
+
+export class LaserDTO {
+    name: string;
+    constructor(laser: Laser) {
+        this.name = laser.name;
+    }
+}
+
+export class ShieldGeneratorDTO {
+    name: string;
+    _type: string = "ShieldGenerator"
+    constructor(shieldGenerator: ShieldGenerator) {
+        this.name = shieldGenerator.name;
+    }
+}
+
+export class SpeedGeneratorDTO {
+    name: string;
+    _type: string = "SpeedGenerator"
+    constructor(speedGenerator: SpeedGenerator) {
+        this.name = speedGenerator.name;
+    }
+}
+
+export class ShipItemDTO {
+    name: string;
+    isActive: boolean;
+    currentLasers: LaserDTO[] = [];
+    currentGenerators: (ShieldGeneratorDTO | SpeedGeneratorDTO)[] = [];
+
+    constructor(shipItem: ShipItem) {
+        this.name = shipItem.name;
+        this.isActive = shipItem.isActive;
+        shipItem.currentLasers.forEach((laser) => {
+            this.currentLasers.push(new LaserDTO(laser));
+        });
+        shipItem.currentGenerators.forEach((generator) => {
+            if (generator instanceof ShieldGenerator) {
+                this.currentGenerators.push(new ShieldGeneratorDTO(generator));
+            } else if (generator instanceof SpeedGenerator) {
+                this.currentGenerators.push(new SpeedGeneratorDTO(generator));
+            }
+        });
+    }
+}
+
 export type ItemPrice = { credits?: number; thulium?: number };
 
 export type PossibleItems = Laser | ShieldGenerator | SpeedGenerator | ShipItem;
