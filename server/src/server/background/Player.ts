@@ -306,6 +306,7 @@ export class PlayerDTO {
     hitPoints?: Durability;
     stats?: PlayerStats;
     company?: string;
+    targetUUID?: string;
     uuid: string;
 
     constructor(player: Player) {
@@ -316,6 +317,7 @@ export class PlayerDTO {
         this.stats = player.stats;
         this.company = player.company;
         this.uuid = player.uuid;
+        this.targetUUID = player.targetUUID;
     }
 }
 
