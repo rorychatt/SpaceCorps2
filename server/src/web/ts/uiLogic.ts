@@ -107,76 +107,88 @@ quitButtonYes.addEventListener("click", function(): void {
     window.location.reload();
 })
 
-playerModalButton.addEventListener("click", function(): void {
-    if (playerModalDiv.style.display === "none" || playerModalDiv.style.display === "") {
-        playerModalDiv.style.display = "block";
-    } else {
-        playerModalDiv.style.display = "none";
-    }
+playerModalButton.addEventListener("click", function() {
+    playerModalDiv.classList.remove('hidden');
+    playerModalDiv.classList.add('shown');
 })
 
-playerModalQuitButton.addEventListener("click", function(): void {
-    playerModalDiv.style.display = "none";
+playerModalQuitButton.addEventListener("click", function() {
+    playerModalDiv.classList.remove('shown');
+    playerModalDiv.style.animation = 'fadeOutAndCollapse 0.5s ease-in-out forwards';
+    setTimeout(function() {
+        playerModalDiv.style.animation = 'fadeInOutAndExpand 0.5s ease-in-out forwards';
+        playerModalDiv.classList.add('hidden');
+    }, 501);
 })
 
 shipModalButton.addEventListener("click", function() {
-    if(shipModalDiv.style.display === "none" || shipModalDiv.style.display === "") {
-        shipModalDiv.style.display = "block";
-    } else {
-        shipModalDiv.style.display = "none";
-    }
+    shipModalDiv.classList.remove('hidden');
+    shipModalDiv.classList.add('shown');
 })
 
 shipModalQuitButton.addEventListener("click", function() {
-    shipModalDiv.style.display = "none";
+    shipModalDiv.classList.remove('shown');
+    shipModalDiv.style.animation = 'fadeOutAndCollapse 0.5s ease-in-out forwards';
+    setTimeout(function() {
+        shipModalDiv.style.animation = 'fadeInOutAndExpand 0.5s ease-in-out forwards';
+        shipModalDiv.classList.add('hidden');
+    }, 501);
 })
 
 chatModalButton.addEventListener("click", function() {
-    if(chatModalDiv.style.display === "none" || chatModalDiv.style.display === "") {
-        chatModalDiv.style.display = "block";
-    } else {
-        chatModalDiv.style.display = "none";
-    }
+    chatModalDiv.classList.remove('hidden');
+    chatModalDiv.classList.add('shown');
 })
 
 chatModalQuitButton.addEventListener("click", function() {
-    chatModalDiv.style.display = "none";
+    chatModalDiv.classList.remove('shown');
+    chatModalDiv.style.animation = 'fadeOutAndCollapse 0.5s ease-in-out forwards';
+    setTimeout(function() {
+        chatModalDiv.style.animation = 'fadeInOutAndExpand 0.5s ease-in-out forwards';
+        chatModalDiv.classList.add('hidden');
+    }, 501);
 })
 
 spacemapModalButton.addEventListener("click", function() {
-    if(spacemapModalDiv.style.display === "none" || spacemapModalDiv.style.display === "") {
-        spacemapModalDiv.style.display = "block";
-    } else {
-        spacemapModalDiv.style.display = "none";
-    }
+    spacemapModalDiv.classList.remove('hidden');
+    spacemapModalDiv.classList.add('shown');
 })
 
 spacemapModalQuitButton.addEventListener("click", function() {
-    spacemapModalDiv.style.display = "none";
+    spacemapModalDiv.classList.remove('shown');
+    spacemapModalDiv.style.animation = 'fadeOutAndCollapse 0.5s ease-in-out forwards';
+    setTimeout(function() {
+        spacemapModalDiv.style.animation = 'fadeInOutAndExpand 0.5s ease-in-out forwards';
+        spacemapModalDiv.classList.add('hidden');
+    }, 501);
 })
 
 logModalButton.addEventListener("click", function() {
-    if(logModalDiv.style.display === "none" || logModalDiv.style.display === "") {
-        logModalDiv.style.display = "block";
-    } else {
-        logModalDiv.style.display = "none";
-    }
+    logModalDiv.classList.remove('hidden');
+    logModalDiv.classList.add('shown');
 })
 
 logModalQuitButton.addEventListener("click", function() {
-    logModalDiv.style.display = "none";
+    logModalDiv.classList.remove('shown');
+    logModalDiv.style.animation = 'fadeOutAndCollapse 0.5s ease-in-out forwards';
+    setTimeout(function() {
+        logModalDiv.style.animation = 'fadeInOutAndExpand 0.5s ease-in-out forwards';
+        logModalDiv.classList.add('hidden');
+    }, 501);
 })
 
 assemblyModalButton.addEventListener("click", function() {
-    if(assemblyModalDiv.style.display === "none" || assemblyModalDiv.style.display === "") {
-        assemblyModalDiv.style.display = "block";
-    } else {
-        assemblyModalDiv.style.display = "none";
-    }
+    assemblyModalDiv.classList.remove('hidden');
+    assemblyModalDiv.classList.add('shown');
 })
 
 assemblyModalQuitButton.addEventListener("click", function() {
-    assemblyModalDiv.style.display = "none";
+    assemblyModalDiv.classList.remove('shown');
+    assemblyModalDiv.style.animation = 'fadeOutAndCollapse 0.5s ease-in-out forwards';
+    setTimeout(function() {
+        assemblyModalDiv.style.animation = 'fadeInOutAndExpand 0.5s ease-in-out forwards';
+        assemblyModalDiv.classList.add('hidden');
+    }, 501);
 })
 
 // Movable DIVs
