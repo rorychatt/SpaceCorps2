@@ -1421,6 +1421,9 @@ async function displayActiveItems() {
             }
         }
     }
+    for (const ammo in playerInventory.ammunition){
+        console.log(ammo)
+    }
 }
 
 async function createAndTriggerExplosion(position: THREE.Vector3) {
