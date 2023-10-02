@@ -58,7 +58,7 @@ export class Inventory {
         }
     }
 
-    async addItem(item: PossibleItems) {
+    async addItem(item: PossibleItems, amount?: number) {
         if (item instanceof Laser) {
             this.lasers.push(item);
         } else if (item instanceof ShieldGenerator) {
@@ -68,9 +68,37 @@ export class Inventory {
         } else if (item instanceof ShipItem) {
             this.ships.push(item);
         } else if (item instanceof LaserAmmo) {
-            this.ammunition.push(item);
+            const existingLaserAmmo = this.findLaserAmmoByName(item.name);
+            if (amount) {
+                item.amount = amount;
+                if (existingLaserAmmo) {
+                    existingLaserAmmo.amount += amount;
+                } else {
+                    this.ammunition.push(item);
+                }
+            } else {
+                if (existingLaserAmmo) {
+                    existingLaserAmmo.amount += 1;
+                } else {
+                    this.ammunition.push(item);
+                }
+            }
         } else if (item instanceof RocketAmmo) {
-            this.ammunition.push(item);
+            const existingRocketAmmo = this.findRocketAmmoByName(item.name);
+            if (amount) {
+                item.amount = amount;
+                if (existingRocketAmmo) {
+                    existingRocketAmmo.amount += amount;
+                } else {
+                    this.ammunition.push(item);
+                }
+            } else {
+                if (existingRocketAmmo) {
+                    existingRocketAmmo.amount += 1;
+                } else {
+                    this.ammunition.push(item);
+                }
+            }
         }
     }
 
@@ -338,6 +366,20 @@ export class Inventory {
         );
     }
 
+    private findLaserAmmoByName(name: string): LaserAmmo | undefined {
+        //@ts-ignore
+        return this.ammunition.find(
+            (ammo) => ammo.name === name && ammo._type == "LaserAmmo"
+        );
+    }
+
+    private findRocketAmmoByName(name: string): RocketAmmo | undefined {
+        //@ts-ignore
+        return this.ammunition.find(
+            (ammo) => ammo.name === name && ammo._type == "RocketAmmo"
+        );
+    }
+
     private removeFirstItemByProperty<T>(
         list: T[],
         propertyName: string,
@@ -539,7 +581,7 @@ export class LaserAmmo extends Item {
         this.shieldDamageMultiplier =
             laserAmmoData[name].shieldDamageMultiplier;
         this.price = {
-            credits: laserData[name].price.credits,
+            credits: laserAmmoData[name].price.credits,
             thulium: laserAmmoData[name].price.thulium,
         };
         if (amount) {

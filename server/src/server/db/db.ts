@@ -64,6 +64,7 @@ export function setupDatabaseConnection(): void {
                         lasers JSON,
                         shieldGenerators JSON,
                         speedGenerators JSON,
+                        ammunition JSON,
                         ships JSON
                     );`;
                 await Promise.all([

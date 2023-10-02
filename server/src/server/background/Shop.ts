@@ -3,6 +3,7 @@ import {
     Laser,
     LaserAmmo,
     PossibleItems,
+    RocketAmmo,
     ShieldGenerator,
     ShipItem,
     SpeedGenerator,
@@ -36,26 +37,25 @@ export class Shop {
         }
 
         for (const shipName in shipData) {
-            if (shipData.shipName) {
+            if (shipData[shipName]) {
                 const shipItem = new ShipItem(shipName);
                 this.addItem(shipName, shipItem);
             }
         }
 
-        for (const laserAmmoName in laserAmmoData){
-            if(laserAmmoData.laserAmmoName){
+        for (const laserAmmoName in laserAmmoData) {
+            if (laserAmmoData[laserAmmoName]) {
                 const laserAmmoItem = new LaserAmmo(laserAmmoName);
-                this.addItem(laserAmmoName, laserAmmoItem)
+                this.addItem(laserAmmoName, laserAmmoItem);
             }
         }
 
-        for (const rocketAmmoName in rocketAmmoData){
-            if(laserAmmoData.laserAmmoName){
-                const laserAmmoItem = new LaserAmmo(rocketAmmoName);
-                this.addItem(rocketAmmoName, laserAmmoItem)
+        for (const rocketAmmoName in rocketAmmoData) {
+            if (rocketAmmoData[rocketAmmoName]) {
+                const laserAmmoItem = new RocketAmmo(rocketAmmoName);
+                this.addItem(rocketAmmoName, laserAmmoItem);
             }
         }
-
     }
 
     findItemByName(name: string): PossibleItems | undefined {
@@ -66,7 +66,7 @@ export class Shop {
         this.items[name] = item;
     }
 
-    async sellItem(playerName: string, itemName: string) {
+    async sellItem(playerName: string, itemName: string, amount?: number) {
         const player = await gameServer.getPlayerByUsername(playerName);
         const item = this.findItemByName(itemName);
         if (!player) {
@@ -79,16 +79,46 @@ export class Shop {
             console.log(`Warning! Could not find item in shop: ${itemName}`);
             return;
         }
-        const itemPrice = item.price;
-        if (itemPrice.credits && player.stats.credits >= itemPrice.credits) {
-            player.stats.credits -= itemPrice.credits;
-            gameServer.rewardServer.registerItemReward(player.uuid, item);
-        } else if (
-            itemPrice.thulium &&
-            player.stats.thulium >= itemPrice.thulium
-        ) {
-            player.stats.thulium -= itemPrice.thulium;
-            gameServer.rewardServer.registerItemReward(player.uuid, item);
+
+        if (amount) {
+            const itemPrice = {...item.price};
+            if (item.price.credits) {
+                itemPrice.credits = item.price.credits * amount;
+            }
+            if (item.price.thulium) {
+                itemPrice.thulium = item.price.thulium * amount;
+            }
+
+            console.log(item.price)
+
+            if (
+                itemPrice.credits &&
+                player.stats.credits >= itemPrice.credits
+            ) {
+                player.stats.credits -= itemPrice.credits;
+                gameServer.rewardServer.registerItemReward(player.uuid, item, amount);
+            } else if (
+                itemPrice.thulium &&
+                player.stats.thulium >= itemPrice.thulium
+            ) {
+                player.stats.thulium -= itemPrice.thulium;
+                gameServer.rewardServer.registerItemReward(player.uuid, item, amount);
+            }
+        } else {
+            const itemPrice = item.price;
+            if (
+                itemPrice.credits &&
+                player.stats.credits >= itemPrice.credits
+            ) {
+                player.stats.credits -= itemPrice.credits;
+                gameServer.rewardServer.registerItemReward(player.uuid, item);
+            } else if (
+                itemPrice.thulium &&
+                player.stats.thulium >= itemPrice.thulium
+            ) {
+                player.stats.thulium -= itemPrice.thulium;
+                gameServer.rewardServer.registerItemReward(player.uuid, item);
+            }
         }
     }
 }

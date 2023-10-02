@@ -201,8 +201,8 @@ io.on("connection", (socket) => {
 
     socket.on(
         "playerPurchaseEvent",
-        (data: { playerName: string; itemName: string }) => {
-            gameServer.shop.sellItem(data.playerName, data.itemName);
+        (data: { playerName: string; itemName: string, amount?: number }) => {
+            gameServer.shop.sellItem(data.playerName, data.itemName, data.amount);
         }
     );
 
