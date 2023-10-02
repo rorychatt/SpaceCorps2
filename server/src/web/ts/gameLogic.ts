@@ -994,11 +994,74 @@ async function loadEventListeners() {
 
 async function displayShoppingItems() {
     for (const category in shoppingData) {
-        if (shoppingData.hasOwnProperty(category) && shoppingData[category].length == 1) {
-            const categoryItems = shoppingData[category];
+        if (category != "ammunition") {
+            if (shoppingData.hasOwnProperty(category)) {
+                const categoryItems = shoppingData[category];
 
+                const categoryContainer = document.getElementById(
+                    `shopping_${category}`
+                );
+
+                if (!categoryContainer) {
+                    console.error(
+                        `Category container not found for '${category}'`
+                    );
+                    continue;
+                }
+
+                while (categoryContainer?.firstChild) {
+                    categoryContainer.removeChild(categoryContainer.firstChild);
+                }
+                for (const itemName in categoryItems) {
+                    if (categoryItems.hasOwnProperty(itemName)) {
+                        const item = categoryItems[itemName];
+                        const itemContainer = document.createElement("div");
+                        itemContainer.classList.add("shop_item");
+
+                        // Create an element for the item name
+                        const itemNameElement = document.createElement("div");
+                        itemNameElement.classList.add("item_name");
+                        itemNameElement.textContent = itemName;
+
+                        const itemIcon = document.createElement("div");
+                        itemIcon.classList.add("item_icon");
+
+                        const itemPng = document.createElement('img');
+                        itemPng.classList.add('item_icon_png');
+                        itemPng.src=`../assets/icons/${itemName}.png`
+                        itemIcon.appendChild(itemPng);    
+
+                        const itemPrice = document.createElement("div");
+                        itemPrice.classList.add("item_price");
+                        itemPrice.textContent = `Price: ${await beautifyNumberToUser(
+                            item.price.credits
+                        )} credits`;
+                        const buyButton = document.createElement("button");
+                        buyButton.classList.add("buy_button");
+                        buyButton.textContent = "BUY";
+
+                        // Append the item name element before the item icon
+                        itemContainer.appendChild(itemNameElement);
+                        itemContainer.appendChild(itemIcon);
+                        itemContainer.appendChild(itemPrice);
+                        itemContainer.appendChild(buyButton);
+                        categoryContainer.appendChild(itemContainer);
+
+                        buyButton.addEventListener("click", () => {
+                            console.log(
+                                `You clicked BUY for ${category} - ${itemName}`
+                            );
+                            socket.emit(`playerPurchaseEvent`, {
+                                playerName: playerName,
+                                itemName: itemName,
+                            });
+                        });
+                    }
+                }
+            }
+        } else {
             const categoryContainer = document.getElementById(
-                `shopping_${category}`
+                "shopping_ammunition"
             );
 
             if (!categoryContainer) {
@@ -1009,19 +1072,36 @@ async function displayShoppingItems() {
             while (categoryContainer?.firstChild) {
                 categoryContainer.removeChild(categoryContainer.firstChild);
             }
-            for (const itemName in categoryItems) {
-                if (categoryItems.hasOwnProperty(itemName)) {
-                    const item = categoryItems[itemName];
+
+            for (const ammoType in shoppingData[category]) {
+                for (const name in shoppingData[category][ammoType]) {
+                    console.log(shoppingData[category][ammoType]);
+                    const item = shoppingData[category][ammoType][name];
                     const itemContainer = document.createElement("div");
                     itemContainer.classList.add("shop_item");
 
-                    // Create an element for the item name
                     const itemNameElement = document.createElement("div");
                     itemNameElement.classList.add("item_name");
-                    itemNameElement.textContent = itemName;
+                    itemNameElement.textContent = name;
 
                     const itemIcon = document.createElement("div");
                     itemIcon.classList.add("item_icon");
+
+                    const itemPng = document.createElement('img');
+                    itemPng.classList.add('item_icon_png');
+                    itemPng.src=`../assets/icons/${name}.png`
+                    itemIcon.appendChild(itemPng);
+
+                    const itemAmount = document.createElement("div");
+                    itemAmount.classList.add("item-amount");
+
+                    const itemAmountInput = document.createElement("input");
+                    itemAmountInput.type = "number";
+                    itemAmountInput.classList.add("item_amount_input");
+                    itemAmountInput.placeholder = "Amount";
+
+                    itemAmount.appendChild(itemAmountInput)
+
                     const itemPrice = document.createElement("div");
                     itemPrice.classList.add("item_price");
                     itemPrice.textContent = `Price: ${await beautifyNumberToUser(
@@ -1034,18 +1114,32 @@ async function displayShoppingItems() {
                     // Append the item name element before the item icon
                     itemContainer.appendChild(itemNameElement);
                     itemContainer.appendChild(itemIcon);
+                    itemContainer.appendChild(itemAmount);
                     itemContainer.appendChild(itemPrice);
                     itemContainer.appendChild(buyButton);
                     categoryContainer.appendChild(itemContainer);
 
                     buyButton.addEventListener("click", () => {
                         console.log(
-                            `You clicked BUY for ${category} - ${itemName}`
+                            `You clicked BUY for ${category} - ${name}`
                         );
                         socket.emit(`playerPurchaseEvent`, {
                             playerName: playerName,
-                            itemName: itemName,
+                            itemName: name,
+                            amount: parseInt(itemAmountInput.value),
                         });
+                    });
+
+                    itemAmountInput.addEventListener("change", async () => {
+                        if (
+                            itemAmountInput.value &&
+                            parseInt(itemAmountInput.value) > 0
+                        ) {
+                            itemPrice.textContent = `Price: ${await beautifyNumberToUser(
+                                item.price.credits *
+                                    parseInt(itemAmountInput.value)
+                            )} credits`;
+                        }
                     });
                 }
             }
@@ -1071,6 +1165,12 @@ async function displayShipsInHangar() {
 
             const shipIcon = document.createElement("div");
             shipIcon.classList.add("item_icon");
+
+            const itemPng = document.createElement('img');
+            itemPng.classList.add('item_icon_png');
+            itemPng.src=`../assets/icons/${name}.png`
+            shipIcon.appendChild(itemPng);
+
             const equipButton = document.createElement("button");
             equipButton.classList.add("profile_btn");
             equipButton.classList.add("profile_equip_btn");
@@ -1108,6 +1208,11 @@ async function displayItemsInWorkroom() {
             const itemIcon = document.createElement("div");
             itemIcon.classList.add("item_icon");
 
+            const itemPng = document.createElement('img');
+            itemPng.classList.add('item_icon_png');
+            itemPng.src=`../assets/icons/${name}.png`
+            itemIcon.appendChild(itemPng);
+
             const equipButton = document.createElement("button");
             equipButton.classList.add("profile_btn");
             equipButton.classList.add("profile_equip_btn");
@@ -1139,6 +1244,11 @@ async function displayItemsInWorkroom() {
 
             const itemIcon = document.createElement("div");
             itemIcon.classList.add("item_icon");
+
+            const itemPng = document.createElement('img');
+            itemPng.classList.add('item_icon_png');
+            itemPng.src=`../assets/icons/${shieldGenerator.name}.png`
+            itemIcon.appendChild(itemPng);
 
             const equipButton = document.createElement("button");
             equipButton.classList.add("profile_btn");
@@ -1172,6 +1282,11 @@ async function displayItemsInWorkroom() {
 
             const itemIcon = document.createElement("div");
             itemIcon.classList.add("item_icon");
+
+            const itemPng = document.createElement('img');
+            itemPng.classList.add('item_icon_png');
+            itemPng.src=`../assets/icons/${speedGenerator.name}.png`
+            itemIcon.appendChild(itemPng);
 
             const equipButton = document.createElement("button");
             equipButton.classList.add("profile_btn");
@@ -1232,6 +1347,11 @@ async function displayActiveItems() {
                     const itemIcon = document.createElement("div");
                     itemIcon.classList.add("item_icon");
 
+                    const itemPng = document.createElement('img');
+                    itemPng.classList.add('item_icon_png');
+                    itemPng.src=`../assets/icons/${laser.name}.png`
+                    itemIcon.appendChild(itemPng);
+
                     const unequipButton = document.createElement("button");
                     unequipButton.classList.add("profile_btn");
                     unequipButton.classList.add("profile_equip_btn");
@@ -1268,6 +1388,11 @@ async function displayActiveItems() {
 
                     const itemIcon = document.createElement("div");
                     itemIcon.classList.add("item_icon");
+
+                    const itemPng = document.createElement('img');
+                    itemPng.classList.add('item_icon_png');
+                    itemPng.src=`../assets/icons/${shieldGenerator.name}.png`
+                    itemIcon.appendChild(itemPng);
 
                     const unequipButton = document.createElement("button");
                     unequipButton.classList.add("profile_btn");
