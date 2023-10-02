@@ -63,11 +63,11 @@ export class RewardServer {
         );
     }
 
-    registerItemReward(recipientUUID: string, reward: PossibleItems) {
+    registerItemReward(recipientUUID: string, reward: PossibleItems, amount?: number) {
         this.pendingRewards.push(new ItemReward(recipientUUID, reward));
     }
 
-    issueReward(player: Player, reward: PossibleRewards) {
+    issueReward(player: Player, reward: PossibleRewards, amount?: number) {
         if (reward instanceof HonorReward) {
             player.addHonor(reward.honor);
         } else if (reward instanceof ExperienceReward) {
@@ -87,7 +87,7 @@ export class RewardServer {
             player.addExperience(reward.experience);
             player.addHonor(reward.honor);
         } else if (reward instanceof ItemReward) {
-            player.inventory.addItem(reward.item);
+            player.inventory.addItem(reward.item, amount);
         }
 
         // updateInventoryData(player.name, player.inventory)

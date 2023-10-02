@@ -353,8 +353,8 @@ function fixShop() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { Laser, LaserAmmo, ShieldGenerator, ShipItem, SpeedGenerator, generatorData, laserAmmoData, laserData, rocketAmmoData, shipData, } from "./Inventory";',
-            'import { Laser, LaserAmmo, ShieldGenerator, ShipItem, SpeedGenerator, generatorData, laserAmmoData, laserData, rocketAmmoData, shipData, } from "./Inventory.js";'
+            'import { Laser, LaserAmmo, RocketAmmo, ShieldGenerator, ShipItem, SpeedGenerator, generatorData, laserAmmoData, laserData, rocketAmmoData, shipData, } from "./Inventory";',
+            'import { Laser, LaserAmmo, RocketAmmo, ShieldGenerator, ShipItem, SpeedGenerator, generatorData, laserAmmoData, laserData, rocketAmmoData, shipData, } from "./Inventory.js";'
         );
 
         writeFile("./dist/server/background/Shop.js", modifiedData, (err) => {
