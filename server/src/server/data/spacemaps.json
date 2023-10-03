@@ -47,8 +47,8 @@
             }
         }
     },
-    "K-1": {
-        "name": "K-1",
+    "G-1": {
+        "name": "G-1",
         "size": {
             "width": 160,
             "height": 90
@@ -62,7 +62,7 @@
             ],
             "base": {
                 "location": "right",
-                "name": "KGB-Base"
+                "name": "GVG-Base"
             }
         },
         "spawnableAliens": {
@@ -105,7 +105,7 @@
             "portals": [
                 {
                     "location": "left",
-                    "destination": "K-1"
+                    "destination": "G-1"
                 },
                 {
                     "location": "right",

@@ -1,7 +1,7 @@
 import { Alien } from "./Alien";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
-import { RocketAmmo } from "./Inventory";
+import { RocketAmmo, laserData } from "./Inventory";
 import { Player } from "./Player";
 import { Spacemap, Vector2D } from "./Spacemap";
 
@@ -51,17 +51,22 @@ export class LaserProjectile extends Projectile {
     _type: ProjectileTypes;
     color: LaserColors;
     speed: number;
+    ammoName: string;
+    damageAmount: number;
 
     constructor(
         map: Spacemap,
         target: Entity | Alien | Player,
         attacker: Entity | Alien | Player,
-        color?: LaserColors
+        ammoName: string,
+        damageAmount: number
     ) {
         super(map, "laserProjectile", target, attacker);
         this._type = "LaserProjectile";
-        this.color = color ? color : "blue";
+        this.ammoName = ammoName;
+        this.color = laserData[ammoName].color;
         this.speed = 100;
+        this.damageAmount = damageAmount;
     }
 }
 
@@ -90,11 +95,11 @@ export class RocketProjectile extends Projectile {
         this.criticalChance = 0.1;
         this.criticalMultiplier = 2;
         this.speed = 20;
-        this._getData(rocketAmmo)
+        this._getData(rocketAmmo);
     }
 
     _getData(rocketAmmo: RocketAmmo) {
-        this.name = rocketAmmo.name
+        this.name = rocketAmmo.name;
         this.maxDamage = rocketAmmo.maxDamage;
         this.damageRadius = rocketAmmo.damageRadius;
         this.damageVariance = rocketAmmo.damageVariance;

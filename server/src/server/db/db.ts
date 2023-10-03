@@ -50,7 +50,7 @@ export function setupDatabaseConnection(): void {
                     CREATE TABLE IF NOT EXISTS playerEntity (
                       username VARCHAR(255) PRIMARY KEY,
                       mapName VARCHAR(255) DEFAULT 'M-1',
-                      company VARCHAR(255) DEFAULT 'MMF',
+                      company VARCHAR(255) DEFAULT 'MCC',
                       positionX FLOAT DEFAULT 0,
                       positionY FLOAT DEFAULT 0,
                       credits INT DEFAULT 50000,
