@@ -1,7 +1,7 @@
 import { Alien } from "./Alien";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
-import { RocketAmmo, laserData } from "./Inventory";
+import { RocketAmmo, laserAmmoData, laserData } from "./Inventory";
 import { Player } from "./Player";
 import { Spacemap, Vector2D } from "./Spacemap";
 
@@ -64,7 +64,7 @@ export class LaserProjectile extends Projectile {
         super(map, "laserProjectile", target, attacker);
         this._type = "LaserProjectile";
         this.ammoName = ammoName;
-        this.color = laserData[ammoName].color;
+        this.color = laserAmmoData[ammoName].color;
         this.speed = 100;
         this.damageAmount = damageAmount;
     }

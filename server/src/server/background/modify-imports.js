@@ -305,8 +305,8 @@ function fixProjectiles() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { laserData } from "./Inventory";',
-            'import { laserData } from "./Inventory.js";'
+            'import { laserAmmoData } from "./Inventory";',
+            'import { laserAmmoData } from "./Inventory.js";'
         );
 
         writeFile(

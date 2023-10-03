@@ -349,7 +349,6 @@ export class GameServer {
                     attacker.targetUUID = undefined;
                 } else {
                     if (data.weapons == "lasers") {
-
                         if(attacker._getAmmoAmountByName(data.ammo) >= attacker._getLaserAmmoPerShot()){
                             attacker.isShooting = true;
                             attacker.targetUUID = target.uuid;
