@@ -91,10 +91,14 @@ export class HonorReward extends Reward {
 
 export class ItemReward extends Reward {
     item: PossibleItems;
+    amount?: number;
 
-    constructor(recipientUUID: string, item: PossibleItems) {
+    constructor(recipientUUID: string, item: PossibleItems, amount?: number) {
         super(recipientUUID);
         this.item = item;
+        if (amount) {
+            this.amount = amount;
+        }
     }
 }
 

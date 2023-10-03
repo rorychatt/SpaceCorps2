@@ -88,9 +88,6 @@ export class Shop {
             if (item.price.thulium) {
                 itemPrice.thulium = item.price.thulium * amount;
             }
-
-            console.log(item.price)
-
             if (
                 itemPrice.credits &&
                 player.stats.credits >= itemPrice.credits
