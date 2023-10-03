@@ -1455,14 +1455,9 @@ async function displayActiveItems() {
                 if (ammoAmount && ammoName) {
                     const ammoNameDiv = document.createElement("p");
                     ammoNameDiv.classList.add("ammo_text");
-                    ammoNameDiv.textContent = `${ammoName} :`;
-
-                    const ammoCountDiv = document.createElement("p");
-                    ammoCountDiv.classList.add("ammo_text");
-                    ammoCountDiv.textContent = `${ammoAmount}`;
+                    ammoNameDiv.textContent = `${ammoName} :${ammoAmount}`;
 
                     categoryContainer4.appendChild(ammoNameDiv);
-                    categoryContainer4.appendChild(ammoCountDiv);
                 }
             } else if (playerInventory[ammunition]._type == "RocketAmmo") {
                 const ammoName = playerInventory.ammunition[ammunition].name;
@@ -1471,14 +1466,9 @@ async function displayActiveItems() {
                 if (ammoAmount && ammoName) {
                     const ammoNameDiv = document.createElement("p");
                     ammoNameDiv.classList.add("ammo_text");
-                    ammoNameDiv.textContent = `${ammoName} :`;
-
-                    const ammoCountDiv = document.createElement("p");
-                    ammoCountDiv.classList.add("ammo_text");
-                    ammoCountDiv.textContent = `${ammoAmount}`;
+                    ammoNameDiv.textContent = `${ammoName} : ${ammoAmount}`;
 
                     categoryContainer4.appendChild(ammoNameDiv);
-                    categoryContainer4.appendChild(ammoCountDiv);
                 }
             }
         }
