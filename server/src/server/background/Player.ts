@@ -25,7 +25,7 @@ export class Player extends Entity {
     hitPoints: Durability;
     stats: PlayerStats;
     damage: PlayerDamageCharacteristic;
-    company: string = "MMF";
+    company: string = "MCC";
     destination?: Vector2D | null;
     reloadState: ReloadStateCharacteristic = "canShoot";
     lastAttackedByUUID?: string;
@@ -71,7 +71,7 @@ export class Player extends Entity {
     async _getDataFromSQL() {
         let templateData = {
             currentMap: "M-1",
-            company: "MMF",
+            company: "MCC",
             positionX: 0,
             positionY: 0,
             credits: 0,
