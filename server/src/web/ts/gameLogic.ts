@@ -383,9 +383,21 @@ function handleKeyboardButton(e: KeyboardEvent) {
                         playerName: playerName,
                         targetUUID: lockOnCircle.parent.uuid,
                         weapons: "lasers",
+                        ammo: "x1",
                     });
                 }
                 break;
+            case "2":
+                if (lockOnCircle?.parent != undefined) {
+                    socket.emit("shootEvent", {
+                        playerName: playerName,
+                        targetUUID: lockOnCircle.parent.uuid,
+                        weapons: "lasers",
+                        ammo: "x2",
+                    });
+                }
+                break;
+
             case "Enter":
                 if (chatModalDiv.style.display == "block") {
                     const messageText = chatModalInput?.value.trim();
@@ -423,6 +435,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                         playerName: playerName,
                         targetUUID: lockOnCircle.parent.uuid,
                         weapons: "rockets",
+                        ammo: "rocket1"
                     });
                 }
                 break;
@@ -1434,7 +1447,7 @@ async function displayActiveItems() {
 
     if (categoryContainer4 && categoryContainer5) {
         for (const ammunition in playerInventory.ammunition) {
-            console.log(playerInventory.ammunition[ammunition])
+            console.log(playerInventory.ammunition[ammunition]);
             if (playerInventory.ammunition[ammunition]._type == "LaserAmmo") {
                 const ammoName = playerInventory.ammunition[ammunition].name;
                 const ammoAmount =

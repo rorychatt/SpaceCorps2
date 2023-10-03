@@ -225,7 +225,7 @@ export class Player extends Entity {
         );
     }
 
-    async giveDamage() {
+    async giveDamage(damageMultiplier?: number) {
         let totalDamage = 0;
         if (this._activeShip) {
             for (const _laser in this._activeShip.currentLasers) {
@@ -240,40 +240,80 @@ export class Player extends Entity {
                     damageMultiplier;
             }
         }
-        return totalDamage;
-    }
-
-    shootLaserProjectileAtTarget(target: Alien | Player) {
-        if (this.reloadState == "canShoot") {
-            this.reloadState = "reloading";
-            gameServer.spacemaps[
-                this.currentMap
-            ].projectileServer.createProjectile(
-                "LaserProjectile",
-                this,
-                target
-            );
-            this._reload();
+        if (damageMultiplier) {
+            return totalDamage * damageMultiplier;
+        } else {
+            return totalDamage;
         }
     }
 
-    shootRocketProjectileAtTarget(target: Alien | Player) {
+    _getAmmoAmountByName(ammoName: string) {
+        const ammoItem = this.inventory.ammunition.find(
+            (ammo) => ammo.name == ammoName
+        );
+        if (ammoItem) {
+            return ammoItem.amount;
+        } else {
+            return 0;
+        }
+    }
+
+    _getLaserAmmoPerShot() {
+        if (this._activeShip) {
+            return this._activeShip.currentLasers.length;
+        } else {
+            console.log(
+                `Could not calculate laser ammo per shot for player ${this.name}`
+            );
+            return 1;
+        }
+    }
+
+    async shootLaserProjectileAtTarget(target: Alien | Player, ammoName: string) {
+        if (this.reloadState == "canShoot") {
+            this.reloadState = "reloading";
+            const ammoItem = this.inventory.ammunition.find((ammo) => {
+                ammo.name == ammoName && ammo instanceof LaserAmmo;
+            }) as LaserAmmo | undefined;
+            if (ammoItem) {
+                ammoItem.amount -= this._getLaserAmmoPerShot();
+                const damageAmount = await this.giveDamage(ammoItem.damageMultiplier);
+                gameServer.spacemaps[
+                    this.currentMap
+                ].projectileServer.createProjectile(
+                    "LaserProjectile",
+                    this,
+                    target,
+                    ammoName,
+                    damageAmount
+                );
+                this._reload(ammoName);
+            } else {
+                console.log(
+                    `${this.name} tried to shoot with ammo they do not posses`
+                );
+            }
+        }
+    }
+
+    shootRocketProjectileAtTarget(target: Alien | Player, ammoName: string) {
         gameServer.spacemaps[this.currentMap].projectileServer.createProjectile(
             "RocketProjectile",
             this,
-            target
+            target,
+            ammoName
         );
     }
 
-    async _reload() {
+    async _reload(ammoName: string) {
         setTimeout(async () => {
             this.reloadState = "canShoot";
             if (this.targetUUID && this.isShooting) {
-                const target = await gameServer.getEntityByUUID(
+                const target = (await gameServer.getEntityByUUID(
                     this.targetUUID
-                ) as Alien | Player;
+                )) as Alien | Player;
                 if (target) {
-                    this.shootLaserProjectileAtTarget(target);
+                    this.shootLaserProjectileAtTarget(target, ammoName);
                 } else {
                     this.targetUUID = undefined;
                     this.isShooting = false;
