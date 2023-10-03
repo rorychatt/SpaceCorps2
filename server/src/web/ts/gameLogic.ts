@@ -383,9 +383,21 @@ function handleKeyboardButton(e: KeyboardEvent) {
                         playerName: playerName,
                         targetUUID: lockOnCircle.parent.uuid,
                         weapons: "lasers",
+                        ammo: "x1",
                     });
                 }
                 break;
+            case "2":
+                if (lockOnCircle?.parent != undefined) {
+                    socket.emit("shootEvent", {
+                        playerName: playerName,
+                        targetUUID: lockOnCircle.parent.uuid,
+                        weapons: "lasers",
+                        ammo: "x2",
+                    });
+                }
+                break;
+
             case "Enter":
                 if (chatModalDiv.style.display == "block") {
                     const messageText = chatModalInput?.value.trim();
@@ -423,6 +435,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                         playerName: playerName,
                         targetUUID: lockOnCircle.parent.uuid,
                         weapons: "rockets",
+                        ammo: "rocket1"
                     });
                 }
                 break;
@@ -1026,10 +1039,10 @@ async function displayShoppingItems() {
                         const itemIcon = document.createElement("div");
                         itemIcon.classList.add("item_icon");
 
-                        const itemPng = document.createElement('img');
-                        itemPng.classList.add('item_icon_png');
-                        itemPng.src=`../assets/icons/${itemName}.png`
-                        itemIcon.appendChild(itemPng);    
+                        const itemPng = document.createElement("img");
+                        itemPng.classList.add("item_icon_png");
+                        itemPng.src = `../assets/icons/${itemName}.png`;
+                        itemIcon.appendChild(itemPng);
 
                         const itemPrice = document.createElement("div");
                         itemPrice.classList.add("item_price");
@@ -1087,9 +1100,9 @@ async function displayShoppingItems() {
                     const itemIcon = document.createElement("div");
                     itemIcon.classList.add("item_icon");
 
-                    const itemPng = document.createElement('img');
-                    itemPng.classList.add('item_icon_png');
-                    itemPng.src=`../assets/icons/${name}.png`
+                    const itemPng = document.createElement("img");
+                    itemPng.classList.add("item_icon_png");
+                    itemPng.src = `../assets/icons/${name}.png`;
                     itemIcon.appendChild(itemPng);
 
                     const itemAmount = document.createElement("div");
@@ -1100,7 +1113,7 @@ async function displayShoppingItems() {
                     itemAmountInput.classList.add("item_amount_input");
                     itemAmountInput.placeholder = "Amount";
 
-                    itemAmount.appendChild(itemAmountInput)
+                    itemAmount.appendChild(itemAmountInput);
 
                     const itemPrice = document.createElement("div");
                     itemPrice.classList.add("item_price");
@@ -1166,9 +1179,9 @@ async function displayShipsInHangar() {
             const shipIcon = document.createElement("div");
             shipIcon.classList.add("item_icon");
 
-            const itemPng = document.createElement('img');
-            itemPng.classList.add('item_icon_png');
-            itemPng.src=`../assets/icons/${name}.png`
+            const itemPng = document.createElement("img");
+            itemPng.classList.add("item_icon_png");
+            itemPng.src = `../assets/icons/${ship.name}.png`;
             shipIcon.appendChild(itemPng);
 
             const equipButton = document.createElement("button");
@@ -1208,9 +1221,9 @@ async function displayItemsInWorkroom() {
             const itemIcon = document.createElement("div");
             itemIcon.classList.add("item_icon");
 
-            const itemPng = document.createElement('img');
-            itemPng.classList.add('item_icon_png');
-            itemPng.src=`../assets/icons/${name}.png`
+            const itemPng = document.createElement("img");
+            itemPng.classList.add("item_icon_png");
+            itemPng.src = `../assets/icons/${laser.name}.png`;
             itemIcon.appendChild(itemPng);
 
             const equipButton = document.createElement("button");
@@ -1245,9 +1258,9 @@ async function displayItemsInWorkroom() {
             const itemIcon = document.createElement("div");
             itemIcon.classList.add("item_icon");
 
-            const itemPng = document.createElement('img');
-            itemPng.classList.add('item_icon_png');
-            itemPng.src=`../assets/icons/${shieldGenerator.name}.png`
+            const itemPng = document.createElement("img");
+            itemPng.classList.add("item_icon_png");
+            itemPng.src = `../assets/icons/${shieldGenerator.name}.png`;
             itemIcon.appendChild(itemPng);
 
             const equipButton = document.createElement("button");
@@ -1283,9 +1296,9 @@ async function displayItemsInWorkroom() {
             const itemIcon = document.createElement("div");
             itemIcon.classList.add("item_icon");
 
-            const itemPng = document.createElement('img');
-            itemPng.classList.add('item_icon_png');
-            itemPng.src=`../assets/icons/${speedGenerator.name}.png`
+            const itemPng = document.createElement("img");
+            itemPng.classList.add("item_icon_png");
+            itemPng.src = `../assets/icons/${speedGenerator.name}.png`;
             itemIcon.appendChild(itemPng);
 
             const equipButton = document.createElement("button");
@@ -1347,9 +1360,9 @@ async function displayActiveItems() {
                     const itemIcon = document.createElement("div");
                     itemIcon.classList.add("item_icon");
 
-                    const itemPng = document.createElement('img');
-                    itemPng.classList.add('item_icon_png');
-                    itemPng.src=`../assets/icons/${laser.name}.png`
+                    const itemPng = document.createElement("img");
+                    itemPng.classList.add("item_icon_png");
+                    itemPng.src = `../assets/icons/${laser.name}.png`;
                     itemIcon.appendChild(itemPng);
 
                     const unequipButton = document.createElement("button");
@@ -1389,9 +1402,9 @@ async function displayActiveItems() {
                     const itemIcon = document.createElement("div");
                     itemIcon.classList.add("item_icon");
 
-                    const itemPng = document.createElement('img');
-                    itemPng.classList.add('item_icon_png');
-                    itemPng.src=`../assets/icons/${shieldGenerator.name}.png`
+                    const itemPng = document.createElement("img");
+                    itemPng.classList.add("item_icon_png");
+                    itemPng.src = `../assets/icons/${shieldGenerator.name}.png`;
                     itemIcon.appendChild(itemPng);
 
                     const unequipButton = document.createElement("button");
@@ -1421,8 +1434,54 @@ async function displayActiveItems() {
             }
         }
     }
-    for (const ammo in playerInventory.ammunition){
-        console.log(ammo)
+
+    const categoryContainer4 = document.getElementById("ammo_lasers");
+    const categoryContainer5 = document.getElementById("ammo_rockets");
+
+    while (categoryContainer4?.firstChild) {
+        categoryContainer4.removeChild(categoryContainer4.firstChild);
+    }
+    while (categoryContainer5?.firstChild) {
+        categoryContainer5.removeChild(categoryContainer5.firstChild);
+    }
+
+    if (categoryContainer4 && categoryContainer5) {
+        for (const ammunition in playerInventory.ammunition) {
+            console.log(playerInventory.ammunition[ammunition]);
+            if (playerInventory.ammunition[ammunition]._type == "LaserAmmo") {
+                const ammoName = playerInventory.ammunition[ammunition].name;
+                const ammoAmount =
+                    playerInventory.ammunition[ammunition].amount;
+                if (ammoAmount && ammoName) {
+                    const ammoNameDiv = document.createElement("p");
+                    ammoNameDiv.classList.add("ammo_text");
+                    ammoNameDiv.textContent = `${ammoName} :`;
+
+                    const ammoCountDiv = document.createElement("p");
+                    ammoCountDiv.classList.add("ammo_text");
+                    ammoCountDiv.textContent = `${ammoAmount}`;
+
+                    categoryContainer4.appendChild(ammoNameDiv);
+                    categoryContainer4.appendChild(ammoCountDiv);
+                }
+            } else if (playerInventory[ammunition]._type == "RocketAmmo") {
+                const ammoName = playerInventory.ammunition[ammunition].name;
+                const ammoAmount =
+                    playerInventory.ammunition[ammunition].amount;
+                if (ammoAmount && ammoName) {
+                    const ammoNameDiv = document.createElement("p");
+                    ammoNameDiv.classList.add("ammo_text");
+                    ammoNameDiv.textContent = `${ammoName} :`;
+
+                    const ammoCountDiv = document.createElement("p");
+                    ammoCountDiv.classList.add("ammo_text");
+                    ammoCountDiv.textContent = `${ammoAmount}`;
+
+                    categoryContainer4.appendChild(ammoNameDiv);
+                    categoryContainer4.appendChild(ammoCountDiv);
+                }
+            }
+        }
     }
 }
 

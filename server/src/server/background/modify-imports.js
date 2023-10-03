@@ -304,6 +304,11 @@ function fixProjectiles() {
             'import { tickrate } from "./GameServer.js";'
         );
 
+        modifiedData = modifiedData.replace(
+            'import { laserData } from "./Inventory";',
+            'import { laserData } from "./Inventory.js";'
+        );
+
         writeFile(
             "./dist/server/background/Projectiles.js",
             modifiedData,

@@ -1,6 +1,7 @@
 {
     "laser1": {
         "name": "laser1",
+        "fullName": "Quantum Laser 1",
         "maxDamage": 100,
         "damageVariance": 0.1,
         "criticalChance": 0.1,
@@ -11,6 +12,7 @@
     },
     "laser2": {
         "name": "laser2",
+        "fullName": "Quantum Laser 2",
         "maxDamage": 160,
         "damageVariance": 0.1,
         "criticalChance": 0.2,

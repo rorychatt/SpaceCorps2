@@ -335,6 +335,7 @@ export class GameServer {
         playerName: string;
         targetUUID: string;
         weapons: string;
+        ammo: string
     }) {
         const [attacker, target] = await Promise.all([
             this.getPlayerByUsername(data.playerName),
@@ -348,14 +349,17 @@ export class GameServer {
                     attacker.targetUUID = undefined;
                 } else {
                     if (data.weapons == "lasers") {
-                        attacker.isShooting = true;
-                        attacker.targetUUID = target.uuid;
-                        attacker.shootLaserProjectileAtTarget(target as Player | Alien);
+
+                        if(attacker._getAmmoAmountByName(data.ammo) >= attacker._getLaserAmmoPerShot()){
+                            attacker.isShooting = true;
+                            attacker.targetUUID = target.uuid;
+                            attacker.shootLaserProjectileAtTarget(target as Player | Alien, data.ammo);
+                        }
                     }
                 }
             } else if (data.weapons == "rockets") {
                 attacker.targetUUID = target.uuid;
-                attacker.shootRocketProjectileAtTarget(target as Player | Alien);
+                attacker.shootRocketProjectileAtTarget(target as Player | Alien, data.ammo);
             }
         }
     }
@@ -370,7 +374,8 @@ export class GameServer {
                         this.damageEvents.push(
                             new DamageEvent(
                                 projectile.target.uuid,
-                                projectile.attacker.uuid
+                                projectile.attacker.uuid,
+                                projectile.damageAmount
                             )
                         );
                     } else if (projectile instanceof RocketProjectile) {
