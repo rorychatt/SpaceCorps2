@@ -34,7 +34,7 @@ export class Inventory {
         this.ammunition = [];
     }
 
-    getCurrentLasertAmmo() {
+    getCurrentLaserAmmo() {
         if (!this.selectedLaserAmmo) {
             this.ammunition.forEach((ammo) => {
                 if (ammo instanceof LaserAmmo) {
@@ -348,17 +348,17 @@ export class Inventory {
         }
     }
 
-    private findLaserByName(name: string): Laser | undefined {
+    findLaserByName(name: string): Laser | undefined {
         return this.lasers.find((laser) => laser.name === name);
     }
 
-    private findSpeedGeneratorByName(name: string): SpeedGenerator | undefined {
+    findSpeedGeneratorByName(name: string): SpeedGenerator | undefined {
         return this.speedGenerators.find(
             (generator) => generator.name === name
         );
     }
 
-    private findShieldGeneratorByName(
+    findShieldGeneratorByName(
         name: string
     ): ShieldGenerator | undefined {
         return this.shieldGenerators.find(
@@ -366,14 +366,14 @@ export class Inventory {
         );
     }
 
-    private findLaserAmmoByName(name: string): LaserAmmo | undefined {
+    findLaserAmmoByName(name: string): LaserAmmo | undefined {
         //@ts-ignore
         return this.ammunition.find(
             (ammo) => ammo.name === name && ammo._type == "LaserAmmo"
         );
     }
 
-    private findRocketAmmoByName(name: string): RocketAmmo | undefined {
+    findRocketAmmoByName(name: string): RocketAmmo | undefined {
         //@ts-ignore
         return this.ammunition.find(
             (ammo) => ammo.name === name && ammo._type == "RocketAmmo"
