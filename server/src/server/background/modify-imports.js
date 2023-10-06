@@ -21,8 +21,8 @@ function fixGameServer() {
         }
 
         let modifiedData = data.replace(
-            'import { readGameDataConfigFiles, } from "./loadGameData";',
-            'import { readGameDataConfigFiles, } from "./loadGameData.js";'
+            'import { readGameDataConfigFiles, readPackageJson } from "./loadGameData";',
+            'import { readGameDataConfigFiles, readPackageJson } from "./loadGameData.js";'
         );
 
         modifiedData = modifiedData.replace(
