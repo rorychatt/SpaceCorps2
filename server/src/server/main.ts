@@ -83,6 +83,7 @@ io.on("connection", (socket) => {
                 ) {
                     socket.emit("loginSuccessful", {
                         username: userCredentials.username,
+                        gameversion: gameServer._version
                     });
                     socket.emit("shopData", {
                         lasers: laserData,

@@ -5,6 +5,22 @@ export interface GameDataConfig {
     [key: string]: SpacemapConfig;
 }
 
+export const readPackageJson = () => {
+    try {
+        const data = fs.readFileSync("./package.json", "utf-8");
+        const jsonData = JSON.parse(data);
+        return jsonData;
+    } catch(error) {
+        console.log(
+            `Got an error while loading game data config files, e = ${
+                (error as Error).message
+            }`
+        );
+
+        return {"version": "1.0.0"}
+    }
+}
+
 // Load and parse the JSON file
 export const readGameDataConfigFiles = (): GameDataConfig => {
     let result: GameDataConfig = {

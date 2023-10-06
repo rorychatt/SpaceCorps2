@@ -1,7 +1,7 @@
 import { Alien, AlienDTO } from "./Alien";
 import { Player, PlayerDTO } from "./Player";
 import { Spacemap, Spacemaps, Vector2D } from "./Spacemap";
-import { GameDataConfig, readGameDataConfigFiles } from "./loadGameData";
+import { GameDataConfig, readGameDataConfigFiles, readPackageJson } from "./loadGameData";
 import { Server, Socket } from "socket.io";
 import { savePlayerData } from "../db/db";
 import { ChatServer } from "./ChatServer";
@@ -32,6 +32,8 @@ export class GameServer {
     admins: string[];
     tickCount: number = 0;
 
+    _version: string;
+
     public constructor(io: Server) {
         this.players = [];
         this.spacemaps = {};
@@ -45,6 +47,7 @@ export class GameServer {
         this.rewardServer = new RewardServer();
         this.shop = new Shop();
         this.admins = ["rostik", "rory", "duma"];
+        this._version = readPackageJson().version;
     }
 
     public async getPlayerBySocketId(
