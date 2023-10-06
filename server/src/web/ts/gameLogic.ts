@@ -15,6 +15,7 @@ let spacemapDiv = document.getElementById("spacemapDiv") as HTMLElement;
 let contentDiv = document.getElementById("content") as HTMLElement;
 let uiDiv = document.querySelector(".ui") as HTMLElement;
 let consoleBtn = document.querySelector(".console_button") as HTMLElement;
+let gameVersionDiv = document.getElementById("gameversion") as HTMLElement;
 
 const creditsElement = document.getElementById("credits_value");
 const thuliumElement = document.getElementById("thulium_value");
@@ -68,12 +69,13 @@ socket.on("userisAdmin", () => {
     consoleBtn.hidden = false;
 });
 
-socket.on("loginSuccessful", (data: { username: string }) => {
+socket.on("loginSuccessful", (data: { username: string, gameversion: string }) => {
     console.log(`Successful login as ${data.username}, starting game...`);
     playerName = data.username;
     initScene();
     rescaleOnWindowResize();
     uiDiv.hidden = false;
+    gameVersionDiv.innerHTML = data.gameversion;
     socket.emit("checkisAdmin", data.username);
 });
 
