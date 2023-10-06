@@ -17,6 +17,8 @@ let uiDiv = document.querySelector(".ui") as HTMLElement;
 let consoleBtn = document.querySelector(".console_button") as HTMLElement;
 let gameVersionDiv = document.getElementById("gameversion") as HTMLElement;
 
+let playerEntity: any;
+
 const creditsElement = document.getElementById("credits_value");
 const thuliumElement = document.getElementById("thulium_value");
 const experienceElement = document.getElementById("experience_value");
@@ -863,7 +865,27 @@ async function updateObjects(_data: any[]) {
     );
 }
 
+async function checkPlayerCurrency(price: { credits?: number , thulium?: number}): Promise<boolean> {
+    if(playerEntity.stats) {
+        if(price.credits) {
+            if(playerEntity.stats.credits < price.credits) {
+                return false;
+            }
+        } else if(price.thulium) {
+            if(playerEntity.stats.thulium < price.thulium) {
+                return false;
+            }
+        }
+
+        return true;
+    } 
+
+    return false;
+}
+
 async function updatePlayerInfo(entity: any) {
+    playerEntity = entity;
+
     if (creditsElement && thuliumElement && experienceElement && honorElement) {
         const [credits, thulium, experience, honor] = await Promise.all([
             beautifyNumberToUser(entity.stats.credits),
@@ -1062,10 +1084,15 @@ async function displayShoppingItems() {
                         itemContainer.appendChild(buyButton);
                         categoryContainer.appendChild(itemContainer);
 
-                        buyButton.addEventListener("click", () => {
+                        buyButton.addEventListener("click", async () => {
                             console.log(
                                 `You clicked BUY for ${category} - ${itemName}`
                             );
+                            
+                            if(!await checkPlayerCurrency(item.price)) {
+                                return;
+                            }
+
                             socket.emit(`playerPurchaseEvent`, {
                                 playerName: playerName,
                                 itemName: itemName,
@@ -1134,10 +1161,15 @@ async function displayShoppingItems() {
                     itemContainer.appendChild(buyButton);
                     categoryContainer.appendChild(itemContainer);
 
-                    buyButton.addEventListener("click", () => {
+                    buyButton.addEventListener("click", async () => {
                         console.log(
                             `You clicked BUY for ${category} - ${name}`
                         );
+
+                        if(!await checkPlayerCurrency(item.price)) {
+                            return;
+                        }
+
                         socket.emit(`playerPurchaseEvent`, {
                             playerName: playerName,
                             itemName: name,
