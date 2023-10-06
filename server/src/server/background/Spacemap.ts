@@ -1,4 +1,5 @@
 import { Alien } from "./Alien";
+import { CargoDrop } from "./CargoDrop";
 import { Entity, Portal } from "./Entity";
 import { Player } from "./Player";
 import { ProjectileServer } from "./ProjectileServer";
@@ -6,7 +7,7 @@ import { ProjectileServer } from "./ProjectileServer";
 export class Spacemap {
     name: string;
     size: SpacemapSize;
-    entities: (Player | Alien | Entity | Portal)[];
+    entities: (Player | Alien | Entity | Portal | CargoDrop)[];
     _config: SpacemapConfig;
     _maxAliens?: number;
     _allowedAliens?: string[];
@@ -35,12 +36,15 @@ export class Spacemap {
         this.entities.push(alien);
     }
 
-    spawnCargoBox(alien: Alien) {
-        const position = alien.position;
-        const cargoContents = alien.cargoDrop;
-
-        console.log(position);
-        console.log(cargoContents);
+    spawnCargoBoxFromAlien(alien: Alien) {
+        const cargoContents = { ...alien.cargoDrop };
+        const cargoDrop = new CargoDrop(
+            this,
+            cargoContents.position,
+            cargoContents.ores,
+            cargoContents.items
+        );
+        this.entities.push(cargoDrop);
     }
 
     deleteAlienByuuid(uuid: any) {

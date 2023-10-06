@@ -434,7 +434,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                         playerName: playerName,
                         targetUUID: lockOnCircle.parent.uuid,
                         weapons: "rockets",
-                        ammo: "rocket1"
+                        ammo: "rocket1",
                     });
                 }
                 break;

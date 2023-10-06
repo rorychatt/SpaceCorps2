@@ -46,7 +46,15 @@ export class ChatServer {
                                     JSON.stringify(player)
                                 );
                                 break;
+                            case "a":
+                                this._sendConsoleMessageToAll(
+                                    JSON.stringify(
+                                        gameServer.spacemaps[message[2]]
+                                            .entities
+                                    )
+                                );
                         }
+
                         break;
                     case "/c":
                         switch (message[1]) {

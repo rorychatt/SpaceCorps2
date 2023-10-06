@@ -190,6 +190,11 @@ function fixSpacemap() {
             'import { Portal } from "./Entity.js";'
         );
 
+        modifiedData = modifiedData.replace(
+            'import { CargoDrop } from "./CargoDrop";',
+            'import { CargoDrop } from "./CargoDrop.js";'
+        );
+
         writeFile(
             "./dist/server/background/Spacemap.js",
             modifiedData,

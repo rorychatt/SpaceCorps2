@@ -51,12 +51,12 @@ export function setupDatabaseConnection(): void {
                       username VARCHAR(255) PRIMARY KEY,
                       mapName VARCHAR(255) DEFAULT 'M-1',
                       company VARCHAR(255) DEFAULT 'MCC',
-                      positionX FLOAT DEFAULT 0,
-                      positionY FLOAT DEFAULT 0,
-                      credits INT DEFAULT 50000,
-                      thulium INT DEFAULT 10000,
-                      experience INT DEFAULT 0,
-                      honor INT DEFAULT 0
+                      positionX DOUBLE DEFAULT 0,
+                      positionY DOUBLE DEFAULT 0,
+                      credits BIGINT DEFAULT 50000,
+                      thulium BIGINT DEFAULT 10000,
+                      experience BIGINT DEFAULT 0,
+                      honor BIGINT DEFAULT 0
                     );`;
                 const inventoryQuery: string = `
                     CREATE TABLE IF NOT EXISTS inventory (

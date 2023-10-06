@@ -285,7 +285,7 @@ export class GameServer {
                         );
                     }
                     if(entity.cargoDrop){
-                        spacemap.spawnCargoBox(entity)
+                        spacemap.spawnCargoBoxFromAlien(entity)
                     }
                     console.log(
                         `Removed ${entity.name} from map ${spacemapName} because its HP finished.`
