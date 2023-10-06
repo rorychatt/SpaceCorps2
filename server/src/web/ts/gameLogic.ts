@@ -208,7 +208,6 @@ async function loadSpacemapPlane(data: any) {
     plane.rotation.x = -Math.PI / 2;
     plane.name = "movingPlane";
     plane.layers.enable(rayCastLayerNo);
-    console.log(plane);
     scene.add(plane);
 }
 
@@ -1088,7 +1087,6 @@ async function displayShoppingItems() {
 
             for (const ammoType in shoppingData[category]) {
                 for (const name in shoppingData[category][ammoType]) {
-                    console.log(shoppingData[category][ammoType]);
                     const item = shoppingData[category][ammoType][name];
                     const itemContainer = document.createElement("div");
                     itemContainer.classList.add("shop_item");
@@ -1207,7 +1205,6 @@ async function displayItemsInWorkroom() {
     while (categoryContainer?.firstChild) {
         categoryContainer.removeChild(categoryContainer.firstChild);
     }
-    console.log(playerInventory);
     if (categoryContainer) {
         for (const _laser in playerInventory.lasers) {
             const laser = playerInventory.lasers[_laser];

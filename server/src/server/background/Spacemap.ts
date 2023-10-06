@@ -30,9 +30,17 @@ export class Spacemap {
         }
     }
 
-    spawnAlien(name: string, position?: Vector2D) {
+    spawnAlien(name: string, position: Vector2D) {
         const alien = new Alien(this, name, position);
         this.entities.push(alien);
+    }
+
+    spawnCargoBox(alien: Alien) {
+        const position = alien.position;
+        const cargoContents = alien.cargoDrop;
+
+        console.log(position);
+        console.log(cargoContents);
     }
 
     deleteAlienByuuid(uuid: any) {

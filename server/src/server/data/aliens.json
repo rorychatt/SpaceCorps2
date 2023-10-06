@@ -1,55 +1,68 @@
 {
     "thetys": {
-        "hitPoints":{
+        "hitPoints": {
             "hullPoints": 2000,
             "shieldPoints": 1000,
             "shieldAbsorbance": 0.5
         },
-        "damage":{
+        "damage": {
             "maxDamage": 100,
             "variance": 0.2,
             "criticalChance": 0.01,
             "criticalMultipler": 2
         },
-        "oreDrop":{
-
-        },
-        "killReward":{
+        "oreDrop": [
+            {
+                "oreName": "radium",
+                "amount": 10
+            },
+            {
+                "oreName": "agronite",
+                "amount": 5
+            }
+        ],
+        "killReward": {
             "credits": 1000,
             "thulium": 1,
             "experience": 125,
             "honor": 1
         },
-        "movement":{
+        "movement": {
             "behaviour": "passive",
             "speed": 360
         }
     },
     "plasmoid": {
-        "hitPoints":{
+        "hitPoints": {
             "hullPoints": 4000,
             "shieldPoints": 4000,
             "shieldAbsorbance": 0.6
         },
-        "damage":{
+        "damage": {
             "maxDamage": 130,
             "variance": 0.4,
             "criticalChance": 0.02,
             "criticalMultipler": 3
         },
-        "oreDrop":{
-
-        },
-        "killReward":{
+        "oreDrop": [
+            {
+                "oreName": "radium",
+                "amount": 10
+            },
+            {
+                "oreName": "agronite",
+                "amount": 5
+            }
+        ],
+        "killReward": {
             "credits": 3000,
             "thulium": 3,
             "experience": 400,
             "honor": 3
         },
-        "movement":{
+        "movement": {
             "behaviour": "passive",
             "speed": 360
         }
-
     }
 }

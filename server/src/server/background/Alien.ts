@@ -2,12 +2,13 @@ import { Entity } from "./Entity";
 import * as fs from "fs";
 import { tickrate } from "./GameServer";
 import { Spacemap, Vector2D } from "./Spacemap";
+import { CargoDrop, OreResource, PossibleOreNames } from "./CargoDrop";
 
 export class Alien extends Entity {
     _type: string = "Alien";
     hitPoints: Durability;
     killReward: _KillReward;
-    oreDrop: OreDrop;
+    cargoDrop: CargoDrop;
     damage: AlienDamageCharacteristic;
     movement: AlienMovementCharacteristic;
     canRepair: boolean = false;
@@ -16,8 +17,9 @@ export class Alien extends Entity {
     _maxSP: number;
     lastAttackedByUUID?: string;
 
-    public constructor(map: Spacemap, name: string, position?: Vector2D) {
+    public constructor(map: Spacemap, name: string, position: Vector2D) {
         super(map.name, name, position);
+
         this.hitPoints = {
             hullPoints: 1000,
             shieldPoints: 1000,
@@ -29,7 +31,7 @@ export class Alien extends Entity {
             experience: 1,
             honor: 1,
         };
-        this.oreDrop = {};
+        this.cargoDrop = new CargoDrop(map, this.position);
         this.damage = {
             maxDamage: 100,
             variance: 0.2,
@@ -51,11 +53,18 @@ export class Alien extends Entity {
             const aliensData = JSON.parse(rawData.toString("utf-8"));
             this.hitPoints = aliensData[this.name].hitPoints;
             this.killReward = aliensData[this.name].killReward;
-            this.oreDrop = aliensData[this.name].oreDrop;
             this.damage = aliensData[this.name].damage;
             this.movement = aliensData[this.name].movement;
             this._maxHP = aliensData[this.name].hitPoints.hullPoints;
             this._maxSP = aliensData[this.name].hitPoints.shieldPoints;
+
+            const oreDrops = aliensData[this.name].oreDrop;
+            oreDrops.forEach((oreDrop: _OreDropData) => {
+                this.cargoDrop.ores.push(
+                    new OreResource(oreDrop.oreName, oreDrop.amount)
+                );
+            });
+            this.cargoDrop.ores;
         } catch (error) {
             console.error("Error reading the file:", error);
         }
@@ -81,7 +90,7 @@ export class Alien extends Entity {
             this.lastAttackedByUUID = attackerUUID;
         }
 
-        const hitPointsAfterFirstHit =  {...this.hitPoints};
+        const hitPointsAfterFirstHit = { ...this.hitPoints };
 
         setTimeout(() => {
             if (
@@ -119,8 +128,8 @@ export class Alien extends Entity {
             const ranY = 0.5 - Math.random();
             const adjustedSpeed = (this.movement.speed * 1000) / tickrate;
             target = {
-                x: currentPosition.x + (ranX * this.movement.speed) / 1000,
-                y: currentPosition.y + (ranY * this.movement.speed) / 1000,
+                x: currentPosition.x + (ranX * adjustedSpeed) / 1000,
+                y: currentPosition.y + (ranY * adjustedSpeed) / 1000,
             };
         }
         return target;
@@ -234,10 +243,6 @@ export interface Durability {
     shieldAbsorbance: number;
 }
 
-export interface OreDrop {
-    // Oredrop
-}
-
 export interface AlienDamageCharacteristic {
     maxDamage: number;
     variance: number;
@@ -251,3 +256,8 @@ export interface AlienMovementCharacteristic {
 }
 
 export type AlienMovementBehaviour = "passive" | "circular";
+
+interface _OreDropData {
+    oreName: PossibleOreNames;
+    amount: number;
+}

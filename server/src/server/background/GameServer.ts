@@ -284,6 +284,9 @@ export class GameServer {
                             entity.killReward
                         );
                     }
+                    if(entity.cargoDrop){
+                        spacemap.spawnCargoBox(entity)
+                    }
                     console.log(
                         `Removed ${entity.name} from map ${spacemapName} because its HP finished.`
                     );
