@@ -466,15 +466,15 @@ h1 {
     min-height: 52vh;
     border: 1px solid white;
 
-    margin-top: 6%;
-    margin-left: 42%;
+    top: 16vh;
+    left: 42%;
     border-radius: 3px;
     background-color: rgba(30, 144, 255, 0.75);
 
     display: none;
-    flex-direction: column;
     width: auto;
-    max-width: 17%;
+
+    padding: 5px;
 }
 
 .quit_container {
@@ -505,6 +505,7 @@ h1 {
     justify-content: center;
     text-align: center;
     margin-top: 4%;
+    box-sizing: border-box;
 }
 
 .assembly {
