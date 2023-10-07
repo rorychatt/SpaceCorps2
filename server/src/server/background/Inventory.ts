@@ -358,9 +358,7 @@ export class Inventory {
         );
     }
 
-    findShieldGeneratorByName(
-        name: string
-    ): ShieldGenerator | undefined {
+    findShieldGeneratorByName(name: string): ShieldGenerator | undefined {
         return this.shieldGenerators.find(
             (generator) => generator.name === name
         );

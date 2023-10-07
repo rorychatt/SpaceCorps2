@@ -287,6 +287,11 @@ export class GameServer {
                             entity.killReward
                         );
                     }
+                    if (entity.cargoDrop) {
+                        const cargoContents = { ...entity.cargoDrop };
+                        cargoContents.position = entity.position;
+                        spacemap.spawnCargoBoxFromAlien(cargoContents);
+                    }
                     console.log(
                         `Removed ${entity.name} from map ${spacemapName} because its HP finished.`
                     );
@@ -329,6 +334,7 @@ export class GameServer {
                 name: mapData.name,
                 entities: entitiesDTO,
                 projectiles: projectilesDTO,
+                cargoboxes: mapData.cargoboxes,
                 size: mapData.size,
             });
         });
@@ -338,7 +344,7 @@ export class GameServer {
         playerName: string;
         targetUUID: string;
         weapons: string;
-        ammo: string
+        ammo: string;
     }) {
         const [attacker, target] = await Promise.all([
             this.getPlayerByUsername(data.playerName),
@@ -352,16 +358,25 @@ export class GameServer {
                     attacker.targetUUID = undefined;
                 } else {
                     if (data.weapons == "lasers") {
-                        if(attacker._getAmmoAmountByName(data.ammo) >= attacker._getLaserAmmoPerShot()){
+                        if (
+                            attacker._getAmmoAmountByName(data.ammo) >=
+                            attacker._getLaserAmmoPerShot()
+                        ) {
                             attacker.isShooting = true;
                             attacker.targetUUID = target.uuid;
-                            attacker.shootLaserProjectileAtTarget(target as Player | Alien, data.ammo);
+                            attacker.shootLaserProjectileAtTarget(
+                                target as Player | Alien,
+                                data.ammo
+                            );
                         }
                     }
                 }
             } else if (data.weapons == "rockets") {
                 attacker.targetUUID = target.uuid;
-                attacker.shootRocketProjectileAtTarget(target as Player | Alien, data.ammo);
+                attacker.shootRocketProjectileAtTarget(
+                    target as Player | Alien,
+                    data.ammo
+                );
             }
         }
     }

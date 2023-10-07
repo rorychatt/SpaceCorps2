@@ -11,6 +11,7 @@ await Promise.all([
     fixProjectiles(),
     fixChatServer(),
     fixShop(),
+    fixCargoDrop(),
 ]);
 
 function fixGameServer() {
@@ -189,6 +190,11 @@ function fixSpacemap() {
             'import { Portal } from "./Entity.js";'
         );
 
+        modifiedData = modifiedData.replace(
+            'import { CargoDrop } from "./CargoDrop";',
+            'import { CargoDrop } from "./CargoDrop.js";'
+        );
+
         writeFile(
             "./dist/server/background/Spacemap.js",
             modifiedData,
@@ -216,6 +222,11 @@ function fixAlien() {
         modifiedData = modifiedData.replace(
             'import { tickrate } from "./GameServer";',
             'import { tickrate } from "./GameServer.js";'
+        );
+
+        modifiedData = modifiedData.replace(
+            'import { CargoDrop, OreResource } from "./CargoDrop";',
+            'import { CargoDrop, OreResource } from "./CargoDrop.js";'
         );
 
         writeFile("./dist/server/background/Alien.js", modifiedData, (err) => {
@@ -367,5 +378,29 @@ function fixShop() {
                 console.error(`Error writing file: ${err}`);
             }
         });
+    });
+}
+
+function fixCargoDrop() {
+    readFile("./dist/server/background/CargoDrop.js", "utf8", (err, data) => {
+        if (err) {
+            console.error(`Error reading file: ${err}`);
+            return;
+        }
+
+        let modifiedData = data.replace(
+            'import { Entity } from "./Entity";',
+            'import { Entity } from "./Entity.js";'
+        );
+
+        writeFile(
+            "./dist/server/background/CargoDrop.js",
+            modifiedData,
+            (err) => {
+                if (err) {
+                    console.error(`Error writing file: ${err}`);
+                }
+            }
+        );
     });
 }
