@@ -71,15 +71,18 @@ socket.on("userisAdmin", () => {
     consoleBtn.hidden = false;
 });
 
-socket.on("loginSuccessful", (data: { username: string, gameversion: string }) => {
-    console.log(`Successful login as ${data.username}, starting game...`);
-    playerName = data.username;
-    initScene();
-    rescaleOnWindowResize();
-    uiDiv.hidden = false;
-    gameVersionDiv.innerHTML = data.gameversion;
-    socket.emit("checkisAdmin", data.username);
-});
+socket.on(
+    "loginSuccessful",
+    (data: { username: string; gameversion: string }) => {
+        console.log(`Successful login as ${data.username}, starting game...`);
+        playerName = data.username;
+        initScene();
+        rescaleOnWindowResize();
+        uiDiv.hidden = false;
+        gameVersionDiv.innerHTML = data.gameversion;
+        socket.emit("checkisAdmin", data.username);
+    }
+);
 
 socket.on("loginUnsuccessful", (data: { username: string }) => {
     alert(`Incorrect password for user: ${data.username}`);
@@ -162,7 +165,7 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
                     if (data.reward[key]._type) {
                         const messageContainer = document.createElement("div");
                         messageContainer.classList.add("notification");
-                        messageContainer.textContent = `You received 1 ${data.reward[key].name} ${data.reward[key]._type}.`;
+                        messageContainer.textContent = `You received ${data.reward[key].amount} ${data.reward[key].name} ${data.reward[key]._type}.`;
                         notificationContainer.appendChild(messageContainer);
                         setTimeout(() => {
                             try {
@@ -172,19 +175,59 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
                             } catch (err) {}
                         }, 5000);
                     } else {
-                        const messageContainer = document.createElement("div");
-                        messageContainer.classList.add("notification");
-                        messageContainer.textContent = `You received ${await beautifyNumberToUser(
-                            data.reward[key]
-                        )} ${key}.`;
-                        notificationContainer.appendChild(messageContainer);
-                        setTimeout(() => {
-                            try {
-                                notificationContainer.removeChild(
+                        if (
+                            data.reward[key] !== "items" ||
+                            data.reward[key] !== "amount"
+                        ) {
+                            if (data.reward[key].length) {
+                                data.reward[key].forEach(async (dat: any) => {
+                                    const messageContainer =
+                                        document.createElement("div");
+                                    messageContainer.classList.add(
+                                        "notification"
+                                    );
+                                    messageContainer.textContent = `You received ${await beautifyNumberToUser(
+                                        dat.amount
+                                    )} ${dat.name}.`;
+                                    notificationContainer.appendChild(
+                                        messageContainer
+                                    );
+                                    setTimeout(() => {
+                                        try {
+                                            notificationContainer.removeChild(
+                                                messageContainer
+                                            );
+                                        } catch (err) {}
+                                    }, 5000);
+                                });
+                            } else {
+                                if (
+                                    (await beautifyNumberToUser(
+                                        data.reward[key]
+                                    )) == ""
+                                ) {
+                                    return;
+                                }
+                                const messageContainer =
+                                    document.createElement("div");
+                                messageContainer.classList.add("notification");
+                                messageContainer.textContent = `You received ${await beautifyNumberToUser(
+                                    data.reward[key]
+                                )} ${key}.`;
+                                notificationContainer.appendChild(
                                     messageContainer
                                 );
-                            } catch (err) {}
-                        }, 5000);
+                                console.log(messageContainer.textContent);
+
+                                setTimeout(() => {
+                                    try {
+                                        notificationContainer.removeChild(
+                                            messageContainer
+                                        );
+                                    } catch (err) {}
+                                }, 5000);
+                            }
+                        }
                     }
                 }
             }
@@ -677,9 +720,9 @@ async function createObject(data: any) {
                 break;
             case "CargoDrop":
                 const cargoDropGeometry = new THREE.BoxGeometry(
-                    0.15,
-                    0.15,
-                    0.15
+                    0.25,
+                    0.25,
+                    0.25
                 );
                 const cargoDropMaterial = new THREE.MeshBasicMaterial({
                     color: 0xffff00,
@@ -838,7 +881,8 @@ async function deleteObject(uuid: string) {
 
         if (
             object.name !== "laserProjectile" &&
-            object.name !== "rocketProjectile"
+            object.name !== "rocketProjectile" &&
+            object.name !== "CargoDrop"
         ) {
             createAndTriggerExplosion(object.position);
         }
@@ -910,20 +954,23 @@ async function updateObjects(_data: any[]) {
     );
 }
 
-async function checkPlayerCurrency(price: { credits?: number , thulium?: number}): Promise<boolean> {
-    if(playerEntity.stats) {
-        if(price.credits) {
-            if(playerEntity.stats.credits < price.credits) {
+async function checkPlayerCurrency(price: {
+    credits?: number;
+    thulium?: number;
+}): Promise<boolean> {
+    if (playerEntity.stats) {
+        if (price.credits) {
+            if (playerEntity.stats.credits < price.credits) {
                 return false;
             }
-        } else if(price.thulium) {
-            if(playerEntity.stats.thulium < price.thulium) {
+        } else if (price.thulium) {
+            if (playerEntity.stats.thulium < price.thulium) {
                 return false;
             }
         }
 
         return true;
-    } 
+    }
 
     return false;
 }
@@ -1133,8 +1180,8 @@ async function displayShoppingItems() {
                             console.log(
                                 `You clicked BUY for ${category} - ${itemName}`
                             );
-                            
-                            if(!await checkPlayerCurrency(item.price)) {
+
+                            if (!(await checkPlayerCurrency(item.price))) {
                                 return;
                             }
 
@@ -1210,7 +1257,7 @@ async function displayShoppingItems() {
                             `You clicked BUY for ${category} - ${name}`
                         );
 
-                        if(!await checkPlayerCurrency(item.price)) {
+                        if (!(await checkPlayerCurrency(item.price))) {
                             return;
                         }
 

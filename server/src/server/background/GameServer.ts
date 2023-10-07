@@ -1,7 +1,11 @@
 import { Alien, AlienDTO } from "./Alien";
 import { Player, PlayerDTO } from "./Player";
 import { Spacemap, Spacemaps, Vector2D } from "./Spacemap";
-import { GameDataConfig, readGameDataConfigFiles, readPackageJson } from "./loadGameData";
+import {
+    GameDataConfig,
+    readGameDataConfigFiles,
+    readPackageJson,
+} from "./loadGameData";
 import { Server, Socket } from "socket.io";
 import { savePlayerData } from "../db/db";
 import { ChatServer } from "./ChatServer";
@@ -15,6 +19,7 @@ import {
     RocketProjectileDTO,
 } from "./Projectiles";
 import { Shop } from "./Shop";
+import { CargoDrop } from "./CargoDrop";
 
 export const tickrate = 120;
 
@@ -72,10 +77,10 @@ export class GameServer {
             targetPos: Vector2D
         ): Portal | undefined {
             if (portals.length === 0) {
-                return undefined; // Return null if the array is empty
+                return undefined;
             }
 
-            let closestPortal = portals[0]; // Initialize with the first portal
+            let closestPortal = portals[0];
             let closestDistance = _getBADDistance(
                 portals[0].position,
                 targetPos
@@ -214,6 +219,32 @@ export class GameServer {
         this.players.forEach((player) => {
             if (player.destination) {
                 player.flyToDestination();
+            }
+            if (player.isCollectingCargoDrop && player.targetCargoDrop) {
+                if (
+                    Math.abs(
+                        player.position.x - player.targetCargoDrop.position.x
+                    ) < 0.1 &&
+                    Math.abs(
+                        player.position.y - player.targetCargoDrop.position.y
+                    ) < 0.1
+                ) {
+                    this.rewardServer.registerCargoDropReward(
+                        player.uuid,
+                        player.targetCargoDrop
+                    );
+
+                    this.spacemaps[
+                        player.targetCargoDrop.currentMap
+                    ].cargoboxes = this.spacemaps[
+                        player.targetCargoDrop.currentMap
+                    ].cargoboxes.filter((cargobox) => {
+                        return cargobox.uuid !== player.targetCargoDrop?.uuid;
+                    });
+                    
+                    player.isCollectingCargoDrop = false;
+                    player.targetCargoDrop = undefined;
+                }
             }
         });
     }
@@ -489,6 +520,8 @@ export class GameServer {
     ) {
         const player = await this.getPlayerBySocketId(socketId);
         if (player) {
+            player.isCollectingCargoDrop = false;
+            player.targetCargoDrop = undefined;
             player.destination = targetPosition;
         }
     }
@@ -511,6 +544,19 @@ export class GameServer {
                 resolve(undefined);
             }
         );
+    }
+
+    public async addPlayerCollectCargoDrop(
+        cargoDrop: CargoDrop,
+        player: Player
+    ) {
+        await this.addPlayerMoveToDestination(
+            cargoDrop.position,
+            player.socketId
+        );
+
+        player.isCollectingCargoDrop = true;
+        player.targetCargoDrop = cargoDrop;
     }
 
     startServer() {

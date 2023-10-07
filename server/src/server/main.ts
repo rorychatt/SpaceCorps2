@@ -83,7 +83,7 @@ io.on("connection", (socket) => {
                 ) {
                     socket.emit("loginSuccessful", {
                         username: userCredentials.username,
-                        gameversion: gameServer._version
+                        gameversion: gameServer._version,
                     });
                     socket.emit("shopData", {
                         lasers: laserData,
@@ -240,13 +240,10 @@ io.on("connection", (socket) => {
                 const cargoDrop = gameServer.spacemaps[
                     player.currentMap
                 ].cargoboxes.find((cargobox) => {
-                    cargobox.uuid == data.cargoDropUUID;
+                    return cargobox.uuid === data.cargoDropUUID;
                 });
                 if (cargoDrop) {
-                    gameServer.addPlayerMoveToDestination(
-                        cargoDrop.position,
-                        player.socketId
-                    );
+                    gameServer.addPlayerCollectCargoDrop(cargoDrop, player)
                 }
             }
         }

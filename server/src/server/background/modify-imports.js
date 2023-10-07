@@ -12,6 +12,7 @@ await Promise.all([
     fixChatServer(),
     fixShop(),
     fixCargoDrop(),
+    fixInventory(),
 ]);
 
 function fixGameServer() {
@@ -22,8 +23,8 @@ function fixGameServer() {
         }
 
         let modifiedData = data.replace(
-            'import { readGameDataConfigFiles, readPackageJson } from "./loadGameData";',
-            'import { readGameDataConfigFiles, readPackageJson } from "./loadGameData.js";'
+            `import { readGameDataConfigFiles, readPackageJson, } from "./loadGameData";`,
+            `import { readGameDataConfigFiles, readPackageJson, } from "./loadGameData.js";`
         );
 
         modifiedData = modifiedData.replace(
@@ -248,8 +249,8 @@ function fixRewardServer() {
             }
 
             let modifiedData = data.replace(
-                'import { AlienKillReward, CreditsReward, ExperienceReward, HonorReward, ItemReward, PlayerKillReward, ThulimReward, } from "./Reward";',
-                'import { AlienKillReward, CreditsReward, ExperienceReward, HonorReward, ItemReward, PlayerKillReward, ThulimReward, } from "./Reward.js";'
+                'import { AlienKillReward, CargoDropReward, CreditsReward, ExperienceReward, HonorReward, ItemReward, PlayerKillReward, ThulimReward, } from "./Reward";',
+                'import { AlienKillReward, CargoDropReward, CreditsReward, ExperienceReward, HonorReward, ItemReward, PlayerKillReward, ThulimReward, } from "./Reward.js";'
             );
 
             modifiedData = modifiedData.replace(
@@ -296,6 +297,30 @@ function fixProjectileServer() {
             );
         }
     );
+}
+
+function fixInventory() {
+    readFile("./dist/server/background/Inventory.js", "utf8", (err, data) => {
+        if (err) {
+            console.error(`Error reading file: ${err}`);
+            return;
+        }
+
+        let modifiedData = data.replace(
+            'import { OreResource } from "./CargoDrop";',
+            'import { OreResource } from "./CargoDrop.js";'
+        );
+
+        writeFile(
+            "./dist/server/background/Inventory.js",
+            modifiedData,
+            (err) => {
+                if (err) {
+                    console.error(`Error writing file: ${err}`);
+                }
+            }
+        );
+    });
 }
 
 function fixProjectiles() {

@@ -1361,7 +1361,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 #gameversion {
-    font-size: 24px;
+    font-size: 14px;
     position: absolute;
     z-index: 99;
     left: 0;
