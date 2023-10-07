@@ -663,11 +663,11 @@ export class CargoBay {
             (ore) => ore.name === oreResource.name
         );
         if (!existingOre) {
-            console.error("The specified ore does not exist in the cargo bay.");
+            console.warn("The specified ore does not exist in the cargo bay.");
             return;
         }
         if (existingOre.amount < oreResource.amount) {
-            console.error(
+            console.warn(
                 "The amount to be removed is greater than the existing amount."
             );
             return;
