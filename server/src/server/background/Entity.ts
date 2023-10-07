@@ -1,10 +1,10 @@
 import { randomBytes } from "crypto";
 import { PortalLocations, Spacemap, SpacemapSize, Vector2D } from "./Spacemap";
 export class Entity {
-    name: string;
+    readonly name: string;
     position: Vector2D;
     currentMap: string;
-    uuid = randomBytes(16).toString("hex");
+    readonly uuid = randomBytes(16).toString("hex");
 
     public constructor(currentMap: string, name: string, position?: Vector2D) {
         this.name = name;

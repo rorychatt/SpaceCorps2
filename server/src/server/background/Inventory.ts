@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { OreResource } from "./CargoDrop";
 
 export const shipData = JSON.parse(
     fs.readFileSync("./src/server/data/ships.json").toString("utf-8")
@@ -25,6 +26,7 @@ export class Inventory {
     selectedLaserAmmo?: LaserAmmo;
     selectedRocketAmmo?: RocketAmmo;
     ships: ShipItem[];
+    cargoBay: CargoBay;
 
     constructor() {
         this.lasers = [];
@@ -32,6 +34,7 @@ export class Inventory {
         this.speedGenerators = [];
         this.ships = [];
         this.ammunition = [];
+        this.cargoBay = new CargoBay();
     }
 
     getCurrentLaserAmmo() {
@@ -617,12 +620,83 @@ export class RocketAmmo extends Item {
     }
 }
 
+export class CargoBay {
+    maxCapacity: number = 100;
+    ores: OreResource[] = [];
+
+    constructor() {}
+
+    setMaxCapacity(maxCapacity: number) {
+        this.maxCapacity = maxCapacity;
+    }
+
+    addOre(oreResource: OreResource) {
+        const currentAmount = this.ores.reduce(
+            (acc, ore) => acc + ore.amount,
+            0
+        );
+        const availableSpace = this.maxCapacity - currentAmount;
+        const existingOre = this.ores.find(
+            (ore) => ore.name === oreResource.name
+        );
+        if (existingOre) {
+            const newAmount = existingOre.amount + oreResource.amount;
+            if (newAmount > availableSpace) {
+                existingOre.amount = availableSpace;
+                console.warn("Cargo bay is full. Excess resources are lost.");
+            } else {
+                existingOre.amount = newAmount;
+            }
+        } else {
+            if (oreResource.amount > availableSpace) {
+                this.ores.push(
+                    new OreResource(oreResource.name, availableSpace)
+                );
+                console.warn("Cargo bay is full. Excess resources are lost.");
+            } else {
+                this.ores.push(oreResource);
+            }
+        }
+    }
+    removeOre(oreResource: OreResource) {
+        const existingOre = this.ores.find(
+            (ore) => ore.name === oreResource.name
+        );
+        if (!existingOre) {
+            console.error("The specified ore does not exist in the cargo bay.");
+            return;
+        }
+        if (existingOre.amount < oreResource.amount) {
+            console.error(
+                "The amount to be removed is greater than the existing amount."
+            );
+            return;
+        }
+        existingOre.amount -= oreResource.amount;
+        if (existingOre.amount === 0) {
+            const index = this.ores.indexOf(existingOre);
+            this.ores.splice(index, 1);
+        }
+    }
+}
+
+export class CargoBayDTO {
+    maxCapacity: number;
+    ores: OreResource[]; // Assuming OreResource is serializable as-is
+
+    constructor(cargoBay: CargoBay) {
+        this.maxCapacity = cargoBay.maxCapacity;
+        this.ores = cargoBay.ores;
+    }
+}
+
 export class InventoryDataDTO {
     lasers: LaserDTO[] = [];
     shieldGenerators: ShieldGeneratorDTO[] = [];
     speedGenerators: SpeedGeneratorDTO[] = [];
     ammunition: (LaserAmmo | RocketAmmo)[] = [];
     ships: ShipItemDTO[] = [];
+    cargoBay: CargoBayDTO = new CargoBayDTO(new CargoBay());
 
     async convertInventory(inventory: Inventory): Promise<void> {
         await Promise.all([
@@ -632,6 +706,7 @@ export class InventoryDataDTO {
             this.convertShips(inventory.ships),
         ]);
         this.ammunition = inventory.ammunition;
+        this.cargoBay = new CargoBayDTO(inventory.cargoBay);
     }
 
     private async convertLasers(lasers: Laser[]): Promise<void> {

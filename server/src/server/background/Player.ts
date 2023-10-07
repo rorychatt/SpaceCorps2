@@ -5,6 +5,7 @@ import {
 } from "../db/db";
 import { gameServer } from "../main";
 import { Alien, Durability } from "./Alien";
+import { CargoDrop } from "./CargoDrop";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
 import {
@@ -33,6 +34,8 @@ export class Player extends Entity {
     inventory: Inventory = new Inventory();
     _activeShip: ShipItem | undefined;
     isShooting: boolean = false;
+    isCollectingCargoDrop: boolean = false;
+    targetCargoDrop: CargoDrop | undefined = undefined;
     targetUUID: string | undefined = undefined;
 
     public constructor(socketId: string, map: Spacemap, username: string) {
@@ -274,7 +277,7 @@ export class Player extends Entity {
     ) {
         if (this.reloadState == "canShoot") {
             this.reloadState = "reloading";
-            const ammoItem = this.inventory.findLaserAmmoByName(ammoName)
+            const ammoItem = this.inventory.findLaserAmmoByName(ammoName);
             if (ammoItem) {
                 ammoItem.amount -= this._getLaserAmmoPerShot();
                 const damageAmount = await this.giveDamage(

@@ -6,8 +6,8 @@ import { Player } from "./Player";
 import { ProjectileServer } from "./ProjectileServer";
 
 export class Spacemap {
-    name: string;
-    size: SpacemapSize;
+    readonly name: string;
+    readonly size: SpacemapSize;
     entities: (Player | Alien | Entity | Portal)[];
     cargoboxes: CargoDrop[] = [];
     _config: SpacemapConfig;
@@ -53,8 +53,8 @@ export class Spacemap {
         this.cargoboxes.push(cargoDrop);
     }
 
-    deleteAlienByuuid(uuid: any) {
-        this.entities.filter((el) => el !== uuid);
+    deleteAlienByuuid(uuid: string) {
+        this.entities = this.entities.filter((el) => el.uuid !== uuid);
     }
 
     randomSpawnAlien() {
@@ -102,15 +102,15 @@ export interface Vector2D {
 }
 
 export interface PortalConfig {
-    location: PortalLocations;
-    destination: string;
+    readonly location: PortalLocations;
+    readonly destination: string;
 }
 
 export interface StaticEntitiesConfig {
     portals: PortalConfig[];
     base?: {
         location: string;
-        name: string;
+        readonly name: string;
     };
 }
 

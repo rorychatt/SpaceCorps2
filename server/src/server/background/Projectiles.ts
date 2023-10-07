@@ -99,7 +99,6 @@ export class RocketProjectile extends Projectile {
     }
 
     _getData(rocketAmmo: RocketAmmo) {
-        this.name = rocketAmmo.name;
         this.maxDamage = rocketAmmo.maxDamage;
         this.damageRadius = rocketAmmo.damageRadius;
         this.damageVariance = rocketAmmo.damageVariance;

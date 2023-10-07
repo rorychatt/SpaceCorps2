@@ -1,8 +1,10 @@
 import { updateInventoryData } from "../db/db";
+import { CargoDrop } from "./CargoDrop";
 import { PossibleItems } from "./Inventory";
 import { Player } from "./Player";
 import {
     AlienKillReward,
+    CargoDropReward,
     CreditsReward,
     ExperienceReward,
     HonorReward,
@@ -63,12 +65,22 @@ export class RewardServer {
         );
     }
 
-    registerItemReward(recipientUUID: string, reward: PossibleItems, amount?: number) {
-        if(amount){
-            this.pendingRewards.push(new ItemReward(recipientUUID, reward, amount));
+    registerItemReward(
+        recipientUUID: string,
+        reward: PossibleItems,
+        amount?: number
+    ) {
+        if (amount) {
+            this.pendingRewards.push(
+                new ItemReward(recipientUUID, reward, amount)
+            );
         } else {
             this.pendingRewards.push(new ItemReward(recipientUUID, reward));
         }
+    }
+
+    registerCargoDropReward(recipientUUID: string, cargoDrop: CargoDrop) {
+        this.pendingRewards.push(new CargoDropReward(recipientUUID, cargoDrop));
     }
 
     issueReward(player: Player, reward: PossibleRewards) {
@@ -92,9 +104,15 @@ export class RewardServer {
             player.addHonor(reward.honor);
         } else if (reward instanceof ItemReward) {
             player.inventory.addItem(reward.item, reward.amount);
+        } else if (reward instanceof CargoDropReward) {
+            for (const item in reward.items) {
+                player.inventory.addItem(reward.items[item]);
+            }
+            for (const ore in reward.ores) {
+                player.inventory.cargoBay.addOre(reward.ores[ore]);
+            }
         }
 
         // updateInventoryData(player.name, player.inventory)
-
     }
 }
