@@ -1,13 +1,15 @@
 import { Alien } from "./Alien";
-import { CargoDrop } from "./CargoDrop";
+import { CargoDrop, OreResource } from "./CargoDrop";
 import { Entity, Portal } from "./Entity";
+import { Item, PossibleItems } from "./Inventory";
 import { Player } from "./Player";
 import { ProjectileServer } from "./ProjectileServer";
 
 export class Spacemap {
     name: string;
     size: SpacemapSize;
-    entities: (Player | Alien | Entity | Portal | CargoDrop)[];
+    entities: (Player | Alien | Entity | Portal)[];
+    cargoboxes: CargoDrop[] = [];
     _config: SpacemapConfig;
     _maxAliens?: number;
     _allowedAliens?: string[];
@@ -36,15 +38,19 @@ export class Spacemap {
         this.entities.push(alien);
     }
 
-    spawnCargoBoxFromAlien(alien: Alien) {
-        const cargoContents = { ...alien.cargoDrop };
+    spawnCargoBoxFromAlien(cargoContents: {
+        currentMap: string;
+        position: Vector2D;
+        ores: OreResource[];
+        items: PossibleItems[];
+    }) {
         const cargoDrop = new CargoDrop(
-            this,
+            cargoContents.currentMap,
             cargoContents.position,
             cargoContents.ores,
             cargoContents.items
         );
-        this.entities.push(cargoDrop);
+        this.cargoboxes.push(cargoDrop);
     }
 
     deleteAlienByuuid(uuid: any) {

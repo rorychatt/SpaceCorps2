@@ -194,15 +194,24 @@ io.on("connection", (socket) => {
 
     socket.on(
         "shootEvent",
-        (data: { playerName: string; targetUUID: string; weapons: string, ammo: string}) => {
+        (data: {
+            playerName: string;
+            targetUUID: string;
+            weapons: string;
+            ammo: string;
+        }) => {
             gameServer.registerPlayerAttackEvent(data);
         }
     );
 
     socket.on(
         "playerPurchaseEvent",
-        (data: { playerName: string; itemName: string, amount?: number }) => {
-            gameServer.shop.sellItem(data.playerName, data.itemName, data.amount);
+        (data: { playerName: string; itemName: string; amount?: number }) => {
+            gameServer.shop.sellItem(
+                data.playerName,
+                data.itemName,
+                data.amount
+            );
         }
     );
 
@@ -216,6 +225,28 @@ io.on("connection", (socket) => {
                 player.inventory.equipItem(data.itemName);
                 player._calculateSpeed();
                 player._calculateShields();
+            }
+        }
+    );
+
+    socket.on(
+        "playerCollectCargoBox",
+        async (data: { playerName: string; cargoDropUUID: string }) => {
+            const player = await gameServer.getPlayerByUsername(
+                data.playerName
+            );
+            if (player) {
+                const cargoDrop = gameServer.spacemaps[
+                    player.currentMap
+                ].cargoboxes.find((cargobox) => {
+                    cargobox.uuid == data.cargoDropUUID;
+                });
+                if (cargoDrop) {
+                    gameServer.addPlayerMoveToDestination(
+                        cargoDrop.position,
+                        player.socketId
+                    );
+                }
             }
         }
     );

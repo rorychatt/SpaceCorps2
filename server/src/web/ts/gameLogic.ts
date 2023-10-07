@@ -103,13 +103,22 @@ socket.on("serverMessage", (data: { type: string; message: string }) => {
     }
 });
 
-socket.on("mapData", (data: any) => {
-    if (currentMap != data.name) {
-        loadNewSpacemap(data);
+socket.on(
+    "mapData",
+    (data: {
+        name: string;
+        entities: any[];
+        projectiles: any[];
+        cargoboxes: any[];
+        size: { width: number; height: number };
+    }) => {
+        if (currentMap != data.name) {
+            loadNewSpacemap(data);
+        }
+        updateObjects(data.entities.concat(data.projectiles, data.cargoboxes));
+        playerObject = scene.getObjectByName(playerName);
     }
-    updateObjects(data.entities.concat(data.projectiles));
-    playerObject = scene.getObjectByName(playerName);
-});
+);
 
 socket.on(
     "shopData",
@@ -353,9 +362,21 @@ function raycastFromCamera(event: any) {
         console.log(`Got following intersects: ${JSON.stringify(_names)}`);
         console.log(intersects);
 
-        if (
-            intersects.length == 1 &&
-            intersects[0].object.name == "movingPlane"
+        const isOnlyPlaneAndCargo = _names.every(
+            (name) => name === "movingPlane" || name === "CargoDrop"
+        );
+        const firstCargoDrop = intersects.find(
+            (intersect) => intersect.object.name === "CargoDrop"
+        );
+
+        if (isOnlyPlaneAndCargo && firstCargoDrop) {
+            socket.emit("playerCollectCargoBox", {
+                playerName: playerName,
+                cargoDropUUID: firstCargoDrop.object.uuid,
+            });
+        } else if (
+            intersects.length === 1 &&
+            intersects[0].object.name === "movingPlane"
         ) {
             socket.emit("playerMoveToDestination", {
                 targetPosition: {
@@ -365,7 +386,11 @@ function raycastFromCamera(event: any) {
             });
         } else {
             let object = intersects[0].object;
-            if (object.name != playerName && lockOnCircle) {
+            if (
+                object.name !== playerName &&
+                object.name !== "CargoDrop" &&
+                lockOnCircle
+            ) {
                 lockOnCircle?.removeFromParent();
                 object.parent?.add(lockOnCircle);
             }
@@ -646,19 +671,40 @@ async function createObject(data: any) {
                 });
 
                 break;
+            case "CargoDrop":
+                const cargoDropGeometry = new THREE.BoxGeometry(
+                    0.15,
+                    0.15,
+                    0.15
+                );
+                const cargoDropMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xffff00,
+                });
+                const cargoDrop = new THREE.Mesh(
+                    cargoDropGeometry,
+                    cargoDropMaterial
+                );
+                cargoDrop.uuid = data.uuid;
+                cargoDrop.position.set(data.position.x, 0, data.position.y);
+                objectDataMap[data.uuid] = { data: cargoDrop };
+                cargoDrop.layers.enable(rayCastLayerNo);
+                setNameRecursivelly(cargoDrop, data.name, data.uuid);
+                scene.add(cargoDrop);
+                resolve(cargoDrop);
+                break;
             default:
                 console.log(data._type);
-                const geometry = new THREE.BoxGeometry();
-                const material = new THREE.MeshBasicMaterial({
+                const boxgeometry = new THREE.BoxGeometry();
+                const boxmaterial = new THREE.MeshBasicMaterial({
                     color: 0x00ff00,
                 });
-                const cube = new THREE.Mesh(geometry, material);
-                cube.uuid = data.uuid;
-                cube.position.set(data.position.x, 0, data.position.y);
-                cube.name = data.name;
-                objectDataMap[data.uuid] = { data: cube };
-                scene.add(cube);
-                resolve(cube);
+                const defcube = new THREE.Mesh(boxgeometry, boxmaterial);
+                defcube.uuid = data.uuid;
+                defcube.position.set(data.position.x, 0, data.position.y);
+                defcube.name = data.name;
+                objectDataMap[data.uuid] = { data: defcube };
+                scene.add(defcube);
+                resolve(defcube);
                 break;
         }
     });

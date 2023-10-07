@@ -8,12 +8,12 @@ export class CargoDrop extends Entity {
     items: PossibleItems[] = [];
 
     constructor(
-        map: Spacemap,
+        currentMap: string,
         position: Vector2D,
         ores?: OreResource[],
         items?: PossibleItems[]
     ) {
-        super(map.name, "CargoDrop", position);
+        super(currentMap, "CargoDrop", position);
         if (ores) this.ores = ores;
         if (items) this.items = items;
     }

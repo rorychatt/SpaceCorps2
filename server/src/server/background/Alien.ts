@@ -31,7 +31,7 @@ export class Alien extends Entity {
             experience: 1,
             honor: 1,
         };
-        this.cargoDrop = new CargoDrop(map, this.position);
+        this.cargoDrop = new CargoDrop(map.name, this.position);
         this.damage = {
             maxDamage: 100,
             variance: 0.2,
