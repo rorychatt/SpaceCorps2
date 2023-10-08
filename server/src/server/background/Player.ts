@@ -29,6 +29,7 @@ export class Player extends Entity {
     company: string = "MCC";
     destination?: Vector2D | null;
     reloadState: ReloadStateCharacteristic = "canShoot";
+    rocketReloadState: ReloadStateCharacteristic = "canShoot";
     lastAttackedByUUID?: string;
     speed: number = 150;
     inventory: Inventory = new Inventory();
@@ -302,12 +303,26 @@ export class Player extends Entity {
     }
 
     shootRocketProjectileAtTarget(target: Alien | Player, ammoName: string) {
-        gameServer.spacemaps[this.currentMap].projectileServer.createProjectile(
-            "RocketProjectile",
-            this,
-            target,
-            ammoName
-        );
+        if (this.rocketReloadState == "canShoot") {
+            this.rocketReloadState = "reloading";
+            const ammoItem = this.inventory.findRocketAmmoByName(ammoName);
+            if (ammoItem) {
+                ammoItem.amount -= 1;
+                gameServer.spacemaps[
+                    this.currentMap
+                ].projectileServer.createProjectile(
+                    "RocketProjectile",
+                    this,
+                    target,
+                    ammoName
+                );
+                this._rocketReload();
+            } else {
+                console.log(
+                    `${this.name} tried to shoot with ammo they do not posses`
+                );
+            }
+        }
     }
 
     async _reload(ammoName: string) {
@@ -324,6 +339,12 @@ export class Player extends Entity {
                     this.isShooting = false;
                 }
             }
+        }, 1000);
+    }
+
+    async _rocketReload() {
+        setTimeout(async () => {
+            this.rocketReloadState = "canShoot";
         }, 1000);
     }
 

@@ -156,7 +156,7 @@ export class Inventory {
             await ship.equipSpeedGenerator(generatorName);
             console.log(`Equipped '${generatorName}' to '${shipName}'.`);
             this.removeFirstItemByProperty(
-                this.shieldGenerators,
+                this.speedGenerators,
                 "name",
                 generatorName
             );
@@ -340,7 +340,7 @@ export class Inventory {
                 activeShip.name
             );
         } else if (itemToRemove instanceof SpeedGenerator) {
-            await this.removeShieldGeneratorFromShip(
+            await this.removeSpeedGeneratorFromShip(
                 itemToRemove.name,
                 activeShip.name
             );
@@ -599,7 +599,7 @@ export class RocketAmmo extends Item {
     criticalMultiplier: number;
     damageRadius: number;
     speed: number;
-    _type: string = "LaserAmmo";
+    _type: string = "RocketAmmo";
     price: { credits?: number; thulium?: number };
 
     constructor(name: string, amount?: number) {
