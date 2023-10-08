@@ -163,9 +163,16 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
                     }
 
                     if (data.reward[key]._type) {
+                        console.log(data.reward[key]);
                         const messageContainer = document.createElement("div");
                         messageContainer.classList.add("notification");
-                        messageContainer.textContent = `You received ${data.reward[key].amount} ${data.reward[key].name} ${data.reward[key]._type}.`;
+                        if (!data.reward[key].amount)
+                            data.reward[key].amount = 1;
+                        if (data.reward[key].amount == 0)
+                            data.reward[key].amount = 1;
+                        messageContainer.textContent = `You received ${await beautifyNumberToUser(
+                            data.reward[key].amount
+                        )} ${data.reward[key].name} ${data.reward[key]._type}.`;
                         notificationContainer.appendChild(messageContainer);
                         setTimeout(() => {
                             try {
@@ -181,6 +188,7 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
                         ) {
                             if (data.reward[key].length) {
                                 data.reward[key].forEach(async (dat: any) => {
+                                    if (dat.amount == 0) dat.amount = 1;
                                     const messageContainer =
                                         document.createElement("div");
                                     messageContainer.classList.add(
@@ -204,7 +212,8 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
                                 if (
                                     (await beautifyNumberToUser(
                                         data.reward[key]
-                                    )) == ""
+                                    )) == "" ||
+                                    key == "amount"
                                 ) {
                                     return;
                                 }
@@ -410,7 +419,10 @@ function raycastFromCamera(event: any) {
         console.log(intersects);
 
         const isOnlyPlaneAndCargo = _names.every(
-            (name) => name === "movingPlane" || name === "CargoDrop"
+            (name) =>
+                name === "movingPlane" ||
+                name === "CargoDrop" ||
+                name === playerName
         );
         const firstCargoDrop = intersects.find(
             (intersect) => intersect.object.name === "CargoDrop"
@@ -1571,7 +1583,6 @@ async function displayActiveItems() {
 
     if (categoryContainer4 && categoryContainer5) {
         for (const ammunition in playerInventory.ammunition) {
-            console.log(playerInventory.ammunition[ammunition]);
             if (playerInventory.ammunition[ammunition]._type == "LaserAmmo") {
                 const ammoName = playerInventory.ammunition[ammunition].name;
                 const ammoAmount =
@@ -1583,7 +1594,9 @@ async function displayActiveItems() {
 
                     categoryContainer4.appendChild(ammoNameDiv);
                 }
-            } else if (playerInventory[ammunition]._type == "RocketAmmo") {
+            } else if (
+                playerInventory.ammunition[ammunition]._type == "RocketAmmo"
+            ) {
                 const ammoName = playerInventory.ammunition[ammunition].name;
                 const ammoAmount =
                     playerInventory.ammunition[ammunition].amount;

@@ -241,7 +241,7 @@ export class GameServer {
                     ].cargoboxes.filter((cargobox) => {
                         return cargobox.uuid !== player.targetCargoDrop?.uuid;
                     });
-                    
+
                     player.isCollectingCargoDrop = false;
                     player.targetCargoDrop = undefined;
                 }
@@ -403,11 +403,17 @@ export class GameServer {
                     }
                 }
             } else if (data.weapons == "rockets") {
-                attacker.targetUUID = target.uuid;
-                attacker.shootRocketProjectileAtTarget(
-                    target as Player | Alien,
-                    data.ammo
-                );
+                attacker.inventory.selectedRocketAmmo =
+                    await attacker.inventory.findRocketAmmoByName(
+                        `${data.ammo}`
+                    );
+
+                if(attacker._getAmmoAmountByName(data.ammo) >= 1){
+                    attacker.shootRocketProjectileAtTarget(
+                        target as Player | Alien,
+                        data.ammo
+                    );    
+                }  
             }
         }
     }

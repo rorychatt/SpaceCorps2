@@ -52,8 +52,8 @@ export class Shop {
 
         for (const rocketAmmoName in rocketAmmoData) {
             if (rocketAmmoData[rocketAmmoName]) {
-                const laserAmmoItem = new RocketAmmo(rocketAmmoName);
-                this.addItem(rocketAmmoName, laserAmmoItem);
+                const rocketAmmoItem = new RocketAmmo(rocketAmmoName);
+                this.addItem(rocketAmmoName, rocketAmmoItem);
             }
         }
     }

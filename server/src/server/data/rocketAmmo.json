@@ -1,10 +1,10 @@
 {
     "rocket1": {
         "name": "rocket1",
-        "maxDamage": 500,
+        "maxDamage": 2000,
         "damageVariance": 0.1,
-        "criticalChance": 0.1,
-        "criticalMultiplier": 2,
+        "criticalChance": 0.7,
+        "criticalMultiplier": 1.5,
         "damageRadius": 100,
         "speed": 20,
         "price": {
