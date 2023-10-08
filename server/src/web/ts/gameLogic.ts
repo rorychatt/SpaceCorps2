@@ -265,7 +265,7 @@ async function loadSpacemapPlane(data: any) {
         color: 0x00ff00,
         side: THREE.FrontSide,
         transparent: true,
-        opacity: 0.05,
+        opacity: 0.03,
     });
     const geometry = new THREE.PlaneGeometry(data.size.width, data.size.height);
     const plane = new THREE.Mesh(geometry, material);
@@ -744,10 +744,10 @@ async function createObject(data: any) {
                     cargoDropMaterial
                 );
                 cargoDrop.uuid = data.uuid;
-                cargoDrop.position.set(data.position.x, 0, data.position.y);
+                cargoDrop.position.set(data.position.x, -1, data.position.y);
                 objectDataMap[data.uuid] = { data: cargoDrop };
                 cargoDrop.layers.enable(rayCastLayerNo);
-                setNameRecursivelly(cargoDrop, data.name, data.uuid);
+                setNameRecursivelly(cargoDrop, "CargoDrop", data.uuid);
                 scene.add(cargoDrop);
                 resolve(cargoDrop);
                 break;
@@ -868,7 +868,11 @@ async function updateObject(object: THREE.Object3D, entity: any) {
 
     (object as any).hitPoints = entity.hitPoints;
 
-    object.position.set(target.x, 0, target.z);
+    if (object.name != "CargoDrop") {
+        object.position.set(target.x, 0, target.z);
+    } else {
+        object.position.set(target.x, -1, target.z);
+    }
 }
 
 async function deleteObject(uuid: string) {
