@@ -183,12 +183,10 @@ io.on("connection", (socket) => {
         gameServer.attemptTeleport(data.playerName);
     });
 
-    // Handle chat message from client
     socket.on("sendChatMessageToServer", (data: ChatMessage) => {
         gameServer.chatServer.handleClientMessage(data);
     });
 
-    // Handle console message from client (command too!!)
     socket.on("sendConsoleMessageToServer", (data: ChatMessage) => {
         gameServer.chatServer.handleConsoleMessage(data);
     });
