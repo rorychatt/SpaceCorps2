@@ -271,6 +271,7 @@ export class Inventory {
                 this.ships[ship].isActive = true;
                 if (player) {
                     player.activeShipName = shipName;
+                    player._activeShip = this.ships[ship];
                 }
             }
         }
