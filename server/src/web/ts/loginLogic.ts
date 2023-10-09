@@ -43,6 +43,20 @@ let mainF = (e: Event) => {
 
 window.addEventListener("load", mainF);
 
+document.addEventListener("keydown", (event) => {
+    if(event.key === "Enter") {
+        if(bContainer.classList.contains("is-txl")) {
+            const username = (
+                document.getElementById("loginUsername") as HTMLInputElement
+            ).value;
+            const password = (
+                document.getElementById("loginPassword") as HTMLInputElement
+            ).value;
+            socket.emit("authenticate", { username: username, password: password });
+        }
+    }
+});
+
 const loginBtn: HTMLElement | null = document.getElementById("signin");
 loginBtn?.addEventListener("click", (event: Event) => {
     event.preventDefault()
