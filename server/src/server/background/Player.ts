@@ -34,6 +34,7 @@ export class Player extends Entity {
     speed: number = 150;
     inventory: Inventory = new Inventory();
     _activeShip: ShipItem | undefined;
+    activeShipName: string | undefined;
     isShooting: boolean = false;
     isCollectingCargoDrop: boolean = false;
     targetCargoDrop: CargoDrop | undefined = undefined;
@@ -68,8 +69,16 @@ export class Player extends Entity {
 
     private async _initializePlayerData() {
         await this._getDataFromSQL();
-        this._activeShip = await this.inventory.getActiveShip();
+        const activeShip = await this.inventory.getActiveShip();
+        if (activeShip) {
+            this.setActiveShip(activeShip);
+        }
         this._calculateSpeed();
+    }
+
+    async setActiveShip(shipItem: ShipItem) {
+        this._activeShip = await this.inventory.getActiveShip();
+        this.activeShipName = this._activeShip?.name;
     }
 
     async _getDataFromSQL() {
@@ -412,6 +421,7 @@ export class PlayerDTO {
     stats?: PlayerStats;
     company?: string;
     targetUUID?: string;
+    activeShipName?: string;
     uuid: string;
 
     constructor(player: Player) {
@@ -423,6 +433,7 @@ export class PlayerDTO {
         this.company = player.company;
         this.uuid = player.uuid;
         this.targetUUID = player.targetUUID;
+        this.activeShipName = player.activeShipName;
     }
 }
 

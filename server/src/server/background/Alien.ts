@@ -15,10 +15,13 @@ export class Alien extends Entity {
     _roamDestination: Vector2D | null = null;
     _maxHP: number;
     _maxSP: number;
+    activeShipName: string;
     lastAttackedByUUID?: string;
 
     public constructor(map: Spacemap, name: string, position: Vector2D) {
         super(map.name, name, position);
+
+        this.activeShipName = name;
 
         this.hitPoints = {
             hullPoints: 1000,
@@ -218,6 +221,7 @@ export class AlienDTO {
     maxHealth: number;
     maxShields: number;
     hitPoints: Durability;
+    activeShipName: string;
 
     constructor(alien: Alien) {
         this.name = alien.name;
@@ -227,6 +231,7 @@ export class AlienDTO {
         this.hitPoints = alien.hitPoints;
         this.maxHealth = alien._maxHP;
         this.maxShields = alien._maxSP;
+        this.activeShipName = alien.activeShipName;
     }
 }
 

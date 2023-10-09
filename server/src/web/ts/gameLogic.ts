@@ -305,7 +305,7 @@ function initScene(): void {
         0.1,
         1000
     );
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({ antialias: true });
 
     // Set the size of the renderer to match the window size
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -568,7 +568,7 @@ async function createObject(data: any) {
         switch (data._type) {
             case "Alien":
                 loader.load(
-                    `./assets/models/ships/orion/orion.glb`,
+                    `./assets/models/aliens/${data.name}/${data.name}.glb`,
                     async (glb) => {
                         const model = glb.scene;
                         model.uuid = data.uuid;
@@ -626,7 +626,7 @@ async function createObject(data: any) {
                 break;
             case "Player":
                 loader.load(
-                    `./assets/models/ships/ship008/Hercules.glb`,
+                    `./assets/models/ships/${data.activeShipName}/${data.activeShipName}.glb`,
                     async (glb) => {
                         const model = glb.scene;
                         model.uuid = data.uuid;
@@ -872,6 +872,19 @@ async function updateObject(object: THREE.Object3D, entity: any) {
 
     (object as any).hitPoints = entity.hitPoints;
 
+    if (entity._type) {
+        if (entity._type == "Alien" || entity._type == "Player") {
+            if ((object as any).activeShipName) {
+                if ((object as any).activeShipName != entity.activeShipName) {
+                    deleteObject(object.uuid);
+                }
+            } else {
+                (object as any).activeShipName = entity.activeShipName;
+                console.log(entity.activeShipName);
+            }
+        }
+    }
+
     if (object.name != "CargoDrop") {
         object.position.set(target.x, 0, target.z);
     } else {
@@ -981,17 +994,32 @@ async function checkPlayerCurrency(price: {
     if (playerEntity.stats) {
         if (price.credits) {
             if (playerEntity.stats.credits < price.credits) {
+                showErrorMessage(
+                    `Not enough credits`,
+                    `You have: ${await beautifyNumberToUser(
+                        playerEntity.stats.credits
+                    )} and need ${await beautifyNumberToUser(
+                        price.credits
+                    )} credits to buy this item.`
+                );
                 return false;
             }
         } else if (price.thulium) {
             if (playerEntity.stats.thulium < price.thulium) {
+                showErrorMessage(
+                    `Not enough thulium`,
+                    `You have: ${await beautifyNumberToUser(
+                        playerEntity.stats.thulium
+                    )} and need ${await beautifyNumberToUser(
+                        price.thulium
+                    )} thulium to buy this item.`
+                );
                 return false;
             }
         }
 
         return true;
     }
-
     return false;
 }
 
@@ -1142,6 +1170,7 @@ async function loadEventListeners() {
 }
 
 async function displayShoppingItems() {
+    console.log(shoppingData);
     for (const category in shoppingData) {
         if (category != "ammunition") {
             if (shoppingData.hasOwnProperty(category)) {
@@ -1182,9 +1211,16 @@ async function displayShoppingItems() {
 
                         const itemPrice = document.createElement("div");
                         itemPrice.classList.add("item_price");
-                        itemPrice.textContent = `Price: ${await beautifyNumberToUser(
-                            item.price.credits
-                        )} credits`;
+                        if (item.price.credits && item.price.credits != 0) {
+                            itemPrice.textContent = `Price: ${await beautifyNumberToUser(
+                                item.price.credits
+                            )} credits`;
+                        }
+                        if (item.price.thulium && item.price.thulium != 0) {
+                            itemPrice.textContent = `Price: ${await beautifyNumberToUser(
+                                item.price.thulium
+                            )} thulium`;
+                        }
                         const buyButton = document.createElement("button");
                         buyButton.classList.add("buy_button");
                         buyButton.textContent = "BUY";
@@ -1342,6 +1378,10 @@ async function displayShipsInHangar() {
 
             equipButton.addEventListener("click", () => {
                 console.log(`You clicked equip button for ship ${ship.name}`);
+                socket.emit(`equipItemEvent`, {
+                    playerName: playerName,
+                    itemName: ship.name,
+                });
             });
         }
     }
@@ -1673,4 +1713,23 @@ async function createAndTriggerExplosion(position: THREE.Vector3) {
 
 async function beautifyNumberToUser(number: number) {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+async function showErrorMessage(
+    errorTitle: string,
+    errorMessage: string
+): Promise<void> {
+    const errorContainer = document.getElementById("error_container");
+
+    const errorTitleElement = document.getElementById("error_title");
+    const errorMessageElement = document.getElementById("error_message");
+
+    if (errorContainer && errorTitleElement && errorMessageElement) {
+        errorTitleElement.textContent = errorTitle;
+        errorMessageElement.textContent = errorMessage;
+
+        errorContainer.style.display = "block";
+    } else {
+        console.error("Error: Required HTML elements not found.");
+    }
 }

@@ -13,7 +13,6 @@ import {
     rocketAmmoData,
     shipData,
 } from "./Inventory";
-import { ItemReward } from "./Reward";
 
 export class Shop {
     items: Record<string, PossibleItems>;
@@ -78,6 +77,13 @@ export class Shop {
         if (!item) {
             console.log(`Warning! Could not find item in shop: ${itemName}`);
             return;
+        }
+
+        if(item._type == "ShipItem"){
+            for(const ship in player.inventory.ships){
+                if(player.inventory.ships[ship].name == itemName)
+                return;
+            }
         }
 
         if (amount) {
