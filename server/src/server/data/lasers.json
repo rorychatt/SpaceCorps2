@@ -29,7 +29,7 @@
         "criticalChance": 0.1,
         "criticalMultiplier": 1.5,
         "price": {
-            "credits": 20000
+            "thulium": 8000
         }
     },
     "laser4": {
@@ -40,7 +40,7 @@
         "criticalChance": 0.15,
         "criticalMultiplier": 2,
         "price": {
-            "credits": 20000
+            "thulium": 16000
         }
     }
 }

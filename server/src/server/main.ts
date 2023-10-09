@@ -69,8 +69,8 @@ io.on("connection", (socket) => {
     socket.on(
         "authenticate",
         async (data: { username: string; password: string }) => {
-            for(let i = 0; i < gameServer.players.length; i++) {
-                if(gameServer.players[i].name == data.username) {
+            for (let i = 0; i < gameServer.players.length; i++) {
+                if (gameServer.players[i].name == data.username) {
                     socket.emit("userAlreadyLogined", {
                         username: data.username,
                     });
@@ -230,7 +230,7 @@ io.on("connection", (socket) => {
                 data.playerName
             );
             if (player) {
-                player.inventory.equipItem(data.itemName);
+                player.inventory.equipItem(data.itemName, player);
                 player._calculateSpeed();
                 player._calculateShields();
             }
@@ -250,7 +250,7 @@ io.on("connection", (socket) => {
                     return cargobox.uuid === data.cargoDropUUID;
                 });
                 if (cargoDrop) {
-                    gameServer.addPlayerCollectCargoDrop(cargoDrop, player)
+                    gameServer.addPlayerCollectCargoDrop(cargoDrop, player);
                 }
             }
         }

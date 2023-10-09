@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import { OreResource } from "./CargoDrop";
+import { Player } from "./Player";
 
 export const shipData = JSON.parse(
     fs.readFileSync("./src/server/data/ships.json").toString("utf-8")
@@ -263,7 +264,19 @@ export class Inventory {
         return this.ships.find((s) => s.isActive == true);
     }
 
-    async equipItem(itemName: string, shipName?: string) {
+    async setActiveShipByName(shipName: string, player?: Player) {
+        for (const ship in this.ships) {
+            this.ships[ship].isActive = false;
+            if (this.ships[ship].name == shipName) {
+                this.ships[ship].isActive = true;
+                if (player) {
+                    player.activeShipName = shipName;
+                }
+            }
+        }
+    }
+
+    async equipItem(itemName: string, player?: Player) {
         let itemToEquip: PossibleItems | undefined;
 
         if (this.lasers.some((laser) => laser.name === itemName)) {
@@ -280,6 +293,8 @@ export class Inventory {
             )
         ) {
             itemToEquip = this.findSpeedGeneratorByName(itemName);
+        } else if (this.ships.some((ship) => ship.name === itemName)) {
+            itemToEquip = this.findShipByName(itemName);
         }
 
         if (!itemToEquip) {
@@ -287,18 +302,30 @@ export class Inventory {
             return;
         }
 
-        const activeShip = await this.getActiveShip();
+        if (itemToEquip._type != "ShipItem") {
+            const activeShip = await this.getActiveShip();
 
-        if (activeShip) {
-            if (itemToEquip instanceof Laser) {
-                await this.putLaserToShip(itemName, activeShip.name);
-            } else if (itemToEquip instanceof ShieldGenerator) {
-                await this.putShieldGeneratorToShip(itemName, activeShip.name);
-            } else if (itemToEquip instanceof SpeedGenerator) {
-                await this.putSpeedGeneratorToShip(itemName, activeShip.name);
+            if (activeShip) {
+                if (itemToEquip instanceof Laser) {
+                    await this.putLaserToShip(itemName, activeShip.name);
+                } else if (itemToEquip instanceof ShieldGenerator) {
+                    await this.putShieldGeneratorToShip(
+                        itemName,
+                        activeShip.name
+                    );
+                } else if (itemToEquip instanceof SpeedGenerator) {
+                    await this.putSpeedGeneratorToShip(
+                        itemName,
+                        activeShip.name
+                    );
+                }
+            } else {
+                console.log(`Could not find active ship.`);
             }
         } else {
-            console.log(`Could not find active ship.`);
+            if (player) {
+                this.setActiveShipByName(itemName, player);
+            }
         }
     }
 
@@ -361,6 +388,10 @@ export class Inventory {
         );
     }
 
+    findShipByName(name: string): ShipItem | undefined {
+        return this.ships.find((ship) => ship.name === name);
+    }
+
     findShieldGeneratorByName(name: string): ShieldGenerator | undefined {
         return this.shieldGenerators.find(
             (generator) => generator.name === name
@@ -405,7 +436,7 @@ export class Item {
 }
 
 export class Laser extends Item {
-    _type: string;
+    readonly _type: string = "Laser";
     maxDamage: number;
     damageVariance: number;
     criticalChance: number;
@@ -414,7 +445,6 @@ export class Laser extends Item {
 
     constructor(name: string) {
         super(name);
-        this._type = "Laser";
         this.maxDamage = laserData[name].maxDamage;
         this.damageVariance = laserData[name].damageVariance;
         this.criticalChance = laserData[name].criticalChance;
@@ -427,14 +457,13 @@ export class Laser extends Item {
 }
 
 export class ShieldGenerator extends Item {
-    _type: string;
+    readonly _type: string = "ShieldGenerator";
     shieldPoints: number;
     shieldAbsorbance: number;
     price: ItemPrice;
 
     constructor(name: string) {
         super(name);
-        this._type = "ShieldGenerator";
         this.shieldPoints = generatorData[name].shieldPoints;
         this.shieldAbsorbance = generatorData[name].shieldAbsorbance;
         this.price = {
@@ -445,13 +474,12 @@ export class ShieldGenerator extends Item {
 }
 
 export class SpeedGenerator extends Item {
-    _type: string;
+    readonly _type: string = "SpeedGenerator";
     baseSpeed: number;
     price: ItemPrice;
 
     constructor(name: string) {
         super(name);
-        this._type = "SpeedGenerator";
         this.baseSpeed = generatorData[name].baseSpeed;
         this.price = {
             credits: generatorData[name].price.credits,
@@ -466,6 +494,7 @@ export class ShipItem extends Item {
     maxLasers: number;
     maxGenerators: number;
     price: { credits?: number; thulium?: number };
+    readonly _type: string = "ShipItem";
 
     currentLasers: Laser[] = [];
     currentGenerators: (ShieldGenerator | SpeedGenerator)[] = [];

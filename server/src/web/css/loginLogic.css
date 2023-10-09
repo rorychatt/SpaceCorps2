@@ -322,8 +322,7 @@ h1 {
     font-size: 14px;
     cursor: pointer;
     font-family: "AudioWide";
-
-    border-radius: 15px;
+    border-radius: 10px;
     background: linear-gradient(145deg, rgb(30, 170, 255), rgb(65, 105, 255));
 }
 
