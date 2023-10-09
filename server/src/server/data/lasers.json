@@ -4,7 +4,7 @@
         "fullName": "Quantum Laser 1",
         "maxDamage": 100,
         "damageVariance": 0.1,
-        "criticalChance": 0.1,
+        "criticalChance": 0,
         "criticalMultiplier": 1.75,
         "price": {
             "credits": 10000
@@ -13,10 +13,32 @@
     "laser2": {
         "name": "laser2",
         "fullName": "Quantum Laser 2",
-        "maxDamage": 160,
+        "maxDamage": 125,
         "damageVariance": 0.1,
-        "criticalChance": 0.2,
-        "criticalMultiplier": 3,
+        "criticalChance": 0.1,
+        "criticalMultiplier": 1.5,
+        "price": {
+            "credits": 20000
+        }
+    },
+    "laser3": {
+        "name": "laser3",
+        "fullName": "Quantum Laser 3",
+        "maxDamage": 145,
+        "damageVariance": 0.1,
+        "criticalChance": 0.1,
+        "criticalMultiplier": 1.5,
+        "price": {
+            "credits": 20000
+        }
+    },
+    "laser4": {
+        "name": "laser4",
+        "fullName": "Quantum Laser 4",
+        "maxDamage": 180,
+        "damageVariance": 0.1,
+        "criticalChance": 0.15,
+        "criticalMultiplier": 2,
         "price": {
             "credits": 20000
         }

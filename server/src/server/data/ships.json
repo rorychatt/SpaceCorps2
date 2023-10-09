@@ -1,12 +1,52 @@
 {
     "protos": {
-        "name": "protos",
+        "name": "Protos",
         "maxHealth": 8000,
         "baseSpeed": 400,
         "maxLasers": 2,
         "maxGenerators": 2,
         "price": {
             "credits": 10000
+        }
+    },
+    "astirion": {
+        "name": "Astirion",
+        "maxHealth": 32000,
+        "baseSpeed": 400,
+        "maxLasers": 3,
+        "maxGenerators": 4,
+        "price": {
+            "credits": 155000
+        }
+    },
+    "paragon": {
+        "name": "Paragon",
+        "maxHealth": 96000,
+        "baseSpeed": 400,
+        "maxLasers": 2,
+        "maxGenerators": 2,
+        "price": {
+            "credits": 655000
+        }
+    },
+    "echelon": {
+        "name": "Echelon",
+        "maxHealth": 128000,
+        "baseSpeed": 400,
+        "maxLasers": 6,
+        "maxGenerators": 6,
+        "price": {
+            "thulium": 12000
+        }
+    },
+    "wraith": {
+        "name": "Wraith",
+        "maxHealth": 324000,
+        "baseSpeed": 400,
+        "maxLasers": 14,
+        "maxGenerators": 14,
+        "price": {
+            "credits": 65000
         }
     }
 }
