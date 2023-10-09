@@ -316,18 +316,85 @@ h1 {
 
 /* Buttons */
 .btn {
-    background-color: rgba(30, 144, 255, 0.75);
     border: 1px solid white;
     color: white;
     padding: 12px 16px;
     font-size: 14px;
     cursor: pointer;
-    border-radius: 4px;
     font-family: "AudioWide";
+
+    border-radius: 15px;
+    background: linear-gradient(145deg, rgb(30, 170, 255), rgb(65, 105, 255));
 }
 
 .btn:hover {
-    background-color: rgba(65, 105, 255, 0.75);
+    animation: gradientChange 0.5s ease-in-out;
+}
+
+@keyframes gradientChange {
+    0% {
+        background: linear-gradient(145deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    5% {
+        background: linear-gradient(163deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    10% {
+        background: linear-gradient(181deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    15% {
+        background: linear-gradient(199deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    20% {
+        background: linear-gradient(217deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    25% {
+        background: linear-gradient(235deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    30% {
+        background: linear-gradient(253deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    35% {
+        background: linear-gradient(271deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    40% {
+        background: linear-gradient(289deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    45% {
+        background: linear-gradient(307deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    50% {
+        background: linear-gradient(325deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    55% {
+        background: linear-gradient(343deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    60% {
+        background: linear-gradient(1deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    65% {
+        background: linear-gradient(19deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    70% {
+        background: linear-gradient(37deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    75% {
+        background: linear-gradient(55deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    80% {
+        background: linear-gradient(73deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    85% {
+        background: linear-gradient(91deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    90% {
+        background: linear-gradient(109deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    95% {
+        background: linear-gradient(127deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
+    100% {
+        background: linear-gradient(145deg, rgb(30, 170, 255), rgb(65, 105, 255));
+    }
 }
 
 .mm_btn {
