@@ -69,6 +69,15 @@ io.on("connection", (socket) => {
     socket.on(
         "authenticate",
         async (data: { username: string; password: string }) => {
+            for(let i = 0; i < gameServer.players.length; i++) {
+                if(gameServer.players[i].name == data.username) {
+                    socket.emit("userAlreadyLogined", {
+                        username: data.username,
+                    });
+                    return;
+                }
+            }
+
             try {
                 const [userCredentials] = await getUserByUsername(
                     data.username

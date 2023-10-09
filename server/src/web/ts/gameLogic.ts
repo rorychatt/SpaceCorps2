@@ -84,6 +84,10 @@ socket.on(
     }
 );
 
+socket.on("userAlreadyLogined", (data: { username: string }) => {
+    alert(`The user ${data.username} is already authorized`);
+});
+
 socket.on("loginUnsuccessful", (data: { username: string }) => {
     alert(`Incorrect password for user: ${data.username}`);
 });
