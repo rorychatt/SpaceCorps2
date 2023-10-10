@@ -84,7 +84,7 @@ export class ChatServer {
                                 if (player?.currentMap) {
                                     gameServer.spacemaps[
                                         player.currentMap
-                                    ].deleteAlienByuuid(message[2]);
+                                    ].deleteEntityByUuid(message[2]);
                                 }
                                 break;
                         }

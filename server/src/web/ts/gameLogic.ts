@@ -26,6 +26,7 @@ const honorElement = document.getElementById("honor_value");
 const notificationContainer = document.getElementById("notification_container");
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
 
+
 let shoppingData: any;
 let playerInventory: any;
 
