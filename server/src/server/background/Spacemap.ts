@@ -51,10 +51,21 @@ export class Spacemap {
             cargoContents.items
         );
         this.cargoboxes.push(cargoDrop);
+
+        // Delete cargobox after some time...
+        setTimeout(() => {
+            this._deleteCargoBoxByUuid(cargoDrop.uuid);
+        }, 60000);
     }
 
-    deleteAlienByuuid(uuid: string) {
+    deleteEntityByUuid(uuid: string) {
         this.entities = this.entities.filter((el) => el.uuid !== uuid);
+
+        // TODO: delete cargobox here too??
+    }
+
+    _deleteCargoBoxByUuid(uuid: string) {
+        this.cargoboxes = this.cargoboxes.filter((el) => el.uuid !== uuid);
     }
 
     randomSpawnAlien() {
