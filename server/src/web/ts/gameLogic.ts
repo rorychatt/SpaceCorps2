@@ -51,7 +51,6 @@ let consoleContent: HTMLElement | null;
 let consoleInput: HTMLInputElement | null;
 let lockOnCircle: THREE.Object3D | null;
 
-const lerpFactor = 0.2;
 const rayCastLayerNo = 1;
 const particles: any[] = [];
 const damageIndicators: any[] = [];
@@ -61,7 +60,14 @@ const labelMap: Record<string, CSS2DObject> = {};
 
 const raycaster = new THREE.Raycaster();
 
+let explosionSoundBuffer: AudioBuffer,
+    laserShootSoundBuffer: AudioBuffer,
+    rocketShootSoundBuffer: AudioBuffer,
+    laserHitSoundBuffer: AudioBuffer,
+    rocketHitSoundBuffer: AudioBuffer;
+
 raycaster.layers.set(rayCastLayerNo);
+setupSoundBuffers();
 
 socket.on("connect", () => {
     console.log("Connected to the socket.io server");
@@ -151,6 +157,10 @@ socket.on(
         displayShoppingItems();
     }
 );
+
+socket.on("allQuestData", (data: { quests: any[] }) => {
+    console.log(data.quests);
+});
 
 socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
     if (notificationContainer) {
@@ -692,16 +702,10 @@ async function createObject(data: any) {
 
                 const sound = new THREE.PositionalAudio(audioListener);
 
-                const laserRef = "../assets/sounds/laser01.ogg";
-
-                const audioLoader = new THREE.AudioLoader();
-
-                audioLoader.load(laserRef, function (buffer) {
-                    sound.position.set(data.position.x, 0, data.position.y);
-                    sound.setBuffer(buffer);
-                    sound.setRefDistance(20);
-                    sound.play();
-                });
+                sound.position.set(data.position.x, 0, data.position.y);
+                sound.setBuffer(laserShootSoundBuffer);
+                sound.setRefDistance(20);
+                sound.play();
 
                 break;
             case "RocketProjectile":
@@ -722,16 +726,10 @@ async function createObject(data: any) {
 
                 const rocketSound = new THREE.PositionalAudio(audioListener);
 
-                let ref = "../assets/sounds/rocketLaunch.ogg";
-
-                const audioLoader2 = new THREE.AudioLoader();
-
-                audioLoader2.load(ref, function (buffer) {
-                    rocketSound.setBuffer(buffer);
-                    rocketSound.setRefDistance(20);
-                    rocketSound.setVolume(0.4);
-                    rocketSound.play();
-                });
+                rocketSound.setBuffer(rocketShootSoundBuffer);
+                rocketSound.setRefDistance(20);
+                rocketSound.setVolume(0.1);
+                rocketSound.play();
 
                 break;
             case "CargoDrop":
@@ -921,27 +919,18 @@ async function deleteObject(uuid: string) {
         }
 
         if (object.name == "laserProjectile") {
-            const audioLoader3 = new THREE.AudioLoader();
             const sound = new THREE.PositionalAudio(audioListener);
-            sound.position.copy(object.position);
-            const ref = "../assets/sounds/laserHit.ogg";
-            audioLoader3.load(ref, function (buffer) {
-                sound.setRefDistance(20);
-                sound.setBuffer(buffer);
-                sound.setVolume(0.5);
-                sound.play();
-            });
+            sound.setRefDistance(20);
+            sound.setBuffer(laserHitSoundBuffer);
+            sound.setVolume(0.5);
+            sound.play();
         } else if (object.name == "rocketProjectile") {
-            const audioLoader4 = new THREE.AudioLoader();
             const sound = new THREE.PositionalAudio(audioListener);
             sound.position.copy(object.position);
-            const ref = "../assets/sounds/rocketHit.ogg";
-            audioLoader4.load(ref, function (buffer) {
-                sound.setRefDistance(20);
-                sound.setBuffer(buffer);
-                sound.setVolume(0.5);
-                sound.play();
-            });
+            sound.setRefDistance(20);
+            sound.setBuffer(rocketHitSoundBuffer);
+            sound.setVolume(0.5);
+            sound.play();
         }
         delete objectDataMap[uuid];
         scene.remove(object);
@@ -1682,17 +1671,11 @@ async function createAndTriggerExplosion(position: THREE.Vector3) {
 
         const sound = new THREE.PositionalAudio(audioListener);
 
-        let ref = "../assets/sounds/explosion.ogg";
-
-        const audioLoader = new THREE.AudioLoader();
-
-        audioLoader.load(ref, function (buffer) {
-            sound.position.copy(position);
-            sound.setBuffer(buffer);
-            sound.setRefDistance(30);
-            sound.setVolume(0.05);
-            sound.play();
-        });
+        sound.position.copy(position);
+        sound.setBuffer(explosionSoundBuffer);
+        sound.setRefDistance(30);
+        sound.setVolume(0.5);
+        sound.play();
 
         scene.add(particle);
     }
@@ -1732,4 +1715,46 @@ async function showErrorMessage(
     } else {
         console.error("Error: Required HTML elements not found.");
     }
+}
+
+function setupSoundBuffers() {
+    const explosionSoundAudioLoader = new THREE.AudioLoader();
+    explosionSoundAudioLoader.load(
+        "../assets/sounds/explosion.ogg",
+        function (buffer) {
+            explosionSoundBuffer = buffer;
+        }
+    );
+
+    const laserShootSoundAudioLoader = new THREE.AudioLoader();
+    laserShootSoundAudioLoader.load(
+        "../assets/sounds/laser01.ogg",
+        function (buffer) {
+            laserShootSoundBuffer = buffer;
+        }
+    );
+
+    const rocketShootSoundLoader = new THREE.AudioLoader();
+    rocketShootSoundLoader.load(
+        "../assets/sounds/laser01.ogg",
+        function (buffer) {
+            rocketShootSoundBuffer = buffer;
+        }
+    );
+
+    const laserHitSoundAudioLoader = new THREE.AudioLoader();
+    laserHitSoundAudioLoader.load(
+        "../assets/sounds/laserHit.ogg",
+        function (buffer) {
+            laserHitSoundBuffer = buffer;
+        }
+    );
+
+    const rocketHitSoundLoader = new THREE.AudioLoader();
+    rocketHitSoundLoader.load(
+        "../assets/sounds/explosion.ogg",
+        function (buffer) {
+            rocketHitSoundBuffer = buffer;
+        }
+    );
 }

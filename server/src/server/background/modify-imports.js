@@ -33,6 +33,11 @@ function fixGameServer() {
         );
 
         modifiedData = modifiedData.replace(
+            'import { QuestServer } from "./QuestServer";',
+            'import { QuestServer } from "./QuestServer.js";'
+        );
+
+        modifiedData = modifiedData.replace(
             'import { Player, PlayerDTO } from "./Player";',
             'import { Player, PlayerDTO } from "./Player.js";'
         );
