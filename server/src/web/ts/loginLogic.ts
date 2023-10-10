@@ -55,17 +55,8 @@ function authenticateEvent(event: any) {
     }
 }
 
-window.addEventListener("load", mainF);
-
-document.addEventListener("keydown", authenticateEvent);
-
-socket.on("loginSuccessful", () => {
-    document.removeEventListener("keydown", authenticateEvent);
-});
-
-const loginBtn: HTMLElement | null = document.getElementById("signin");
-loginBtn?.addEventListener("click", (event: Event) => {
-    event.preventDefault()
+function authenticate(event: any) {
+    event.preventDefault();
     const usernameDiv = document.getElementById("loginUsername") as HTMLInputElement | undefined;
     const passwordDiv = document.getElementById("loginPassword") as HTMLInputElement | undefined;
     if(usernameDiv && passwordDiv) {
@@ -73,10 +64,9 @@ loginBtn?.addEventListener("click", (event: Event) => {
         const password = passwordDiv.value;
         socket.emit("authenticate", { username: username, password: password });
     }
-});
+}
 
-const registerBtn: HTMLElement | null = document.getElementById("signup");
-registerBtn?.addEventListener("click", (event: Event) => {
+function register(event: any) {
     event.preventDefault()
     console.log("Attempting to register...")
     const usernameDiv = document.getElementById("registerUsername") as HTMLInputElement | undefined;
@@ -87,4 +77,20 @@ registerBtn?.addEventListener("click", (event: Event) => {
         if(username.length <= 0 || password.length <= 0) return;
         socket.emit("attemptRegister", {username: username, password: password});
     }
+}
+
+window.addEventListener("load", mainF);
+
+document.addEventListener("keydown", authenticateEvent);
+
+socket.on("loginSuccessful", () => {
+    document.removeEventListener("keydown", authenticateEvent);
+    loginBtn?.removeEventListener("click", authenticate);
+    registerBtn?.removeEventListener("click", register);
 });
+
+const loginBtn: HTMLElement | null = document.getElementById("signin");
+loginBtn?.addEventListener("click", authenticate);
+
+const registerBtn: HTMLElement | null = document.getElementById("signup");
+registerBtn?.addEventListener("click", register);
