@@ -21,6 +21,7 @@ import {
 import { Shop } from "./Shop";
 import { CargoDrop } from "./CargoDrop";
 import { QuestServer } from "./QuestServer";
+import { RankingServer } from "./RankingServer";
 
 export const tickrate = 120;
 
@@ -35,6 +36,7 @@ export class GameServer {
     chatServer: ChatServer;
     rewardServer: RewardServer;
     questServer: QuestServer;
+    rankingServer: RankingServer;
     shop: Shop;
     admins: string[];
     tickCount: number = 0;
@@ -53,6 +55,7 @@ export class GameServer {
         this.chatServer = new ChatServer(this);
         this.rewardServer = new RewardServer();
         this.questServer = new QuestServer();
+        this.rankingServer = new RankingServer();
         this.shop = new Shop();
         this.admins = ["rostik", "rory", "duma"];
         this._version = readPackageJson().version;
@@ -572,6 +575,7 @@ export class GameServer {
         // TODO: Wait for previous tick completion?
 
         if (this.gameLoop === null) {
+            this.rankingServer.start()
             this.gameLoop = setInterval(() => {
                 this.updateGameWorld();
                 this.tickCount++;

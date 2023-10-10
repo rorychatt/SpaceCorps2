@@ -74,8 +74,9 @@ export class Player extends Entity {
         const activeShip = await this.inventory.getActiveShip();
         if (activeShip) {
             this.setActiveShip(activeShip);
-        }
+                }
         this._calculateSpeed();
+        this._calculateShields();
     }
 
     async setActiveShip(shipItem: ShipItem) {
@@ -389,8 +390,15 @@ export class Player extends Entity {
         this.stats.honor = this.stats.honor + honor;
     }
 
-    addExperience(experience: number) {
+    async addExperience(experience: number) {
         this.stats.experience = this.stats.experience + experience;
+        const targetLevel =
+            await gameServer.rankingServer.experienceServer.calculatePlayerLevel(
+                this
+            );
+        if (this.stats.level !== targetLevel) {
+            this.stats.level = targetLevel;
+        }
     }
 
     addThulium(thulium: number) {

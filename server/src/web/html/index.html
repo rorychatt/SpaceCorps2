@@ -202,7 +202,16 @@
           </div>
         </div>
         <div class="profile_container profile_container_pilot" id="profile_pilot"></div>
-        <div class="profile_container profile_container_ranking" id="profile_ranking"></div>
+        <div class="profile_container profile_container_ranking" id="profile_ranking">
+          <div class="top10honor_container">
+            <button class="fetchRanking" id="getTop10HonorBtn">Update top Honor</button>
+            <div class="top10honor" id="top10honor"></div>
+          </div>
+          <div class="top10experience_container">
+            <button class="fetchRanking" id="getTop10ExperienceBtn">Update top Experience</button>
+            <div class="top10experience" id="top10experience"></div>
+          </div>
+        </div>
         <div class="profile_container profile_container_hangar" id="profile_hangar"><!-- Select Active Ship -->
           <div class="hangar_half hangar_storage" id="hangar_storage">
           </div>
@@ -248,14 +257,16 @@
               </div>
               <div class="workroom_content workroom_ammo" id="workroom_ammunition">
                 <div class="ammo_lasers" id="ammo_lasers">
-                  <p class="ammo_text">SP-001 :</p><p class="ammo_text" id="laser_amount"></p>
+                  <p class="ammo_text">SP-001 :</p>
+                  <p class="ammo_text" id="laser_amount"></p>
                 </div>
                 <div class="ammo_rockets" id="ammo_rockets">
-                  <p class="ammo_text">ROC-001 :</p><p class="ammo_text" id="rocket_amount"></p>
+                  <p class="ammo_text">ROC-001 :</p>
+                  <p class="ammo_text" id="rocket_amount"></p>
                 </div>
               </div>
             </div>
-          </div>   
+          </div>
         </div>
       </div>
       <div class="clan_information" id="c_info">
@@ -340,7 +351,7 @@
               <input type="number" class="item_amount_input" placeholder="Amount">
             </div>
             <div class="item_price">
-              
+
             </div>
             <button class="buy_button">BUY</button>
           </div>
@@ -601,7 +612,7 @@
     </div>
   </div>
   <div id="gameversion">
-    
+
   </div>
 
   <div id="spacemapDiv" hidden>

@@ -26,6 +26,21 @@ const honorElement = document.getElementById("honor_value");
 const notificationContainer = document.getElementById("notification_container");
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
 
+const refreshTop10HonorBtn = document.getElementById("getTop10HonorBtn") as
+    | HTMLButtonElement
+    | undefined;
+const refreshTop10ExperienceBtn = document.getElementById(
+    "getTop10ExperienceBtn"
+) as HTMLButtonElement | undefined;
+
+if (refreshTop10ExperienceBtn && refreshTop10HonorBtn) {
+    refreshTop10ExperienceBtn.addEventListener("click", () => {
+        socket.emit("getTop10Experience", playerName);
+    });
+    refreshTop10HonorBtn.addEventListener("click", () => {
+        socket.emit("getTop10Honor", playerName);
+    });
+}
 
 let shoppingData: any;
 let playerInventory: any;
@@ -162,6 +177,47 @@ socket.on(
 socket.on("allQuestData", (data: { quests: any[] }) => {
     console.log(data.quests);
 });
+
+socket.on(
+    "serverTop10Honor",
+    async (data: { top10: { playerName: string; honor: number }[] }) => {
+        const top10HonorDiv = document.getElementById("top10honor");
+        if (top10HonorDiv) {
+            while (top10HonorDiv.firstChild !== null) {
+                top10HonorDiv.firstChild.remove();
+            }
+            for (const top in data.top10) {
+                const div = document.createElement("div");
+                div.classList.add("ranking_line");
+                div.textContent = `${top + 1}. ${await beautifyNumberToUser(
+                    data.top10[top].honor
+                )}, ${data.top10[top].playerName}`;
+                top10HonorDiv.appendChild(div);
+            }
+        }
+    }
+);
+
+socket.on(
+    "serverTop10Experience",
+    async (data: { top10: { playerName: string; experience: number }[] }) => {
+        console.log(data);
+        const top10ExperienceDiv = document.getElementById("top10experience");
+        if (top10ExperienceDiv) {
+            while (top10ExperienceDiv.firstChild !== null) {
+                top10ExperienceDiv.firstChild.remove();
+            }
+            for (const top in data.top10) {
+                const div = document.createElement("div");
+                div.classList.add("ranking_line");
+                div.textContent += `${top + 1}. ${await beautifyNumberToUser(
+                    data.top10[top].experience
+                )}, ${data.top10[top].playerName}`;
+                top10ExperienceDiv.appendChild(div);
+            }
+        }
+    }
+);
 
 socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
     if (notificationContainer) {

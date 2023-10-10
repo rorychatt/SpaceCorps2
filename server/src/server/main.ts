@@ -271,6 +271,18 @@ io.on("connection", (socket) => {
             }
         }
     );
+
+    socket.on("getTop10Experience", () => {
+        socket.emit("serverTop10Experience", {
+            top10: gameServer.rankingServer.topExperienceList,
+        });
+    });
+
+    socket.on("getTop10Honor", () => {
+        socket.emit("serverTop10Honor", {
+            top10: gameServer.rankingServer.topHonorList,
+        });
+    });
 });
 
 function handleHTTPRequests() {
