@@ -41,9 +41,7 @@ let mainF = (e: Event) => {
         switchBtn[i].addEventListener("click", changeForm);
 };
 
-window.addEventListener("load", mainF);
-
-document.addEventListener("keydown", (event) => {
+function authenticateEvent(event: any) {
     if(event.key === "Enter") {
         if(bContainer.classList.contains("is-txl")) {
             const usernameDiv = document.getElementById("loginUsername") as HTMLInputElement | undefined;
@@ -55,6 +53,14 @@ document.addEventListener("keydown", (event) => {
             }
         }
     }
+}
+
+window.addEventListener("load", mainF);
+
+document.addEventListener("keydown", authenticateEvent);
+
+socket.on("loginSuccessful", () => {
+    document.removeEventListener("keydown", authenticateEvent);
 });
 
 const loginBtn: HTMLElement | null = document.getElementById("signin");
