@@ -274,6 +274,9 @@ const profileCloseBtn = document.getElementById(
     "profile_close_btn"
 ) as HTMLElement;
 
+const questCloseBtn = document.getElementById("quest_close_btn") as HTMLElement;
+const questDiv = document.getElementById("questbook") as HTMLElement;
+
 aucCloseBtn.addEventListener("click", function (): void {
     containerDiv.style.display = "none";
     playerInfoDiv.style.display = "none";
@@ -281,6 +284,7 @@ aucCloseBtn.addEventListener("click", function (): void {
     shopDiv.style.display = "none";
     auctionDiv.style.display = "none";
     assemblyDiv.style.display = "none";
+    questDiv.style.display = "none";
 });
 
 clanCloseBtn.addEventListener("click", function (): void {
@@ -290,6 +294,7 @@ clanCloseBtn.addEventListener("click", function (): void {
     shopDiv.style.display = "none";
     auctionDiv.style.display = "none";
     assemblyDiv.style.display = "none";
+    questDiv.style.display = "none";
 });
 
 profileCloseBtn.addEventListener("click", function (): void {
@@ -299,7 +304,18 @@ profileCloseBtn.addEventListener("click", function (): void {
     shopDiv.style.display = "none";
     auctionDiv.style.display = "none";
     assemblyDiv.style.display = "none";
+    questDiv.style.display = "none";
 });
+
+questCloseBtn.addEventListener("click", function(): void {
+    containerDiv.style.display = "none";
+    playerInfoDiv.style.display = "none";
+    clanInfoDiv.style.display = "none";
+    shopDiv.style.display = "none";
+    auctionDiv.style.display = "none";
+    assemblyDiv.style.display = "none";
+    questDiv.style.display = "none";
+})
 
 // Console
 const consoleButton = document.getElementById("console_btn") as HTMLElement;
@@ -333,3 +349,57 @@ if (errorButton) {
 } else {
     console.error("Error: error_button element not found.");
 }
+
+// Questbook
+const questDailyButton = document.getElementById("quest_daily_btn") as HTMLElement;
+const quest100qButton = document.getElementById("quest_100q_btn") as HTMLElement;
+const questEventButton = document.getElementById("quest_event_btn") as HTMLElement;
+const questLegacyButton = document.getElementById("quest_legacy_btn") as HTMLElement;
+const questRevengeButton = document.getElementById("quest_revenge_btn") as HTMLElement;
+
+
+const questDailyDiv = document.getElementById("quest_daily") as HTMLElement;
+const quest100qDiv = document.getElementById("quest_100q") as HTMLElement;
+const questEventDiv = document.getElementById("quest_event") as HTMLElement;
+const questLegacyDiv = document.getElementById("quest_legacy") as HTMLElement;
+const questRevengeDiv = document.getElementById("quest_revenge") as HTMLElement;
+
+questDailyButton.addEventListener("click", function(): void {
+    questDailyDiv.style.display = "block";
+    quest100qDiv.style.display = "none";
+    questEventDiv.style.display = "none";
+    questLegacyDiv.style.display = "none";
+    questRevengeDiv.style.display = "none";
+})
+
+quest100qButton.addEventListener("click", function(): void {
+    questDailyDiv.style.display = "none";
+    quest100qDiv.style.display = "block";
+    questEventDiv.style.display = "none";
+    questLegacyDiv.style.display = "none";
+    questRevengeDiv.style.display = "none";
+})
+
+questEventButton.addEventListener("click", function(): void {
+    questDailyDiv.style.display = "none";
+    quest100qDiv.style.display = "none";
+    questEventDiv.style.display = "block";
+    questLegacyDiv.style.display = "none";
+    questRevengeDiv.style.display = "none";
+})
+
+questLegacyButton.addEventListener("click", function(): void {
+    questDailyDiv.style.display = "none";
+    quest100qDiv.style.display = "none";
+    questEventDiv.style.display = "none";
+    questLegacyDiv.style.display = "block";
+    questRevengeDiv.style.display = "none";
+})
+
+questRevengeButton.addEventListener("click", function(): void {
+    questDailyDiv.style.display = "none";
+    quest100qDiv.style.display = "none";
+    questEventDiv.style.display = "none";
+    questLegacyDiv.style.display = "none";
+    questRevengeDiv.style.display = "block";
+})
