@@ -46,13 +46,11 @@ window.addEventListener("load", mainF);
 document.addEventListener("keydown", (event) => {
     if(event.key === "Enter") {
         if(bContainer.classList.contains("is-txl")) {
-            const username = (
-                document.getElementById("loginUsername") as HTMLInputElement
-            ).value;
-            const password = (
-                document.getElementById("loginPassword") as HTMLInputElement
-            ).value;
-            if(username && password) {
+            const usernameDiv = document.getElementById("loginUsername") as HTMLInputElement | undefined;
+            const passwordDiv = document.getElementById("loginPassword") as HTMLInputElement | undefined;
+            if(usernameDiv && passwordDiv) {
+                const username = usernameDiv.value;
+                const password = passwordDiv.value;
                 socket.emit("authenticate", { username: username, password: password });
             }
         }
@@ -62,13 +60,11 @@ document.addEventListener("keydown", (event) => {
 const loginBtn: HTMLElement | null = document.getElementById("signin");
 loginBtn?.addEventListener("click", (event: Event) => {
     event.preventDefault()
-    const username = (
-        document.getElementById("loginUsername") as HTMLInputElement
-    ).value;
-    const password = (
-        document.getElementById("loginPassword") as HTMLInputElement
-    ).value;
-    if(username && password) {
+    const usernameDiv = document.getElementById("loginUsername") as HTMLInputElement | undefined;
+    const passwordDiv = document.getElementById("loginPassword") as HTMLInputElement | undefined;
+    if(usernameDiv && passwordDiv) {
+        const username = usernameDiv.value;
+        const password = passwordDiv.value;
         socket.emit("authenticate", { username: username, password: password });
     }
 });
@@ -77,9 +73,11 @@ const registerBtn: HTMLElement | null = document.getElementById("signup");
 registerBtn?.addEventListener("click", (event: Event) => {
     event.preventDefault()
     console.log("Attempting to register...")
-    const username = (document.getElementById("registerUsername") as HTMLInputElement).value
-    const password = (document.getElementById("registerPassword") as HTMLInputElement).value
-    if(username && password) {
+    const usernameDiv = document.getElementById("registerUsername") as HTMLInputElement | undefined;
+    const passwordDiv = document.getElementById("registerPassword") as HTMLInputElement | undefined;
+    if(usernameDiv && passwordDiv) {
+        const username =  usernameDiv.value;
+        const password = passwordDiv.value;
         if(username.length <= 0 || password.length <= 0) return;
         socket.emit("attemptRegister", {username: username, password: password});
     }
