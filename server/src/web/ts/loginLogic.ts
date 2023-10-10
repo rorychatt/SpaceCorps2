@@ -52,7 +52,9 @@ document.addEventListener("keydown", (event) => {
             const password = (
                 document.getElementById("loginPassword") as HTMLInputElement
             ).value;
-            socket.emit("authenticate", { username: username, password: password });
+            if(username && password) {
+                socket.emit("authenticate", { username: username, password: password });
+            }
         }
     }
 });
@@ -66,7 +68,9 @@ loginBtn?.addEventListener("click", (event: Event) => {
     const password = (
         document.getElementById("loginPassword") as HTMLInputElement
     ).value;
-    socket.emit("authenticate", { username: username, password: password });
+    if(username && password) {
+        socket.emit("authenticate", { username: username, password: password });
+    }
 });
 
 const registerBtn: HTMLElement | null = document.getElementById("signup");
@@ -75,6 +79,8 @@ registerBtn?.addEventListener("click", (event: Event) => {
     console.log("Attempting to register...")
     const username = (document.getElementById("registerUsername") as HTMLInputElement).value
     const password = (document.getElementById("registerPassword") as HTMLInputElement).value
-    if(username.length <= 0 || password.length <= 0) return;
-    socket.emit("attemptRegister", {username: username, password: password})
-})
+    if(username && password) {
+        if(username.length <= 0 || password.length <= 0) return;
+        socket.emit("attemptRegister", {username: username, password: password});
+    }
+});
