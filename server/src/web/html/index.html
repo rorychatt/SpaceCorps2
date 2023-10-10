@@ -112,6 +112,9 @@
       <div class="assembly_button" id="assembly_modal_btn">
         <button class="btn"><i class="fa fa-creative-commons"></i></button>
       </div>
+      <div class="active_quest_button" id="active_quest_modal_btn">
+        <button class="btn"><i class="fa fa-book"></i></button>
+      </div>
     </div>
     <div class="menu_container">
       <div class="menu_button">
@@ -163,6 +166,11 @@
       <div class="assembly">
         <button class="mm_btn mm_btn_def" id="assembly_btn"><i class="fa fa-th"></i>
           <p class="mm_btn_text">Crafting assembly</p>
+        </button>
+      </div>
+      <div class="questbook">
+        <button class="mm_btn mm_btn_def" id="questbook_btn"><i class="fa fa-book"></i>
+          <p class="mm_btn_text">Questbook</p>
         </button>
       </div>
     </div>
@@ -376,6 +384,45 @@
       <div class="crafting" id="assembly">
 
       </div>
+      <div class="questbook_div" id="questbook">
+        <div class="questbook_top">
+          <div class="quests_daily">
+            <button class="quest_def shop_text" id="quest_daily_btn">
+              Daily
+            </button>
+          </div>
+          <div class="quests_100q">
+            <button class="quest_def shop_text" id="quest_100q_btn">
+              100 Quests
+            </button>
+          </div>
+          <div class="quests_event">
+            <button class="quest_def shop_text" id="quest_event_btn">
+              Event
+            </button>
+          </div>
+          <div class="quests_legacy">
+            <button class="quest_def shop_text" id="quest_legacy_btn">
+              Legacy
+            </button>
+          </div>
+          <div class="quests_revenge">
+            <button class="quest_def shop_text" id="quest_revenge_btn">
+              Revenge
+            </button>
+          </div>
+          <div class="close_button">
+            <button class="close_btn" id="quest_close_btn">
+              <i class="fa fa-close"></i>
+            </button>
+          </div>
+        </div>
+        <div class="quest_container quest_daily" id="quest_daily"></div>
+        <div class="quest_container quest_100q" id="quest_100q"></div>
+        <div class="quest_container quest_event" id="quest_event"></div>
+        <div class="quest_container quest_legacy" id="quest_legacy"></div>
+        <div class="quest_container quest_revenge" id="quest_revenge"></div>
+      </div>
     </div>
     <div class="notification_container" id="notification_container"></div>
     <div class="settings_container">
@@ -479,6 +526,14 @@
       <div class="assembly_info_modal_header" id="assembly_modal">
         <h1>Assembly</h1>
         <button class="modal_btn" id="assembly_modal_quit_btn">
+          <i class="fa fa-remove"></i>
+        </button>
+      </div>
+    </div>
+    <div class="questbook_modal movable-div hidden" id="questbook_modal">
+      <div class="questbook_modal_header" id="">
+        <h1>Questbook</h1>
+        <button class="modal_btn" id="questbook_modal_quit_btn">
           <i class="fa fa-remove"></i>
         </button>
       </div>

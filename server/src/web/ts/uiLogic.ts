@@ -13,6 +13,8 @@ const chatModalDiv = document.getElementById("chat_info_modal") as HTMLElement;
 const spacemapModalDiv = document.getElementById("spacemap_info_modal") as HTMLElement;
 const logModalDiv = document.getElementById("log_info_modal") as HTMLElement;
 const assemblyModalDiv = document.getElementById("assembly_info_modal") as HTMLElement;
+const questbookModalDiv = document.getElementById("questbook_modal") as HTMLElement;
+const questbookDiv = document.getElementById("questbook") as HTMLElement;
 
 // Buttons
 const returnToGameButton = document.getElementById("return_to_game_btn") as HTMLElement;
@@ -38,6 +40,10 @@ const logModalButton = document.getElementById("log_modal_btn") as HTMLElement;
 const logModalQuitButton = document.getElementById("log_modal_quit_btn") as HTMLElement;
 const assemblyModalButton = document.getElementById("assembly_modal_btn") as HTMLElement;
 const assemblyModalQuitButton = document.getElementById("assembly_modal_quit_btn") as HTMLElement;
+const questbookModalButton = document.getElementById("active_quest_modal_btn") as HTMLElement;
+const questbookModalQuitButton = document.getElementById("questbook_modal_quit_btn") as HTMLElement;
+const questbookButton = document.getElementById("questbook_btn") as HTMLElement;
+
 
 toggleMenuButton.addEventListener("click", function(): void {
     if (mainMenuDiv.style.display === "none" || mainMenuDiv.style.display === "") {
@@ -58,11 +64,18 @@ closeButton.addEventListener("click", function(): void {
     shopDiv.style.display = "none";
     auctionDiv.style.display = "none";
     assemblyDiv.style.display = "none";
+    questbookDiv.style.display = "none";
 })
 
 playerInfoButton.addEventListener("click", function(): void {
     containerDiv.style.display = "block";
     playerInfoDiv.style.display = "block";
+    mainMenuDiv.style.display = "none";
+})
+
+questbookButton.addEventListener("click", function(): void {
+    containerDiv.style.display = "block";
+    questbookDiv.style.display = "block";
     mainMenuDiv.style.display = "none";
 })
 
@@ -105,6 +118,20 @@ quitButtonNo.addEventListener ("click", function(): void {
 quitButtonYes.addEventListener("click", function(): void {
     alert("You logged off. This page will restart automatically");
     window.location.reload();
+})
+
+questbookModalButton.addEventListener("click", function() {
+    questbookModalDiv.classList.remove('hidden');
+    questbookModalDiv.classList.add('shown');
+})
+
+questbookModalQuitButton.addEventListener("click", function() {
+    questbookModalDiv.classList.remove('shown');
+    questbookModalDiv.style.animation = 'fadeOutAndCollapse 0.5s ease-in-out forwards';
+    setTimeout(function() {
+        questbookModalDiv.style.animation = 'fadeInOutAndExpand 0.5s ease-in-out forwards';
+        questbookModalDiv.classList.add('hidden');
+    }, 501);
 })
 
 playerModalButton.addEventListener("click", function() {
