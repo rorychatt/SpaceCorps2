@@ -13,6 +13,7 @@ await Promise.all([
     fixShop(),
     fixCargoDrop(),
     fixInventory(),
+    fixRankingServer()
 ]);
 
 function fixGameServer() {
@@ -26,6 +27,12 @@ function fixGameServer() {
             `import { readGameDataConfigFiles, readPackageJson, } from "./loadGameData";`,
             `import { readGameDataConfigFiles, readPackageJson, } from "./loadGameData.js";`
         );
+
+        modifiedData = modifiedData.replace(
+            'import { RankingServer } from "./RankingServer";',
+            'import { RankingServer } from "./RankingServer.js";'
+        );
+
 
         modifiedData = modifiedData.replace(
             'import { Spacemap } from "./Spacemap";',
@@ -434,3 +441,28 @@ function fixCargoDrop() {
         );
     });
 }
+
+function fixRankingServer() {
+    readFile("./dist/server/background/RankingServer.js", "utf8", (err, data) => {
+        if (err) {
+            console.error(`Error reading file: ${err}`);
+            return;
+        }
+
+        let modifiedData = data.replace(
+            'import { getAllUserStats } from "../db/db";',
+            'import { getAllUserStats } from "../db/db.js";'
+        );
+
+        writeFile(
+            "./dist/server/background/RankingServer.js",
+            modifiedData,
+            (err) => {
+                if (err) {
+                    console.error(`Error writing file: ${err}`);
+                }
+            }
+        );
+    });
+}
+

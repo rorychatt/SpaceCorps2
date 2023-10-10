@@ -23,8 +23,8 @@
         "name": "Paragon",
         "maxHealth": 96000,
         "baseSpeed": 400,
-        "maxLasers": 2,
-        "maxGenerators": 2,
+        "maxLasers": 4,
+        "maxGenerators": 5,
         "price": {
             "credits": 655000
         }

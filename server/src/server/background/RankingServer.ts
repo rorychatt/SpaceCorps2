@@ -1,29 +1,7 @@
-import { Player } from "./Player";
-
-enum AccessLevel {
-    COMPANY_HOME,
-    COMPANY_2ND_MAP,
-    COMPANY_3RD_MAP,
-    EVENT_MAP,
-    ASSEMBLY,
-    SPACE_5,
-    ENEMY_COMPANY_2ND_AND_3RD,
-    ENEMY_COMPANY_HOME,
-}
-
-interface ExperienceLevelDetail {
-    level: number;
-    requiredExp: number;
-    access: AccessLevel[];
-    accessToQuests: number;
-    accessToEventQuests: boolean;
-    accessToCompanyQuests: boolean;
-    accessToEvents: boolean;
-    accessToRevengeQuests: boolean;
-}
-
+import { PlayerEntityInterface, getAllUserStats } from "../db/db";
+import { Player, PlayerStateCharacteristic } from "./Player";
 class ExperiencePointServer {
-    private expLevels: ExperienceLevelDetail[];
+    expLevels: ExperienceLevelDetail[];
 
     constructor() {
         this.expLevels = [
@@ -244,7 +222,9 @@ class ExperiencePointServer {
         return this.expLevels.find((lvl) => lvl.level === level) || null;
     }
 
-    async getNextLevelDetail(currentExp: number): Promise<ExperienceLevelDetail | null> {
+    async getNextLevelDetail(
+        currentExp: number
+    ): Promise<ExperienceLevelDetail | null> {
         return (
             this.expLevels.find((lvl) => lvl.requiredExp > currentExp) || null
         );
@@ -267,14 +247,103 @@ class ExperiencePointServer {
 
 class RankingPointsServer {}
 
-class RankingServer {
+export class RankingServer {
     experienceServer: ExperiencePointServer;
     rankingPointsServer: RankingPointsServer;
+    userStats: PlayerEntityInterface[] = [];
+
+    topHonorList: { playerName: string; honor: number }[];
+    topExperienceList: { playerName: string; experience: number }[];
 
     constructor() {
         this.experienceServer = new ExperiencePointServer();
         this.rankingPointsServer = new RankingPointsServer();
+
+        this.topHonorList = [];
+        this.topExperienceList = [];
     }
 
-    getUserRanking(username: string) {}
+    async start() {
+        await this.fetchDataFromSQL();
+        await this.getAllUpdates();
+        setInterval(async () => {
+            await this.getAllUpdates();
+        }, 1000 * 60 * 5);
+    }
+
+    async getAllUpdates() {
+        const [topHonorList, topExperienceList] = await Promise.all([
+            this.getTopHonorList(),
+            this.getTopExperienceList(),
+        ]);
+        this.topHonorList = topHonorList;
+        this.topExperienceList = topExperienceList;
+    }
+
+    async fetchDataFromSQL() {
+        this.userStats = [];
+        const _res = await getAllUserStats();
+        for (const res in _res) {
+            this.userStats.push(_res[res] as PlayerEntityInterface);
+        }
+    }
+
+    private async getTopHonorList(): Promise<
+        { playerName: string; honor: number }[]
+    > {
+        const sortedUsers = [...this.userStats].sort(
+            (a, b) => b.honor - a.honor
+        );
+        const top10Users = sortedUsers.slice(0, 10);
+        const topHonorList = top10Users.map((user) => ({
+            playerName: user.username,
+            honor: user.honor,
+        }));
+        return topHonorList;
+    }
+
+    private async getTopExperienceList(): Promise<
+        { playerName: string; experience: number }[]
+    > {
+        const sortedUsers = [...this.userStats].sort(
+            (a, b) => b.experience - a.experience
+        );
+        const top10Users = sortedUsers.slice(0, 10);
+        const topExperienceList = top10Users.map((user) => ({
+            playerName: user.username,
+            experience: user.experience,
+        }));
+
+        return topExperienceList;
+    }
+
+    getUserRanking(username: string): PlayerEntityInterface | undefined {
+        const user = this.userStats.find((user) => user.username === username);
+        if (user) {
+            return user;
+        }
+        return undefined;
+    }
+}
+
+enum AccessLevel {
+    COMPANY_HOME,
+    COMPANY_2ND_MAP,
+    COMPANY_3RD_MAP,
+    EVENT_MAP,
+    ASSEMBLY,
+    SPACE_5,
+    ENEMY_COMPANY_2ND_AND_3RD,
+    ENEMY_COMPANY_HOME,
+}
+
+interface ExperienceLevelDetail {
+    level: number;
+    requiredExp: number;
+    access: AccessLevel[];
+    accessToQuests: number;
+    accessToEventQuests: boolean;
+    accessToCompanyQuests: boolean;
+    accessToEvents: boolean;
+    accessToRevengeQuests: boolean;
 }

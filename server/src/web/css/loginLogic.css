@@ -333,68 +333,148 @@ h1 {
 
 @keyframes gradientChange {
     0% {
-        background: linear-gradient(145deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            145deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
         transform: scale(1);
     }
     5% {
-        background: linear-gradient(163deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            163deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     10% {
-        background: linear-gradient(181deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            181deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     15% {
-        background: linear-gradient(199deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            199deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     20% {
-        background: linear-gradient(217deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            217deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     25% {
-        background: linear-gradient(235deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            235deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     30% {
-        background: linear-gradient(253deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            253deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     35% {
-        background: linear-gradient(271deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            271deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     40% {
-        background: linear-gradient(289deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            289deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     45% {
-        background: linear-gradient(307deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            307deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     50% {
-        background: linear-gradient(325deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            325deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     55% {
-        background: linear-gradient(343deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            343deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     60% {
         background: linear-gradient(1deg, rgb(30, 170, 255), rgb(65, 105, 255));
     }
     65% {
-        background: linear-gradient(19deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            19deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     70% {
-        background: linear-gradient(37deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            37deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     75% {
-        background: linear-gradient(55deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            55deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     80% {
-        background: linear-gradient(73deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            73deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     85% {
-        background: linear-gradient(91deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            91deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     90% {
-        background: linear-gradient(109deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            109deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     95% {
-        background: linear-gradient(127deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            127deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
     }
     100% {
-        background: linear-gradient(145deg, rgb(30, 170, 255), rgb(65, 105, 255));
+        background: linear-gradient(
+            145deg,
+            rgb(30, 170, 255),
+            rgb(65, 105, 255)
+        );
         transform: scale(1.1);
     }
 }
@@ -645,7 +725,13 @@ h1 {
     background-color: rgba(255, 0, 0, 0.6);
 }
 
-.player_info_modal, .ship_info_modal, .chat_info_modal, .spacemap_info_modal, .log_info_modal, .assembly_info_modal, .questbook_modal {
+.player_info_modal,
+.ship_info_modal,
+.chat_info_modal,
+.spacemap_info_modal,
+.log_info_modal,
+.assembly_info_modal,
+.questbook_modal {
     position: absolute;
     border: 1px solid white;
 
@@ -716,7 +802,6 @@ h1 {
     flex-grow: 1;
     margin-left: 2vh;
 }
-
 
 .shop_text {
     background-color: rgba(255, 255, 255, 0.1);
@@ -1034,7 +1119,7 @@ h1 {
 }
 
 .item_name {
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
     font-size: 1vh;
     color: white;
     text-transform: uppercase;
@@ -1055,14 +1140,14 @@ h1 {
     border: 1px solid white;
     background-color: rgba(255, 255, 255, 0.05);
     max-height: 10px;
-    
-    font-family: 'AudioWide';
+
+    font-family: "AudioWide";
     font-size: 10px;
     color: white;
 }
 
 .item_amount_input::placeholder {
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
     font-size: 8px;
     color: white;
     text-align: center;
@@ -1070,9 +1155,9 @@ h1 {
 
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
 }
 
 .buy_button {
@@ -1164,7 +1249,7 @@ input[type="number"]::-webkit-outer-spin-button {
     justify-content: center;
     align-items: center;
     font-size: 8px;
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
 
     max-height: 1vh;
 }
@@ -1375,7 +1460,7 @@ input[type="number"]::-webkit-outer-spin-button {
     height: 10px;
     width: 100%;
 
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
     font-size: 7px;
     color: white;
     text-align: center;
@@ -1402,7 +1487,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .ammo_text {
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
     font-size: 10px;
     color: white;
 }
@@ -1478,4 +1563,18 @@ input[type="number"]::-webkit-outer-spin-button {
     z-index: 99;
     left: 0;
     bottom: 0;
+}
+
+.top10honor_container {
+    /* display: flex; */
+    min-height: 20vh;
+    /* width: 100%; */
+    border: 1px solid white;
+}
+
+.top10experience_container {
+    /* display: flex; */
+    min-height: 20vh;
+    width: 100%;
+    border: 1px solid white;
 }

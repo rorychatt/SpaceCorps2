@@ -115,6 +115,11 @@ export function getUserDataByUsername(username: string) {
     return executeQuery(query);
 }
 
+export function getAllUserStats(){
+    const query = `SELECT * FROM playerEntity`;
+    return executeQuery(query);
+}
+
 export async function registerNewUser(username: string, password: string) {
     const checkUserQuery = `SELECT * FROM login WHERE username = "${username}"`;
 
