@@ -39,7 +39,6 @@ const io: Server = new Server(server);
 setupDatabaseConnection();
 
 const config: Config = readServerConfigFile();
-const gameDataConfig: GameDataConfig = readGameDataConfigFiles();
 
 handleHTTPRequests();
 
@@ -102,6 +101,9 @@ io.on("connection", (socket) => {
                             laserAmmo: laserAmmoData,
                             rocketAmmo: rocketAmmoData,
                         },
+                    });
+                    socket.emit("allQuestData", {
+                        quests: gameServer.questServer.quests,
                     });
 
                     console.log(

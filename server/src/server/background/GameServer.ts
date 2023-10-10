@@ -20,6 +20,7 @@ import {
 } from "./Projectiles";
 import { Shop } from "./Shop";
 import { CargoDrop } from "./CargoDrop";
+import { QuestServer } from "./QuestServer";
 
 export const tickrate = 120;
 
@@ -33,6 +34,7 @@ export class GameServer {
     _spacemapNames: string[];
     chatServer: ChatServer;
     rewardServer: RewardServer;
+    questServer: QuestServer;
     shop: Shop;
     admins: string[];
     tickCount: number = 0;
@@ -50,6 +52,7 @@ export class GameServer {
         this._spacemapNames = Object.keys(this.spacemaps);
         this.chatServer = new ChatServer(this);
         this.rewardServer = new RewardServer();
+        this.questServer = new QuestServer();
         this.shop = new Shop();
         this.admins = ["rostik", "rory", "duma"];
         this._version = readPackageJson().version;

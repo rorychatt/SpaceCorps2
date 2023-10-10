@@ -31,6 +31,7 @@ export function setupDatabaseConnection(): void {
         pool = mysql.createPool(config.database);
     } catch (error) {
         console.error(`Error: ${error}`);
+        process.exit(1)
     }
 
     pool.getConnection(async (error, connection) => {
