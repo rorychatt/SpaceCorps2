@@ -1,3 +1,5 @@
+import { Player } from "./Player";
+
 enum AccessLevel {
     COMPANY_HOME,
     COMPANY_2ND_MAP,
@@ -238,14 +240,28 @@ class ExperiencePointServer {
         ];
     }
 
-    getLevelDetail(level: number): ExperienceLevelDetail | null {
+    async getLevelDetail(level: number): Promise<ExperienceLevelDetail | null> {
         return this.expLevels.find((lvl) => lvl.level === level) || null;
     }
 
-    getNextLevelDetail(currentExp: number): ExperienceLevelDetail | null {
+    async getNextLevelDetail(currentExp: number): Promise<ExperienceLevelDetail | null> {
         return (
             this.expLevels.find((lvl) => lvl.requiredExp > currentExp) || null
         );
+    }
+
+    async calculatePlayerLevel(player: Player): Promise<number> {
+        let playerExperience = player.stats.experience;
+        let playerLevel = 0;
+
+        for (let i = 0; i < this.expLevels.length; i++) {
+            if (playerExperience >= this.expLevels[i].requiredExp) {
+                playerLevel = this.expLevels[i].level;
+            } else {
+                break;
+            }
+        }
+        return playerLevel;
     }
 }
 

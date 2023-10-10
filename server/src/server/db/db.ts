@@ -20,6 +20,7 @@ export interface PlayerEntityInterface {
     thulium: number;
     experience: number;
     honor: number;
+    level: number;
 }
 
 export let pool: mysql.Pool;
@@ -57,7 +58,8 @@ export function setupDatabaseConnection(): void {
                       credits BIGINT DEFAULT 50000,
                       thulium BIGINT DEFAULT 10000,
                       experience BIGINT DEFAULT 0,
-                      honor BIGINT DEFAULT 0
+                      honor BIGINT DEFAULT 0,
+                      level INT DEFAULT 1
                     );`;
                 const inventoryQuery: string = `
                     CREATE TABLE IF NOT EXISTS inventory (
@@ -217,7 +219,8 @@ export function savePlayerData(player: Player): void {
         experience = "${player.stats.experience}",
         honor = "${player.stats.honor}",
         mapname = "${player.currentMap}",
-        company = "${player.company}"
+        company = "${player.company}",
+        level = "${player.stats.level}"
       WHERE
         username = "${player.name}"
     `;

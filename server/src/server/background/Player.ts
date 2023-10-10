@@ -39,6 +39,7 @@ export class Player extends Entity {
     isCollectingCargoDrop: boolean = false;
     targetCargoDrop: CargoDrop | undefined = undefined;
     targetUUID: string | undefined = undefined;
+    level: number = 1;
 
     public constructor(socketId: string, map: Spacemap, username: string) {
         super(map.name, username);
@@ -59,6 +60,7 @@ export class Player extends Entity {
             honor: 0,
             credits: 0,
             thulium: 0,
+            level: 1,
         };
 
         this._initializePlayerData().then(() => {
@@ -91,6 +93,7 @@ export class Player extends Entity {
             thulium: 0,
             experience: 0,
             honor: 0,
+            level: 1,
         };
         const res = (await getUserDataByUsername(
             this.name
@@ -107,6 +110,7 @@ export class Player extends Entity {
                 thulium: data.thulium,
                 experience: data.experience,
                 honor: data.honor,
+                level: data.level,
             };
         }
 
@@ -196,6 +200,7 @@ export class Player extends Entity {
             thulium: templateData.thulium,
             experience: templateData.experience,
             honor: templateData.honor,
+            level: templateData.level,
         };
     }
 
@@ -447,6 +452,7 @@ export interface PlayerStats {
     honor: number;
     credits: number;
     thulium: number;
+    level: number;
 }
 
 export type PlayerStateCharacteristic = "passive" | "attacking";
