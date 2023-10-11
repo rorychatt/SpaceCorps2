@@ -123,7 +123,7 @@
         </button>
       </div>
       <div class="settings_button">
-        <button class="btn"><i class="fa fa-gear"></i> Settings</button>
+        <button class="btn" id="settings_btn"><i class="fa fa-gear"></i> Settings</button>
       </div>
       <div class="console_button" hidden>
         <button class="btn" id="console_btn">
@@ -436,8 +436,34 @@
       </div>
     </div>
     <div class="notification_container" id="notification_container"></div>
-    <div class="settings_container">
+    <div class="settings_container" id="settings_container">
+      <div class="settings_header">
+        <p class="settings_name">Settings</p>
+        <button class="settings_quit_btn" id="settings_quit_btn"><i class="fa fa-remove"></i></button>
+      </div>
+      <div class="settings_content">
+        <div class="settings_block" id="setting_switch">
+          <div class="settings_setting" id="setting">
 
+          </div>
+          <div class="settings_switch">
+            <label class="switch1">
+              <input type="checkbox" class="chk">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="settings_block" id="setting_volume">
+          <div class="settings_setting" id="setting" style="width:65%">
+
+          </div>
+          <div class="settings_volume">
+            <label class="slider1">
+              <input type="range" class="level">
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="console_container" id="console_container">
       <div class="console_header" id="console_header">
@@ -532,7 +558,6 @@
         </div>
       </div>
     </div>
-    
     <div class="ship_info_modal movable-div hidden" id="ship_info_modal">
       <div class="ship_info_modal_header" id="ship_modal">
         <h1>Ship Info</h1>

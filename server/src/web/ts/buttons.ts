@@ -350,6 +350,25 @@ if (errorButton) {
     console.error("Error: error_button element not found.");
 }
 
+// Settings
+const settingsButton = document.getElementById("settings_btn") as HTMLElement;
+const settingsQuitButton = document.getElementById("settings_quit_btn") as HTMLElement;
+const settingsDiv = document.getElementById("settings_container") as HTMLElement;
+
+settingsQuitButton.addEventListener("click", function () {
+    settingsDiv.style.display = "none";
+});
+
+settingsButton.addEventListener("click", function () {
+    if (
+        settingsDiv.style.display === "none" || settingsDiv.style.display === ""
+    ) {
+        settingsDiv.style.display = "flex";
+    } else {
+        settingsDiv.style.display = "none";
+    }
+});
+
 // Questbook
 const questDailyButton = document.getElementById("quest_daily_btn") as HTMLElement;
 const quest100qButton = document.getElementById("quest_100q_btn") as HTMLElement;
