@@ -674,6 +674,10 @@ h1 {
     min-height: 63vh;
 }
 
+.questbook_div {
+    display: none;
+}
+
 .profile_info {
     display: none;
 }
