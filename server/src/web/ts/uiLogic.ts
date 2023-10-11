@@ -13,7 +13,7 @@ const chatModalDiv = document.getElementById("chat_info_modal") as HTMLElement;
 const spacemapModalDiv = document.getElementById("spacemap_info_modal") as HTMLElement;
 const logModalDiv = document.getElementById("log_info_modal") as HTMLElement;
 const assemblyModalDiv = document.getElementById("assembly_info_modal") as HTMLElement;
-const questbookModalDiv = document.getElementById("questbook_modal") as HTMLElement;
+const questbookModalDiv = document.getElementById("questbook_info_modal") as HTMLElement;
 const questbookDiv = document.getElementById("questbook") as HTMLElement;
 
 // Buttons
@@ -219,38 +219,25 @@ assemblyModalQuitButton.addEventListener("click", function() {
 })
 
 // Movable DIVs
-const movableDivs = document.querySelectorAll(".movable-div");
+const modal = document.querySelector(".movable-div") as HTMLElement;
+let isDragging = false;
+let offsetX = 0;
+let offsetY = 0;
 
-let offsetX: number, offsetY: number;
-let isDragging: boolean = false;
-let activeDiv: any = null;
-// TODO: peredalat huyny full pod 0 any sovsem kringe
-function onMouseDown(event:any) {
-    isDragging = true;
-    activeDiv = event.target;
-    offsetX = event.clientX - activeDiv.getBoundingClientRect().left;
-    offsetY = event.clientY - activeDiv.getBoundingClientRect().top;
-    activeDiv.style.cursor = "grabbing";
-}
-
-function onMouseMove(event:any) {
-    if (!isDragging) return;
-    activeDiv.style.left = event.clientX - offsetX + "px";
-    activeDiv.style.top = event.clientY - offsetY + "px";
-}
-
-function onMouseUp() {
-    if(activeDiv) {
-    isDragging = false;
-    activeDiv.style.cursor = "grab";
-    activeDiv = null;
-    }
-}
-
-movableDivs.forEach(div => {
-    div.addEventListener("mousedown", onMouseDown);
+modal?.addEventListener("mousedown", (e: MouseEvent) => {
+  isDragging = true;
+  const rect = modal.getBoundingClientRect();
+  offsetX = e.clientX - rect.left;
+  offsetY = e.clientY - rect.top;
 });
 
-document.addEventListener("mousemove", onMouseMove);
-document.addEventListener("mouseup", onMouseUp);
+document.addEventListener("mousemove", (e: MouseEvent) => {
+  if (isDragging) {
+    modal.style.left = e.clientX - offsetX + "px";
+    modal.style.top = e.clientY - offsetY + "px";
+  }
+});
 
+document.addEventListener("mouseup", () => {
+  isDragging = false;
+});
