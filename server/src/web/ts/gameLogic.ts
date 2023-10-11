@@ -1731,7 +1731,7 @@ async function createAndTriggerExplosion(position: THREE.Vector3) {
         sound.position.copy(position);
         sound.setBuffer(explosionSoundBuffer);
         sound.setRefDistance(30);
-        sound.setVolume(0.5);
+        sound.setVolume(0.05);
         sound.play();
 
         scene.add(particle);
