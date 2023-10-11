@@ -1358,6 +1358,7 @@ input[type="number"]::-webkit-outer-spin-button {
     color: white;
     font-size: 1.3vh;
     font-family: "Times New Roman", Times, serif;
+    user-select: text;
 }
 
 .nicknameLabel {
@@ -1779,13 +1780,17 @@ input[type="number"]::-webkit-outer-spin-button {
     width: 100%;
     flex-direction: row;
     justify-content: space-around;
+    /* align-content: center; */
     border: 1px solid white;
+    /* flex-wrap: wrap; */
 }
 
 .settings_setting {
     font-family: 'AudioWide';
     font-size: 1vh;
     text-align: center;
+    align-content: center;
+    /* display: flow; */
 }
 
 /* The switch1 - the box around the slider */

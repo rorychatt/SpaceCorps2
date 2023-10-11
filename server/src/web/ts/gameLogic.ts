@@ -24,6 +24,7 @@ const thuliumElement = document.getElementById("thulium_value");
 const experienceElement = document.getElementById("experience_value");
 const honorElement = document.getElementById("honor_value");
 const notificationContainer = document.getElementById("notification_container");
+const prestigeElement = document.getElementById("prestige_value");
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
 
 const refreshTop10HonorBtn = document.getElementById("getTop10HonorBtn") as
@@ -435,16 +436,7 @@ function initScene(): void {
     };
 
     controls = new OrbitControls(camera, renderer.domElement);
-    controls.minDistance = 2;
-    controls.maxDistance = 10;
-    controls.minPolarAngle = 0.3490658504;
-    controls.maxPolarAngle = 1.0471975512;
-    controls.enablePan = false;
-    controls.mouseButtons = {
-        MIDDLE: THREE.MOUSE.DOLLY,
-        RIGHT: THREE.MOUSE.ROTATE,
-    };
-    controls.update();
+    updateControlsSettings();
 
     audioListener = new THREE.AudioListener();
     camera.add(audioListener);
@@ -864,7 +856,13 @@ async function updateObject(object: THREE.Object3D, entity: any) {
                 (entity.position.y - object.position.z) ** 2 >
             0.00001
         ) {
+            const oldOrientation = object.rotation.clone();
             object.lookAt(targetDirection);
+            const targetQuaternion = new THREE.Quaternion().copy(
+                object.quaternion
+            );
+            object.rotation.copy(oldOrientation);
+            object.quaternion.slerp(targetQuaternion, 0.35);
         }
     }
 
@@ -1088,18 +1086,26 @@ async function checkPlayerCurrency(price: {
 async function updatePlayerInfo(entity: any) {
     playerEntity = entity;
 
-    if (creditsElement && thuliumElement && experienceElement && honorElement) {
-        const [credits, thulium, experience, honor] = await Promise.all([
+    if (
+        creditsElement &&
+        thuliumElement &&
+        experienceElement &&
+        honorElement &&
+        prestigeElement
+    ) {
+        const [credits, thulium, experience, honor, level] = await Promise.all([
             beautifyNumberToUser(entity.stats.credits),
             beautifyNumberToUser(entity.stats.thulium),
             beautifyNumberToUser(entity.stats.experience),
             beautifyNumberToUser(entity.stats.honor),
+            beautifyNumberToUser(entity.level), // FIX ME LATER
         ]);
 
         creditsElement.textContent = credits;
         thuliumElement.textContent = thulium;
         experienceElement.textContent = experience;
         honorElement.textContent = honor;
+        prestigeElement.textContent = level;
     }
     if (JSON.stringify(playerInventory) != JSON.stringify(entity.inventory)) {
         playerInventory = entity.inventory;
@@ -1830,4 +1836,56 @@ function setupSoundBuffers() {
             rocketHitSoundBuffer = buffer;
         }
     );
+}
+
+const switchCheckbox = document.querySelector(
+    "#setting_switch_antialiasing .chk"
+);
+
+if (switchCheckbox) {
+    switchCheckbox.addEventListener("change", handleAntiAliasing);
+
+    function handleAntiAliasing(event: any) {
+        const isChecked = event.target.checked;
+        if (isChecked) {
+            recreateRenderer(true);
+        } else {
+            recreateRenderer(false);
+        }
+    }
+}
+function recreateRenderer(antialias: boolean) {
+    const container = document.getElementById("spacemapDiv");
+    if (!container) return;
+    const existingRendererElement = container.querySelector("#THREEJSScene");
+    if (existingRendererElement) {
+        container.removeChild(existingRendererElement);
+    }
+    renderer = new THREE.WebGLRenderer({ antialias: antialias });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.domElement.id = "THREEJSScene";
+    if (container.firstChild) {
+        container.insertBefore(renderer.domElement, container.firstChild);
+    } else {
+        container.appendChild(renderer.domElement);
+    }
+    controls = new OrbitControls(camera, renderer.domElement);
+    renderer.domElement.addEventListener("click", (event) => {
+        raycastFromCamera(event);
+    });
+
+    updateControlsSettings();
+}
+
+function updateControlsSettings() {
+    controls.minDistance = 2;
+    controls.maxDistance = 10;
+    controls.minPolarAngle = 0.3490658504;
+    controls.maxPolarAngle = 1.0471975512;
+    controls.enablePan = false;
+    controls.mouseButtons = {
+        MIDDLE: THREE.MOUSE.DOLLY,
+        RIGHT: THREE.MOUSE.ROTATE,
+    };
+    controls.update();
 }

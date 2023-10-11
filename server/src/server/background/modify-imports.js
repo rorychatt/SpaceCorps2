@@ -270,6 +270,11 @@ function fixRewardServer() {
                 'import { updateInventoryData } from "../db/db.js";'
             );
 
+            modifiedData = modifiedData.replace(
+                'import { gameServer } from "../main";',
+                'import { gameServer } from "../main.js";'
+            );
+
             writeFile(
                 "./dist/server/background/RewardServer.js",
                 modifiedData,

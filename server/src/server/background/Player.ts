@@ -71,17 +71,18 @@ export class Player extends Entity {
 
     private async _initializePlayerData() {
         await this._getDataFromSQL();
-        const activeShip = await this.inventory.getActiveShip();
-        if (activeShip) {
-            this.setActiveShip(activeShip);
-                }
-        this._calculateSpeed();
-        this._calculateShields();
+        this.level =
+            await gameServer.rankingServer.experienceServer.calculatePlayerLevel(
+                this
+            );
+        this.refreshActiveShip();
     }
 
-    async setActiveShip(shipItem: ShipItem) {
+    async refreshActiveShip() {
         this._activeShip = await this.inventory.getActiveShip();
         this.activeShipName = this._activeShip?.name;
+        this._calculateSpeed();
+        this._calculateShields();
     }
 
     async _getDataFromSQL() {
