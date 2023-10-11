@@ -610,6 +610,8 @@ h1 {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     border-radius: 10px;
     display: none;
+
+    z-index: 11;
 }
 
 .main_menu_container {
@@ -628,6 +630,8 @@ h1 {
     width: auto;
 
     padding: 5px;
+
+    z-index: 10;
 }
 
 .quit_container {
@@ -1686,4 +1690,13 @@ input[type="number"]::-webkit-outer-spin-button {
     text-align: center;
     padding: 0;
     flex: 1;
+}
+
+.pim_pp {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3.25vh;
 }
