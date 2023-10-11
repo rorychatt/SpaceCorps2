@@ -1,4 +1,5 @@
 import { updateInventoryData } from "../db/db";
+import { gameServer } from "../main";
 import { CargoDrop } from "./CargoDrop";
 import { PossibleItems } from "./Inventory";
 import { Player } from "./Player";
@@ -83,11 +84,15 @@ export class RewardServer {
         this.pendingRewards.push(new CargoDropReward(recipientUUID, cargoDrop));
     }
 
-    issueReward(player: Player, reward: PossibleRewards) {
+    async issueReward(player: Player, reward: PossibleRewards) {
         if (reward instanceof HonorReward) {
             player.addHonor(reward.honor);
         } else if (reward instanceof ExperienceReward) {
             player.addExperience(reward.experience);
+            player.level =
+                await gameServer.rankingServer.experienceServer.calculatePlayerLevel(
+                    player
+                );
         } else if (reward instanceof ThulimReward) {
             player.addThulium(reward.thulium);
         } else if (reward instanceof CreditsReward) {
@@ -97,11 +102,19 @@ export class RewardServer {
             player.addThulium(reward.thulium);
             player.addExperience(reward.experience);
             player.addHonor(reward.honor);
+            player.level =
+                await gameServer.rankingServer.experienceServer.calculatePlayerLevel(
+                    player
+                );
         } else if (reward instanceof AlienKillReward) {
             player.addCredits(reward.credits);
             player.addThulium(reward.thulium);
             player.addExperience(reward.experience);
             player.addHonor(reward.honor);
+            player.level =
+                await gameServer.rankingServer.experienceServer.calculatePlayerLevel(
+                    player
+                );
         } else if (reward instanceof ItemReward) {
             player.inventory.addItem(reward.item, reward.amount);
         } else if (reward instanceof CargoDropReward) {
