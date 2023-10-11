@@ -189,9 +189,11 @@ socket.on(
             for (const top in data.top10) {
                 const div = document.createElement("div");
                 div.classList.add("ranking_line");
-                div.textContent = `${top + 1}. ${await beautifyNumberToUser(
-                    data.top10[top].honor
-                )}, ${data.top10[top].playerName}`;
+                div.textContent = `${
+                    parseInt(top) + 1
+                }. ${await beautifyNumberToUser(data.top10[top].honor)}, ${
+                    data.top10[top].playerName
+                }`;
                 top10HonorDiv.appendChild(div);
             }
         }
@@ -210,9 +212,11 @@ socket.on(
             for (const top in data.top10) {
                 const div = document.createElement("div");
                 div.classList.add("ranking_line");
-                div.textContent += `${top + 1}. ${await beautifyNumberToUser(
-                    data.top10[top].experience
-                )}, ${data.top10[top].playerName}`;
+                div.textContent += `${
+                    parseInt(top) + 1
+                }. ${await beautifyNumberToUser(data.top10[top].experience)}, ${
+                    data.top10[top].playerName
+                }`;
                 top10ExperienceDiv.appendChild(div);
             }
         }
@@ -519,10 +523,22 @@ function raycastFromCamera(event: any) {
             if (
                 object.name !== playerName &&
                 object.name !== "CargoDrop" &&
-                lockOnCircle
+                lockOnCircle &&
+                object.name !== "movingPlane"
             ) {
                 lockOnCircle?.removeFromParent();
                 object.parent?.add(lockOnCircle);
+            } else {
+                let object = intersects[1].object;
+                if (
+                    object.name !== playerName &&
+                    object.name !== "CargoDrop" &&
+                    lockOnCircle &&
+                    object.name !== "movingPlane"
+                ) {
+                    lockOnCircle?.removeFromParent();
+                    object.parent?.add(lockOnCircle);
+                }
             }
         }
     }
