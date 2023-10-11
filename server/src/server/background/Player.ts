@@ -405,8 +405,16 @@ export class Player extends Entity {
         this.stats.thulium = this.stats.thulium + thulium;
     }
 
+    setThulium(thulium: number) {
+        this.stats.thulium = thulium;
+    }
+
     addCredits(credits: number) {
         this.stats.credits = this.stats.credits + credits;
+    }
+
+    setCredits(credits: number) {
+        this.stats.credits = credits;
     }
 
     removeHonor(honor: number) {

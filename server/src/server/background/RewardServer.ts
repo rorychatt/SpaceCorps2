@@ -6,12 +6,14 @@ import {
     AlienKillReward,
     CargoDropReward,
     CreditsReward,
+    CreditsSetReward,
     ExperienceReward,
     HonorReward,
     ItemReward,
     PlayerKillReward,
     PossibleRewards,
     ThulimReward,
+    ThulimSetReward,
 } from "./Reward";
 
 export class RewardServer {
@@ -33,8 +35,16 @@ export class RewardServer {
         this.pendingRewards.push(new ThulimReward(recipientUUID, thulium));
     }
 
+    registerThuliumSetReward(recipientUUID: string, thulium: number) {
+        this.pendingRewards.push(new ThulimSetReward(recipientUUID, thulium));
+    }
+
     registerCreditsReward(recipientUUID: string, credits: number) {
         this.pendingRewards.push(new CreditsReward(recipientUUID, credits));
+    }
+
+    registerCreditsSetReward(recipientUUID: string, credits: number) {
+        this.pendingRewards.push(new CreditsSetReward(recipientUUID, credits));
     }
 
     registerPlayerKillReward(
@@ -90,8 +100,12 @@ export class RewardServer {
             player.addExperience(reward.experience);
         } else if (reward instanceof ThulimReward) {
             player.addThulium(reward.thulium);
+        } else if(reward instanceof ThulimSetReward) {
+            player.setThulium(reward.thulium);
         } else if (reward instanceof CreditsReward) {
             player.addCredits(reward.credits);
+        } else if(reward instanceof CreditsSetReward) {
+            player.setCredits(reward.credits);
         } else if (reward instanceof PlayerKillReward) {
             player.addCredits(reward.credits);
             player.addThulium(reward.thulium);
