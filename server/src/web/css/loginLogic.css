@@ -740,11 +740,11 @@ h1 {
     border: 1px solid white;
 
     height: auto;
-    min-height: 20vh;
+    height: 20vh;
     width: auto;
     min-width: 15vh;
 
-    padding: 0.1%;
+    padding: 0;
 
     background-color: rgba(30, 144, 255, 0.75);
 
@@ -752,7 +752,6 @@ h1 {
     transform-origin: center center;
 }
 
-.player_info_modal_header,
 .ship_info_modal_header,
 .chat_info_modal_header,
 .spacemap_info_modal_header,
@@ -1526,6 +1525,11 @@ input[type="number"]::-webkit-outer-spin-button {
     display: none;
 }
 
+.shown {
+    display: flex;
+    flex-direction: column;
+}
+
 /* Questbook */
 .questbook_top {
     display: flex;
@@ -1581,4 +1585,93 @@ input[type="number"]::-webkit-outer-spin-button {
     min-height: 20vh;
     width: 100%;
     border: 1px solid white;
+}
+
+
+/* Player Info Modal */
+.player_info_modal_header, .player_info_modal_content {
+    box-sizing: border-box;
+    color: white;
+    font-family: 'AudioWide';
+}
+
+.player_info_modal_header {
+    width: 100%;
+    height: 25%;
+
+    border: 1px solid white;
+
+    padding: 0;
+
+    display: flex;
+    flex-direction: row;
+}
+
+.player_info_modal_content {
+    height: 75%;
+}
+
+.player_info_modal_closer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.player_info_modal_level, .pim_close_btn {
+    height: 50%;
+}
+
+.pim_modal_btn {
+    display: flex;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid white;
+
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 1px;
+    height: 100%;
+}
+
+.player_info_modal_picture,
+.player_info_modal_honor_badge,
+.player_info_modal_prestige_badge,
+.player_info_modal_closer {
+    width: 25%;
+}
+
+.pim_experience,
+.pim_honor,
+.pim_prestige,
+.pim_credits,
+.pim_thulium {
+    width: 100%;
+    height: 20%;
+    border: 1px solid white;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+
+    box-sizing: border-box;
+}
+
+.pim_experience_icon, .pim_honor_icon, .pim_prestige_icon, .pim_credits_icon, .pim_thulium_icon {
+    height: 100%;
+    aspect-ratio: 1/1;
+    font-size: 22px;
+    text-align: center;
+}
+
+.pim_icon {
+    height: 100%;
+    width: 100%;
+    aspect-ratio: 1/1;
+}
+
+.pim_value {
+    display: flex;
+    align-items: center;
 }
