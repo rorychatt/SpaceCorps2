@@ -1303,10 +1303,8 @@ async function displayShoppingItems() {
                         buyButton.addEventListener("click", async () => {
                             console.log(
                                 `You clicked BUY for ${category} - ${itemName}`
-                            );
+                            ); 
                             
-                            // тут  
-
                             for(let i = 0; i < playerInventory.ships.length; i++) {
                                 if(playerInventory.ships[i].name == itemName) {
                                     showErrorMessage("SHIP", "This ship already buyed!");
