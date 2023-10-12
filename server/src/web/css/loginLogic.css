@@ -1789,8 +1789,11 @@ input[type="number"]::-webkit-outer-spin-button {
     font-family: 'AudioWide';
     font-size: 1vh;
     text-align: center;
-    align-content: center;
-    /* display: flow; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    width: 65%;
 }
 
 /* The switch1 - the box around the slider */
@@ -1946,4 +1949,9 @@ input[type="number"]::-webkit-outer-spin-button {
 
   .settings_volume {
     display: flex;
+    width: 35%;
+  }
+
+  .settings_switch {
+    width: 35%;
   }
