@@ -63,7 +63,25 @@ export class CreditsReward extends Reward {
     }
 }
 
+export class CreditsSetReward extends Reward {
+    credits: number;
+
+    constructor(recipientUUID: string, credits: number) {
+        super(recipientUUID);
+        this.credits = credits;
+    }
+}
+
 export class ThulimReward extends Reward {
+    thulium: number;
+
+    constructor(recipientUUID: string, thulium: number) {
+        super(recipientUUID);
+        this.thulium = thulium;
+    }
+}
+
+export class ThulimSetReward extends Reward {
     thulium: number;
 
     constructor(recipientUUID: string, thulium: number) {
@@ -118,7 +136,9 @@ export type PossibleRewards =
     | HonorReward
     | ExperienceReward
     | ThulimReward
+    | ThulimSetReward
     | CreditsReward
+    | CreditsSetReward
     | PlayerKillReward
     | AlienKillReward
     | ItemReward

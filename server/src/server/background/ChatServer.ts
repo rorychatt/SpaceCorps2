@@ -128,6 +128,12 @@ export class ChatServer {
                                         -Number(message[3])
                                     );
                                     break;
+                                case "set":
+                                    gameServer.rewardServer.registerThuliumSetReward(
+                                        _player.uuid,
+                                        Number([message[3]])
+                                    );
+                                    break;
                             }
                         }
                         break;
@@ -149,6 +155,11 @@ export class ChatServer {
                                         -Number(message[3])
                                     );
                                     break;
+                                case "set":
+                                    gameServer.rewardServer.registerCreditsSetReward(
+                                        _player2.uuid,
+                                        Number([message[3]])
+                                    )
                             }
                         }
                         break;
