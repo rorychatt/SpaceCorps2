@@ -1307,7 +1307,7 @@ async function displayShoppingItems() {
                             
                             for(let i = 0; i < playerInventory.ships.length; i++) {
                                 if(playerInventory.ships[i].name == itemName) {
-                                    showErrorMessage("This ship is already owned", "This ship is already owned");
+                                    showErrorMessage("Can not buy ship", `Ship ${itemName} already owned`);
                                     return;
                                 }
                             }
