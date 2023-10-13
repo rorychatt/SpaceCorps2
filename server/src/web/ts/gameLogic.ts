@@ -1258,6 +1258,7 @@ async function displayShoppingItems() {
                 while (categoryContainer?.firstChild) {
                     categoryContainer.removeChild(categoryContainer.firstChild);
                 }
+
                 for (const itemName in categoryItems) {
                     if (categoryItems.hasOwnProperty(itemName)) {
                         const item = categoryItems[itemName];
@@ -1271,6 +1272,8 @@ async function displayShoppingItems() {
 
                         const itemIcon = document.createElement("div");
                         itemIcon.classList.add("item_icon");
+
+                        // тут
 
                         const itemPng = document.createElement("img");
                         itemPng.classList.add("item_icon_png");
@@ -1303,7 +1306,14 @@ async function displayShoppingItems() {
                         buyButton.addEventListener("click", async () => {
                             console.log(
                                 `You clicked BUY for ${category} - ${itemName}`
-                            );
+                            ); 
+                            
+                            for(let i = 0; i < playerInventory.ships.length; i++) {
+                                if(playerInventory.ships[i].name == itemName) {
+                                    showErrorMessage("Can not buy ship", `Ship ${itemName} already owned`);
+                                    return;
+                                }
+                            }
 
                             if (!(await checkPlayerCurrency(item.price))) {
                                 return;
