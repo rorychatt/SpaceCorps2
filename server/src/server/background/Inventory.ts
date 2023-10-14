@@ -272,6 +272,8 @@ export class Inventory {
                 if (player) {
                     player.activeShipName = shipName;
                     player._activeShip = this.ships[ship];
+                    player.inventory.cargoBay.maxCapacity =
+                        this.ships[ship].cargoBay;
                 }
             }
         }
@@ -490,16 +492,17 @@ export class SpeedGenerator extends Item {
 }
 
 export class ShipItem extends Item {
+    readonly _type: string = "ShipItem";
+
     maxHealth: number;
     baseSpeed: number;
     maxLasers: number;
     maxGenerators: number;
     price: { credits?: number; thulium?: number };
-    readonly _type: string = "ShipItem";
-
     currentLasers: Laser[] = [];
     currentGenerators: (ShieldGenerator | SpeedGenerator)[] = [];
     isActive: boolean;
+    cargoBay: number;
 
     constructor(shipName: string, activeShip?: boolean) {
         super(shipName);
@@ -511,6 +514,7 @@ export class ShipItem extends Item {
             credits: shipData[shipName].price.credits,
             thulium: shipData[shipName].price.thulium,
         };
+        this.cargoBay = shipData[shipName].cargoBay;
         this.isActive = false;
         if (activeShip) {
             this.isActive = activeShip;
