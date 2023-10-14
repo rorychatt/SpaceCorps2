@@ -1887,7 +1887,7 @@ function createNewIcon(itemName: string) {
     itemPng.classList.add("item_icon_png");
     itemPng.src = `../assets/icons/${itemName}.png`;
     itemPng.onerror = () => {
-        itemPng.src = `../assets/icons/defaulticon.png`;
+        itemPng.src = `../assets/icons/defaultIcon.png`;
         console.log(`Icon ${itemName} not found`);
     }
 
