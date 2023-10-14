@@ -37,19 +37,19 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const server = http.createServer(app);
 const io: Server = new Server(server);
-
-setupDatabaseConnection();
-
 const config: Config = readServerConfigFile();
+export let gameServer: GameServer;
+
+setupDatabaseConnection().then(() => {
+    gameServer = new GameServer(io);
+    gameServer.startServer();
+});
 
 handleHTTPRequests();
 
 server.listen(config.server.port, () => {
     console.log(`Node server is running at port: ${config.server.port}`);
 });
-
-export const gameServer: GameServer = new GameServer(io);
-gameServer.startServer();
 
 io.on("connection", (socket) => {
     console.log("A user connected");
@@ -96,13 +96,15 @@ io.on("connection", (socket) => {
                         gameversion: gameServer._version,
                     });
 
-                    const playerSettings = await loadPlayerSettings(userCredentials.username);
+                    const playerSettings = await loadPlayerSettings(
+                        userCredentials.username
+                    );
 
                     socket.emit("loadPlayerSettings", {
                         username: userCredentials.username,
                         playerSettings: playerSettings,
                     });
-                    
+
                     socket.emit("shopData", {
                         lasers: laserData,
                         generators: generatorData,
@@ -294,10 +296,12 @@ io.on("connection", (socket) => {
         });
     });
 
-    socket.on("saveSettings", (data: {username: string, volume: number, antiAliasing: boolean }) => {
-        console.log("DATAANTI", data.antiAliasing);
+    socket.on(
+        "saveSettings",
+        (data: { username: string; volume: number; antiAliasing: boolean }) => {
+            console.log("DATAANTI", data.antiAliasing);
 
-        const query = `
+            const query = `
         UPDATE gamesettings
         SET
             volume = ${data.volume},
@@ -305,8 +309,9 @@ io.on("connection", (socket) => {
         WHERE
             username = '${data.username}';
         `;
-        return executeQuery(query);
-    });
+            return executeQuery(query);
+        }
+    );
 });
 
 function handleHTTPRequests() {
