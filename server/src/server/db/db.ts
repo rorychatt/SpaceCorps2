@@ -27,15 +27,8 @@ export let pool: mysql.Pool;
 
 const config: Config = readServerConfigFile();
 
-export function setupDatabaseConnection(): void {
-    try {
-        pool = mysql.createPool(config.database);
-    } catch (error) {
-        console.error(`Error: ${error}`);
-        process.exit(1);
-    }
-
-    pool.getConnection(async (error, connection) => {
+export function setupDatabaseConnection(): Promise<void> {
+    return new Promise((resolve, reject) => {
         try {
             pool = mysql.createPool(config.database);
         } catch (error) {
@@ -99,7 +92,7 @@ export function setupDatabaseConnection(): void {
                     executeQuery(settingsPlayerQuery),
                 ]);
 
-                resolve(); // Resolve promise if no error occurs
+                resolve();  // Resolve promise if no error occurs
             } catch (err) {
                 console.error("Error executing query:", err);
                 reject(err); // Reject promise if error occurs
