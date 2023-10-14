@@ -4,8 +4,11 @@ import cors from "cors";
 import http from "http";
 import { Server, Socket } from "socket.io";
 import {
+    executeQuery,
     getUserByUsername,
+    loadPlayerSettings,
     registerNewUser,
+    savePlayerSettings,
     setupDatabaseConnection,
 } from "./db/db.js";
 import path from "path";
@@ -35,19 +38,19 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const server = http.createServer(app);
 const io: Server = new Server(server);
-
-setupDatabaseConnection();
-
 const config: Config = readServerConfigFile();
+export let gameServer: GameServer;
+
+setupDatabaseConnection().then(() => {
+    gameServer = new GameServer(io);
+    gameServer.startServer();
+});
 
 handleHTTPRequests();
 
 server.listen(config.server.port, () => {
     console.log(`Node server is running at port: ${config.server.port}`);
 });
-
-export const gameServer: GameServer = new GameServer(io);
-gameServer.startServer();
 
 io.on("connection", (socket) => {
     console.log("A user connected");
@@ -93,6 +96,16 @@ io.on("connection", (socket) => {
                         username: userCredentials.username,
                         gameversion: gameServer._version,
                     });
+
+                    const playerSettings = await loadPlayerSettings(
+                        userCredentials.username
+                    );
+
+                    socket.emit("loadPlayerSettings", {
+                        username: userCredentials.username,
+                        playerSettings: playerSettings,
+                    });
+
                     socket.emit("shopData", {
                         lasers: laserData,
                         generators: generatorData,
@@ -283,6 +296,12 @@ io.on("connection", (socket) => {
             top10: gameServer.rankingServer.topHonorList,
         });
     });
+
+    socket.on(
+        "saveSettings", (settingsData: SettingsData) => {
+            savePlayerSettings(settingsData)
+        }
+    );
 });
 
 function handleHTTPRequests() {
@@ -374,3 +393,5 @@ function handleHTTPRequests() {
         );
     });
 }
+
+type SettingsData = { username: string, volume: number, antiAliasing: boolean };

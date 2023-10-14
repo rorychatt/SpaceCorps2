@@ -27,40 +27,47 @@ export let pool: mysql.Pool;
 
 const config: Config = readServerConfigFile();
 
-export function setupDatabaseConnection(): void {
-    try {
-        pool = mysql.createPool(config.database);
-    } catch (error) {
-        console.error(`Error: ${error}`);
-        process.exit(1);
-    }
-
-    pool.getConnection(async (error, connection) => {
+export function setupDatabaseConnection(): Promise<void> {
+    return new Promise((resolve, reject) => {
         try {
+            pool = mysql.createPool(config.database);
+        } catch (error) {
+            console.error(`Error: ${error}`);
+            process.exit(1);
+        }
+
+        pool.getConnection(async (error, connection) => {
             if (error) {
                 console.error("Error connecting to the database:", error);
-            } else {
-                console.log(`TEST CONNECT TO MYSQL: SUCCESS`);
+                reject(error); // Reject promise if error occurs
+                return;
+            }
+
+            console.log(`TEST CONNECT TO MYSQL: SUCCESS`);
+
+            try {
                 const loginTableQuery: string = `
                     CREATE TABLE IF NOT EXISTS login (
-                    uuid INT AUTO_INCREMENT PRIMARY KEY,
-                    username VARCHAR(255),
-                    password VARCHAR(255),
-                    lastLogin DATETIME
+                        uuid INT AUTO_INCREMENT PRIMARY KEY,
+                        username VARCHAR(255),
+                        password VARCHAR(255),
+                        lastLogin DATETIME
                     );`;
+
                 const playerEntityQuery: string = `
                     CREATE TABLE IF NOT EXISTS playerEntity (
-                      username VARCHAR(255) PRIMARY KEY,
-                      mapName VARCHAR(255) DEFAULT 'M-1',
-                      company VARCHAR(255) DEFAULT 'MCC',
-                      positionX DOUBLE DEFAULT 0,
-                      positionY DOUBLE DEFAULT 0,
-                      credits BIGINT DEFAULT 50000,
-                      thulium BIGINT DEFAULT 10000,
-                      experience BIGINT DEFAULT 0,
-                      honor BIGINT DEFAULT 0,
-                      level INT DEFAULT 1
+                        username VARCHAR(255) PRIMARY KEY,
+                        mapName VARCHAR(255) DEFAULT 'M-1',
+                        company VARCHAR(255) DEFAULT 'MCC',
+                        positionX DOUBLE DEFAULT 0,
+                        positionY DOUBLE DEFAULT 0,
+                        credits BIGINT DEFAULT 50000,
+                        thulium BIGINT DEFAULT 10000,
+                        experience BIGINT DEFAULT 0,
+                        honor BIGINT DEFAULT 0,
+                        level INT DEFAULT 1
                     );`;
+
                 const inventoryQuery: string = `
                     CREATE TABLE IF NOT EXISTS inventory (
                         username VARCHAR(255) PRIMARY KEY,
@@ -70,15 +77,29 @@ export function setupDatabaseConnection(): void {
                         ammunition JSON,
                         ships JSON
                     );`;
+
+                const settingsPlayerQuery: string = `
+                    CREATE TABLE IF NOT EXISTS gamesettings (
+                        username VARCHAR(255) PRIMARY KEY,
+                        volume INT DEFAULT 100,
+                        antiAliasing BOOLEAN DEFAULT FALSE 
+                    );`;
+
                 await Promise.all([
                     executeQuery(loginTableQuery),
                     executeQuery(playerEntityQuery),
                     executeQuery(inventoryQuery),
+                    executeQuery(settingsPlayerQuery),
                 ]);
+
+                resolve();  // Resolve promise if no error occurs
+            } catch (err) {
+                console.error("Error executing query:", err);
+                reject(err); // Reject promise if error occurs
+            } finally {
+                connection.release();
             }
-        } finally {
-            connection.release();
-        }
+        });
     });
 }
 
@@ -120,6 +141,11 @@ export function getAllUserStats() {
     return executeQuery(query);
 }
 
+export function loadPlayerSettings(username: string) {
+    const query = `SELECT * FROM gamesettings WHERE username = "${username}"`;
+    return executeQuery(query);
+}
+
 export async function registerNewUser(username: string, password: string) {
     const checkUserQuery = `SELECT * FROM login WHERE username = "${username}"`;
 
@@ -129,10 +155,12 @@ export async function registerNewUser(username: string, password: string) {
             const loginTableQuery = `INSERT INTO login (username, password, lastLogin) VALUES ("${username}", "${password}", NOW())`;
             const playerEntityQuery = `INSERT INTO playerEntity (username) VALUES ("${username}")`;
             const inventoryQuery = `INSERT INTO inventory (username, lasers, shieldGenerators, speedGenerators, ships) VALUES ("${username}", "{}", "{}", "{}", '{"protos":{"name":"Protos","maxHealth":8000,"baseSpeed":150,"maxLasers":2,"maxGenerators":2,"isActive":true,"price":{"credits":10000}}}')`;
+            const playerSettingsQuery = `INSERT INTO gamesettings (username) VALUES ("${username}")`;
 
             executeQuery(loginTableQuery);
             executeQuery(playerEntityQuery);
             executeQuery(inventoryQuery);
+            executeQuery(playerSettingsQuery);
         } else {
             console.log("Can't register user");
         }
@@ -170,7 +198,7 @@ export function getInventoryData(username: string): Promise<any> {
     return executeQuery(query);
 }
 
-function executeQuery<T>(query: string): Promise<T[]> {
+export function executeQuery<T>(query: string): Promise<T[]> {
     return new Promise<T[]>((resolve, reject) => {
         try {
             pool.getConnection((connectionError, connection) => {
@@ -232,4 +260,16 @@ export function savePlayerData(player: Player): void {
 
     executeQuery(sql);
     updateInventoryData(player.name, player.inventory);
+}
+
+export function savePlayerSettings(data: { username: string; volume: number; antiAliasing: boolean }) {
+    const query = `
+        UPDATE gamesettings
+        SET
+            volume = ${data.volume},
+            antiAliasing = '${data.antiAliasing}'
+        WHERE
+            username = '${data.username}';
+        `;
+    executeQuery(query);
 }
