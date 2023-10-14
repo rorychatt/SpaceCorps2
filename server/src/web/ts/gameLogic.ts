@@ -110,40 +110,37 @@ socket.on(
     }
 );
 
-socket.on("loadPlayerSettings", (data: { username: string, playerSettings: any }) => {
-    switchCheckbox = document.querySelector(
-        "#setting_switch_antialiasing .chk"
-    );
+socket.on(
+    "loadPlayerSettings",
+    (data: { username: string; playerSettings: any }) => {
+        switchCheckbox = document.querySelector(
+            "#setting_switch_antialiasing .chk"
+        );
 
-    volumeValue = document.querySelector("#volumeLevelInput");
+        volumeValue = document.querySelector("#volumeLevelInput");
 
-    saveSettingsBtn = document.getElementById("save_settings_btn");
+        saveSettingsBtn = document.getElementById("save_settings_btn");
 
-    for(let i = 0; i < data.playerSettings.length; i++) {
-        if(data.username == data.playerSettings[i].username) {
-            if(volumeValue && switchCheckbox && saveSettingsBtn) {
-                volumeValue.value = data.playerSettings[i].volume;
+        for (let i = 0; i < data.playerSettings.length; i++) {
+            if (data.username == data.playerSettings[i].username) {
+                if (volumeValue && switchCheckbox && saveSettingsBtn) {
+                    volumeValue.value = data.playerSettings[i].volume;
 
-                switchCheckbox.checked = data.playerSettings[i].antiAliasing;
-                switchCheckbox.addEventListener("change", handleAntiAliasing);
-                
-                function handleAntiAliasing() {
-                    if(switchCheckbox) {
-                        if(switchCheckbox.checked) {
-                            switchCheckbox.checked = false;
-                        } else {
-                            switchCheckbox.checked = true;
-                        }
-                    }
+                    switchCheckbox.checked =
+                        data.playerSettings[i].antiAliasing;
+
+                    saveSettingsBtn.addEventListener("click", () => {
+                        savePlayerSettings(
+                            data.username,
+                            volumeValue,
+                            switchCheckbox
+                        );
+                    });
                 }
-
-                saveSettingsBtn.addEventListener("click", () => {
-                    savePlayerSettings(data.username, volumeValue, switchCheckbox);
-                });
             }
         }
     }
-});
+);
 
 socket.on("userAlreadyLogined", (data: { username: string }) => {
     alert(`The user ${data.username} is already authorized`);
@@ -361,10 +358,10 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
 function savePlayerSettings(username: string, volume: any, antiAliasing: any) {
     console.log("VROTEBAL", username);
     console.log("USHI", volume.value);
-    console.log("IDINAXUI", antiAliasing.value);
+    console.log("IDINAXUI", antiAliasing.checked);
 
     // if(data) {
-    //     socket.emit("saveSettings", { 
+    //     socket.emit("saveSettings", {
     //         username: data.username,
     //         volume: volumeValue?.value,
     //         antiAliasing: 1
@@ -1354,11 +1351,18 @@ async function displayShoppingItems() {
                         buyButton.addEventListener("click", async () => {
                             console.log(
                                 `You clicked BUY for ${category} - ${itemName}`
-                            ); 
-                            
-                            for(let i = 0; i < playerInventory.ships.length; i++) {
-                                if(playerInventory.ships[i].name == itemName) {
-                                    showErrorMessage("Can not buy ship", `Ship ${itemName} already owned`);
+                            );
+
+                            for (
+                                let i = 0;
+                                i < playerInventory.ships.length;
+                                i++
+                            ) {
+                                if (playerInventory.ships[i].name == itemName) {
+                                    showErrorMessage(
+                                        "Can not buy ship",
+                                        `Ship ${itemName} already owned`
+                                    );
                                     return;
                                 }
                             }
@@ -1925,7 +1929,7 @@ function createNewIcon(itemName: string) {
     itemPng.onerror = () => {
         itemPng.src = `../assets/icons/defaultIcon.png`;
         console.log(`Icon ${itemName} not found`);
-    }
+    };
 
     return itemPng;
 }

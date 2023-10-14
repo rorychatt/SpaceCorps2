@@ -102,6 +102,7 @@ io.on("connection", (socket) => {
                         username: userCredentials.username,
                         playerSettings: playerSettings,
                     });
+                    
                     socket.emit("shopData", {
                         lasers: laserData,
                         generators: generatorData,

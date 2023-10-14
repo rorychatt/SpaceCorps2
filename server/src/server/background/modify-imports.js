@@ -13,7 +13,7 @@ await Promise.all([
     fixShop(),
     fixCargoDrop(),
     fixInventory(),
-    fixRankingServer()
+    fixRankingServer(),
 ]);
 
 function fixGameServer() {
@@ -32,7 +32,6 @@ function fixGameServer() {
             'import { RankingServer } from "./RankingServer";',
             'import { RankingServer } from "./RankingServer.js";'
         );
-
 
         modifiedData = modifiedData.replace(
             'import { Spacemap } from "./Spacemap";',
@@ -261,8 +260,8 @@ function fixRewardServer() {
             }
 
             let modifiedData = data.replace(
-                'import { AlienKillReward, CargoDropReward, CreditsReward, ExperienceReward, HonorReward, ItemReward, PlayerKillReward, ThulimReward, } from "./Reward";',
-                'import { AlienKillReward, CargoDropReward, CreditsReward, ExperienceReward, HonorReward, ItemReward, PlayerKillReward, ThulimReward, } from "./Reward.js";'
+                'import { AlienKillReward, CargoDropReward, CreditsReward, CreditsSetReward, ExperienceReward, HonorReward, ItemReward, PlayerKillReward, ThulimReward, ThulimSetReward, } from "./Reward";',
+                'import { AlienKillReward, CargoDropReward, CreditsReward, CreditsSetReward, ExperienceReward, HonorReward, ItemReward, PlayerKillReward, ThulimReward, ThulimSetReward, } from "./Reward.js";'
             );
 
             modifiedData = modifiedData.replace(
@@ -448,26 +447,29 @@ function fixCargoDrop() {
 }
 
 function fixRankingServer() {
-    readFile("./dist/server/background/RankingServer.js", "utf8", (err, data) => {
-        if (err) {
-            console.error(`Error reading file: ${err}`);
-            return;
-        }
-
-        let modifiedData = data.replace(
-            'import { getAllUserStats } from "../db/db";',
-            'import { getAllUserStats } from "../db/db.js";'
-        );
-
-        writeFile(
-            "./dist/server/background/RankingServer.js",
-            modifiedData,
-            (err) => {
-                if (err) {
-                    console.error(`Error writing file: ${err}`);
-                }
+    readFile(
+        "./dist/server/background/RankingServer.js",
+        "utf8",
+        (err, data) => {
+            if (err) {
+                console.error(`Error reading file: ${err}`);
+                return;
             }
-        );
-    });
-}
 
+            let modifiedData = data.replace(
+                'import { getAllUserStats } from "../db/db";',
+                'import { getAllUserStats } from "../db/db.js";'
+            );
+
+            writeFile(
+                "./dist/server/background/RankingServer.js",
+                modifiedData,
+                (err) => {
+                    if (err) {
+                        console.error(`Error writing file: ${err}`);
+                    }
+                }
+            );
+        }
+    );
+}
