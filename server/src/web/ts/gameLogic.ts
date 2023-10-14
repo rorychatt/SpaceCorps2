@@ -1273,11 +1273,13 @@ async function displayShoppingItems() {
                         const itemIcon = document.createElement("div");
                         itemIcon.classList.add("item_icon");
 
-                        // тут
-
                         const itemPng = document.createElement("img");
                         itemPng.classList.add("item_icon_png");
                         itemPng.src = `../assets/icons/${itemName}.png`;
+                        itemPng.onerror = () => {
+                            itemPng.src = `../assets/icons/defaulticon.png`;
+                            console.log(`Icon ${itemName} not found`);
+                        }   
                         itemIcon.appendChild(itemPng);
 
                         const itemPrice = document.createElement("div");
@@ -1357,6 +1359,10 @@ async function displayShoppingItems() {
                     const itemPng = document.createElement("img");
                     itemPng.classList.add("item_icon_png");
                     itemPng.src = `../assets/icons/${name}.png`;
+                    itemPng.onerror = () => {
+                        itemPng.src = `../assets/icons/defaulticon.png`;
+                        console.log(`Icon ${name} not found`);
+                    }
                     itemIcon.appendChild(itemPng);
 
                     const itemAmount = document.createElement("div");
@@ -1441,6 +1447,10 @@ async function displayShipsInHangar() {
             const itemPng = document.createElement("img");
             itemPng.classList.add("item_icon_png");
             itemPng.src = `../assets/icons/${ship.name}.png`;
+            itemPng.onerror = () => {
+                itemPng.src = `../assets/icons/defaulticon.png`;
+                console.log(`Icon ${ship.name} not found`);
+            }
             shipIcon.appendChild(itemPng);
 
             const equipButton = document.createElement("button");
@@ -1486,6 +1496,10 @@ async function displayItemsInWorkroom() {
             const itemPng = document.createElement("img");
             itemPng.classList.add("item_icon_png");
             itemPng.src = `../assets/icons/${laser.name}.png`;
+            itemPng.onerror = () => {
+                itemPng.src = `../assets/icons/defaulticon.png`;
+                console.log(`Icon ${laser.name} not found`);
+            }
             itemIcon.appendChild(itemPng);
 
             const equipButton = document.createElement("button");
@@ -1523,6 +1537,10 @@ async function displayItemsInWorkroom() {
             const itemPng = document.createElement("img");
             itemPng.classList.add("item_icon_png");
             itemPng.src = `../assets/icons/${shieldGenerator.name}.png`;
+            itemPng.onerror = () => {
+                itemPng.src = `../assets/icons/defaulticon.png`;
+                console.log(`Icon ${shieldGenerator.name} not found`);
+            }
             itemIcon.appendChild(itemPng);
 
             const equipButton = document.createElement("button");
@@ -1561,6 +1579,10 @@ async function displayItemsInWorkroom() {
             const itemPng = document.createElement("img");
             itemPng.classList.add("item_icon_png");
             itemPng.src = `../assets/icons/${speedGenerator.name}.png`;
+            itemPng.onerror = () => {
+                itemPng.src = `../assets/icons/defaulticon.png`;
+                console.log(`Icon ${speedGenerator.name} not found`);
+            }
             itemIcon.appendChild(itemPng);
 
             const equipButton = document.createElement("button");
@@ -1625,6 +1647,10 @@ async function displayActiveItems() {
                     const itemPng = document.createElement("img");
                     itemPng.classList.add("item_icon_png");
                     itemPng.src = `../assets/icons/${laser.name}.png`;
+                    itemPng.onerror = () => {
+                        itemPng.src = `../assets/icons/defaulticon.png`;
+                        console.log(`Icon ${laser.name} not found`);
+                    }
                     itemIcon.appendChild(itemPng);
 
                     const unequipButton = document.createElement("button");
@@ -1667,6 +1693,10 @@ async function displayActiveItems() {
                     const itemPng = document.createElement("img");
                     itemPng.classList.add("item_icon_png");
                     itemPng.src = `../assets/icons/${shieldGenerator.name}.png`;
+                    itemPng.onerror = () => {
+                        itemPng.src = `../assets/icons/defaulticon.png`;
+                        console.log(`Icon ${shieldGenerator.name} not found`);
+                    }
                     itemIcon.appendChild(itemPng);
 
                     const unequipButton = document.createElement("button");
