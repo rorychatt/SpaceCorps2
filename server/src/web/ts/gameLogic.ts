@@ -130,11 +130,15 @@ socket.on(
                         data.playerSettings[i].antiAliasing;
 
                     saveSettingsBtn.addEventListener("click", () => {
-                        savePlayerSettings(
-                            data.username,
-                            volumeValue,
-                            switchCheckbox
-                        );
+                        if(volumeValue && switchCheckbox) {
+                            savePlayerSettings(
+                                {   
+                                    username: data.username,
+                                    volume: volumeValue.value,
+                                    antiAliasing: switchCheckbox.checked
+                                }
+                            );
+                        }
                     });
                 }
             }
@@ -355,18 +359,12 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
     }
 });
 
-function savePlayerSettings(username: string, volume: any, antiAliasing: any) {
-    console.log("VROTEBAL", username);
-    console.log("USHI", volume.value);
-    console.log("IDINAXUI", antiAliasing.checked);
-
-    // if(data) {
-    //     socket.emit("saveSettings", {
-    //         username: data.username,
-    //         volume: volumeValue?.value,
-    //         antiAliasing: 1
-    //     });
-    // }
+function savePlayerSettings(data: { username: string, volume: string, antiAliasing: boolean }) {
+    socket.emit("saveSettings", {
+        username: data.username,
+        volume: parseInt(data.volume),
+        antiAliasing: data.antiAliasing
+    });
 }
 
 async function loadNewSpacemap(data: any) {
