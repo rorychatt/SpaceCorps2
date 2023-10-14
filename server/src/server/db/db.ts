@@ -261,3 +261,15 @@ export function savePlayerData(player: Player): void {
     executeQuery(sql);
     updateInventoryData(player.name, player.inventory);
 }
+
+export function savePlayerSettings(data: { username: string; volume: number; antiAliasing: boolean }) {
+    const query = `
+        UPDATE gamesettings
+        SET
+            volume = ${data.volume},
+            antiAliasing = '${data.antiAliasing}'
+        WHERE
+            username = '${data.username}';
+        `;
+    executeQuery(query);
+}

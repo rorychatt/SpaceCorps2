@@ -8,6 +8,7 @@ import {
     getUserByUsername,
     loadPlayerSettings,
     registerNewUser,
+    savePlayerSettings,
     setupDatabaseConnection,
 } from "./db/db.js";
 import path from "path";
@@ -297,19 +298,8 @@ io.on("connection", (socket) => {
     });
 
     socket.on(
-        "saveSettings",
-        (data: { username: string; volume: number; antiAliasing: boolean }) => {
-            console.log("DATAANTI", data.antiAliasing);
-
-            const query = `
-        UPDATE gamesettings
-        SET
-            volume = ${data.volume},
-            antiAliasing = '${data.antiAliasing}'
-        WHERE
-            username = '${data.username}';
-        `;
-            return executeQuery(query);
+        "saveSettings", (settingsData: SettingsData) => {
+            savePlayerSettings(settingsData)
         }
     );
 });
@@ -403,3 +393,5 @@ function handleHTTPRequests() {
         );
     });
 }
+
+type SettingsData = { username: string, volume: number, antiAliasing: boolean };

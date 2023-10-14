@@ -360,11 +360,19 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
 });
 
 function savePlayerSettings(data: { username: string, volume: string, antiAliasing: boolean }) {
-    socket.emit("saveSettings", {
-        username: data.username,
-        volume: parseInt(data.volume),
-        antiAliasing: data.antiAliasing
-    });
+    if(data.antiAliasing) {
+        socket.emit("saveSettings", {
+            username: data.username,
+            volume: parseInt(data.volume),
+            antiAliasing: 1
+        });
+    } else {
+        socket.emit("saveSettings", {
+            username: data.username,
+            volume: parseInt(data.volume),
+            antiAliasing: 0
+        });
+    }
 }
 
 async function loadNewSpacemap(data: any) {
