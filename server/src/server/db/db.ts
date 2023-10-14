@@ -32,7 +32,7 @@ export function setupDatabaseConnection(): void {
         pool = mysql.createPool(config.database);
     } catch (error) {
         console.error(`Error: ${error}`);
-        process.exit(1)
+        process.exit(1);
     }
 
     pool.getConnection(async (error, connection) => {
@@ -115,7 +115,7 @@ export function getUserDataByUsername(username: string) {
     return executeQuery(query);
 }
 
-export function getAllUserStats(){
+export function getAllUserStats() {
     const query = `SELECT * FROM playerEntity`;
     return executeQuery(query);
 }

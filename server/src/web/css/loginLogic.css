@@ -1120,6 +1120,7 @@ h1 {
     flex-direction: column;
     justify-content: space-between;
     flex-wrap: wrap;
+    min-height: 180px;
 }
 
 .item_logo,
