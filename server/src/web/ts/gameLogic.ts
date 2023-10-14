@@ -26,9 +26,9 @@ const honorElement = document.getElementById("honor_value");
 const notificationContainer = document.getElementById("notification_container");
 const prestigeElement = document.getElementById("prestige_value");
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
-let switchCheckbox: HTMLInputElement | null;
-let volumeValue: HTMLInputElement | null;
-let saveSettingsBtn: HTMLElement | null;
+const switchCheckbox: HTMLInputElement | null = document.querySelector("#setting_switch_antialiasing .chk");
+const volumeValue: HTMLInputElement | null = document.querySelector("#volumeLevelInput");
+const saveSettingsBtn: HTMLElement | null = document.getElementById("save_settings_btn");;
 
 const refreshTop10HonorBtn = document.getElementById("getTop10HonorBtn") as
     | HTMLButtonElement
@@ -116,14 +116,6 @@ socket.on(
 socket.on(
     "loadPlayerSettings",
     (data: { username: string; playerSettings: any }) => {
-        switchCheckbox = document.querySelector(
-            "#setting_switch_antialiasing .chk"
-        );
-
-        volumeValue = document.querySelector("#volumeLevelInput");
-
-        saveSettingsBtn = document.getElementById("save_settings_btn");
-
         for (let i = 0; i < data.playerSettings.length; i++) {
             if (data.username == data.playerSettings[i].username) {
                 if (volumeValue && switchCheckbox && saveSettingsBtn) {
@@ -1318,6 +1310,15 @@ async function loadEventListeners() {
     });
 
     window.addEventListener("keypress", handleKeyboardButton);
+
+    switchCheckbox?.addEventListener("change", (event: any) => {
+        const isChecked = event.target.checked;
+        if (isChecked) {
+            recreateRenderer(true);
+        } else {
+            recreateRenderer(false);
+        }
+    });
 }
 
 async function displayShoppingItems() {
