@@ -26,6 +26,9 @@ const honorElement = document.getElementById("honor_value");
 const notificationContainer = document.getElementById("notification_container");
 const prestigeElement = document.getElementById("prestige_value");
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
+let switchCheckbox: HTMLInputElement | null;
+let volumeValue: HTMLInputElement | null;
+let saveSettingsBtn: HTMLElement | null;
 
 const refreshTop10HonorBtn = document.getElementById("getTop10HonorBtn") as
     | HTMLButtonElement
@@ -106,6 +109,41 @@ socket.on(
         socket.emit("checkisAdmin", data.username);
     }
 );
+
+socket.on("loadPlayerSettings", (data: { username: string, playerSettings: any }) => {
+    switchCheckbox = document.querySelector(
+        "#setting_switch_antialiasing .chk"
+    );
+
+    volumeValue = document.querySelector("#volumeLevelInput");
+
+    saveSettingsBtn = document.getElementById("save_settings_btn");
+
+    for(let i = 0; i < data.playerSettings.length; i++) {
+        if(data.username == data.playerSettings[i].username) {
+            if(volumeValue && switchCheckbox && saveSettingsBtn) {
+                volumeValue.value = data.playerSettings[i].volume;
+
+                switchCheckbox.checked = data.playerSettings[i].antiAliasing;
+                switchCheckbox.addEventListener("change", handleAntiAliasing);
+                
+                function handleAntiAliasing() {
+                    if(switchCheckbox) {
+                        if(switchCheckbox.checked) {
+                            switchCheckbox.checked = false;
+                        } else {
+                            switchCheckbox.checked = true;
+                        }
+                    }
+                }
+
+                saveSettingsBtn.addEventListener("click", () => {
+                    savePlayerSettings(data.username, volumeValue, switchCheckbox);
+                });
+            }
+        }
+    }
+});
 
 socket.on("userAlreadyLogined", (data: { username: string }) => {
     alert(`The user ${data.username} is already authorized`);
@@ -319,6 +357,20 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
         }
     }
 });
+
+function savePlayerSettings(username: string, volume: any, antiAliasing: any) {
+    console.log("VROTEBAL", username);
+    console.log("USHI", volume.value);
+    console.log("IDINAXUI", antiAliasing.value);
+
+    // if(data) {
+    //     socket.emit("saveSettings", { 
+    //         username: data.username,
+    //         volume: volumeValue?.value,
+    //         antiAliasing: 1
+    //     });
+    // }
+}
 
 async function loadNewSpacemap(data: any) {
     clearScene(scene);
@@ -1830,22 +1882,6 @@ function setupSoundBuffers() {
     );
 }
 
-const switchCheckbox = document.querySelector(
-    "#setting_switch_antialiasing .chk"
-);
-
-if (switchCheckbox) {
-    switchCheckbox.addEventListener("change", handleAntiAliasing);
-
-    function handleAntiAliasing(event: any) {
-        const isChecked = event.target.checked;
-        if (isChecked) {
-            recreateRenderer(true);
-        } else {
-            recreateRenderer(false);
-        }
-    }
-}
 function recreateRenderer(antialias: boolean) {
     const container = document.getElementById("spacemapDiv");
     if (!container) return;
@@ -1892,4 +1928,4 @@ function createNewIcon(itemName: string) {
     }
 
     return itemPng;
-}   
+}

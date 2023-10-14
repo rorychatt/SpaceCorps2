@@ -4,7 +4,9 @@ import cors from "cors";
 import http from "http";
 import { Server, Socket } from "socket.io";
 import {
+    executeQuery,
     getUserByUsername,
+    loadPlayerSettings,
     registerNewUser,
     setupDatabaseConnection,
 } from "./db/db.js";
@@ -92,6 +94,13 @@ io.on("connection", (socket) => {
                     socket.emit("loginSuccessful", {
                         username: userCredentials.username,
                         gameversion: gameServer._version,
+                    });
+
+                    const playerSettings = await loadPlayerSettings(userCredentials.username);
+
+                    socket.emit("loadPlayerSettings", {
+                        username: userCredentials.username,
+                        playerSettings: playerSettings,
                     });
                     socket.emit("shopData", {
                         lasers: laserData,
@@ -282,6 +291,20 @@ io.on("connection", (socket) => {
         socket.emit("serverTop10Honor", {
             top10: gameServer.rankingServer.topHonorList,
         });
+    });
+
+    socket.on("saveSettings", (data: {username: string, volume: number, antiAliasing: boolean }) => {
+        console.log("DATAANTI", data.antiAliasing);
+
+        const query = `
+        UPDATE gamesettings
+        SET
+            volume = ${data.volume},
+            antiAliasing = '${data.antiAliasing}'
+        WHERE
+            username = '${data.username}';
+        `;
+        return executeQuery(query);
     });
 });
 
