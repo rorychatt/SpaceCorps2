@@ -27,8 +27,15 @@ export let pool: mysql.Pool;
 
 const config: Config = readServerConfigFile();
 
-export function setupDatabaseConnection(): Promise<void> {
-    return new Promise((resolve, reject) => {
+export function setupDatabaseConnection(): void {
+    try {
+        pool = mysql.createPool(config.database);
+    } catch (error) {
+        console.error(`Error: ${error}`);
+        process.exit(1);
+    }
+
+    pool.getConnection(async (error, connection) => {
         try {
             pool = mysql.createPool(config.database);
         } catch (error) {

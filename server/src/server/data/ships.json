@@ -7,7 +7,8 @@
         "maxGenerators": 2,
         "price": {
             "credits": 10000
-        }
+        },
+        "cargoBay": 500
     },
     "Ostirion": {
         "name": "Ostirion",
@@ -17,7 +18,8 @@
         "maxGenerators": 4,
         "price": {
             "credits": 155000
-        }
+        },
+        "cargoBay": 750
     },
     "Paragon": {
         "name": "Paragon",
@@ -27,7 +29,8 @@
         "maxGenerators": 5,
         "price": {
             "credits": 655000
-        }
+        },
+        "cargoBay": 1000
     },
     "Echelon": {
         "name": "Echelon",
@@ -37,7 +40,8 @@
         "maxGenerators": 6,
         "price": {
             "thulium": 12000
-        }
+        },
+        "cargoBay": 1250
     },
     "Wraith": {
         "name": "Wraith",
@@ -47,6 +51,7 @@
         "maxGenerators": 14,
         "price": {
             "thulium": 65000
-        }
+        },
+        "cargoBay": 3500
     }
 }
