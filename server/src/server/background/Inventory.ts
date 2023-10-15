@@ -633,7 +633,7 @@ export class RocketAmmo extends Item {
     criticalMultiplier: number;
     damageRadius: number;
     speed: number;
-    _type: string = "RocketAmmo";
+    readonly _type: string = "RocketAmmo";
     price: { credits?: number; thulium?: number };
 
     constructor(name: string, amount?: number) {
@@ -713,6 +713,46 @@ export class CargoBay {
         }
     }
 }
+
+export class ExperienceItem extends Item {
+    readonly _type: string = "ExperienceItem";
+    amount: number;
+
+    constructor(name: string, experienceAmount: number) {
+        super(name);
+        this.amount = experienceAmount;
+    }
+}
+
+export class CreditsItem extends Item {
+    readonly _type: string = "CreditsItem";
+    amount: number;
+
+    constructor(name: string, creditsAmount: number) {
+        super(name);
+        this.amount = creditsAmount;
+    }
+}
+export class HonorItem extends Item {
+    readonly _type: string = "HonorItem";
+    amount: number;
+
+    constructor(name: string, honorAmount: number) {
+        super(name);
+        this.amount = honorAmount;
+    }
+}
+export class ThuliumItem extends Item {
+    readonly _type: string = "ThuliumItem";
+    amount: number;
+
+    constructor(name: string, thuliumAmount: number) {
+        super(name);
+        this.amount = thuliumAmount;
+    }
+}
+
+
 
 export class CargoBayDTO {
     maxCapacity: number;

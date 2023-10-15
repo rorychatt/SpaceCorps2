@@ -1644,6 +1644,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .player_info_modal_level, .pim_close_btn {
     height: 50%;
+    /* align-items: center; */
 }
 
 .pim_modal_btn {
