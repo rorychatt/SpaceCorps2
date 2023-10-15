@@ -25,6 +25,7 @@ const experienceElement = document.getElementById("experience_value");
 const honorElement = document.getElementById("honor_value");
 const notificationContainer = document.getElementById("notification_container");
 const prestigeElement = document.getElementById("prestige_value");
+const levelElement = document.getElementById("player_level_div");
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
 const switchCheckbox: HTMLInputElement | null = document.querySelector(
     "#setting_switch_antialiasing .chk"
@@ -137,6 +138,8 @@ socket.on(
                             });
                         }
                     });
+
+                    recreateRenderer(data.playerSettings[i].antiAliasing);
                 }
             }
         }
@@ -832,7 +835,7 @@ async function createObject(data: any) {
                 scene.add(line);
                 objectDataMap[data.uuid] = { data: line };
 
-                const pointLight = new THREE.PointLight(0xff0000, 1, 10);
+                const pointLight = new THREE.PointLight(0xff0000, 0.5, 10);
                 pointLight.position.set(0, 0, 0);
 
                 line.add(pointLight);
@@ -1185,21 +1188,23 @@ async function updatePlayerInfo(entity: any) {
         thuliumElement &&
         experienceElement &&
         honorElement &&
-        prestigeElement
+        prestigeElement &&
+        levelElement
     ) {
         const [credits, thulium, experience, honor, level] = await Promise.all([
             beautifyNumberToUser(entity.stats.credits),
             beautifyNumberToUser(entity.stats.thulium),
             beautifyNumberToUser(entity.stats.experience),
             beautifyNumberToUser(entity.stats.honor),
-            beautifyNumberToUser(entity.level), // FIX ME LATER
+            beautifyNumberToUser(entity.level),
         ]);
 
+        levelElement.textContent = level;
         creditsElement.textContent = credits;
         thuliumElement.textContent = thulium;
         experienceElement.textContent = experience;
         honorElement.textContent = honor;
-        prestigeElement.textContent = level;
+        // prestigeElement.textContent = level;
     }
     if (JSON.stringify(playerInventory) != JSON.stringify(entity.inventory)) {
         playerInventory = entity.inventory;
