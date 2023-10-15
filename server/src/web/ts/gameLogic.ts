@@ -26,9 +26,13 @@ const honorElement = document.getElementById("honor_value");
 const notificationContainer = document.getElementById("notification_container");
 const prestigeElement = document.getElementById("prestige_value");
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
-const switchCheckbox: HTMLInputElement | null = document.querySelector("#setting_switch_antialiasing .chk");
-const volumeValue: HTMLInputElement | null = document.querySelector("#volumeLevelInput");
-const saveSettingsBtn: HTMLElement | null = document.getElementById("save_settings_btn");;
+const switchCheckbox: HTMLInputElement | null = document.querySelector(
+    "#setting_switch_antialiasing .chk"
+);
+const volumeValue: HTMLInputElement | null =
+    document.querySelector("#volumeLevelInput");
+const saveSettingsBtn: HTMLElement | null =
+    document.getElementById("save_settings_btn");
 
 const refreshTop10HonorBtn = document.getElementById("getTop10HonorBtn") as
     | HTMLButtonElement
@@ -125,14 +129,12 @@ socket.on(
                         data.playerSettings[i].antiAliasing;
 
                     saveSettingsBtn.addEventListener("click", () => {
-                        if(volumeValue && switchCheckbox) {
-                            savePlayerSettings(
-                                {   
-                                    username: data.username,
-                                    volume: volumeValue.value,
-                                    antiAliasing: switchCheckbox.checked
-                                }
-                            );
+                        if (volumeValue && switchCheckbox) {
+                            savePlayerSettings({
+                                username: data.username,
+                                volume: volumeValue.value,
+                                antiAliasing: switchCheckbox.checked,
+                            });
                         }
                     });
                 }
@@ -354,18 +356,22 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
     }
 });
 
-function savePlayerSettings(data: { username: string, volume: string, antiAliasing: boolean }) {
-    if(data.antiAliasing) {
+function savePlayerSettings(data: {
+    username: string;
+    volume: string;
+    antiAliasing: boolean;
+}) {
+    if (data.antiAliasing) {
         socket.emit("saveSettings", {
             username: data.username,
             volume: parseInt(data.volume),
-            antiAliasing: 1
+            antiAliasing: 1,
         });
     } else {
         socket.emit("saveSettings", {
             username: data.username,
             volume: parseInt(data.volume),
-            antiAliasing: 0
+            antiAliasing: 0,
         });
     }
 }
@@ -478,6 +484,14 @@ function initScene(): void {
                     particle.position.add(particle.velocity);
                 }
             );
+        });
+
+        scene.children.forEach((child) => {
+            if (child instanceof THREE.Mesh && child.name === "CargoDrop") {
+                child.rotation.x += 0.001;
+                child.rotation.y += 0.001;
+                child.rotation.z += 0.001;
+            }
         });
 
         damageIndicators.forEach((damageIndicator) => {
@@ -818,6 +832,11 @@ async function createObject(data: any) {
                 scene.add(line);
                 objectDataMap[data.uuid] = { data: line };
 
+                const pointLight = new THREE.PointLight(0xff0000, 1, 10);
+                pointLight.position.set(0, 0, 0);
+
+                line.add(pointLight);
+
                 if (currentSounds <= maxConcurrentSounds) {
                     const sound = new THREE.PositionalAudio(audioListener);
 
@@ -867,7 +886,7 @@ async function createObject(data: any) {
                     0.25,
                     0.25
                 );
-                const cargoDropMaterial = new THREE.MeshBasicMaterial({
+                const cargoDropMaterial = new THREE.MeshStandardMaterial({
                     color: 0xffff00,
                 });
                 const cargoDrop = new THREE.Mesh(

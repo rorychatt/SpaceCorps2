@@ -248,6 +248,7 @@ io.on("connection", (socket) => {
                 player.inventory.equipItem(data.itemName, player);
                 player._calculateSpeed();
                 player._calculateShields();
+                player._calculateCargo();
             }
         }
     );
@@ -281,6 +282,7 @@ io.on("connection", (socket) => {
                 player.inventory.unequipItem(data.itemName);
                 player._calculateSpeed();
                 player._calculateShields();
+                player._calculateCargo();
             }
         }
     );
@@ -297,11 +299,9 @@ io.on("connection", (socket) => {
         });
     });
 
-    socket.on(
-        "saveSettings", (settingsData: SettingsData) => {
-            savePlayerSettings(settingsData)
-        }
-    );
+    socket.on("saveSettings", (settingsData: SettingsData) => {
+        savePlayerSettings(settingsData);
+    });
 });
 
 function handleHTTPRequests() {
@@ -394,4 +394,4 @@ function handleHTTPRequests() {
     });
 }
 
-type SettingsData = { username: string, volume: number, antiAliasing: boolean };
+type SettingsData = { username: string; volume: number; antiAliasing: boolean };

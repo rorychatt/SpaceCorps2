@@ -83,6 +83,7 @@ export class Player extends Entity {
         this.activeShipName = this._activeShip?.name;
         this._calculateSpeed();
         this._calculateShields();
+        this._calculateCargo();
     }
 
     async _getDataFromSQL() {
@@ -220,6 +221,12 @@ export class Player extends Entity {
     }
 
     async _calculateShields() {}
+
+    async _calculateCargo() {
+        if (this._activeShip) {
+            this.inventory.cargoBay.setMaxCapacity(this._activeShip.cargoBay);
+        }
+    }
 
     async receiveDamage(damage: number, attackerUUID?: string) {
         let shieldDamage: number = damage * this.hitPoints.shieldAbsorbance;
