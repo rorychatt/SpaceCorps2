@@ -218,7 +218,7 @@ socket.on(
 );
 
 socket.on("allQuestData", (data: { quests: any[] }) => {
-    console.log(data.quests);
+    console.log("DATA QUESTS:", data.quests);
 });
 
 socket.on(
