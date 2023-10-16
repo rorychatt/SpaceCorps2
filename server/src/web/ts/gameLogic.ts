@@ -1892,7 +1892,6 @@ async function createAndTriggerExplosion(object: THREE.Object3D) {
     if (currentSounds <= maxConcurrentSounds) {
         const sound = new THREE.PositionalAudio(audioListener);
 
-        sound.position.copy(object.position);
         sound.setBuffer(explosionSoundBuffer);
         sound.setVolume(0.1);
         sound.onEnded = function () {
