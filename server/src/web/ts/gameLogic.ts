@@ -42,6 +42,8 @@ const refreshTop10ExperienceBtn = document.getElementById(
     "getTop10ExperienceBtn"
 ) as HTMLButtonElement | undefined;
 
+const modelCache: { [key: string]: THREE.Group } = {};
+
 if (refreshTop10ExperienceBtn && refreshTop10HonorBtn) {
     refreshTop10ExperienceBtn.addEventListener("click", () => {
         socket.emit("getTop10Experience", playerName);
@@ -83,7 +85,7 @@ const rayCastLayerNo = 1;
 const particles: any[] = [];
 const damageIndicators: any[] = [];
 
-const objectDataMap: Record<string, { data: any }> = {};
+const objectDataMap: Record<string, THREE.Object3D> = {};
 const labelMap: Record<string, CSS2DObject> = {};
 
 const raycaster = new THREE.Raycaster();
@@ -100,7 +102,7 @@ let explosionSoundBuffer: AudioBuffer,
 raycaster.layers.set(rayCastLayerNo);
 setupSoundBuffers();
 
-socket.on("connect", () => {
+socket.on("connect", async () => {
     console.log("Connected to the socket.io server");
 });
 
@@ -435,7 +437,7 @@ function initScene(): void {
     spacemapDiv.hidden = false;
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(
-        75,
+        60,
         window.innerWidth / window.innerHeight,
         0.1,
         1000
@@ -753,232 +755,275 @@ function rescaleOnWindowResize(): void {
     });
 }
 
-async function createObject(data: any) {
-    return new Promise(async (resolve) => {
-        console.log(`Spawning new object: ${data.name}`);
-        const loader = new GLTFLoader();
-        objectDataMap[data.uuid] = { data: null };
-        switch (data._type) {
-            case "Alien":
-                loader.load(
-                    `./assets/models/aliens/${data.name}/${data.name}.glb`,
-                    async (glb) => {
-                        const model = glb.scene;
-                        model.uuid = data.uuid;
-                        model.position.set(data.position.x, 0, data.position.y);
-                        setNameRecursivelly(
-                            model,
-                            data.name,
-                            data.uuid,
-                            rayCastLayerNo
-                        );
-
-                        const nickBarContainer = document.createElement("div");
-                        const nickname = document.createElement("div");
-                        nickname.className = "nicknameLabel";
-                        nickname.textContent = `${data.name}`;
-
-                        const healthBar = document.createElement("div");
-                        healthBar.className = "health_bar";
-
-                        const hpBar = document.createElement("div");
-                        hpBar.className = "hp_health_bar";
-
-                        const spBar = document.createElement("div");
-                        spBar.className = "sp_health_bar";
-
-                        const maxHP = data.maxHealth;
-                        const maxSP = data.maxShields;
-
-                        hpBar.style.width = `${
-                            data.hitPoints.hullPoints / maxHP
-                        }`;
-
-                        spBar.style.width = `${
-                            data.hitPoints.shieldPoints / maxSP
-                        }`;
-
-                        healthBar.appendChild(hpBar);
-                        healthBar.appendChild(spBar);
-
-                        nickBarContainer.appendChild(nickname);
-                        nickBarContainer.appendChild(healthBar);
-                        nickBarContainer.setAttribute("uuid", data.uuid);
-
-                        const label = new CSS2DObject(nickBarContainer);
-
-                        labelMap[data.uuid] = label;
-                        label.position.y = -0.75;
-                        (model as any).hitPoints = data.hitPoints;
-                        model.add(label);
-                        scene.add(model);
-                        objectDataMap[data.uuid] = { data: model };
-                        resolve(model);
-                    }
-                );
-                break;
-            case "Player":
-                loader.load(
-                    `./assets/models/ships/${data.activeShipName}/${data.activeShipName}.glb`,
-                    async (glb) => {
-                        const model = glb.scene;
-                        model.uuid = data.uuid;
-                        model.position.set(data.position.x, 0, data.position.y);
-                        setNameRecursivelly(
-                            model,
-                            data.name,
-                            data.uuid,
-                            rayCastLayerNo
-                        );
-                        if (data.name == playerName) {
-                            controls.update();
-                        }
-
-                        const text = document.createElement("div");
-                        text.className = "nicknameLabel";
-                        text.style.color = "rgb(255,255,255)";
-                        text.style.fontSize = "12";
-                        text.textContent = `${data.name}`;
-                        const label = new CSS2DObject(text);
-                        labelMap[data.uuid] = label;
-                        label.position.y = -0.75;
-                        label.uuid = data.uuid;
-                        (model as any).hitPoints = data.hitPoints;
-                        model.add(label);
-                        scene.add(model);
-                        objectDataMap[data.uuid] = { data: model };
-                        resolve(model);
-                    }
-                );
-                break;
-            case "Portal":
-                loader.load(
-                    `./assets/models/portals/portal.glb`,
-                    async (glb) => {
-                        const model = glb.scene;
-                        model.uuid = data.uuid;
-                        model.position.set(data.position.x, 0, data.position.y);
-                        model.add(createSafeZoneRing(5));
-                        setNameRecursivelly(model, data.name, data.uuid);
-                        scene.add(model);
-                        model.lookAt(new THREE.Vector3(0, 0, 0));
-                        objectDataMap[data.uuid] = { data: model };
-                        resolve(model);
-                    }
-                );
-                break;
-            case "LaserProjectile":
-                const lineMaterial = new THREE.LineBasicMaterial({
-                    color: "red",
-                    linewidth: 4,
-                });
-                const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-                    new THREE.Vector3(0, 0, 0),
-                    new THREE.Vector3(0, 0, 1),
-                ]);
-                const line = new THREE.Line(lineGeometry, lineMaterial);
-                line.uuid = data.uuid;
-                line.name = data.name;
-                line.position.set(data.position.x, 0, data.position.y);
-                line.lookAt(data.targetPosition.x, 0, data.targetPosition.y);
-                scene.add(line);
-                objectDataMap[data.uuid] = { data: line };
-
-                const pointLight = new THREE.PointLight(0xff0000, 0.5, 10);
-                pointLight.position.set(0, 0, 0);
-
-                line.add(pointLight);
-
-                if (currentSounds <= maxConcurrentSounds) {
-                    const sound = new THREE.PositionalAudio(audioListener);
-                    sound.setBuffer(laserShootSoundBuffer);
-                    sound.setRefDistance(20);
-                    sound.setVolume(0.3);
-                    sound.onEnded = () => {
-                        currentSounds--;
-                    };
-                    sound.play();
-                    line.add(sound);
-                }
-
-                break;
-            case "RocketProjectile":
-                const rocketMaterial = new THREE.LineBasicMaterial({
-                    color: "red",
-                    linewidth: 16,
-                });
-                const rocketGeometry = new THREE.BufferGeometry().setFromPoints(
-                    [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0.5)]
-                );
-                const rocket = new THREE.Line(rocketGeometry, rocketMaterial);
-                rocket.uuid = data.uuid;
-                rocket.name = data.name;
-                rocket.position.set(data.position.x, 0, data.position.y);
-                rocket.lookAt(data.targetPosition.x, 0, data.targetPosition.y);
-                scene.add(rocket);
-                objectDataMap[data.uuid] = { data: rocket };
-
-                const rocketSound = new THREE.PositionalAudio(audioListener);
-
-                if (currentSounds <= maxConcurrentSounds) {
-                    rocketSound.setBuffer(rocketShootSoundBuffer);
-                    rocketSound.setRefDistance(20);
-                    rocketSound.setVolume(0.15);
-                    rocketSound.onEnded = function () {
-                        currentSounds--;
-                    };
-                    rocketSound.play();
-                    rocket.add(rocketSound);
-                }
-
-                break;
-            case "CargoDrop":
-                const cargoDropGeometry = new THREE.BoxGeometry(
-                    0.25,
-                    0.25,
-                    0.25
-                );
-                const cargoDropMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xffff00,
-                });
-                const cargoDrop = new THREE.Mesh(
-                    cargoDropGeometry,
-                    cargoDropMaterial
-                );
-                cargoDrop.uuid = data.uuid;
-                cargoDrop.position.set(data.position.x, -1, data.position.y);
-                objectDataMap[data.uuid] = { data: cargoDrop };
-                cargoDrop.layers.enable(rayCastLayerNo);
-                setNameRecursivelly(cargoDrop, "CargoDrop", data.uuid);
-                scene.add(cargoDrop);
-                resolve(cargoDrop);
-                break;
-            default:
-                console.log(data._type);
-                const boxgeometry = new THREE.BoxGeometry();
-                const boxmaterial = new THREE.MeshBasicMaterial({
-                    color: 0x00ff00,
-                });
-                const defcube = new THREE.Mesh(boxgeometry, boxmaterial);
-                defcube.uuid = data.uuid;
-                defcube.position.set(data.position.x, 0, data.position.y);
-                defcube.name = data.name;
-                objectDataMap[data.uuid] = { data: defcube };
-                scene.add(defcube);
-                resolve(defcube);
-                break;
-        }
+const prepareModel = async (loader: GLTFLoader, path: string) => {
+    loader.load(path, (glb) => {
+        modelCache[path] = glb.scene;
     });
+};
+
+async function prepareModels() {
+    const assets = {
+        aliens: ["thetys/thetys.glb"],
+        base: ["base/base.glb"],
+        portals: ["portals/portal.glb"],
+        ships: [
+            "Echelon/Echelon.glb",
+            "Ostirion/Ostirion.glb",
+            "Paragon/Paragon.glb",
+            "Protos/Protos.glb",
+            "Wraith/Wraith.glb",
+        ],
+    };
+
+    for (const [subfolder, files] of Object.entries(assets)) {
+        files.forEach((file) => {
+            prepareModel(
+                new GLTFLoader(),
+                `/assets/models/${subfolder}/${file}`
+            );
+        });
+    }
+}
+
+prepareModels();
+
+const loadModel = async (
+    loader: GLTFLoader,
+    path: string,
+    data: any,
+    additionalActions: Function
+) => {
+    return new Promise((resolve) => {
+        if (modelCache[path]) {
+            const model = modelCache[path].clone();
+            model.uuid = data.uuid;
+            model.position.set(data.position.x, 0, data.position.y);
+            setNameRecursivelly(model, data.name, data.uuid, rayCastLayerNo);
+            const nickBarContainer = document.createElement("div");
+            const nickname = document.createElement("div");
+            nickname.className = "nicknameLabel";
+            nickname.textContent = `${data.name}`;
+            nickBarContainer.appendChild(nickname);
+
+            if (data.hitPoints) {
+                const healthBar = document.createElement("div");
+                healthBar.className = "health_bar";
+
+                const hpBar = document.createElement("div");
+                hpBar.className = "hp_health_bar";
+
+                const spBar = document.createElement("div");
+                spBar.className = "sp_health_bar";
+
+                const maxHP = data.maxHealth;
+                const maxSP = data.maxShields;
+
+                hpBar.style.width = `${data.hitPoints.hullPoints / maxHP}`;
+                spBar.style.width = `${data.hitPoints.shieldPoints / maxSP}`;
+
+                healthBar.appendChild(hpBar);
+                healthBar.appendChild(spBar);
+                nickBarContainer.appendChild(healthBar);
+            }
+            nickBarContainer.setAttribute("uuid", data.uuid);
+
+            const label = new CSS2DObject(nickBarContainer);
+
+            labelMap[data.uuid] = label;
+            label.position.y = -0.75;
+            (model as any).hitPoints = data.hitPoints;
+            model.add(label);
+            additionalActions(model, data);
+            scene.add(model);
+            objectDataMap[data.uuid] = model;
+            resolve(model);
+            return;
+        }
+        loader.load(path, (glb) => {
+            const model = glb.scene;
+            modelCache[path] = model;
+            console.log(`Cached model for ${data.name}`);
+            model.uuid = data.uuid;
+            model.position.set(data.position.x, 0, data.position.y);
+            setNameRecursivelly(model, data.name, data.uuid, rayCastLayerNo);
+            const nickBarContainer = document.createElement("div");
+            const nickname = document.createElement("div");
+            nickname.className = "nicknameLabel";
+            nickname.textContent = `${data.name}`;
+            nickBarContainer.appendChild(nickname);
+
+            if (data.hitPoints) {
+                const healthBar = document.createElement("div");
+                healthBar.className = "health_bar";
+
+                const hpBar = document.createElement("div");
+                hpBar.className = "hp_health_bar";
+
+                const spBar = document.createElement("div");
+                spBar.className = "sp_health_bar";
+
+                const maxHP = data.maxHealth;
+                const maxSP = data.maxShields;
+
+                hpBar.style.width = `${data.hitPoints.hullPoints / maxHP}`;
+
+                spBar.style.width = `${data.hitPoints.shieldPoints / maxSP}`;
+
+                healthBar.appendChild(hpBar);
+                healthBar.appendChild(spBar);
+                nickBarContainer.appendChild(healthBar);
+            }
+            nickBarContainer.setAttribute("uuid", data.uuid);
+
+            const label = new CSS2DObject(nickBarContainer);
+
+            labelMap[data.uuid] = label;
+            label.position.y = -0.75;
+            (model as any).hitPoints = data.hitPoints;
+            model.add(label);
+            additionalActions(model, data);
+            scene.add(model);
+            objectDataMap[data.uuid] = model;
+            resolve(model);
+        });
+    });
+};
+
+async function createObject(data: any) {
+    console.log(`Spawning new object: ${data.name}`);
+    const loader = new GLTFLoader();
+
+    switch (data._type) {
+        case "Alien":
+            loadModel(
+                loader,
+                `./assets/models/aliens/${data.name}/${data.name}.glb`,
+                data,
+                (model: any, data: any) => {}
+            );
+            break;
+        case "Player":
+            loadModel(
+                loader,
+                `./assets/models/ships/${data.activeShipName}/${data.activeShipName}.glb`,
+                data,
+                (model: any, data: any) => {
+                    if (data.name == playerName) {
+                        controls.update();
+                    }
+                }
+            );
+            break;
+        case "Portal":
+            loadModel(
+                loader,
+                `./assets/models/portals/portal.glb`,
+                data,
+                (model: any, data: any) => {
+                    model.add(createSafeZoneRing(5));
+                }
+            );
+            break;
+        case "LaserProjectile":
+            const lineMaterial = new THREE.LineBasicMaterial({
+                color: "red",
+                linewidth: 4,
+            });
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(0, 0, 1),
+            ]);
+            const line = new THREE.Line(lineGeometry, lineMaterial);
+            line.uuid = data.uuid;
+            line.name = data.name;
+            line.position.set(data.position.x, 0, data.position.y);
+            line.lookAt(data.targetPosition.x, 0, data.targetPosition.y);
+            scene.add(line);
+            objectDataMap[data.uuid] = line;
+
+            const pointLight = new THREE.PointLight(0xff0000, 0.5, 10);
+            pointLight.position.set(0, 0, 0);
+
+            line.add(pointLight);
+
+            if (currentSounds <= maxConcurrentSounds) {
+                const sound = new THREE.PositionalAudio(audioListener);
+                sound.setBuffer(laserShootSoundBuffer);
+                sound.setRefDistance(20);
+                sound.setVolume(0.3);
+                sound.onEnded = () => {
+                    currentSounds--;
+                };
+                sound.play();
+                line.add(sound);
+            }
+            break;
+        case "RocketProjectile":
+            const rocketMaterial = new THREE.LineBasicMaterial({
+                color: "red",
+                linewidth: 16,
+            });
+            const rocketGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(0, 0, 0.5),
+            ]);
+            const rocket = new THREE.Line(rocketGeometry, rocketMaterial);
+            rocket.uuid = data.uuid;
+            rocket.name = data.name;
+            rocket.position.set(data.position.x, 0, data.position.y);
+            rocket.lookAt(data.targetPosition.x, 0, data.targetPosition.y);
+            scene.add(rocket);
+            objectDataMap[data.uuid] = rocket;
+
+            const rocketSound = new THREE.PositionalAudio(audioListener);
+
+            if (currentSounds <= maxConcurrentSounds) {
+                rocketSound.setBuffer(rocketShootSoundBuffer);
+                rocketSound.setRefDistance(20);
+                rocketSound.setVolume(0.15);
+                rocketSound.onEnded = function () {
+                    currentSounds--;
+                };
+                rocketSound.play();
+                rocket.add(rocketSound);
+            }
+            break;
+        case "CargoDrop":
+            const cargoDropGeometry = new THREE.BoxGeometry(0.25, 0.25, 0.25);
+            const cargoDropMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffff00,
+            });
+            const cargoDrop = new THREE.Mesh(
+                cargoDropGeometry,
+                cargoDropMaterial
+            );
+            cargoDrop.uuid = data.uuid;
+            cargoDrop.position.set(data.position.x, -1, data.position.y);
+            objectDataMap[data.uuid] = cargoDrop;
+            cargoDrop.layers.enable(rayCastLayerNo);
+            setNameRecursivelly(cargoDrop, "CargoDrop", data.uuid);
+            scene.add(cargoDrop);
+            break;
+        default:
+            console.log(data._type);
+            const boxgeometry = new THREE.BoxGeometry();
+            const boxmaterial = new THREE.MeshBasicMaterial({
+                color: 0x00ff00,
+            });
+            const defcube = new THREE.Mesh(boxgeometry, boxmaterial);
+            defcube.uuid = data.uuid;
+            defcube.position.set(data.position.x, 0, data.position.y);
+            defcube.name = data.name;
+            objectDataMap[data.uuid] = defcube;
+            scene.add(defcube);
+            break;
+    }
 }
 
 async function updateObject(object: THREE.Object3D, entity: any) {
-    const target = new THREE.Vector3(entity.position.x, 0, entity.position.y);
-
-    const targetDirection = new THREE.Vector3(
-        entity.position.x,
-        0,
-        entity.position.y
-    );
+    const posX = entity.position.x;
+    const posY = entity.position.y;
+    const targetDirection = new THREE.Vector3(posX, 0, posY);
 
     if (entity.targetUUID) {
         const targetObject = getObjectByUUID(entity.targetUUID);
@@ -987,8 +1032,7 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         }
     } else {
         if (
-            (entity.position.x - object.position.x) ** 2 +
-                (entity.position.y - object.position.z) ** 2 >
+            (posX - object.position.x) ** 2 + (posY - object.position.z) ** 2 >
             0.00001
         ) {
             const oldOrientation = object.rotation.clone();
@@ -1003,29 +1047,15 @@ async function updateObject(object: THREE.Object3D, entity: any) {
 
     if (object.name === playerName) {
         if (isFirstUpdateForPlayer) {
-            // Initialize lastEntityPosition and camera to the first known position of the player entity
-            lastEntityPosition = new THREE.Vector3(
-                entity.position.x,
-                0,
-                entity.position.y
-            );
-            camera.position.set(
-                entity.position.x,
-                camera.position.y,
-                entity.position.y
-            );
-            controls.target.set(entity.position.x, 0, entity.position.y);
+            lastEntityPosition = new THREE.Vector3(posX, 0, posY);
+            camera.position.set(posX, camera.position.y, posY);
+            controls.target.copy(targetDirection);
             object.add(audioListener);
-            isFirstUpdateForPlayer = false; // set the flag to false after the first update
+            isFirstUpdateForPlayer = false;
         } else if (lastEntityPosition !== null) {
-            // Calculate the change in position
-            const dx = entity.position.x - lastEntityPosition.x;
-            const dz = entity.position.y - lastEntityPosition.z;
-
-            // Update lastEntityPosition for the next frame
-            lastEntityPosition.set(entity.position.x, 0, entity.position.y);
-
-            // Update the camera and control target positions
+            const dx = posX - lastEntityPosition.x;
+            const dz = posY - lastEntityPosition.z;
+            lastEntityPosition.copy(targetDirection);
             camera.position.set(
                 camera.position.x + dx,
                 camera.position.y,
@@ -1116,9 +1146,9 @@ async function updateObject(object: THREE.Object3D, entity: any) {
     }
 
     if (object.name != "CargoDrop") {
-        object.position.set(target.x, 0, target.z);
+        object.position.lerp(targetDirection, 0.5);
     } else {
-        object.position.set(target.x, -1, target.z);
+        object.position.set(posX, -1, posY);
     }
 }
 
@@ -1190,15 +1220,16 @@ async function deleteObject(uuid: string) {
 }
 
 async function updateObjects(_data: any[]) {
-    let existingUUIDs: string[] = [];
+    let existingUUIDs = new Set<string>();
 
     await Promise.all(
         _data.map(async (entity) => {
+            let object;
             if (entity.name == playerName) {
                 updatePlayerInfo(entity);
             }
             if (objectDataMap.hasOwnProperty(entity.uuid)) {
-                const object = getObjectByUUID(entity.uuid);
+                object = getObjectByUUID(entity.uuid);
                 if (object) {
                     updateObject(object, entity);
                 } else {
@@ -1210,13 +1241,13 @@ async function updateObjects(_data: any[]) {
             } else {
                 createObject(entity);
             }
-            existingUUIDs.push(entity.uuid);
+            existingUUIDs.add(entity.uuid);
         })
     );
 
     await Promise.all(
         Object.keys(objectDataMap)
-            .filter((uuid) => !existingUUIDs.includes(uuid))
+            .filter((uuid) => !existingUUIDs.has(uuid))
             .map((uuid) => deleteObject(uuid))
     );
 }
@@ -1292,6 +1323,8 @@ async function updatePlayerInfo(entity: any) {
 }
 
 function getObjectByUUID(uuid: string) {
+    if (objectDataMap[uuid]) return objectDataMap[uuid];
+
     const objects = scene.children;
 
     for (let i = 0, l = objects.length; i < l; i++) {

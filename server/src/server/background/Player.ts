@@ -68,7 +68,7 @@ export class Player extends Entity {
         this._initializePlayerData().then(() => {
             gameServer.players.push(this);
             gameServer.spacemaps[this.currentMap].entities.push(this);
-        });
+                    });
     }
 
     private async _initializePlayerData() {
@@ -79,17 +79,19 @@ export class Player extends Entity {
             );
         this.refreshActiveShip();
     }
- 
+
     async addQuest(quest: Quest) {
-        if(this.currentActiveQuests.length >= 3) return;
+        if (this.currentActiveQuests.length >= 3) return;
         this.currentActiveQuests.push(quest);
     }
 
     async completeQuest(questname: string) {
-        for(let i = 0; i < this.currentActiveQuests.length; i++) {
-            if(this.currentActiveQuests[i].name == questname) {
+        for (let i = 0; i < this.currentActiveQuests.length; i++) {
+            if (this.currentActiveQuests[i].name == questname) {
                 this.currentActiveQuests[i].completed = true;
-                this.currentActiveQuests.filter(el => el !== this.currentActiveQuests[i]);
+                this.currentActiveQuests.filter(
+                    (el) => el !== this.currentActiveQuests[i]
+                );
             }
         }
     }
