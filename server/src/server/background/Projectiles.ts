@@ -65,7 +65,7 @@ export class LaserProjectile extends Projectile {
         this._type = "LaserProjectile";
         this.ammoName = ammoName;
         this.color = laserAmmoData[ammoName].color;
-        this.speed = 100;
+        this.speed = 75;
         this.damageAmount = damageAmount;
     }
 }
@@ -94,7 +94,7 @@ export class RocketProjectile extends Projectile {
         this.damageVariance = 0.1;
         this.criticalChance = 0.1;
         this.criticalMultiplier = 2;
-        this.speed = 20;
+        this.speed = 15;
         this._getData(rocketAmmo);
     }
 
