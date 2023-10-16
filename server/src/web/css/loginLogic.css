@@ -1602,6 +1602,9 @@ input[type="number"]::-webkit-outer-spin-button {
     min-height: 20vh;
     /* width: 100%; */
     border: 1px solid white;
+
+    color: white;
+    font-family: 'AudioWide';
 }
 
 .top10experience_container {
@@ -1609,6 +1612,9 @@ input[type="number"]::-webkit-outer-spin-button {
     min-height: 20vh;
     width: 100%;
     border: 1px solid white;
+
+    color: white;
+    font-family: 'AudioWide';
 }
 
 
@@ -1971,3 +1977,54 @@ input[type="number"]::-webkit-outer-spin-button {
   .settings_switch {
     width: 35%;
   }
+
+  /* Quest Cont */
+  .quest_daily {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+  }
+
+  .quest_cont {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 2vh;
+
+    border: 1px solid white;
+    justify-content: space-around;
+  }
+
+.quest_number {
+    display: flex;
+    width: 10%;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    border: 1px solid red;
+}
+
+.quest_name {
+    display: flex;
+    width: 70%;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    border: 1px solid green;
+}
+
+.quest_accept {
+    display: flex;
+    width: 15%;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    font-size: 1.8vh;
+    font-family: 'AudioWide';
+    color: white;
+    border: 1px solid yellowgreen;
+    padding: 0;
+}
