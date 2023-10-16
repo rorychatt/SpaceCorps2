@@ -198,46 +198,16 @@ export function getInventoryData(username: string): Promise<any> {
     return executeQuery(query);
 }
 
-export function executeQuery<T>(query: string): Promise<T[]> {
+export async function executeQuery<T>(query: string, values?: any[]): Promise<T[]> {
     return new Promise<T[]>((resolve, reject) => {
-        try {
-            pool.getConnection((connectionError, connection) => {
-                try {
-                    if (connectionError) {
-                        console.error(
-                            `Got error while connecting to DB, err = ${JSON.stringify(
-                                connectionError
-                            )}`
-                        );
-                        reject(connectionError);
-                        return;
-                    }
-                    connection.query(query, (queryError, results) => {
-                        connection.release();
-
-                        if (queryError) {
-                            console.error(
-                                `Got error while querying DB, err = ${JSON.stringify(
-                                    queryError
-                                )}`
-                            );
-                            reject(queryError);
-                            return;
-                        }
-
-                        if (Array.isArray(results)) {
-                            resolve(results as T[]);
-                        } else {
-                            resolve([results as T]);
-                        }
-                    });
-                } finally {
-                    connection.release();
-                }
-            });
-        } catch (err) {
-            console.error(`Error while executing query = ${err}`);
-        }
+        pool.query(query, values, (error, results) => {
+            if (error) {
+                console.error(`Error while querying DB, err = ${JSON.stringify(error)}`);
+                reject(error);
+                return;
+            }
+            resolve(Array.isArray(results) ? results as T[] : [results as T]);
+        });
     });
 }
 

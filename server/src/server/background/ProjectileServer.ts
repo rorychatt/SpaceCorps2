@@ -25,13 +25,27 @@ export class ProjectileServer {
         ammoName: string,
         damageAmount?: number
     ) {
+        if (attackerEntity.currentMap == targetEntity.currentMap) {
+            console.log(
+                `${attackerEntity.name} tried to shoot ${targetEntity.name} from a different map!`
+            );
+            return;
+        }
         if (type == "LaserProjectile" && damageAmount) {
             this.projectiles.push(
-                new LaserProjectile(this.spacemap, targetEntity, attackerEntity, ammoName, damageAmount)
+                new LaserProjectile(
+                    this.spacemap,
+                    targetEntity,
+                    attackerEntity,
+                    ammoName,
+                    damageAmount
+                )
             );
         } else if (type == "RocketProjectile") {
-            const ammo = (attackerEntity as Player).inventory.getCurrentRocketAmmo();
-            if(ammo){
+            const ammo = (
+                attackerEntity as Player
+            ).inventory.getCurrentRocketAmmo();
+            if (ammo) {
                 this.projectiles.push(
                     new RocketProjectile(
                         this.spacemap,
@@ -39,7 +53,7 @@ export class ProjectileServer {
                         attackerEntity,
                         ammo
                     )
-                );    
+                );
             }
         }
     }

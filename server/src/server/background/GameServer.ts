@@ -185,6 +185,9 @@ export class GameServer {
         } else {
             player.position = { x: 0, y: 0 };
         }
+        player.isShooting = false;
+        player.destination = undefined;
+        player.targetUUID = undefined;
     }
 
     async processAlienRepairs() {
