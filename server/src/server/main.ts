@@ -151,7 +151,7 @@ io.on("connection", (socket) => {
         "attemptRegister",
         async (data: { username: string; password: string }) => {
             for (const key in aliensData) {
-                if (data.username == key) {
+                if (data.username == key || data.username == "Portal") {
                     socket.emit("registerUnsuccessful", {
                         username: data.username,
                     });

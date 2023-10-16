@@ -59,7 +59,7 @@ let playerName: string;
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
 let renderer: THREE.Renderer;
-let currentMap: string;
+let currentMap: any;
 let controls: OrbitControls;
 let canvas: HTMLCanvasElement | null;
 
@@ -188,7 +188,7 @@ socket.on(
         cargoboxes: any[];
         size: { width: number; height: number };
     }) => {
-        if (currentMap != data.name) {
+        if (!currentMap || currentMap.name != data.name) {
             loadNewSpacemap(data);
         }
         updateObjects(data.entities.concat(data.projectiles, data.cargoboxes));
@@ -384,8 +384,9 @@ function savePlayerSettings(data: {
 
 async function loadNewSpacemap(data: any) {
     clearScene(scene);
+    lockOnCircle?.removeFromParent();
     try {
-        currentMap = data.name;
+        currentMap = data;
         await Promise.all([
             loadSpacemapPlane(data),
             createStars(),
@@ -652,9 +653,33 @@ function handleKeyboardButton(e: KeyboardEvent) {
                 }
                 break;
             case "j":
-                socket.emit("attemptTeleport", {
-                    playerName: playerName,
-                });
+                const portals = currentMap.entities.filter(
+                    (entity: { _type: string }) => entity._type === "Portal"
+                );
+                const closestPortal = findClosestPortal(
+                    playerEntity.position,
+                    portals
+                );
+                if (closestPortal) {
+                    if (
+                        Math.sqrt(
+                            Math.pow(
+                                closestPortal.position.x -
+                                    playerEntity.position.x,
+                                2
+                            ) +
+                                Math.pow(
+                                    closestPortal.position.y -
+                                        playerEntity.position.y,
+                                    2
+                                )
+                        ) < 5
+                    ) {
+                        socket.emit("attemptTeleport", {
+                            playerName: playerName,
+                        });
+                    }
+                }
                 break;
 
             case "o":
@@ -677,6 +702,26 @@ function handleKeyboardButton(e: KeyboardEvent) {
         }
     }
 }
+
+const findClosestPortal = (
+    playerPosition: { x: number; y: number },
+    portals: any[]
+): any | null => {
+    let closestPortal: any | null = null;
+    let closestDistance: number = Infinity;
+
+    for (const portal of portals) {
+        const distance = Math.sqrt(
+            Math.pow(portal.position.x - playerPosition.x, 2) +
+                Math.pow(portal.position.y - playerPosition.y, 2)
+        );
+        if (distance < closestDistance) {
+            closestDistance = distance;
+            closestPortal = portal;
+        }
+    }
+    return closestPortal;
+};
 
 function createLighting() {
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -813,6 +858,7 @@ async function createObject(data: any) {
                         const model = glb.scene;
                         model.uuid = data.uuid;
                         model.position.set(data.position.x, 0, data.position.y);
+                        model.add(createSafeZoneRing(5));
                         setNameRecursivelly(model, data.name, data.uuid);
                         scene.add(model);
                         model.lookAt(new THREE.Vector3(0, 0, 0));
@@ -1898,11 +1944,11 @@ async function createAndTriggerExplosion(object: THREE.Object3D) {
             currentSounds--;
         };
         sound.play();
-        scene.add(sound)
-        sound.position.copy(object.position)
-        setTimeout(()=>{
-            scene.remove(sound)
-        }, 150)
+        scene.add(sound);
+        sound.position.copy(object.position);
+        setTimeout(() => {
+            scene.remove(sound);
+        }, 150);
     }
 
     particles.push(_particles);
@@ -2031,4 +2077,27 @@ function createNewIcon(itemName: string) {
     };
 
     return itemPng;
+}
+
+function createSafeZoneRing(
+    radius: number,
+    lineWidth: number = 0.05,
+    segments: number = 64
+) {
+    let safeZoneGeometry = new THREE.RingGeometry(
+        radius - lineWidth,
+        radius,
+        segments
+    );
+    let safeZoneMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.5,
+    });
+    let safeZoneCircle = new THREE.Mesh(safeZoneGeometry, safeZoneMaterial);
+    safeZoneCircle.rotation.x = 1.57079633;
+    safeZoneCircle.position.set(0, 0.01, 0);
+    safeZoneCircle.name = "portalSafeZone";
+    return safeZoneCircle;
 }
