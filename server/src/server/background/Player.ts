@@ -17,6 +17,7 @@ import {
     ShipItem,
     SpeedGenerator,
 } from "./Inventory";
+import { Quest } from "./QuestServer";
 import { Spacemap, Vector2D } from "./Spacemap";
 
 export class Player extends Entity {
@@ -40,6 +41,7 @@ export class Player extends Entity {
     targetCargoDrop: CargoDrop | undefined = undefined;
     targetUUID: string | undefined = undefined;
     level: number = 1;
+    currentActiveQuests: Quest[] = [];
 
     public constructor(socketId: string, map: Spacemap, username: string) {
         super(map.name, username);
@@ -76,6 +78,20 @@ export class Player extends Entity {
                 this
             );
         this.refreshActiveShip();
+    }
+ 
+    async addQuest(quest: Quest) {
+        if(this.currentActiveQuests.length >= 3) return;
+        this.currentActiveQuests.push(quest);
+    }
+
+    async completeQuest(questname: string) {
+        for(let i = 0; i < this.currentActiveQuests.length; i++) {
+            if(this.currentActiveQuests[i].name == questname) {
+                this.currentActiveQuests[i].completed = true;
+                this.currentActiveQuests.filter(el => el !== this.currentActiveQuests[i]);
+            }
+        }
     }
 
     async refreshActiveShip() {

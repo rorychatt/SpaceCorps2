@@ -38,19 +38,22 @@ export class Quest {
     };
     task: QuestTask;
     requiredLevel: number;
+    completed: boolean;
 
     constructor(
         name: string,
         type: PossibleQuestType,
         reward: any,
         task: QuestTask,
-        requiredLevel: number
+        requiredLevel: number,
+        completed: boolean
     ) {
         this.name = name;
         this.type = type;
         this.reward = reward;
         this.task = task;
         this.requiredLevel = requiredLevel;
+        this.completed = completed;
     }
 }
 
@@ -65,7 +68,8 @@ export class QuestServer {
                 questInfo.type,
                 questInfo.reward,
                 questInfo.task,
-                questInfo.requiredLevel
+                questInfo.requiredLevel,
+                questInfo.completed
             );
             this.quests.push(quest);
         }
