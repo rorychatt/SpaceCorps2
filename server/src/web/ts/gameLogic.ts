@@ -1123,7 +1123,7 @@ async function deleteObject(uuid: string) {
                 sound.position.copy(object.position);
                 sound.setRefDistance(20);
                 sound.setBuffer(rocketHitSoundBuffer);
-                sound.setVolume(0.03);
+                sound.setVolume(0.1);
                 sound.onEnded = function () {
                     currentSounds--;
                 };
@@ -1893,12 +1893,16 @@ async function createAndTriggerExplosion(object: THREE.Object3D) {
         const sound = new THREE.PositionalAudio(audioListener);
 
         sound.setBuffer(explosionSoundBuffer);
-        sound.setVolume(0.1);
+        sound.setVolume(1);
         sound.onEnded = function () {
             currentSounds--;
         };
         sound.play();
-        object.add(sound);
+        scene.add(sound)
+        sound.position.copy(object.position)
+        setTimeout(()=>{
+            scene.remove(sound)
+        }, 150)
     }
 
     particles.push(_particles);
@@ -1996,6 +2000,7 @@ function recreateRenderer(antialias: boolean) {
         container.appendChild(renderer.domElement);
     }
     controls = new OrbitControls(camera, renderer.domElement);
+    isFirstUpdateForPlayer = true;
     renderer.domElement.addEventListener("click", (event) => {
         raycastFromCamera(event);
     });
