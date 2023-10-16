@@ -76,6 +76,9 @@ let consoleContent: HTMLElement | null;
 let consoleInput: HTMLInputElement | null;
 let lockOnCircle: THREE.Object3D | null;
 
+let lastEntityPosition: THREE.Vector3 | null = null;
+let isFirstUpdateForPlayer: boolean = true; // flag to identify the first update for the player
+
 const rayCastLayerNo = 1;
 const particles: any[] = [];
 const damageIndicators: any[] = [];
@@ -469,6 +472,9 @@ function initScene(): void {
     camera.position.y = 5;
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
+    audioListener = new THREE.AudioListener();
+    camera.add(audioListener);
+
     // Create an animation function to rotate the cube
     const animate = () => {
         requestAnimationFrame(animate);
@@ -504,9 +510,6 @@ function initScene(): void {
 
     controls = new OrbitControls(camera, renderer.domElement);
     updateControlsSettings();
-
-    audioListener = new THREE.AudioListener();
-    camera.add(audioListener);
 
     const sound = new THREE.Audio(audioListener);
 
@@ -842,8 +845,6 @@ async function createObject(data: any) {
 
                 if (currentSounds <= maxConcurrentSounds) {
                     const sound = new THREE.PositionalAudio(audioListener);
-
-                    sound.position.set(data.position.x, 0, data.position.y);
                     sound.setBuffer(laserShootSoundBuffer);
                     sound.setRefDistance(20);
                     sound.setVolume(0.3);
@@ -851,6 +852,7 @@ async function createObject(data: any) {
                         currentSounds--;
                     };
                     sound.play();
+                    line.add(sound);
                 }
 
                 break;
@@ -880,6 +882,7 @@ async function createObject(data: any) {
                         currentSounds--;
                     };
                     rocketSound.play();
+                    rocket.add(rocketSound);
                 }
 
                 break;
@@ -952,16 +955,42 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         }
     }
 
-    if (object.name == playerName) {
-        const dx = entity.position.x - object.position.x;
-        const dz = entity.position.y - object.position.z;
+    if (object.name === playerName) {
+        if (isFirstUpdateForPlayer) {
+            // Initialize lastEntityPosition and camera to the first known position of the player entity
+            lastEntityPosition = new THREE.Vector3(
+                entity.position.x,
+                0,
+                entity.position.y
+            );
+            camera.position.set(
+                entity.position.x,
+                camera.position.y,
+                entity.position.y
+            );
+            controls.target.set(entity.position.x, 0, entity.position.y);
+            object.add(audioListener);
+            isFirstUpdateForPlayer = false; // set the flag to false after the first update
+        } else if (lastEntityPosition !== null) {
+            // Calculate the change in position
+            const dx = entity.position.x - lastEntityPosition.x;
+            const dz = entity.position.y - lastEntityPosition.z;
 
-        camera.position.set(
-            camera.position.x + dx,
-            camera.position.y,
-            camera.position.z + dz
-        );
-        controls.target.set(entity.position.x, 0, entity.position.y);
+            // Update lastEntityPosition for the next frame
+            lastEntityPosition.set(entity.position.x, 0, entity.position.y);
+
+            // Update the camera and control target positions
+            camera.position.set(
+                camera.position.x + dx,
+                camera.position.y,
+                camera.position.z + dz
+            );
+            controls.target.set(
+                controls.target.x + dx,
+                controls.target.y,
+                controls.target.z + dz
+            );
+        }
         controls.update();
     }
 
@@ -1072,7 +1101,7 @@ async function deleteObject(uuid: string) {
             object.name !== "rocketProjectile" &&
             object.name !== "CargoDrop"
         ) {
-            createAndTriggerExplosion(object.position);
+            createAndTriggerExplosion(object);
         }
 
         if (object.name == "laserProjectile") {
@@ -1086,6 +1115,7 @@ async function deleteObject(uuid: string) {
                     currentSounds--;
                 };
                 sound.play();
+                object.add(sound);
             }
         } else if (object.name == "rocketProjectile") {
             if (currentSounds <= maxConcurrentSounds) {
@@ -1098,6 +1128,7 @@ async function deleteObject(uuid: string) {
                     currentSounds--;
                 };
                 sound.play();
+                object.add(sound);
             }
         }
         delete objectDataMap[uuid];
@@ -1835,7 +1866,7 @@ async function displayActiveItems() {
     }
 }
 
-async function createAndTriggerExplosion(position: THREE.Vector3) {
+async function createAndTriggerExplosion(object: THREE.Object3D) {
     const particleGeometry = new THREE.SphereGeometry(0.02, 16, 16);
     const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
@@ -1851,7 +1882,7 @@ async function createAndTriggerExplosion(position: THREE.Vector3) {
             Math.random() - 0.5,
             Math.random() - 0.5
         ).normalize();
-        particle.position.copy(position);
+        particle.position.copy(object.position);
         particle.velocity = randomDirection.multiplyScalar(0.01);
         _particles.push(particle);
 
@@ -1861,14 +1892,14 @@ async function createAndTriggerExplosion(position: THREE.Vector3) {
     if (currentSounds <= maxConcurrentSounds) {
         const sound = new THREE.PositionalAudio(audioListener);
 
-        sound.position.copy(position);
+        sound.position.copy(object.position);
         sound.setBuffer(explosionSoundBuffer);
-        sound.setRefDistance(30);
         sound.setVolume(0.1);
         sound.onEnded = function () {
             currentSounds--;
         };
         sound.play();
+        object.add(sound);
     }
 
     particles.push(_particles);

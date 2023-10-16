@@ -1132,7 +1132,7 @@ h1 {
 
 .item_name {
     font-family: "AudioWide";
-    /* font-size: 1vh; */
+    font-size: 10px;
     color: white;
     text-transform: uppercase;
 }
