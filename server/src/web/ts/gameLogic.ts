@@ -16,6 +16,7 @@ let contentDiv = document.getElementById("content") as HTMLElement;
 let uiDiv = document.querySelector(".ui") as HTMLElement;
 let consoleBtn = document.querySelector(".console_button") as HTMLElement;
 let gameVersionDiv = document.getElementById("gameversion") as HTMLElement;
+let quests100qDiv = document.getElementById("quest_100q") as HTMLElement;
 
 let playerEntity: any;
 
@@ -217,8 +218,30 @@ socket.on(
     }
 );
 
-socket.on("allQuestData", (data: { quests: any[] }) => {
-    console.log("DATA QUESTS:", data.quests);
+socket.on("questsData", (data: { username: string, quests: any[] }) => {
+    if(quests100qDiv) {
+        for(let i = 0; i < data.quests.length; i++) {
+            const quests = document.createElement("div");
+            quests.classList.add("quest_cont");
+            const questNumber = document.createElement("div");
+            questNumber.classList.add("quest_number");
+            const questName = document.createElement("div");
+            questName.classList.add("quest_name");
+            questName.textContent = data.quests[i].name;
+            const acceptButton = document.createElement("button");
+            acceptButton.classList.add("quest_accept");
+            acceptButton.textContent = "Accept";
+
+            quests.appendChild(questNumber);
+            quests.appendChild(questName);
+            quests.appendChild(acceptButton);
+            acceptButton.addEventListener("click", () => {
+                socket.emit("getQuest", { username: data.username, quest: data.quests[i] });
+            });
+            quests100qDiv.appendChild(quests);
+        }
+    }
+
 });
 
 socket.on(
