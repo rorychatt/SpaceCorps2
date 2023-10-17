@@ -5,7 +5,7 @@ export class Entity {
     position: Vector2D;
     currentMap: string;
     readonly uuid = randomBytes(16).toString("hex");
-
+    
     public constructor(currentMap: string, name: string, position?: Vector2D) {
         this.name = name;
         this.currentMap = currentMap;
