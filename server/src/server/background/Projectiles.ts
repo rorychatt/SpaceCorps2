@@ -118,6 +118,40 @@ export class RocketProjectile extends Projectile {
     }
 }
 
+export class LaserProjectileDTO {
+    name: string;
+    position: any;
+    targetPosition: any;
+    color: any;
+    uuid: string;
+    _type: string;
+
+    constructor(laserProjectile: LaserProjectile) {
+        this.name = laserProjectile.name;
+        this.position = laserProjectile.position;
+        this.targetPosition = laserProjectile.target.position;
+        this.color = laserProjectile.color;
+        this.uuid = laserProjectile.uuid;
+        this._type = laserProjectile._type;
+    }
+}
+
+export class RocketProjectileDTO {
+    name: string;
+    position: any;
+    targetPosition: any;
+    uuid: string;
+    _type: string;
+
+    constructor(rocketProjectile: RocketProjectile) {
+        this.name = rocketProjectile.name;
+        this.position = rocketProjectile.position;
+        this.targetPosition = rocketProjectile.target.position;
+        this.uuid = rocketProjectile.uuid;
+        this._type = rocketProjectile._type;
+    }
+}
+
 export type ProjectileTypes = "LaserProjectile" | "RocketProjectile";
 export type PossibleProjectiles = LaserProjectile | RocketProjectile;
 export type LaserColors = "red" | "green" | "blue" | "yellow";
