@@ -326,6 +326,8 @@ export class GameServer {
                             entity.lastAttackedByUUID,
                             entity.killReward
                         );
+                        //SPAC-239
+                        // async this.questServer.registerAlienKill({entity.name, entity.currentMap, entity.lastAttackedByUUID})
                     }
                     if (entity.cargoDrop) {
                         const cargoContents = { ...entity.cargoDrop };

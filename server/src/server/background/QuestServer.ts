@@ -1,5 +1,6 @@
 import * as fs from "fs";
-import { PlayerStats } from "./Player";
+import { Player, PlayerStats } from "./Player";
+import { gameServer } from "../main";
 
 export const questData = JSON.parse(
     fs.readFileSync("./src/server/data/quests.json").toString("utf-8")
@@ -58,6 +59,7 @@ export class Quest {
 }
 
 export class QuestServer {
+
     quests: Quest[] = [];
 
     constructor() {
@@ -74,4 +76,28 @@ export class QuestServer {
             this.quests.push(quest);
         }
     }
+
+
+    async registerOreCollection (...{}){
+        // const player = gameServer.getPlayerByUUID(data.uuid)
+
+        // checkForQuestComplete(player, quest)..
+    }
+
+    async registerAlienKill(...{}){
+        // const player = gameServer.getPlayerByUUID(data.uuid)
+
+        // checkForQuestComplete(player, quest)..
+    }
+
+    async issueQuest(){ //выдать квест игроку
+        //const player = gameServer.getPlayerByUsername(...)
+    }
+
+    async checkForQuestComplete(player: Player, questName: string){
+        // Logic for checking if the quest had been completed
+    }
+
+
+
 }
