@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc -d",
     "modify-imports": "node src/server/background/modify-imports.js",
-    "start": "npm run build && npm run modify-imports && node --experimental-specifier-resolution=node dist/server/main.js"
+    "start": "npm run build && npm run modify-imports && node --experimental-specifier-resolution=node dist/server/main.js",
+    "debug": "npm run build && npm run modify-imports && node --experimental-specifier-resolution=node --stack-trace-limit=1000 dist/server/main.js"
   },
   "keywords": [],
   "author": "",

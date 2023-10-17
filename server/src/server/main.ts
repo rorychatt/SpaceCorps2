@@ -41,16 +41,16 @@ const io: Server = new Server(server);
 const config: Config = readServerConfigFile();
 export let gameServer: GameServer;
 
+server.listen(config.server.port, () => {
+    console.log(`Node server is running at port: ${config.server.port}`);
+});
+
 setupDatabaseConnection().then(() => {
     gameServer = new GameServer(io);
     gameServer.startServer();
 });
 
 handleHTTPRequests();
-
-server.listen(config.server.port, () => {
-    console.log(`Node server is running at port: ${config.server.port}`);
-});
 
 io.on("connection", (socket) => {
     console.log("A user connected");

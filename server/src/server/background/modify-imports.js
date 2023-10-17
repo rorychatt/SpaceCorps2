@@ -14,6 +14,7 @@ await Promise.all([
     fixCargoDrop(),
     fixInventory(),
     fixRankingServer(),
+    fixSendMapDataWorker()
 ]);
 
 function fixGameServer() {
@@ -44,8 +45,8 @@ function fixGameServer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { Player, PlayerDTO } from "./Player";',
-            'import { Player, PlayerDTO } from "./Player.js";'
+            'import { Player } from "./Player";',
+            'import { Player } from "./Player.js";'
         );
 
         modifiedData = modifiedData.replace(
@@ -54,8 +55,8 @@ function fixGameServer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { Alien, AlienDTO } from "./Alien";',
-            'import { Alien, AlienDTO } from "./Alien.js";'
+            'import { Alien } from "./Alien";',
+            'import { Alien } from "./Alien.js";'
         );
 
         modifiedData = modifiedData.replace(
@@ -79,8 +80,8 @@ function fixGameServer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { LaserProjectile, LaserProjectileDTO, RocketProjectile, RocketProjectileDTO, } from "./Projectiles";',
-            'import { LaserProjectile, LaserProjectileDTO, RocketProjectile, RocketProjectileDTO, } from "./Projectiles.js";'
+            'import { LaserProjectile, RocketProjectile, } from "./Projectiles";',
+            'import { LaserProjectile, RocketProjectile, } from "./Projectiles.js";'
         );
 
         modifiedData = modifiedData.replace(
@@ -463,6 +464,44 @@ function fixRankingServer() {
 
             writeFile(
                 "./dist/server/background/RankingServer.js",
+                modifiedData,
+                (err) => {
+                    if (err) {
+                        console.error(`Error writing file: ${err}`);
+                    }
+                }
+            );
+        }
+    );
+}
+
+function fixSendMapDataWorker(){
+    readFile(
+        "./dist/server/background/sendMapDataWorker.js",
+        "utf8",
+        (err, data) => {
+            if (err) {
+                console.error(`Error reading file: ${err}`);
+                return;
+            }
+
+            let modifiedData = data.replace(
+                'import { Player, PlayerDTO } from "./Player";',
+                'import { Player, PlayerDTO } from "./Player.js";'
+            );
+
+            modifiedData = modifiedData.replace(
+                'import { Alien, AlienDTO } from "./Alien";',
+                'import { Alien, AlienDTO } from "./Alien.js";'
+            );
+
+            modifiedData = modifiedData.replace(
+                'import { LaserProjectile, LaserProjectileDTO, RocketProjectile, RocketProjectileDTO, } from "./Projectiles";',
+                'import { LaserProjectile, LaserProjectileDTO, RocketProjectile, RocketProjectileDTO, } from "./Projectiles.js";'
+            );
+
+            writeFile(
+                "./dist/server/background/sendMapDataWorker.js",
                 modifiedData,
                 (err) => {
                     if (err) {

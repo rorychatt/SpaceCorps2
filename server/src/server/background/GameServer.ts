@@ -1,6 +1,6 @@
 import { Alien, AlienDTO } from "./Alien";
 import { Player, PlayerDTO } from "./Player";
-import { Spacemap, Spacemaps, Vector2D } from "./Spacemap";
+import { Spacemap, SpacemapSize, Spacemaps, Vector2D } from "./Spacemap";
 import {
     GameDataConfig,
     readGameDataConfigFiles,
@@ -22,6 +22,7 @@ import { Shop } from "./Shop";
 import { CargoDrop } from "./CargoDrop";
 import { QuestServer } from "./QuestServer";
 import { RankingServer } from "./RankingServer";
+import { Worker } from "worker_threads";
 
 export const tickrate = 144;
 
@@ -41,6 +42,8 @@ export class GameServer {
     admins: string[];
     tickCount: number = 0;
 
+    sendMapDataWorker: Worker;
+
     _version: string;
 
     public constructor(io: Server) {
@@ -59,6 +62,48 @@ export class GameServer {
         this.shop = new Shop();
         this.admins = ["rostik", "rory", "duma"];
         this._version = readPackageJson().version;
+        this.sendMapDataWorker = this.createWorker();
+    }
+
+    private createWorker() {
+        const worker = new Worker(
+            new URL("sendMapDataWorker.js", import.meta.url)
+        );
+        // worker.on("error", (error) => {
+        //     console.error(`Worker error: ${error}`);
+        // });
+        worker.on("exit", (code) => {
+            if (code !== 0) {
+                console.log(`Worker stopped with exit code ${code}`);
+            }
+        });
+        worker.on(
+            "message",
+            (
+                data: {
+                    player: Player;
+                    entitiesDTO: (Entity | AlienDTO | PlayerDTO)[];
+                    projectilesDTO: (
+                        | LaserProjectileDTO
+                        | RocketProjectileDTO
+                    )[];
+                    cargoboxes: CargoDrop[];
+                    size: SpacemapSize;
+                }[]
+            ) => {
+                data.forEach((e) => {
+                    this.io.to(e.player.socketId).emit("mapData", {
+                        name: e.player.currentMap,
+                        entities: e.entitiesDTO,
+                        projectiles: e.projectilesDTO,
+                        cargoboxes: e.cargoboxes,
+                        size: e.size,
+                    });
+                });
+            }
+        );
+
+        return worker;
     }
 
     public async getPlayerBySocketId(
@@ -343,40 +388,9 @@ export class GameServer {
     }
 
     async sendMapData() {
-        this.players.forEach((player) => {
-            const mapData: Spacemap = this.spacemaps[player.currentMap];
-
-            let entitiesDTO = mapData.entities.map((entity) => {
-                if (entity instanceof Alien) {
-                    return new AlienDTO(entity);
-                } else if (entity instanceof Player) {
-                    if (entity.name == player.name) {
-                        return entity;
-                    } else {
-                        return new PlayerDTO(entity);
-                    }
-                } else {
-                    return entity;
-                }
-            });
-
-            const projectilesDTO = mapData.projectileServer.projectiles.map(
-                (projectile) => {
-                    if (projectile instanceof LaserProjectile) {
-                        return new LaserProjectileDTO(projectile);
-                    } else if (projectile instanceof RocketProjectile) {
-                        return new RocketProjectileDTO(projectile);
-                    }
-                }
-            );
-
-            this.io.to(player.socketId).emit("mapData", {
-                name: mapData.name,
-                entities: entitiesDTO,
-                projectiles: projectilesDTO,
-                cargoboxes: mapData.cargoboxes,
-                size: mapData.size,
-            });
+        this.sendMapDataWorker.postMessage({
+            players: this.players,
+            spacemaps: this.spacemaps,
         });
     }
 
@@ -417,12 +431,12 @@ export class GameServer {
                         `${data.ammo}`
                     );
 
-                if(attacker._getAmmoAmountByName(data.ammo) >= 1){
+                if (attacker._getAmmoAmountByName(data.ammo) >= 1) {
                     attacker.shootRocketProjectileAtTarget(
                         target as Player | Alien,
                         data.ammo
-                    );    
-                }  
+                    );
+                }
             }
         }
     }
@@ -578,7 +592,7 @@ export class GameServer {
         // TODO: Wait for previous tick completion?
 
         if (this.gameLoop === null) {
-            this.rankingServer.start()
+            this.rankingServer.start();
             this.gameLoop = setInterval(() => {
                 this.updateGameWorld();
                 this.tickCount++;
