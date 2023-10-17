@@ -23,7 +23,7 @@ import { CargoDrop } from "./CargoDrop";
 import { QuestServer } from "./QuestServer";
 import { RankingServer } from "./RankingServer";
 
-export const tickrate = 120;
+export const tickrate = 144;
 
 export class GameServer {
     spacemaps: Spacemaps;
