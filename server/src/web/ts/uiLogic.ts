@@ -221,23 +221,53 @@ assemblyModalQuitButton.addEventListener("click", function() {
 // Movable DIVs
 const modal = document.querySelector(".movable-div") as HTMLElement;
 let isDragging = false;
+let isResizing = false;
 let offsetX = 0;
 let offsetY = 0;
+let initialWidth = modal.offsetWidth;
+let initialHeight = modal.offsetHeight;
 
 modal?.addEventListener("mousedown", (e: MouseEvent) => {
-  isDragging = true;
+  const resizeHandleSize = 10; // Размер ручки изменения размера (подгоните под ваши потребности)
   const rect = modal.getBoundingClientRect();
-  offsetX = e.clientX - rect.left;
-  offsetY = e.clientY - rect.top;
+
+  // Проверяем, если курсор находится в области ручки изменения размера
+  if (
+    e.clientX >= rect.right - resizeHandleSize &&
+    e.clientY >= rect.bottom - resizeHandleSize
+  ) {
+    isResizing = true;
+    initialWidth = rect.width;
+    initialHeight = rect.height;
+  } else if (
+    e.clientX >= rect.left && e.clientX <= rect.right &&
+    e.clientY >= rect.top && e.clientY <= rect.bottom
+  ) {
+    isDragging = true;
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+  }
 });
 
 document.addEventListener("mousemove", (e: MouseEvent) => {
-  if (isDragging) {
-    modal.style.left = e.clientX - offsetX + "px";
-    modal.style.top = e.clientY - offsetY + "px";
+  if (isResizing) {
+    const newWidth = initialWidth + (e.clientX - offsetX - modal.getBoundingClientRect().left);
+    const newHeight = initialHeight + (e.clientY - offsetY - modal.getBoundingClientRect().top);
+    if (newWidth > 0 && newHeight > 0) {
+      modal.style.width = newWidth + "px";
+      modal.style.height = newHeight + "px";
+    }
+  } else if (isDragging) {
+    const newLeft = e.clientX - offsetX;
+    const newTop = e.clientY - offsetY;
+    if (newLeft > 0 && newTop > 0 && newLeft + modal.offsetWidth < window.innerWidth && newTop + modal.offsetHeight < window.innerHeight) {
+      modal.style.left = newLeft + "px";
+      modal.style.top = newTop + "px";
+    }
   }
 });
 
 document.addEventListener("mouseup", () => {
   isDragging = false;
+  isResizing = false;
 });

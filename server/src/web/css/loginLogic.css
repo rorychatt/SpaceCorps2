@@ -1044,17 +1044,30 @@ h1 {
     position: absolute;
     display: none;
 
-    min-height: 60vh;
+    height: 60vh;
     width: 40%;
 
     padding: 0;
-    top: 15vh;
-    left: 45vh;
+    margin: 0 auto;
 
     border: 1px solid white;
     background-color: rgba(65, 105, 255, 0.95);
 
     z-index: 6;
+
+    min-height: 410px;
+    min-width: 400px;
+
+    overflow: auto;
+    resize: both;
+}
+
+.console_header, .console_content {
+    box-sizing: border-box;
+}
+
+.console_content {
+    height: 90%;
 }
 
 .console_header {
@@ -1066,6 +1079,8 @@ h1 {
     font-family: "AudioWide";
     font-size: 2vh;
     color: white;
+
+    height: 7%;
 }
 
 .console_header_name {
@@ -1078,7 +1093,7 @@ h1 {
     flex-direction: row;
     justify-content: space-between;
 
-    height: 2vh;
+    height: 3%;
     padding: 0;
 
     margin-top: 0.5vh;
@@ -1086,17 +1101,16 @@ h1 {
 
 .console_output {
     width: 100%;
-    min-height: 53vh;
-    height: auto;
+    height: 96%;
     border: 1px solid white;
     overflow-y: auto;
-    max-height: 53vh;
 }
 .console_send_btn {
     padding: 0;
     text-align: center;
     flex-grow: 1;
     border: 1px solid white;
+    height: fit-content;
 }
 
 .console_send_btn:hover {
