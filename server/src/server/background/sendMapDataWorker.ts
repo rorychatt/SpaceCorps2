@@ -79,6 +79,8 @@ class RocketProjectileDTO {
     }
 }
 
+const renderRadius = Math.pow(35, 2)
+
 if (parentPort) {
     parentPort.on(
         "message",
@@ -111,7 +113,7 @@ if (parentPort) {
                         return (
                             Math.pow(e.position.x - player.position.x, 2) +
                                 (e.position.y - player.position.y, 2) <=
-                            2500
+                            renderRadius || e._type == "Portal" || e._type == "Base"
                         );
                     });
 
@@ -128,14 +130,14 @@ if (parentPort) {
                         return (
                             Math.pow(e.position.x - player.position.x, 2) +
                                 (e.position.y - player.position.y, 2) <=
-                            2500
+                            renderRadius
                         );
                     });
                 const cargoboxes = mapData.cargoboxes.filter((e: any) => {
                     return (
                         Math.pow(e.position.x - player.position.x, 2) +
                             (e.position.y - player.position.y, 2) <=
-                        2500
+                        renderRadius
                     );
                 });
 

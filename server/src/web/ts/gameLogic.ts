@@ -653,6 +653,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                 }
                 break;
             case "j":
+                console.log(currentMap.entities)
                 const portals = currentMap.entities.filter(
                     (entity: { _type: string }) => entity._type === "Portal"
                 );
