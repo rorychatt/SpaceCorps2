@@ -19,7 +19,7 @@
         },
         "spawnableAliens": {
             "thetys": {
-                "spawnLimit": 20
+                "spawnLimit": 64
             }
         }
     },
@@ -43,7 +43,7 @@
         },
         "spawnableAliens": {
             "thetys": {
-                "spawnLimit": 20
+                "spawnLimit": 64
             }
         }
     },
@@ -67,7 +67,7 @@
         },
         "spawnableAliens": {
             "thetys": {
-                "spawnLimit": 20
+                "spawnLimit": 64
             }
         }
     },
@@ -91,7 +91,7 @@
         },
         "spawnableAliens": {
             "thetys": {
-                "spawnLimit": 20
+                "spawnLimit": 64
             }
         }
     },
@@ -123,7 +123,7 @@
         },
         "spawnableAliens": {
             "thetys": {
-                "spawnLimit": 20
+                "spawnLimit": 64
             }
         }
     }

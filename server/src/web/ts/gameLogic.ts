@@ -972,13 +972,11 @@ async function createObject(data: any) {
 }
 
 async function updateObject(object: THREE.Object3D, entity: any) {
-    const target = new THREE.Vector3(entity.position.x, 0, entity.position.y);
-
-    const targetDirection = new THREE.Vector3(
-        entity.position.x,
-        0,
-        entity.position.y
-    );
+    const posX = entity.position.x;
+    const posY = entity.position.y;
+    const targetDirection = new THREE.Vector3(posX, 0, posY);
+    const distance =
+        (posX - object.position.x) ** 2 + (posY - object.position.z) ** 2;
 
     if (entity.targetUUID) {
         const targetObject = getObjectByUUID(entity.targetUUID);
@@ -986,11 +984,7 @@ async function updateObject(object: THREE.Object3D, entity: any) {
             object.lookAt(targetObject.position);
         }
     } else {
-        if (
-            (entity.position.x - object.position.x) ** 2 +
-                (entity.position.y - object.position.z) ** 2 >
-            0.00001
-        ) {
+        if (distance > 0.00001) {
             const oldOrientation = object.rotation.clone();
             object.lookAt(targetDirection);
             const targetQuaternion = new THREE.Quaternion().copy(
@@ -1003,29 +997,15 @@ async function updateObject(object: THREE.Object3D, entity: any) {
 
     if (object.name === playerName) {
         if (isFirstUpdateForPlayer) {
-            // Initialize lastEntityPosition and camera to the first known position of the player entity
-            lastEntityPosition = new THREE.Vector3(
-                entity.position.x,
-                0,
-                entity.position.y
-            );
-            camera.position.set(
-                entity.position.x,
-                camera.position.y,
-                entity.position.y
-            );
-            controls.target.set(entity.position.x, 0, entity.position.y);
+            lastEntityPosition = new THREE.Vector3(posX, 0, posY);
+            camera.position.set(posX, camera.position.y, posY);
+            controls.target.copy(targetDirection);
             object.add(audioListener);
-            isFirstUpdateForPlayer = false; // set the flag to false after the first update
+            isFirstUpdateForPlayer = false;
         } else if (lastEntityPosition !== null) {
-            // Calculate the change in position
-            const dx = entity.position.x - lastEntityPosition.x;
-            const dz = entity.position.y - lastEntityPosition.z;
-
-            // Update lastEntityPosition for the next frame
-            lastEntityPosition.set(entity.position.x, 0, entity.position.y);
-
-            // Update the camera and control target positions
+            const dx = posX - lastEntityPosition.x;
+            const dz = posY - lastEntityPosition.z;
+            lastEntityPosition.copy(targetDirection);
             camera.position.set(
                 camera.position.x + dx,
                 camera.position.y,
@@ -1116,12 +1096,11 @@ async function updateObject(object: THREE.Object3D, entity: any) {
     }
 
     if (object.name != "CargoDrop") {
-        object.position.set(target.x, 0, target.z);
+        object.position.copy(targetDirection);
     } else {
-        object.position.set(target.x, -1, target.z);
+        object.position.set(posX, -1, posY);
     }
 }
-
 async function deleteObject(uuid: string) {
     const object = getObjectByUUID(uuid);
     if (object) {
