@@ -228,10 +228,9 @@ let initialWidth = modal.offsetWidth;
 let initialHeight = modal.offsetHeight;
 
 modal?.addEventListener("mousedown", (e: MouseEvent) => {
-  const resizeHandleSize = 10; // Размер ручки изменения размера (подгоните под ваши потребности)
+  const resizeHandleSize = 10; 
   const rect = modal.getBoundingClientRect();
 
-  // Проверяем, если курсор находится в области ручки изменения размера
   if (
     e.clientX >= rect.right - resizeHandleSize &&
     e.clientY >= rect.bottom - resizeHandleSize
@@ -270,4 +269,27 @@ document.addEventListener("mousemove", (e: MouseEvent) => {
 document.addEventListener("mouseup", () => {
   isDragging = false;
   isResizing = false;
+});
+
+const elements = document.querySelectorAll(".movable");
+
+elements.forEach((element: Element) => {
+  const htmlElement = element as HTMLElement; // Приводим тип к HTMLElement
+  htmlElement.addEventListener("mousedown", (e: MouseEvent) => {
+    let isDragging = true;
+    const rect = htmlElement.getBoundingClientRect();
+    let offsetX = e.clientX - rect.left;
+    let offsetY = e.clientY - rect.top;
+
+    document.addEventListener("mousemove", (e: MouseEvent) => {
+      if (isDragging) {
+        htmlElement.style.left = e.clientX - offsetX + "px";
+        htmlElement.style.top = e.clientY - offsetY + "px";
+      }
+    });
+
+    document.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+  });
 });
