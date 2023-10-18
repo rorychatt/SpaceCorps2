@@ -653,7 +653,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                 }
                 break;
             case "j":
-                console.log(currentMap.entities)
+                console.log(currentMap.entities);
                 const portals = currentMap.entities.filter(
                     (entity: { _type: string }) => entity._type === "Portal"
                 );
@@ -756,7 +756,7 @@ function rescaleOnWindowResize(): void {
 
 async function createObject(data: any) {
     return new Promise(async (resolve) => {
-        console.log(`Spawning new object: ${data.name}`);
+        // console.log(`Spawning new object: ${data.name}`);
         const loader = new GLTFLoader();
         objectDataMap[data.uuid] = { data: null };
         switch (data._type) {
@@ -767,7 +767,7 @@ async function createObject(data: any) {
                         const model = glb.scene;
                         model.uuid = data.uuid;
                         model.position.set(data.position.x, 0, data.position.y);
-                        setNameRecursivelly(
+                        setNameRecursively(
                             model,
                             data.name,
                             data.uuid,
@@ -825,7 +825,7 @@ async function createObject(data: any) {
                         const model = glb.scene;
                         model.uuid = data.uuid;
                         model.position.set(data.position.x, 0, data.position.y);
-                        setNameRecursivelly(
+                        setNameRecursively(
                             model,
                             data.name,
                             data.uuid,
@@ -860,7 +860,7 @@ async function createObject(data: any) {
                         model.uuid = data.uuid;
                         model.position.set(data.position.x, 0, data.position.y);
                         model.add(createSafeZoneRing(5));
-                        setNameRecursivelly(model, data.name, data.uuid);
+                        setNameRecursively(model, data.name, data.uuid);
                         scene.add(model);
                         model.lookAt(new THREE.Vector3(0, 0, 0));
                         objectDataMap[data.uuid] = { data: model };
@@ -950,12 +950,12 @@ async function createObject(data: any) {
                 cargoDrop.position.set(data.position.x, -1, data.position.y);
                 objectDataMap[data.uuid] = { data: cargoDrop };
                 cargoDrop.layers.enable(rayCastLayerNo);
-                setNameRecursivelly(cargoDrop, "CargoDrop", data.uuid);
+                setNameRecursively(cargoDrop, "CargoDrop", data.uuid);
                 scene.add(cargoDrop);
                 resolve(cargoDrop);
                 break;
             default:
-                console.log(data._type);
+                // console.log(data._type);
                 const boxgeometry = new THREE.BoxGeometry();
                 const boxmaterial = new THREE.MeshBasicMaterial({
                     color: 0x00ff00,
@@ -973,19 +973,21 @@ async function createObject(data: any) {
 }
 
 async function updateObject(object: THREE.Object3D, entity: any) {
-    const posX = entity.position.x;
-    const posY = entity.position.y;
+    const { position, targetUUID, name, hitPoints, _type, activeShipName } =
+        entity;
+    const { x: posX, y: posY } = position;
+
     const targetDirection = new THREE.Vector3(posX, 0, posY);
-    const distance =
+    const distanceSquared =
         (posX - object.position.x) ** 2 + (posY - object.position.z) ** 2;
 
-    if (entity.targetUUID) {
-        const targetObject = getObjectByUUID(entity.targetUUID);
+    if (targetUUID) {
+        const targetObject = getObjectByUUID(targetUUID);
         if (targetObject) {
             object.lookAt(targetObject.position);
         }
     } else {
-        if (distance > 0.00001) {
+        if (distanceSquared > 0.00001) {
             const oldOrientation = object.rotation.clone();
             object.lookAt(targetDirection);
             const targetQuaternion = new THREE.Quaternion().copy(
@@ -996,7 +998,7 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         }
     }
 
-    if (object.name === playerName) {
+    if (name === playerName) {
         if (isFirstUpdateForPlayer) {
             lastEntityPosition = new THREE.Vector3(posX, 0, posY);
             camera.position.set(posX, camera.position.y, posY);
@@ -1007,26 +1009,16 @@ async function updateObject(object: THREE.Object3D, entity: any) {
             const dx = posX - lastEntityPosition.x;
             const dz = posY - lastEntityPosition.z;
             lastEntityPosition.copy(targetDirection);
-            camera.position.set(
-                camera.position.x + dx,
-                camera.position.y,
-                camera.position.z + dz
-            );
-            controls.target.set(
-                controls.target.x + dx,
-                controls.target.y,
-                controls.target.z + dz
-            );
+            camera.position.add(new THREE.Vector3(dx, 0, dz));
+            controls.target.add(new THREE.Vector3(dx, 0, dz));
         }
         controls.update();
     }
 
-    if ((object as any).hitPoints) {
-        const dhp =
-            (object as any).hitPoints.hullPoints - entity.hitPoints.hullPoints;
-        const dsp =
-            (object as any).hitPoints.shieldPoints -
-            entity.hitPoints.shieldPoints;
+    if (hitPoints) {
+        const { hullPoints, shieldPoints } = hitPoints;
+        const dhp = (object as any).hitPoints.hullPoints - hullPoints;
+        const dsp = (object as any).hitPoints.shieldPoints - shieldPoints;
 
         if (dhp + dsp > 0) {
             const text = document.createElement("div");
@@ -1045,12 +1037,11 @@ async function updateObject(object: THREE.Object3D, entity: any) {
             setTimeout(() => {
                 scene.remove(damageLabel);
                 if (entityLabelsDiv) {
-                    for (let i = 0; i < entityLabelsDiv.children.length; i++) {
-                        const child = entityLabelsDiv.children[i];
-                        if (child.textContent === text.textContent) {
-                            entityLabelsDiv.removeChild(child);
-                            break;
-                        }
+                    const child = Array.from(entityLabelsDiv.children).find(
+                        (child) => child.textContent === text.textContent
+                    );
+                    if (child) {
+                        entityLabelsDiv.removeChild(child);
                     }
                 }
                 const index = damageIndicators.indexOf(damageLabel);
@@ -1059,114 +1050,105 @@ async function updateObject(object: THREE.Object3D, entity: any) {
                 }
             }, 1000);
         }
-        if (dhp != 0 || dsp != 0) {
+        if (dhp !== 0 || dsp !== 0) {
             if (entityLabelsDiv) {
-                for (let i = 0; i < entityLabelsDiv.children.length; i++) {
-                    if (
-                        entityLabelsDiv.children[i].getAttribute("uuid") ==
-                        object.uuid
-                    ) {
-                        const label = entityLabelsDiv.children[i].children[1];
-                        const hpBar = label.children[0];
-                        const spBar = label.children[1];
-                        const maxHp = entity.maxHealth || 100;
-                        const maxSp = entity.maxShields || 100;
-                        (hpBar as any).style.width =
-                            (entity.hitPoints.hullPoints / maxHp) * 100 + "%";
-                        (spBar as any).style.width =
-                            (entity.hitPoints.shieldPoints / maxSp) * 100 + "%";
-                    }
+                const label = Array.from(entityLabelsDiv.children).find(
+                    (child) => child.getAttribute("uuid") === object.uuid
+                );
+                if (label) {
+                    const hpBar = label.children[1].children[0] as HTMLElement;
+                    const spBar = label.children[1].children[1] as HTMLElement;
+                    const maxHp = entity.maxHealth || 100;
+                    const maxSp = entity.maxShields || 100;
+                    hpBar.style.width = `${(hullPoints / maxHp) * 100}%`;
+                    spBar.style.width = `${(shieldPoints / maxSp) * 100}%`;
                 }
             }
         }
     }
 
-    (object as any).hitPoints = entity.hitPoints;
-
-    if (entity._type) {
-        if (entity._type == "Alien" || entity._type == "Player") {
-            if ((object as any).activeShipName) {
-                if ((object as any).activeShipName != entity.activeShipName) {
-                    deleteObject(object.uuid);
-                }
-            } else {
-                (object as any).activeShipName = entity.activeShipName;
-                console.log(entity.activeShipName);
-            }
-        }
+    (object as any).hitPoints = hitPoints;
+    if ((object as any).hitPoints && (object as any).hitPoints.hullPoints < 0) {
+        createAndTriggerExplosion(object);
+        deleteObject(object.uuid);
+        return;
     }
 
-    if (object.name != "CargoDrop") {
-        object.position.copy(targetDirection);
-    } else {
-        object.position.set(posX, -1, posY);
-    }
-}
-async function deleteObject(uuid: string) {
-    const object = getObjectByUUID(uuid);
-    if (object) {
-        const label = getLabelByUUID(uuid);
-
-        if (label) {
-            labelRenderer.domElement.removeChild(label.element);
-            delete labelMap[uuid];
-        }
-
-        const entityLabelsDiv = document.getElementById("entityLabelsDiv");
-
-        if (entityLabelsDiv) {
-            while (entityLabelsDiv.firstChild) {
-                entityLabelsDiv.removeChild(entityLabelsDiv.firstChild);
+    if (_type && (_type === "Alien" || _type === "Player")) {
+        if ((object as any).activeShipName) {
+            if ((object as any).activeShipName !== activeShipName) {
+                deleteObject(object.uuid);
+                return;
             }
         } else {
-            console.log("The element with id 'entityLabelsDiv' was not found.");
+            (object as any).activeShipName = activeShipName;
+            // console.log(activeShipName);
         }
-
-        if (
-            object.name !== "laserProjectile" &&
-            object.name !== "rocketProjectile" &&
-            object.name !== "CargoDrop"
-        ) {
-            createAndTriggerExplosion(object);
-        }
-
-        if (object.name == "laserProjectile") {
-            if (currentSounds <= maxConcurrentSounds) {
-                currentSounds++;
-                const sound = new THREE.PositionalAudio(audioListener);
-                sound.setRefDistance(20);
-                sound.setBuffer(laserHitSoundBuffer);
-                sound.setVolume(0.7);
-                sound.onEnded = function () {
-                    currentSounds--;
-                };
-                sound.play();
-                object.add(sound);
-            }
-        } else if (object.name == "rocketProjectile") {
-            if (currentSounds <= maxConcurrentSounds) {
-                const sound = new THREE.PositionalAudio(audioListener);
-                sound.position.copy(object.position);
-                sound.setRefDistance(20);
-                sound.setBuffer(rocketHitSoundBuffer);
-                sound.setVolume(0.1);
-                sound.onEnded = function () {
-                    currentSounds--;
-                };
-                sound.play();
-                object.add(sound);
-            }
-        }
-        delete objectDataMap[uuid];
-        scene.remove(object);
-
-        console.log(`Deleted object with uuid: ${uuid}`);
-    } else {
-        console.log(
-            `WARNING: tried to delete object but could not find it: ${uuid}`
-        );
-        console.log(objectDataMap);
     }
+
+    object.position.copy(
+        name !== "CargoDrop"
+            ? targetDirection
+            : new THREE.Vector3(posX, -1, posY)
+    );
+}
+
+async function deleteObject(uuid: string) {
+    const object = getObjectByUUID(uuid);
+    if (!object) {
+        console.warn(
+            `WARNING: Tried to delete object but could not find it: ${uuid}`
+        );
+        // console.log(objectDataMap);
+        return;
+    }
+
+    const label = getLabelByUUID(uuid);
+    if (label) {
+        labelRenderer.domElement.removeChild(label.element);
+        delete labelMap[uuid];
+    }
+
+    const entityLabelsDiv = document.getElementById("entityLabelsDiv");
+    if (entityLabelsDiv) {
+        entityLabelsDiv.innerHTML = ""; // Clear all child elements
+    } else {
+        console.log("The element with id 'entityLabelsDiv' was not found.");
+    }
+
+    if (
+        object.name === "laserProjectile" &&
+        currentSounds <= maxConcurrentSounds
+    ) {
+        currentSounds++;
+        const sound = new THREE.PositionalAudio(audioListener);
+        sound.setRefDistance(20);
+        sound.setBuffer(laserHitSoundBuffer);
+        sound.setVolume(0.7);
+        sound.onEnded = function () {
+            currentSounds--;
+        };
+        sound.play();
+        object.add(sound);
+    } else if (object.name === "rocketProjectile") {
+        if (currentSounds <= maxConcurrentSounds) {
+            const sound = new THREE.PositionalAudio(audioListener);
+            sound.position.copy(object.position);
+            sound.setRefDistance(20);
+            sound.setBuffer(rocketHitSoundBuffer);
+            sound.setVolume(0.1);
+            sound.onEnded = function () {
+                currentSounds--;
+            };
+            sound.play();
+            object.add(sound);
+        }
+    }
+
+    delete objectDataMap[uuid];
+    scene.remove(object);
+
+    // console.log(`Deleted object with uuid: ${uuid}`);
 }
 
 async function updateObjects(_data: any[]) {
@@ -1205,36 +1187,39 @@ async function checkPlayerCurrency(price: {
     credits?: number;
     thulium?: number;
 }): Promise<boolean> {
-    if (playerEntity.stats) {
-        if (price.credits) {
-            if (playerEntity.stats.credits < price.credits) {
-                showErrorMessage(
-                    `Not enough credits`,
-                    `You have: ${await beautifyNumberToUser(
-                        playerEntity.stats.credits
-                    )} and need ${await beautifyNumberToUser(
-                        price.credits
-                    )} credits to buy this item.`
-                );
-                return false;
-            }
-        } else if (price.thulium) {
-            if (playerEntity.stats.thulium < price.thulium) {
-                showErrorMessage(
-                    `Not enough thulium`,
-                    `You have: ${await beautifyNumberToUser(
-                        playerEntity.stats.thulium
-                    )} and need ${await beautifyNumberToUser(
-                        price.thulium
-                    )} thulium to buy this item.`
-                );
-                return false;
-            }
-        }
+    const { stats } = playerEntity;
 
-        return true;
+    if (!stats) {
+        return false;
     }
-    return false;
+
+    const { credits, thulium } = price;
+
+    if (credits && stats.credits < credits) {
+        showErrorMessage(
+            `Not enough credits`,
+            `You have: ${await beautifyNumberToUser(
+                stats.credits
+            )} and need ${await beautifyNumberToUser(
+                credits
+            )} credits to buy this item.`
+        );
+        return false;
+    }
+
+    if (thulium && stats.thulium < thulium) {
+        showErrorMessage(
+            `Not enough thulium`,
+            `You have: ${await beautifyNumberToUser(
+                stats.thulium
+            )} and need ${await beautifyNumberToUser(
+                thulium
+            )} thulium to buy this item.`
+        );
+        return false;
+    }
+
+    return true;
 }
 
 async function updatePlayerInfo(entity: any) {
@@ -1272,17 +1257,7 @@ async function updatePlayerInfo(entity: any) {
 }
 
 function getObjectByUUID(uuid: string) {
-    const objects = scene.children;
-
-    for (let i = 0, l = objects.length; i < l; i++) {
-        const object = objects[i];
-
-        if (object.uuid === uuid) {
-            return object;
-        }
-    }
-
-    return null;
+    return scene.children.find((object) => object.uuid === uuid) || null;
 }
 
 async function createStars() {
@@ -1315,13 +1290,12 @@ async function createStars() {
 }
 
 function getLabelByUUID(uuid: string): CSS2DObject | undefined {
-    const labels = scene.children.filter(
-        (child) => child instanceof CSS2DObject
-    ) as CSS2DObject[];
-    return labels.find((label) => label.uuid === uuid);
+    return scene.children.find(
+        (child) => child instanceof CSS2DObject && child.uuid === uuid
+    ) as CSS2DObject | undefined;
 }
 
-function setNameRecursivelly(
+function setNameRecursively(
     object: THREE.Object3D,
     name: string,
     uuid: string,
@@ -1329,17 +1303,14 @@ function setNameRecursivelly(
 ) {
     object.name = name;
     object.uuid = uuid;
+
     if (layerNo) {
         object.layers.enable(layerNo);
     }
 
-    for (let i = 0; i < object.children.length; i++) {
-        if (layerNo) {
-            setNameRecursivelly(object.children[i], name, uuid, layerNo);
-        } else {
-            setNameRecursivelly(object.children[i], name, uuid);
-        }
-    }
+    object.children.forEach((child) => {
+        setNameRecursively(child, name, uuid, layerNo);
+    });
 }
 
 async function loadEventListeners() {
@@ -1403,450 +1374,309 @@ async function loadEventListeners() {
 }
 
 async function displayShoppingItems() {
-    console.log(shoppingData);
+    // console.log(shoppingData);
+
     for (const category in shoppingData) {
-        if (category != "ammunition") {
-            if (shoppingData.hasOwnProperty(category)) {
-                const categoryItems = shoppingData[category];
+        if (
+            !shoppingData.hasOwnProperty(category) ||
+            category === "ammunition"
+        ) {
+            continue;
+        }
 
-                const categoryContainer = document.getElementById(
-                    `shopping_${category}`
-                );
+        const categoryItems = shoppingData[category];
+        const categoryContainer = document.getElementById(
+            `shopping_${category}`
+        );
 
-                if (!categoryContainer) {
-                    console.error(
-                        `Category container not found for '${category}'`
-                    );
-                    continue;
-                }
+        if (!categoryContainer) {
+            console.error(`Category container not found for '${category}'`);
+            continue;
+        }
 
-                while (categoryContainer?.firstChild) {
-                    categoryContainer.removeChild(categoryContainer.firstChild);
-                }
+        categoryContainer.innerHTML = "";
 
-                for (const itemName in categoryItems) {
-                    if (categoryItems.hasOwnProperty(itemName)) {
-                        const item = categoryItems[itemName];
-                        const itemContainer = document.createElement("div");
-                        itemContainer.classList.add("shop_item");
-
-                        // Create an element for the item name
-                        const itemNameElement = document.createElement("div");
-                        itemNameElement.classList.add("item_name");
-                        itemNameElement.textContent = itemName;
-
-                        const itemIcon = document.createElement("div");
-                        itemIcon.classList.add("item_icon");
-
-                        const itemPng = createNewIcon(itemName);
-                        itemIcon.appendChild(itemPng);
-
-                        const itemPrice = document.createElement("div");
-                        itemPrice.classList.add("item_price");
-                        if (item.price.credits && item.price.credits != 0) {
-                            itemPrice.textContent = `Price: ${await beautifyNumberToUser(
-                                item.price.credits
-                            )} credits`;
-                        }
-                        if (item.price.thulium && item.price.thulium != 0) {
-                            itemPrice.textContent = `Price: ${await beautifyNumberToUser(
-                                item.price.thulium
-                            )} thulium`;
-                        }
-                        const buyButton = document.createElement("button");
-                        buyButton.classList.add("buy_button");
-                        buyButton.textContent = "BUY";
-
-                        // Append the item name element before the item icon
-                        itemContainer.appendChild(itemNameElement);
-                        itemContainer.appendChild(itemIcon);
-                        itemContainer.appendChild(itemPrice);
-                        itemContainer.appendChild(buyButton);
-                        categoryContainer.appendChild(itemContainer);
-
-                        buyButton.addEventListener("click", async () => {
-                            console.log(
-                                `You clicked BUY for ${category} - ${itemName}`
-                            );
-
-                            for (
-                                let i = 0;
-                                i < playerInventory.ships.length;
-                                i++
-                            ) {
-                                if (playerInventory.ships[i].name == itemName) {
-                                    showErrorMessage(
-                                        "Can not buy ship",
-                                        `Ship ${itemName} already owned`
-                                    );
-                                    return;
-                                }
-                            }
-
-                            if (!(await checkPlayerCurrency(item.price))) {
-                                return;
-                            }
-
-                            socket.emit(`playerPurchaseEvent`, {
-                                playerName: playerName,
-                                itemName: itemName,
-                            });
-                        });
-                    }
-                }
-            }
-        } else {
-            const categoryContainer = document.getElementById(
-                "shopping_ammunition"
-            );
-
-            if (!categoryContainer) {
-                console.error(`Category container not found for '${category}'`);
+        for (const itemName in categoryItems) {
+            if (!categoryItems.hasOwnProperty(itemName)) {
                 continue;
             }
 
-            while (categoryContainer?.firstChild) {
-                categoryContainer.removeChild(categoryContainer.firstChild);
+            const item = categoryItems[itemName];
+            const itemContainer = createShopItem(itemName, item.price);
+
+            categoryContainer.appendChild(await itemContainer);
+
+            const buyButton = (await itemContainer).querySelector(
+                ".buy_button"
+            );
+
+            if (buyButton) {
+                buyButton.addEventListener("click", async () => {
+                    handleBuyButtonClick(itemName, item.price);
+                });
             }
+        }
+    }
 
-            for (const ammoType in shoppingData[category]) {
-                for (const name in shoppingData[category][ammoType]) {
-                    const item = shoppingData[category][ammoType][name];
-                    const itemContainer = document.createElement("div");
-                    itemContainer.classList.add("shop_item");
+    // Handle ammunition category separately
+    const ammoCategoryContainer = document.getElementById(
+        "shopping_ammunition"
+    );
+    if (ammoCategoryContainer) {
+        ammoCategoryContainer.innerHTML = "";
 
-                    const itemNameElement = document.createElement("div");
-                    itemNameElement.classList.add("item_name");
-                    itemNameElement.textContent = name;
+        for (const ammoType in shoppingData.ammunition) {
+            for (const name in shoppingData.ammunition[ammoType]) {
+                const item = shoppingData.ammunition[ammoType][name];
+                const itemContainer = createShopItem(name, item.price);
 
-                    const itemIcon = document.createElement("div");
-                    itemIcon.classList.add("item_icon");
+                const itemAmountInput = createItemAmountInput();
 
-                    const itemPng = createNewIcon(name);
-                    itemIcon.appendChild(itemPng);
+                (await itemContainer).appendChild(itemAmountInput);
 
-                    const itemAmount = document.createElement("div");
-                    itemAmount.classList.add("item-amount");
+                ammoCategoryContainer.appendChild(await itemContainer);
 
-                    const itemAmountInput = document.createElement("input");
-                    itemAmountInput.type = "number";
-                    itemAmountInput.classList.add("item_amount_input");
-                    itemAmountInput.placeholder = "Amount";
+                const buyButton = (await itemContainer).querySelector(
+                    ".buy_button"
+                );
 
-                    itemAmount.appendChild(itemAmountInput);
-
-                    const itemPrice = document.createElement("div");
-                    itemPrice.classList.add("item_price");
-                    itemPrice.textContent = `Price: ${await beautifyNumberToUser(
-                        item.price.credits
-                    )} credits`;
-                    const buyButton = document.createElement("button");
-                    buyButton.classList.add("buy_button");
-                    buyButton.textContent = "BUY";
-
-                    // Append the item name element before the item icon
-                    itemContainer.appendChild(itemNameElement);
-                    itemContainer.appendChild(itemIcon);
-                    itemContainer.appendChild(itemAmount);
-                    itemContainer.appendChild(itemPrice);
-                    itemContainer.appendChild(buyButton);
-                    categoryContainer.appendChild(itemContainer);
-
+                if (buyButton) {
                     buyButton.addEventListener("click", async () => {
-                        console.log(
-                            `You clicked BUY for ${category} - ${name}`
-                        );
-
-                        if (!(await checkPlayerCurrency(item.price))) {
-                            return;
-                        }
-
-                        socket.emit(`playerPurchaseEvent`, {
-                            playerName: playerName,
-                            itemName: name,
-                            amount: parseInt(itemAmountInput.value),
-                        });
-                    });
-
-                    itemAmountInput.addEventListener("change", async () => {
-                        if (
-                            itemAmountInput.value &&
-                            parseInt(itemAmountInput.value) > 0
-                        ) {
-                            itemPrice.textContent = `Price: ${await beautifyNumberToUser(
-                                item.price.credits *
-                                    parseInt(itemAmountInput.value)
-                            )} credits`;
-                        }
+                        const amount = parseInt(itemAmountInput.value) || 1;
+                        handleBuyButtonClick(name, item.price, amount);
                     });
                 }
+
+                itemAmountInput.addEventListener("change", async () => {
+                    handleItemAmountChange(
+                        itemAmountInput,
+                        item.price,
+                        await itemContainer
+                    );
+                });
             }
+        }
+    }
+}
+
+async function createShopItem(itemName: string, itemPrice: any) {
+    const itemContainer = document.createElement("div");
+    itemContainer.classList.add("shop_item");
+
+    const itemNameElement = createItemNameElement(itemName);
+    const itemIcon = createItemIcon(itemName);
+    const itemPriceElement = await createItemPriceElement(itemPrice);
+    const buyButton = createBuyButton();
+
+    itemContainer.appendChild(itemNameElement);
+    itemContainer.appendChild(itemIcon);
+    itemContainer.appendChild(itemPriceElement);
+    itemContainer.appendChild(buyButton);
+
+    return itemContainer;
+}
+
+function createItemNameElement(itemName: string) {
+    const itemNameElement = document.createElement("div");
+    itemNameElement.classList.add("item_name");
+    itemNameElement.textContent = itemName;
+    return itemNameElement;
+}
+
+function createItemIcon(itemName: string) {
+    const itemIcon = document.createElement("div");
+    itemIcon.classList.add("item_icon");
+    const itemPng = createNewIcon(itemName);
+    itemIcon.appendChild(itemPng);
+    return itemIcon;
+}
+
+async function createItemPriceElement(itemPrice: any) {
+    const itemPriceElement = document.createElement("div");
+    itemPriceElement.classList.add("item_price");
+    itemPriceElement.textContent = `Price: ${await beautifyNumberToUser(
+        itemPrice.credits || itemPrice.thulium || 0
+    )} ${itemPrice.credits ? "credits" : "thulium"}`;
+    return itemPriceElement;
+}
+
+function createBuyButton() {
+    const buyButton = document.createElement("button");
+    buyButton.classList.add("buy_button");
+    buyButton.textContent = "BUY";
+    return buyButton;
+}
+
+function createItemAmountInput() {
+    const itemAmountInput = document.createElement("input");
+    itemAmountInput.type = "number";
+    itemAmountInput.classList.add("item_amount_input");
+    itemAmountInput.placeholder = "Amount";
+    return itemAmountInput;
+}
+
+async function handleBuyButtonClick(
+    itemName: string,
+    itemPrice: any,
+    amount = 1
+) {
+    // console.log(`You clicked BUY for ${itemName}`);
+
+    for (let i = 0; i < playerInventory.ships.length; i++) {
+        if (playerInventory.ships[i].name === itemName) {
+            showErrorMessage(
+                "Cannot buy ship",
+                `Ship ${itemName} already owned`
+            );
+            return;
+        }
+    }
+
+    if (!(await checkPlayerCurrency(itemPrice))) {
+        return;
+    }
+
+    socket.emit(`playerPurchaseEvent`, {
+        playerName: playerName,
+        itemName: itemName,
+        amount: amount,
+    });
+}
+
+async function handleItemAmountChange(
+    itemAmountInput: HTMLInputElement,
+    itemPrice: any,
+    itemContainer: HTMLElement
+) {
+    if (itemAmountInput.value && parseInt(itemAmountInput.value) > 0) {
+        const totalPrice = itemPrice.credits * parseInt(itemAmountInput.value);
+        const itemPriceElement = itemContainer.querySelector(".item_price");
+
+        if (itemPriceElement) {
+            itemPriceElement.textContent = `Price: ${await beautifyNumberToUser(
+                totalPrice
+            )} credits`;
         }
     }
 }
 
 async function displayShipsInHangar() {
     const categoryContainer = document.getElementById("hangar_storage");
-    while (categoryContainer?.firstChild) {
-        categoryContainer.removeChild(categoryContainer.firstChild);
+
+    if (!categoryContainer) {
+        console.error("Category container 'hangar_storage' not found.");
+        return;
     }
 
-    if (categoryContainer) {
-        for (const _ship in playerInventory.ships) {
-            const ship = playerInventory.ships[_ship];
-            const hangarItemContainer = document.createElement("div");
-            hangarItemContainer.classList.add("hangar_item");
+    categoryContainer.innerHTML = "";
 
-            const shipNameElement = document.createElement("div");
-            shipNameElement.classList.add("item_name");
-            shipNameElement.textContent = ship.name;
+    for (const ship of playerInventory.ships) {
+        const hangarItemContainer = createShopItemContainer(
+            ship.name,
+            ship.name
+        );
+        const equipButton = createEquipButton();
 
-            const shipIcon = document.createElement("div");
-            shipIcon.classList.add("item_icon");
+        hangarItemContainer.appendChild(equipButton);
+        categoryContainer.appendChild(hangarItemContainer);
 
-            const itemPng = createNewIcon(ship.name);
-            shipIcon.appendChild(itemPng);
-
-            const equipButton = document.createElement("button");
-            equipButton.classList.add("profile_btn");
-            equipButton.classList.add("profile_equip_btn");
-            equipButton.textContent = "EQUIP";
-
-            hangarItemContainer.appendChild(shipNameElement);
-            hangarItemContainer.appendChild(shipIcon);
-            hangarItemContainer.appendChild(equipButton);
-
-            categoryContainer.appendChild(hangarItemContainer);
-
-            equipButton.addEventListener("click", () => {
-                console.log(`You clicked equip button for ship ${ship.name}`);
-                socket.emit(`equipItemEvent`, {
-                    playerName: playerName,
-                    itemName: ship.name,
-                });
-            });
-        }
+        equipButton.addEventListener("click", () => {
+            handleEquipButtonClick(ship.name);
+        });
     }
+}
+
+function createShopItemContainer(itemName: string, iconName: string) {
+    const itemContainer = document.createElement("div");
+    itemContainer.classList.add("hangar_item");
+
+    const itemNameElement = createItemNameElement(itemName);
+    const shipIcon = createItemIcon(iconName);
+    const equipButton = createEquipButton();
+
+    itemContainer.appendChild(itemNameElement);
+    itemContainer.appendChild(shipIcon);
+    itemContainer.appendChild(equipButton);
+
+    return itemContainer;
+}
+
+function createEquipButton() {
+    const equipButton = document.createElement("button");
+    equipButton.classList.add("profile_btn");
+    equipButton.classList.add("profile_equip_btn");
+    equipButton.textContent = "EQUIP";
+    return equipButton;
+}
+
+async function handleEquipButtonClick(itemName: string) {
+    // console.log(`You clicked equip button for ship ${itemName}`);
+    socket.emit(`equipItemEvent`, {
+        playerName: playerName,
+        itemName: itemName,
+    });
 }
 
 async function displayItemsInWorkroom() {
     const categoryContainer = document.getElementById("workroom_storage");
-    while (categoryContainer?.firstChild) {
-        categoryContainer.removeChild(categoryContainer.firstChild);
+
+    if (!categoryContainer) {
+        console.error("Category container 'workroom_storage' not found.");
+        return;
     }
-    if (categoryContainer) {
-        for (const _laser in playerInventory.lasers) {
-            const laser = playerInventory.lasers[_laser];
-            const workroomItemContainer = document.createElement("div");
-            workroomItemContainer.classList.add("workroom_item");
 
-            const itemNameElement = document.createElement("div");
-            itemNameElement.classList.add("item_name");
-            itemNameElement.textContent = laser.name;
+    categoryContainer.innerHTML = "";
 
-            const itemIcon = document.createElement("div");
-            itemIcon.classList.add("item_icon");
+    function addItemToContainer(item: any) {
+        const workroomItemContainer = createShopItemContainer(
+            item.name,
+            item.name
+        );
+        const equipButton = createEquipButton();
 
-            const itemPng = createNewIcon(laser.name);
-            itemIcon.appendChild(itemPng);
-
-            const equipButton = document.createElement("button");
-            equipButton.classList.add("profile_btn");
-            equipButton.classList.add("profile_equip_btn");
-            equipButton.textContent = "EQUIP";
-
-            workroomItemContainer.appendChild(itemNameElement);
-            workroomItemContainer.appendChild(itemIcon);
-            workroomItemContainer.appendChild(equipButton);
-
+        workroomItemContainer.appendChild(equipButton);
+        if (categoryContainer) {
             categoryContainer.appendChild(workroomItemContainer);
-
-            equipButton.addEventListener("click", () => {
-                console.log(`Tried to equip item: ${laser.name}`);
-                socket.emit(`equipItemEvent`, {
-                    playerName: playerName,
-                    itemName: laser.name,
-                });
-            });
-        }
-        for (const _shieldGenerator in playerInventory.shieldGenerators) {
-            const shieldGenerator =
-                playerInventory.shieldGenerators[_shieldGenerator];
-            const workroomItemContainer = document.createElement("div");
-            workroomItemContainer.classList.add("workroom_item");
-
-            const itemNameElement = document.createElement("div");
-            itemNameElement.classList.add("item_name");
-            itemNameElement.textContent = shieldGenerator.name;
-
-            const itemIcon = document.createElement("div");
-            itemIcon.classList.add("item_icon");
-
-            const itemPng = createNewIcon(shieldGenerator.name);
-            itemIcon.appendChild(itemPng);
-
-            const equipButton = document.createElement("button");
-            equipButton.classList.add("profile_btn");
-            equipButton.classList.add("profile_equip_btn");
-            equipButton.textContent = "EQUIP";
-
-            workroomItemContainer.appendChild(itemNameElement);
-            workroomItemContainer.appendChild(itemIcon);
-            workroomItemContainer.appendChild(equipButton);
-
-            categoryContainer.appendChild(workroomItemContainer);
-
-            equipButton.addEventListener("click", () => {
-                console.log(`Tried to equip item: ${shieldGenerator.name}`);
-                socket.emit(`equipItemEvent`, {
-                    playerName: playerName,
-                    itemName: shieldGenerator.name,
-                });
-            });
         }
 
-        for (const _speedGenerator in playerInventory.speedGenerators) {
-            const speedGenerator =
-                playerInventory.speedGenerators[_speedGenerator];
-            const workroomItemContainer = document.createElement("div");
-            workroomItemContainer.classList.add("workroom_item");
+        equipButton.addEventListener("click", () => {
+            handleEquipButtonClick(item.name);
+        });
+    }
 
-            const itemNameElement = document.createElement("div");
-            itemNameElement.classList.add("item_name");
-            itemNameElement.textContent = speedGenerator.name;
+    for (const laser of playerInventory.lasers) {
+        addItemToContainer(laser);
+    }
 
-            const itemIcon = document.createElement("div");
-            itemIcon.classList.add("item_icon");
+    for (const shieldGenerator of playerInventory.shieldGenerators) {
+        addItemToContainer(shieldGenerator);
+    }
 
-            const itemPng = createNewIcon(speedGenerator.name);
-            itemIcon.appendChild(itemPng);
-
-            const equipButton = document.createElement("button");
-            equipButton.classList.add("profile_btn");
-            equipButton.classList.add("profile_equip_btn");
-            equipButton.textContent = "EQUIP";
-
-            workroomItemContainer.appendChild(itemNameElement);
-            workroomItemContainer.appendChild(itemIcon);
-            workroomItemContainer.appendChild(equipButton);
-
-            categoryContainer.appendChild(workroomItemContainer);
-
-            equipButton.addEventListener("click", () => {
-                console.log(`Tried to equip item: ${speedGenerator.name}`);
-                socket.emit(`equipItemEvent`, {
-                    playerName: playerName,
-                    itemName: speedGenerator.name,
-                });
-            });
-        }
+    for (const speedGenerator of playerInventory.speedGenerators) {
+        addItemToContainer(speedGenerator);
     }
 }
 
 async function displayActiveItems() {
-    for (const ship in playerInventory.ships) {
-        if (playerInventory.ships[ship].isActive) {
-            const categoryContainer1 = document.getElementById(
-                "workroom_active_lasers"
-            );
-            const categoryContainer2 = document.getElementById(
-                "workroom_active_generators"
-            );
-            const categoryContainer3 = document.getElementById(
-                "workroom_active_extras"
-            );
+    for (const ship of playerInventory.ships) {
+        if (ship.isActive) {
+            const categoryContainers = [
+                "workroom_active_lasers",
+                "workroom_active_generators",
+                "workroom_active_extras",
+            ];
 
-            while (categoryContainer1?.firstChild) {
-                categoryContainer1.removeChild(categoryContainer1.firstChild);
-            }
-            while (categoryContainer2?.firstChild) {
-                categoryContainer2.removeChild(categoryContainer2.firstChild);
-            }
-            while (categoryContainer3?.firstChild) {
-                categoryContainer3.removeChild(categoryContainer3.firstChild);
-            }
-            if (categoryContainer1) {
-                for (const _laser in playerInventory.ships[ship]
-                    .currentLasers) {
-                    const laser =
-                        playerInventory.ships[ship].currentLasers[_laser];
-                    const workroomItemContainer = document.createElement("div");
-                    workroomItemContainer.classList.add("workroom_item");
+            for (const categoryContainerId of categoryContainers) {
+                const categoryContainer =
+                    document.getElementById(categoryContainerId);
 
-                    const itemNameElement = document.createElement("div");
-                    itemNameElement.classList.add("item_name");
-                    itemNameElement.textContent = laser.name;
-
-                    const itemIcon = document.createElement("div");
-                    itemIcon.classList.add("item_icon");
-
-                    const itemPng = createNewIcon(laser.name);
-                    itemIcon.appendChild(itemPng);
-
-                    const unequipButton = document.createElement("button");
-                    unequipButton.classList.add("profile_btn");
-                    unequipButton.classList.add("profile_equip_btn");
-                    unequipButton.textContent = "UNEQUIP";
-
-                    workroomItemContainer.appendChild(itemNameElement);
-                    workroomItemContainer.appendChild(itemIcon);
-                    workroomItemContainer.appendChild(unequipButton);
-
-                    categoryContainer1.appendChild(workroomItemContainer);
-
-                    unequipButton.addEventListener("click", () => {
-                        console.log(`Tried to unequip item: ${laser.name}`);
-                        socket.emit(`unequipItemEvent`, {
-                            playerName: playerName,
-                            itemName: laser.name,
-                        });
-                    });
+                if (categoryContainer) {
+                    categoryContainer.innerHTML = "";
+                    const items = getCategoryItems(ship, categoryContainerId);
+                    items.forEach((item: any) =>
+                        addItemToContainer(item, categoryContainer)
+                    );
                 }
-            }
-            if (categoryContainer2) {
-                for (const _shieldGenerator in playerInventory.ships[ship]
-                    .currentGenerators) {
-                    const shieldGenerator =
-                        playerInventory.ships[ship].currentGenerators[
-                            _shieldGenerator
-                        ];
-                    const workroomItemContainer = document.createElement("div");
-                    workroomItemContainer.classList.add("workroom_item");
-
-                    const itemNameElement = document.createElement("div");
-                    itemNameElement.classList.add("item_name");
-                    itemNameElement.textContent = shieldGenerator.name;
-
-                    const itemIcon = document.createElement("div");
-                    itemIcon.classList.add("item_icon");
-
-                    const itemPng = createNewIcon(shieldGenerator.name);
-                    itemIcon.appendChild(itemPng);
-
-                    const unequipButton = document.createElement("button");
-                    unequipButton.classList.add("profile_btn");
-                    unequipButton.classList.add("profile_equip_btn");
-                    unequipButton.textContent = "UNEQUIP";
-
-                    workroomItemContainer.appendChild(itemNameElement);
-                    workroomItemContainer.appendChild(itemIcon);
-                    workroomItemContainer.appendChild(unequipButton);
-
-                    categoryContainer2.appendChild(workroomItemContainer);
-
-                    unequipButton.addEventListener("click", () => {
-                        console.log(
-                            `Tried to unequip item: ${shieldGenerator.name}`
-                        );
-                        socket.emit(`unequipItemEvent`, {
-                            playerName: playerName,
-                            itemName: shieldGenerator.name,
-                        });
-                    });
-                }
-            }
-            if (categoryContainer3) {
-                // TODO: Complete logic here later when extras are done
             }
         }
     }
@@ -1854,42 +1684,89 @@ async function displayActiveItems() {
     const categoryContainer4 = document.getElementById("ammo_lasers");
     const categoryContainer5 = document.getElementById("ammo_rockets");
 
-    while (categoryContainer4?.firstChild) {
-        categoryContainer4.removeChild(categoryContainer4.firstChild);
-    }
-    while (categoryContainer5?.firstChild) {
-        categoryContainer5.removeChild(categoryContainer5.firstChild);
-    }
+    if (!categoryContainer4 || !categoryContainer5) return;
+
+    clearCategoryContainer(categoryContainer4);
+    clearCategoryContainer(categoryContainer5);
 
     if (categoryContainer4 && categoryContainer5) {
-        for (const ammunition in playerInventory.ammunition) {
-            if (playerInventory.ammunition[ammunition]._type == "LaserAmmo") {
-                const ammoName = playerInventory.ammunition[ammunition].name;
-                const ammoAmount =
-                    playerInventory.ammunition[ammunition].amount;
-                if (ammoAmount && ammoName) {
-                    const ammoNameDiv = document.createElement("p");
-                    ammoNameDiv.classList.add("ammo_text");
-                    ammoNameDiv.textContent = `${ammoName} :${ammoAmount}`;
+        displayAmmunition(categoryContainer4, "LaserAmmo");
+        displayAmmunition(categoryContainer5, "RocketAmmo");
+    }
+}
 
-                    categoryContainer4.appendChild(ammoNameDiv);
-                }
-            } else if (
-                playerInventory.ammunition[ammunition]._type == "RocketAmmo"
-            ) {
-                const ammoName = playerInventory.ammunition[ammunition].name;
-                const ammoAmount =
-                    playerInventory.ammunition[ammunition].amount;
-                if (ammoAmount && ammoName) {
-                    const ammoNameDiv = document.createElement("p");
-                    ammoNameDiv.classList.add("ammo_text");
-                    ammoNameDiv.textContent = `${ammoName} : ${ammoAmount}`;
+function clearCategoryContainer(categoryContainer: HTMLElement) {
+    if (categoryContainer) {
+        while (categoryContainer.firstChild) {
+            categoryContainer.removeChild(categoryContainer.firstChild);
+        }
+    }
+}
 
-                    categoryContainer4.appendChild(ammoNameDiv);
-                }
+function getCategoryItems(
+    ship: {
+        currentLasers: any[];
+        currentGenerators: any[];
+        // Add type annotations for other ship properties as needed
+    },
+    categoryContainerId: string
+) {
+    const categoryMap: Record<string, any[]> = {
+        workroom_active_lasers: ship.currentLasers,
+        workroom_active_generators: ship.currentGenerators,
+        // Add other category mappings here
+    };
+
+    return categoryMap[categoryContainerId] || [];
+}
+
+function addItemToContainer(item: any, categoryContainer: HTMLElement) {
+    const workroomItemContainer = createShopItemContainer(item.name, item.name);
+    const unequipButton = createUnequipButton();
+
+    workroomItemContainer.appendChild(unequipButton);
+    categoryContainer.appendChild(workroomItemContainer);
+
+    unequipButton.addEventListener("click", () => {
+        handleUnequipButtonClick(item.name);
+    });
+}
+
+function displayAmmunition(categoryContainer: HTMLElement, ammoType: string) {
+    for (const ammunition in playerInventory.ammunition) {
+        if (playerInventory.ammunition[ammunition]._type === ammoType) {
+            const ammoName = playerInventory.ammunition[ammunition].name;
+            const ammoAmount = playerInventory.ammunition[ammunition].amount;
+
+            if (ammoName && ammoAmount) {
+                const ammoNameDiv = createAmmoNameDiv(ammoName, ammoAmount);
+                categoryContainer.appendChild(ammoNameDiv);
             }
         }
     }
+}
+
+function createUnequipButton() {
+    const unequipButton = document.createElement("button");
+    unequipButton.classList.add("profile_btn");
+    unequipButton.classList.add("profile_equip_btn");
+    unequipButton.textContent = "UNEQUIP";
+    return unequipButton;
+}
+
+function handleUnequipButtonClick(itemName: string) {
+    // (`Tried to unequip item: ${itemName}`);
+    socket.emit(`unequipItemEvent`, {
+        playerName: playerName,
+        itemName: itemName,
+    });
+}
+
+function createAmmoNameDiv(ammoName: string, ammoAmount: number) {
+    const ammoNameDiv = document.createElement("p");
+    ammoNameDiv.classList.add("ammo_text");
+    ammoNameDiv.textContent = `${ammoName} : ${ammoAmount}`;
+    return ammoNameDiv;
 }
 
 async function createAndTriggerExplosion(object: THREE.Object3D) {
@@ -2053,7 +1930,7 @@ function createNewIcon(itemName: string) {
     itemPng.src = `../assets/icons/${itemName}.png`;
     itemPng.onerror = () => {
         itemPng.src = `../assets/icons/defaultIcon.png`;
-        console.log(`Icon ${itemName} not found`);
+        console.log(`Icon ../assets/icons/${itemName}.png not found`);
     };
 
     return itemPng;
