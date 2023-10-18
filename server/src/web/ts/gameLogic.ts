@@ -26,7 +26,14 @@ const honorElement = document.getElementById("honor_value");
 const notificationContainer = document.getElementById("notification_container");
 const prestigeElement = document.getElementById("prestige_value");
 const levelElement = document.getElementById("player_level_div");
+
+const simHPElement = document.getElementById("sim_hitpoints");
+const simSPElement = document.getElementById("sim_speed");
+const simSHElement = document.getElementById("sim_shieldpoints");
+const simCargoElement = document.getElementById("sim_cargo");
+
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
+
 const switchCheckbox: HTMLInputElement | null = document.querySelector(
     "#setting_switch_antialiasing .chk"
 );
@@ -383,6 +390,7 @@ function savePlayerSettings(data: {
 }
 
 async function loadNewSpacemap(data: any) {
+    console.log(data);
     clearScene(scene);
     lockOnCircle?.removeFromParent();
     try {
@@ -653,7 +661,6 @@ function handleKeyboardButton(e: KeyboardEvent) {
                 }
                 break;
             case "j":
-                console.log(currentMap.entities);
                 const portals = currentMap.entities.filter(
                     (entity: { _type: string }) => entity._type === "Portal"
                 );
@@ -661,6 +668,8 @@ function handleKeyboardButton(e: KeyboardEvent) {
                     playerEntity.position,
                     portals
                 );
+                console.log(portals);
+                console.log(closestPortal);
                 if (closestPortal) {
                     if (
                         Math.sqrt(
@@ -1231,14 +1240,37 @@ async function updatePlayerInfo(entity: any) {
         experienceElement &&
         honorElement &&
         prestigeElement &&
-        levelElement
+        levelElement &&
+        simCargoElement &&
+        simHPElement &&
+        simSHElement &&
+        simSPElement
     ) {
-        const [credits, thulium, experience, honor, level] = await Promise.all([
+        let totalOres = 0;
+        entity.inventory.cargoBay.ores.forEach((ore: any) => {
+            totalOres += ore.amount;
+        });
+
+        const [
+            credits,
+            thulium,
+            experience,
+            honor,
+            level,
+            hullPoints,
+            shieldPoints,
+            speed,
+            cargo,
+        ] = await Promise.all([
             beautifyNumberToUser(entity.stats.credits),
             beautifyNumberToUser(entity.stats.thulium),
             beautifyNumberToUser(entity.stats.experience),
             beautifyNumberToUser(entity.stats.honor),
             beautifyNumberToUser(entity.level),
+            beautifyNumberToUser(entity.hitPoints.hullPoints),
+            beautifyNumberToUser(entity.hitPoints.shieldPoints),
+            beautifyNumberToUser(entity.speed),
+            beautifyNumberToUser(totalOres),
         ]);
 
         levelElement.textContent = level;
@@ -1247,6 +1279,11 @@ async function updatePlayerInfo(entity: any) {
         experienceElement.textContent = experience;
         honorElement.textContent = honor;
         // prestigeElement.textContent = level;
+
+        simHPElement.textContent = hullPoints;
+        simSHElement.textContent = shieldPoints;
+        simSPElement.textContent = speed;
+        simCargoElement.textContent = cargo;
     }
     if (JSON.stringify(playerInventory) != JSON.stringify(entity.inventory)) {
         playerInventory = entity.inventory;
@@ -1432,7 +1469,15 @@ async function displayShoppingItems() {
 
                 const itemAmountInput = createItemAmountInput();
 
-                (await itemContainer).appendChild(itemAmountInput);
+                const lastChild = (await itemContainer).lastChild;
+                if (!lastChild) return;
+                const secondToLastChild = lastChild.previousSibling;
+                if (!secondToLastChild) return;
+
+                (await itemContainer).insertBefore(
+                    itemAmountInput,
+                    secondToLastChild.nextSibling
+                );
 
                 ammoCategoryContainer.appendChild(await itemContainer);
 
@@ -1592,11 +1637,11 @@ function createShopItemContainer(itemName: string, iconName: string) {
 
     const itemNameElement = createItemNameElement(itemName);
     const shipIcon = createItemIcon(iconName);
-    const equipButton = createEquipButton();
+    // const equipButton = createEquipButton();
 
     itemContainer.appendChild(itemNameElement);
     itemContainer.appendChild(shipIcon);
-    itemContainer.appendChild(equipButton);
+    // itemContainer.appendChild(equipButton);
 
     return itemContainer;
 }

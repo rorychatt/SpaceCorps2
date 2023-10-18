@@ -176,7 +176,7 @@ export class GameServer {
                         closestPortal.destination
                     ].entities.filter((e) => {
                         if (e instanceof Portal) {
-                            if ((e.destination = oldMap.name)) {
+                            if ((e.destination == oldMap.name)) {
                                 return true;
                             }
                         }

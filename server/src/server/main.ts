@@ -245,7 +245,7 @@ io.on("connection", (socket) => {
                 data.playerName
             );
             if (player) {
-                player.inventory.equipItem(data.itemName, player);
+                await player.inventory.equipItem(data.itemName, player);
                 player._calculateSpeed();
                 player._calculateShields();
                 player._calculateCargo();
@@ -279,7 +279,7 @@ io.on("connection", (socket) => {
                 data.playerName
             );
             if (player) {
-                player.inventory.unequipItem(data.itemName);
+                await player.inventory.unequipItem(data.itemName);
                 player._calculateSpeed();
                 player._calculateShields();
                 player._calculateCargo();
