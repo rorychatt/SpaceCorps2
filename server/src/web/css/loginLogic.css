@@ -804,7 +804,7 @@ h1 {
 
     border-right: 1px solid red;
 
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
     font-size: 2vh;
     color: white;
     text-align: center;
@@ -1127,7 +1127,8 @@ h1 {
     resize: both;
 }
 
-.console_header, .console_content {
+.console_header,
+.console_content {
     box-sizing: border-box;
 }
 
@@ -1683,7 +1684,7 @@ input[type="number"]::-webkit-outer-spin-button {
     border: 1px solid white;
 
     color: white;
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
 }
 
 .top10experience_container {
@@ -1693,15 +1694,15 @@ input[type="number"]::-webkit-outer-spin-button {
     border: 1px solid white;
 
     color: white;
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
 }
 
-
 /* Player Info Modal */
-.player_info_modal_header, .player_info_modal_content {
+.player_info_modal_header,
+.player_info_modal_content {
     box-sizing: border-box;
     color: white;
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
 }
 
 .player_info_modal_header {
@@ -1727,9 +1728,12 @@ input[type="number"]::-webkit-outer-spin-button {
     box-sizing: border-box;
 }
 
-.player_info_modal_level, .pim_close_btn {
+.player_info_modal_level,
+.pim_close_btn {
     height: 50%;
-    /* align-items: center; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .pim_modal_btn {
@@ -1766,7 +1770,11 @@ input[type="number"]::-webkit-outer-spin-button {
     box-sizing: border-box;
 }
 
-.pim_experience_icon, .pim_honor_icon, .pim_prestige_icon, .pim_credits_icon, .pim_thulium_icon {
+.pim_experience_icon,
+.pim_honor_icon,
+.pim_prestige_icon,
+.pim_credits_icon,
+.pim_thulium_icon {
     height: 100%;
     aspect-ratio: 1/1;
     font-size: 2vh;
@@ -1860,7 +1868,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .settings_name {
     font-size: 3vh;
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
     color: white;
     text-align: center;
     flex-grow: 1;
@@ -1887,7 +1895,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .settings_setting {
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
     font-size: 1vh;
     text-align: center;
     display: flex;
@@ -1908,48 +1916,63 @@ input[type="number"]::-webkit-outer-spin-button {
     width: 2.7%;
     transition: 1.25s;
 }
-  
-  /* Hide default HTML checkbox */
-  .switch1 .chk {
+
+/* Hide default HTML checkbox */
+.switch1 .chk {
     opacity: 0;
     width: 0;
     height: 0;
-  }
-  
-  /* The slider */
-  .slider {
+}
+
+/* The slider */
+.slider {
     position: absolute;
     cursor: pointer;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    transition: .4s;
+    transition: 0.4s;
     border-radius: 5px;
-  }
-  
-  .slider:before {
+    /* align-content: center; */
+}
+
+.slider:before {
     position: absolute;
     content: "";
-    height: .5em;
+    height: 0.5em;
     width: 2.4em;
     border-radius: 5px;
     left: -0.6em;
     top: 0.2em;
     background-color: white;
-    box-shadow: 0 6px 7px rgba(0,0,0,0.3);
-    transition: .4s;
-  }
-  
-  .slider:before, .slider:after {
+    box-shadow: 0 6px 7px rgba(0, 0, 0, 0.3);
+    transition: 0.4s;
+}
+
+.slider:before,
+.slider:after {
     content: "";
     display: block;
-  }
-  
-  .slider:after {
-    background: linear-gradient(transparent 50%, rgba(255, 255, 255, 0.15) 0) 0 50% / 50% 100%,
-          repeating-linear-gradient(90deg,rgb(255, 255, 255) 0,rgb(255, 255, 255),rgb(255, 255, 255) 20%,rgb(255, 255, 255) 20%,rgb(255, 255, 255) 40%) 0 50% / 50% 100%,
-          radial-gradient(circle at 50% 50%,rgb(255, 255, 255) 25%, transparent 26%);
+}
+
+.slider:after {
+    background: linear-gradient(transparent 50%, rgba(255, 255, 255, 0.15) 0) 0
+            50% / 50% 100%,
+        repeating-linear-gradient(
+                90deg,
+                rgb(255, 255, 255) 0,
+                rgb(255, 255, 255),
+                rgb(255, 255, 255) 20%,
+                rgb(255, 255, 255) 20%,
+                rgb(255, 255, 255) 40%
+            )
+            0 50% / 50% 100%,
+        radial-gradient(
+            circle at 50% 50%,
+            rgb(255, 255, 255) 25%,
+            transparent 26%
+        );
     background-repeat: no-repeat;
     border: 0.25em solid transparent;
     border-left: 0.4em solid #ffffff;
@@ -1963,25 +1986,26 @@ input[type="number"]::-webkit-outer-spin-button {
     width: 2em;
     height: 1em;
     box-sizing: border-box;
-  }
-  
-  .chk:checked + .slider {
-    background-color: limegreen;
-  }
-  
-  .chk:focus + .slider {
-    box-shadow: 0 0 1px limegreen;
-  }
-  
-  .chk:checked + .slider:before {
-    transform: translateY(2.3em);
-  }
-  
-  .chk:checked + .slider:after {
-    transform: rotateZ(90deg) rotateY(180deg) translateY(0.45em) translateX(-1.4em);
-  }
+}
 
-  /* level settings 👇 */
+.chk:checked + .slider {
+    background-color: limegreen;
+}
+
+.chk:focus + .slider {
+    box-shadow: 0 0 1px limegreen;
+}
+
+.chk:checked + .slider:before {
+    transform: translateY(2.3em);
+}
+
+.chk:checked + .slider:after {
+    transform: rotateZ(90deg) rotateY(180deg) translateY(0.45em)
+        translateX(-1.4em);
+}
+
+/* level settings 👇 */
 
 .slider1 {
     /* slider */
@@ -1991,14 +2015,14 @@ input[type="number"]::-webkit-outer-spin-button {
     --slider-border-radius: 999px;
     /* level */
     --level-color: #fff;
-    --level-transition-duration: .1s;
+    --level-transition-duration: 0.1s;
     /* icon */
     --icon-margin: 15px;
     --icon-color: var(--slider-bg);
     --icon-size: 25px;
-  }
-  
-  .slider1 {
+}
+
+.slider1 {
     cursor: pointer;
     display: -webkit-inline-box;
     display: -ms-inline-flexbox;
@@ -2010,18 +2034,18 @@ input[type="number"]::-webkit-outer-spin-button {
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-  }
-  
-  .slider1 .volume {
+}
+
+.slider1 .volume {
     display: inline-block;
     vertical-align: top;
     margin-right: var(--icon-margin);
     color: var(--icon-color);
     width: var(--icon-size);
     height: auto;
-  }
-  
-  .slider1 .level {
+}
+
+.slider1 .level {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -2034,37 +2058,37 @@ input[type="number"]::-webkit-outer-spin-button {
     -o-transition: height var(--level-transition-duration);
     transition: height var(--level-transition-duration);
     cursor: inherit;
-  }
-  
-  .slider1 .level::-webkit-slider-thumb {
+}
+
+.slider1 .level::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 0;
     height: 0;
     -webkit-box-shadow: -200px 0 0 200px var(--level-color);
     box-shadow: -200px 0 0 200px var(--level-color);
-  }
-  
-  .slider1:hover .level {
-    height: calc(var(--slider-height) * 2);
-  }
+}
 
-  .settings_volume {
+.slider1:hover .level {
+    height: calc(var(--slider-height) * 2);
+}
+
+.settings_volume {
     display: flex;
     width: 35%;
-  }
+}
 
-  .settings_switch {
+.settings_switch {
     width: 35%;
-  }
+}
 
-  /* Quest Cont */
-  .quest_daily {
+/* Quest Cont */
+.quest_daily {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-  }
+}
 
-  .quest_cont {
+.quest_cont {
     display: flex;
     flex-direction: row;
     width: 100%;
@@ -2072,7 +2096,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
     border: 1px solid white;
     justify-content: space-around;
-  }
+}
 
 .quest_number {
     display: flex;
@@ -2102,7 +2126,7 @@ input[type="number"]::-webkit-outer-spin-button {
     text-align: center;
 
     font-size: 1.8vh;
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
     color: white;
     border: 1px solid yellowgreen;
     padding: 0;
