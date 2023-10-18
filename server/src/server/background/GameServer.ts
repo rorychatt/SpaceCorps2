@@ -69,9 +69,9 @@ export class GameServer {
         const worker = new Worker(
             new URL("sendMapDataWorker.js", import.meta.url)
         );
-        // worker.on("error", (error) => {
-        //     console.error(`Worker error: ${error}`);
-        // });
+        worker.on("error", (error) => {
+            console.error(`Worker error: ${error}`);
+        });
         worker.on("exit", (code) => {
             if (code !== 0) {
                 console.log(`Worker stopped with exit code ${code}`);
@@ -526,7 +526,8 @@ export class GameServer {
 
     async updateGameWorld() {
         try {
-            await Promise.all([
+            this.sendMapData();
+            Promise.all([
                 this.processAILogic(),
                 this.processPlayerInputs(),
                 this.handleProjectiles(),
@@ -534,8 +535,6 @@ export class GameServer {
                 this.handleEntityKills(),
                 this.handleCurrencyTransactions(),
             ]);
-
-            this.sendMapData();
         } catch (error) {
             console.log(
                 `Error in the game server: ${JSON.stringify(error as Error)}`
