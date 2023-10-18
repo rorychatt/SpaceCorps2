@@ -196,35 +196,14 @@ io.on("connection", (socket) => {
         }
     );
 
-    socket.on("getQuest", (data: { username: string, quest: Quest }) => {
-
-        // -> acceptQuest renaming
-
-        // data: {username: ... , questName: string}
-
-        // gameServer.questServer.issueQuest(username: string, questName: string)
-
-
-        for(let i = 0; i < gameServer.players.length; i++) {
-            if(gameServer.players[i].name == data.username) {                
-                if(gameServer.players[i].currentActiveQuests.length >= 3) return;
-                for(let j = 0; j < gameServer.players[i].currentActiveQuests.length; j++) {
-                    if(gameServer.players[i].currentActiveQuests[j].name == data.quest.name) return;
-                }
-
-                gameServer.players[i].currentActiveQuests.push(data.quest); 
-            }
-        }
+    socket.on("acceptQuest", (data: { username: string, questName: string}) => {
+        gameServer.questServer.issueQuest(data.username, data.questName);
     });
 
     socket.on("completeQuest", (data: { username: string, questName: string }) => {
-
-                // -> acceptQuest renaming
-
         // data: {username: ... , questName: string}
 
         // gameServer.questServer.issueQuest(username: string, questName: string)
-
 
         // for(let i = 0; i < gameServer.players.length; i++) {
         //     if(gameServer.players[i].name == data.username) {

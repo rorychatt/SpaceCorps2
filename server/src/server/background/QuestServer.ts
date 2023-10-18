@@ -54,7 +54,7 @@ export class Quest {
         this.reward = reward;
         this.task = task;
         this.requiredLevel = requiredLevel;
-        this.completed = completed;
+        this.completed = false;
     }
 }
 
@@ -90,14 +90,24 @@ export class QuestServer {
         // checkForQuestComplete(player, quest)..
     }
 
-    async issueQuest(){ //выдать квест игроку
-        //const player = gameServer.getPlayerByUsername(...)
+    async issueQuest(username: string, questName: string) { //выдать квест игроку
+        let player = gameServer.getPlayerByUsername(username);
+
+        player.then((player) => {
+            for(let i = 0; i < gameServer.questServer.quests.length; i++) {
+                if(gameServer.questServer.quests[i].name == questName) {
+                    player?.currentActiveQuests.push(gameServer.questServer.quests[i]);
+
+                    // console.log("currentActiveQuests", player?.currentActiveQuests); // to delete
+                }
+            }
+        })
+        .catch((error) => {
+            return;
+        });     
     }
 
     async checkForQuestComplete(player: Player, questName: string){
         // Logic for checking if the quest had been completed
     }
-
-
-
 }

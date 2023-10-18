@@ -219,29 +219,32 @@ socket.on(
 );
 
 socket.on("questsData", (data: { username: string, quests: any[] }) => {
-    if(quests100qDiv) {
-        for(let i = 0; i < data.quests.length; i++) {
-            const quests = document.createElement("div");
-            quests.classList.add("quest_cont");
-            const questNumber = document.createElement("div");
-            questNumber.classList.add("quest_number");
-            const questName = document.createElement("div");
-            questName.classList.add("quest_name");
-            questName.textContent = data.quests[i].name;
-            const acceptButton = document.createElement("button");
-            acceptButton.classList.add("quest_accept");
-            acceptButton.textContent = "Accept";
+    if(!quests100qDiv) return;
 
-            quests.appendChild(questNumber);
-            quests.appendChild(questName);
-            quests.appendChild(acceptButton);
-            acceptButton.addEventListener("click", () => {
-                socket.emit("getQuest", { username: data.username, quest: data.quests[i] });
-            });
-            quests100qDiv.appendChild(quests);
+    for(let i = 0; i < data.quests.length; i++) {
+        const quests = document.createElement("div");
+        quests.classList.add("quest_cont");
+        const questNumber = document.createElement("div");
+        questNumber.classList.add("quest_number");
+        const questName = document.createElement("div");
+        questName.classList.add("quest_name");
+        questName.textContent = data.quests[i].name;
+        const acceptButton = document.createElement("button");
+        acceptButton.classList.add("quest_accept");
+        acceptButton.textContent = "Accept";
+
+        quests.appendChild(questNumber);
+        quests.appendChild(questName);
+        quests.appendChild(acceptButton);
+        acceptButton.addEventListener("click", () => {
+            socket.emit("acceptQuest", { username: data.username, questName: data.quests[i].name });
+        });
+        quests100qDiv.appendChild(quests);
+
+        if(!data.quests[i].completed) {
+            quests.hidden = true;
         }
     }
-
 });
 
 socket.on(
