@@ -15,20 +15,23 @@
             "fly": [
                 {
                     "distance": 5000,
-                    "map": "any"
+                    "map": "any",
+                    "completed": "false"
                 }
             ],
             "kill": [
                 {
                     "targetName": "thetys",
-                    "map": "any"
+                    "map": "any",
+                    "completed": "false"
                 }
             ],
             "collect": [
                 {
                     "oreName": "radium",
                     "mapName": "P-1",
-                    "amount": 10
+                    "amount": 10,
+                    "completed": "false"
                 }
             ]
         },
