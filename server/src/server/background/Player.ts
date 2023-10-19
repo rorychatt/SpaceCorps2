@@ -42,6 +42,7 @@ export class Player extends Entity {
     targetUUID: string | undefined = undefined;
     level: number = 1;
     currentActiveQuests: Quest[] = [];
+    completedQuests: { questName: string, completed: boolean }[] = [];
 
     public constructor(socketId: string, map: Spacemap, username: string) {
         super(map.name, username);
@@ -79,19 +80,13 @@ export class Player extends Entity {
             );
         this.refreshActiveShip();
     }
- 
+
     async addQuest(quest: Quest) {
-        if(this.currentActiveQuests.length >= 3) return;
         this.currentActiveQuests.push(quest);
     }
 
-    async completeQuest(questname: string) {
-        for(let i = 0; i < this.currentActiveQuests.length; i++) {
-            if(this.currentActiveQuests[i].name == questname) {
-                this.currentActiveQuests[i].completed = true;
-                this.currentActiveQuests.filter(el => el !== this.currentActiveQuests[i]);
-            }
-        }
+    async completeQuest(quest: Quest) {
+        this.completedQuests.push({ questName: quest.name, completed: true });
     }
 
     async refreshActiveShip() {
