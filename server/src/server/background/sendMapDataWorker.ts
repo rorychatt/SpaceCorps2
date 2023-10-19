@@ -113,7 +113,7 @@ if (parentPort) {
                         return (
                             Math.pow(e.position.x - player.position.x, 2) +
                                 (e.position.y - player.position.y, 2) <=
-                            renderRadius || e._type == "Portal" || e._type == "Base"
+                            renderRadius || e._type == "Portal" || e._type == "CompanyBase"
                         );
                     });
 
