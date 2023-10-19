@@ -14,7 +14,8 @@ await Promise.all([
     fixCargoDrop(),
     fixInventory(),
     fixRankingServer(),
-    fixSendMapDataWorker()
+    fixSendMapDataWorker(),
+    fixQuestServer(),
 ]);
 
 function fixGameServer() {
@@ -512,3 +513,32 @@ function fixSendMapDataWorker(){
         }
     );
 }
+
+function fixQuestServer(){
+    readFile(
+        "./dist/server/background/QuestServer.js",
+        "utf8",
+        (err, data) => {
+            if (err) {
+                console.error(`Error reading file: ${err}`);
+                return;
+            }
+
+            let modifiedData = data.replace(
+                'import { gameServer } from "../main";',
+                'import { gameServer } from "../main.js";'
+            );
+
+            writeFile(
+                "./dist/server/background/QuestServer.js",
+                modifiedData,
+                (err) => {
+                    if (err) {
+                        console.error(`Error writing file: ${err}`);
+                    }
+                }
+            );
+        }
+    );
+}
+
