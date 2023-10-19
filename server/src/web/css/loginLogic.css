@@ -2131,3 +2131,13 @@ input[type="number"]::-webkit-outer-spin-button {
     border: 1px solid yellowgreen;
     padding: 0;
 }
+
+.sim_content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    color: white;
+    font-family: 'AudioWide';
+    font: 1vh;
+}
