@@ -33,6 +33,10 @@ const simSPElement = document.getElementById("sim_speed");
 const simSHElement = document.getElementById("sim_shieldpoints");
 const simCargoElement = document.getElementById("sim_cargo");
 
+const volumeLevelInput = document.getElementById(
+    "volumeLevelInput"
+) as HTMLInputElement | null;
+
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
 
 const switchCheckbox: HTMLInputElement | null = document.querySelector(
@@ -86,6 +90,7 @@ let lockOnCircle: THREE.Object3D | null;
 
 let lastEntityPosition: THREE.Vector3 | null = null;
 let isFirstUpdateForPlayer: boolean = true; // flag to identify the first update for the player
+let mainThemeMusic: THREE.Audio;
 
 const rayCastLayerNo = 1;
 const particles: any[] = [];
@@ -140,17 +145,10 @@ socket.on(
                     switchCheckbox.checked =
                         data.playerSettings[i].antiAliasing;
 
-                    saveSettingsBtn.addEventListener("click", () => {
-                        if (volumeValue && switchCheckbox) {
-                            savePlayerSettings({
-                                username: data.username,
-                                volume: volumeValue.value,
-                                antiAliasing: switchCheckbox.checked,
-                            });
-                        }
-                    });
-
                     recreateRenderer(data.playerSettings[i].antiAliasing);
+                    mainThemeMusic.setVolume(
+                        parseInt(data.playerSettings[i].volume) / 100
+                    );
                 }
             }
         }
@@ -225,10 +223,10 @@ socket.on(
     }
 );
 
-socket.on("questsData", (data: { username: string, quests: any[] }) => {
-    if(!quests100qDiv) return;
+socket.on("questsData", (data: { username: string; quests: any[] }) => {
+    if (!quests100qDiv) return;
 
-    for(let i = 0; i < data.quests.length; i++) {
+    for (let i = 0; i < data.quests.length; i++) {
         const quests = document.createElement("div");
         quests.classList.add("quest_cont");
         const questNumber = document.createElement("div");
@@ -244,11 +242,14 @@ socket.on("questsData", (data: { username: string, quests: any[] }) => {
         quests.appendChild(questName);
         quests.appendChild(acceptButton);
         acceptButton.addEventListener("click", () => {
-            socket.emit("acceptQuest", { username: data.username, questName: data.quests[i].name });
+            socket.emit("acceptQuest", {
+                username: data.username,
+                questName: data.quests[i].name,
+            });
         });
         quests100qDiv.appendChild(quests);
 
-        if(!data.quests[i].completed) {
+        if (!data.quests[i].completed) {
             quests.hidden = true;
         }
     }
@@ -546,15 +547,19 @@ function initScene(): void {
     controls = new OrbitControls(camera, renderer.domElement);
     updateControlsSettings();
 
-    const sound = new THREE.Audio(audioListener);
+    mainThemeMusic = new THREE.Audio(audioListener);
 
     const audioLoader = new THREE.AudioLoader();
 
     audioLoader.load("./assets/sounds/mainTheme.ogg", function (buffer) {
-        sound.setBuffer(buffer);
-        sound.setLoop(true);
-        sound.setVolume(0.15);
-        sound.play();
+        mainThemeMusic.setBuffer(buffer);
+        mainThemeMusic.setLoop(true);
+        if (volumeLevelInput && volumeLevelInput.value) {
+            mainThemeMusic.setVolume(parseInt(volumeLevelInput.value) / 100);
+        } else {
+            mainThemeMusic.setVolume(0.07);
+        }
+        mainThemeMusic.play();
     });
 
     const lockOnCircleGeometry = new THREE.RingGeometry(1.5, 1.55, 32);
@@ -1448,6 +1453,24 @@ async function loadEventListeners() {
             recreateRenderer(false);
         }
     });
+
+    if (saveSettingsBtn) {
+        saveSettingsBtn.addEventListener("click", () => {
+            if (volumeValue && switchCheckbox) {
+                savePlayerSettings({
+                    username: playerName,
+                    volume: volumeValue.value,
+                    antiAliasing: switchCheckbox.checked,
+                });
+            }
+        });
+    }
+
+    if (volumeLevelInput) {
+        volumeLevelInput.addEventListener("change", () => {
+            mainThemeMusic.setVolume(parseInt(volumeLevelInput.value) / 100);
+        });
+    }
 }
 
 async function displayShoppingItems() {
