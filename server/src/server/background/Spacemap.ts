@@ -1,6 +1,6 @@
 import { Alien } from "./Alien";
 import { CargoDrop, OreResource } from "./CargoDrop";
-import { Entity, Portal } from "./Entity";
+import { CompanyBase, Entity, Portal } from "./Entity";
 import { Item, PossibleItems } from "./Inventory";
 import { Player } from "./Player";
 import { ProjectileServer } from "./ProjectileServer";
@@ -8,7 +8,7 @@ import { ProjectileServer } from "./ProjectileServer";
 export class Spacemap {
     readonly name: string;
     readonly size: SpacemapSize;
-    entities: (Player | Alien | Entity | Portal)[];
+    entities: PossibleSpacemapEntities[];
     cargoboxes: CargoDrop[] = [];
     _config: SpacemapConfig;
     _maxAliens?: number;
@@ -100,6 +100,15 @@ export class Spacemap {
                 new Portal(this, _cfg.location, _cfg.destination)
             );
         }
+        if (this._config.staticEntities.base) {
+            this.entities.push(
+                new CompanyBase(
+                    this,
+                    this._config.staticEntities.base.location,
+                    this._config.staticEntities.base.name
+                )
+            );
+        }
     }
 }
 
@@ -113,14 +122,14 @@ export interface Vector2D {
 }
 
 export interface PortalConfig {
-    readonly location: PortalLocations;
+    readonly location: StaticEntityLocations;
     readonly destination: string;
 }
 
 export interface StaticEntitiesConfig {
     portals: PortalConfig[];
     base?: {
-        location: string;
+        readonly location: StaticEntityLocations;
         readonly name: string;
     };
 }
@@ -143,7 +152,7 @@ export interface SpawnableAliens {
     };
 }
 
-export type PortalLocations =
+export type StaticEntityLocations =
     | "top-left"
     | "top"
     | "top-right"
@@ -153,3 +162,10 @@ export type PortalLocations =
     | "bottom-left"
     | "left"
     | "middle";
+
+export type PossibleSpacemapEntities =
+    | Player
+    | Alien
+    | Entity
+    | Portal
+    | CompanyBase;

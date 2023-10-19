@@ -199,8 +199,8 @@ function fixSpacemap() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { Portal } from "./Entity";',
-            'import { Portal } from "./Entity.js";'
+            'import { CompanyBase, Portal } from "./Entity";',
+            'import { CompanyBase, Portal } from "./Entity.js";',
         );
 
         modifiedData = modifiedData.replace(
