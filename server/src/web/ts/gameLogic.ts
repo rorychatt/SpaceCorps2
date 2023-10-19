@@ -963,6 +963,20 @@ async function createObject(data: any) {
                 scene.add(cargoDrop);
                 resolve(cargoDrop);
                 break;
+            case "CompanyBase":
+                loader.load(`./assets/models/base/base.glb`, async (glb) => {
+                    const model = glb.scene;
+                    model.uuid = data.uuid;
+                    model.position.set(data.position.x, 0, data.position.y);
+                    model.add(createSafeZoneRing(10));
+                    setNameRecursively(model, data.name, data.uuid);
+                    scene.add(model);
+                    model.lookAt(new THREE.Vector3(0, 0, 0));
+                    objectDataMap[data.uuid] = { data: model };
+                    resolve(model);
+                });
+                break;
+
             default:
                 // console.log(data._type);
                 const boxgeometry = new THREE.BoxGeometry();

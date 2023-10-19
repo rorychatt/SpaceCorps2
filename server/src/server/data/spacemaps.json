@@ -61,7 +61,7 @@
                 }
             ],
             "base": {
-                "location": "right",
+                "location": "left",
                 "name": "GVG-Base"
             }
         },

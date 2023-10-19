@@ -25,7 +25,7 @@ export class Entity {
 export class Portal extends Entity {
     location: StaticEntityLocations;
     destination: string;
-    _type: String;
+    readonly _type: string = "Portal";
 
     constructor(
         map: Spacemap,
@@ -36,7 +36,6 @@ export class Portal extends Entity {
         this.location = location;
         this.destination = destination;
         this.currentMap = map._config.name;
-        this._type = "Portal";
 
         this.position = calculateEntityPosition(location, map.size);
     }
@@ -44,6 +43,7 @@ export class Portal extends Entity {
 
 export class CompanyBase extends Entity {
     location: StaticEntityLocations;
+    readonly _type: string = "CompanyBase";
 
     constructor(map: Spacemap, location: StaticEntityLocations, name: string) {
         super(name, "CompanyBase");
