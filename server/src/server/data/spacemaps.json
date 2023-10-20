@@ -20,6 +20,9 @@
         "spawnableAliens": {
             "thetys": {
                 "spawnLimit": 64
+            },
+            "plasmoid": {
+                "spawnLimit": 48
             }
         }
     },
@@ -44,6 +47,9 @@
         "spawnableAliens": {
             "thetys": {
                 "spawnLimit": 64
+            },
+            "plasmoid": {
+                "spawnLimit": 48
             }
         }
     },
@@ -68,6 +74,9 @@
         "spawnableAliens": {
             "thetys": {
                 "spawnLimit": 64
+            },
+            "plasmoid": {
+                "spawnLimit": 48
             }
         }
     },
@@ -92,7 +101,11 @@
         "spawnableAliens": {
             "thetys": {
                 "spawnLimit": 64
+            },
+            "plasmoid": {
+                "spawnLimit": 48
             }
+            
         }
     },
     "P-1": {
@@ -124,6 +137,9 @@
         "spawnableAliens": {
             "thetys": {
                 "spawnLimit": 64
+            },
+            "plasmoid": {
+                "spawnLimit": 48
             }
         }
     }
