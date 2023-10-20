@@ -1676,13 +1676,27 @@ async function handleItemAmountChange(
     itemContainer: HTMLElement
 ) {
     if (itemAmountInput.value && parseInt(itemAmountInput.value) > 0) {
-        const totalPrice = itemPrice.credits * parseInt(itemAmountInput.value);
+        if (itemPrice.credits) {
+            const totalPrice =
+                itemPrice.credits * parseInt(itemAmountInput.value);
+            const itemPriceElement = itemContainer.querySelector(".item_price");
+
+            if (itemPriceElement) {
+                itemPriceElement.textContent = `Price: ${await beautifyNumberToUser(
+                    totalPrice
+                )} credits`;
+            }
+        } else {
+            const totalPrice =
+            itemPrice.thulium * parseInt(itemAmountInput.value);
         const itemPriceElement = itemContainer.querySelector(".item_price");
 
         if (itemPriceElement) {
             itemPriceElement.textContent = `Price: ${await beautifyNumberToUser(
                 totalPrice
-            )} credits`;
+            )} thulium`;
+        }
+
         }
     }
 }
