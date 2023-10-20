@@ -172,15 +172,24 @@ socket.on("registerUnsuccessful", (data: { username: string }) => {
 });
 
 socket.on("serverMessage", (data: { type: string; message: string }) => {
+    const messageDiv = document.createElement("div");
+    messageDiv.textContent = data.message;
+
     if (data.type == "chat") {
-        const messageDiv = document.createElement("div");
         messageDiv.classList.add("chat_message");
-        messageDiv.textContent = data.message;
-        chatModalContent?.appendChild(messageDiv);
+        if (chatModalContent) {
+            if (chatModalContent.childNodes.length >= 20) {
+                chatModalContent.removeChild(
+                    chatModalContent.lastChild as Node
+                );
+            }
+            chatModalContent.insertBefore(
+                messageDiv,
+                chatModalContent.firstChild
+            );
+        }
     } else if (data.type == "console") {
-        const messageDiv = document.createElement("div");
         messageDiv.classList.add("console_message");
-        messageDiv.textContent = data.message;
         consoleContent?.appendChild(messageDiv);
     }
 });
@@ -224,35 +233,45 @@ socket.on(
 );
 
 socket.on("questsData", (data: { username: string; quests: any[] }) => {
-    if (!quests100qDiv) return;
+    if (!quests100qDiv || !Array.isArray(data.quests)) return;
 
-    for (let i = 0; i < data.quests.length; i++) {
-        const quests = document.createElement("div");
-        quests.classList.add("quest_cont");
+    while (quests100qDiv.firstChild) {
+        quests100qDiv.removeChild(quests100qDiv.firstChild);
+    }
+
+    data.quests.forEach((quest) => {
+        const { name, completed } = quest;
+
+        const questContainer = document.createElement("div");
+        questContainer.classList.add("quest_cont");
+
         const questNumber = document.createElement("div");
         questNumber.classList.add("quest_number");
+
         const questName = document.createElement("div");
         questName.classList.add("quest_name");
-        questName.textContent = data.quests[i].name;
+        questName.textContent = name;
+
         const acceptButton = document.createElement("button");
         acceptButton.classList.add("quest_accept");
         acceptButton.textContent = "Accept";
 
-        quests.appendChild(questNumber);
-        quests.appendChild(questName);
-        quests.appendChild(acceptButton);
         acceptButton.addEventListener("click", () => {
             socket.emit("acceptQuest", {
                 username: data.username,
-                questName: data.quests[i].name,
+                questName: name,
             });
         });
-        quests100qDiv.appendChild(quests);
 
-        if (!data.quests[i].completed) {
-            quests.hidden = true;
+        questContainer.appendChild(questNumber);
+        questContainer.appendChild(questName);
+        questContainer.appendChild(acceptButton);
+        quests100qDiv.appendChild(questContainer);
+
+        if (!completed) {
+            questContainer.hidden = true;
         }
-    }
+    });
 });
 
 socket.on(
