@@ -42,7 +42,7 @@ export class Player extends Entity {
     targetUUID: string | undefined = undefined;
     level: number = 1;
     currentActiveQuests: Quest[] = [];
-    completedQuests: { questName: string, completed: boolean }[] = [];
+    completedQuests: { questName: string; completed: boolean }[] = [];
 
     public constructor(socketId: string, map: Spacemap, username: string) {
         super(map.name, username);
@@ -401,6 +401,13 @@ export class Player extends Entity {
                 };
             } else {
                 this.destination = null;
+            }
+            if (this.currentActiveQuests.length > 0) {
+                gameServer.questServer.registerFlyDistance({
+                    playerUUID: this.uuid,
+                    mapName: this.currentMap,
+                    distanceTravelled: travelledDistance,
+                });
             }
         }
     }

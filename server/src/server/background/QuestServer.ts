@@ -135,8 +135,8 @@ export class QuestServer {
     }
 
     // доделать
-    async flyDistance() {
-
+    async registerFlyDistance(data: {playerUUID: string, mapName: string, distanceTravelled: number}) {
+        
     }
 
     async checkForQuestComplete(player: Player, questName: string){
