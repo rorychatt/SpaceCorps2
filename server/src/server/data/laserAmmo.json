@@ -14,7 +14,25 @@
         "shieldDamageMultiplier": 0,
         "color": "blue",
         "price":{
-            "credits": 1000
+            "thulium": 0.5
+        }
+    },
+    "x3":{
+        "name": "x3",
+        "damageMultiplier": 3,
+        "shieldDamageMultiplier": 0,
+        "color": "green",
+        "price":{
+            "thulium": 1000
+        }
+    },
+    "x4":{
+        "name": "x4",
+        "damageMultiplier": 4,
+        "shieldDamageMultiplier": 0,
+        "color": "white",
+        "price":{
+            "thulium": 1000
         }
     }
 }
