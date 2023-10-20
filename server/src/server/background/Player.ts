@@ -90,7 +90,7 @@ export class Player extends Entity {
     }
 
     async refreshActiveShip() {
-        this._activeShip = await this.inventory.getActiveShip();
+                this._activeShip = await this.inventory.getActiveShip();
         this.activeShipName = this._activeShip?.name;
         this._calculateSpeed();
         this._calculateShields();
@@ -216,6 +216,7 @@ export class Player extends Entity {
             honor: templateData.honor,
             level: templateData.level,
         };
+        this.refreshActiveShip();
     }
 
     async _calculateSpeed() {
