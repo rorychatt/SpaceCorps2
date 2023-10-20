@@ -69,28 +69,26 @@ export class Spacemap {
     }
 
     randomSpawnAlien() {
-        // TODO: maybe implement better storing of what entities are spawned, for loop is slow
-        // BUG: this suggests there is a single type of aliens
-        if (this._config.spawnableAliens) {
-            let alienCount = 0;
-            for (const entity of this.entities) {
-                if (entity instanceof Alien) {
-                    alienCount++;
-                }
-            }
-            if (
-                this._maxAliens &&
-                this._allowedAliens &&
-                alienCount < this._maxAliens
-            ) {
-                this.spawnAlien(this._allowedAliens[0], {
-                    // TODO: Tweak parameters so aliens spawn accross the map, avoiding areas where there are portals
+        for (const spawnableAlien in this._config.spawnableAliens) {
+            const alienConfig = this._config.spawnableAliens[spawnableAlien];
+            if (alienConfig.spawnLimit) {
+                let alienCount = 0;
 
-                    x: (0.5 - Math.random()) * 10,
-                    y: (0.5 - Math.random()) * 10,
-                });
-            }
-        }
+                for (const entity of this.entities) {
+                    if (entity instanceof Alien && entity.name && alienCount < alienConfig.spawnLimit) {
+                        alienCount++;
+                    }
+                }
+                if (alienCount < alienConfig.spawnLimit) {
+                    this.spawnAlien(spawnableAlien, {
+                        // TODO: Tweak parameters so aliens spawn accross the map, avoiding areas where there are portals
+    
+                        x: (0.5 - Math.random()) * 10,
+                        y: (0.5 - Math.random()) * 10,
+                    });
+                }
+            }   
+        }        
     }
 
     loadStaticEntities() {
