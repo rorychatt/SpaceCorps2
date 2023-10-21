@@ -962,8 +962,8 @@ async function createObject(data: any) {
                     sound.onEnded = () => {
                         currentSounds--;
                     };
-                    sound.play();
                     line.add(sound);
+                    sound.play();
                 }
 
                 break;
@@ -993,8 +993,8 @@ async function createObject(data: any) {
                     rocketSound.onEnded = function () {
                         currentSounds--;
                     };
-                    rocketSound.play();
                     rocket.add(rocketSound);
+                    rocketSound.play();
                 }
 
                 break;
@@ -1204,11 +1204,13 @@ async function deleteObject(uuid: string) {
         sound.setRefDistance(20);
         sound.setBuffer(laserHitSoundBuffer);
         sound.setVolume(0.7);
+        scene.add(sound)
+        sound.position.copy(object.position)
         sound.onEnded = function () {
             currentSounds--;
+            scene.remove(sound)
         };
         sound.play();
-        object.add(sound);
     } else if (object.name === "rocketProjectile") {
         if (currentSounds <= maxConcurrentSounds) {
             currentSounds++;
@@ -1217,11 +1219,13 @@ async function deleteObject(uuid: string) {
             sound.setRefDistance(20);
             sound.setBuffer(rocketHitSoundBuffer);
             sound.setVolume(0.1);
+            scene.add(sound)
+            sound.position.copy(object.position)    
             sound.onEnded = function () {
                 currentSounds--;
+                scene.remove(sound)
             };
             sound.play();
-            object.add(sound);
         }
     }
 
@@ -1947,8 +1951,8 @@ async function createAndTriggerExplosion(object: THREE.Object3D) {
         sound.onEnded = function () {
             currentSounds--;
         };
-        sound.play();
         scene.add(sound);
+        sound.play();
         sound.position.copy(object.position);
         setTimeout(() => {
             scene.remove(sound);
