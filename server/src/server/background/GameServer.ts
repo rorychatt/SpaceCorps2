@@ -374,7 +374,7 @@ export class GameServer {
                             entity.killReward
                         );
 
-                        this.questServer.registerAlienKill({ playerUUID: entity.lastAttackedByUUID, entityName: entity.name });
+                        this.questServer.registerAlienKill({ playerUUID: entity.lastAttackedByUUID, entityName: entity.name, map: spacemap.name });
                     }
                     if (entity.cargoDrop) {
                         const cargoContents = { ...entity.cargoDrop };
@@ -578,7 +578,6 @@ export class GameServer {
         );
     }
 
-    // тут
     public async addPlayerCollectCargoDrop(
         cargoDrop: CargoDrop,
         player: Player

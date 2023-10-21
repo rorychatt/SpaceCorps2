@@ -11,31 +11,57 @@ export const questData = JSON.parse(
 
 export type PossibleQuestType = "completeWithoutOrder" | "completeInOrder";
 
-// переделать interface в class?
-
-// class TaskFly extends Task
-
-interface TaskFly {
-    _type: "TaskFly";
-    distance: number;
-    map: string;
+class Task {
     completed: boolean;
+
+    constructor(completed: boolean) {
+        this.completed = completed;
+    }
 }
 
-interface TaskKill {
-    _type: "TaskKill";
+class TaskFly extends Task {
+    _type: string;
+    distance: number;
+    map: string;
+
+    constructor(distance: number, map: string, completed: boolean) {
+        super(completed);
+        this._type = "TaskFly";
+        this.distance = distance;
+        this.map = map;
+    }
+}
+
+class TaskKill extends Task {
+    _type: string;
     targetName: string;
     amount: number;
     map: string;
-    completed: boolean;
+
+    constructor(targetName: string, amount: number, map: string, completed: boolean) {
+        super(completed);
+
+        this._type = "TaskKill";
+        this.targetName = targetName;
+        this.amount = amount;
+        this.map = map;
+    }
 }
 
-interface TaskCollect {
-    _type: "TaskCollect";
+ class TaskCollect extends Task {
+    _type: string;
     oreName: string;
-    mapName: string;
+    map: string;
     amount: number;
-    completed: boolean;
+
+    constructor(oreName: string, map: string, amount: number, completed: boolean) {
+        super(completed);
+
+        this._type = "TaskCollect";
+        this.oreName = oreName;
+        this.map = map;
+        this.amount = amount;
+    }
 }
 
 type QuestTask = TaskCollect | TaskFly | TaskKill;
@@ -57,7 +83,6 @@ export class Quest {
         reward: any,
         tasks: QuestTask[],
         requiredLevel: number,
-        completed: boolean
     ) {
         this.name = name;
         this.type = type;
@@ -80,7 +105,6 @@ export class QuestServer {
                 questInfo.reward,
                 questInfo.task,
                 questInfo.requiredLevel,
-                questInfo.completed
             );
             this.quests.push(quest);
         }
@@ -143,11 +167,15 @@ export class QuestServer {
         // }
     }
 
-    async registerAlienKill(data: { playerUUID: string; entityName: string }) {
-        // const player = await gameServer.getPlayerByUUID(data.playerUUID);
+    async registerAlienKill(data: { playerUUID: string; entityName: string; map: string; }) {
+        const player = await gameServer.getPlayerByUUID(data.playerUUID);
 
-        // if (!player) return console.log(`Can't find player: ${player}`);
-        // if (player.currentActiveQuests.length <= 0) return;
+        if (!player) return console.log(`Can't find player: ${player}`);
+        if (player.currentActiveQuests.length <= 0) return;
+
+        for(const key in player.currentActiveQuests) {
+            console.log(player.currentActiveQuests[key]);
+        }
 
         // for (let i = 0; i < player.currentActiveQuests.length; i++) {
         //     for (
@@ -177,7 +205,9 @@ export class QuestServer {
         playerUUID: string;
         mapName: string;
         distanceTravelled: number;
-    }) {}
+    }) {
+
+    }
 
     async checkForQuestComplete(player: Player, questName: string) {
     //     for (let i = 0; i < player.completedQuests.length; i++)
