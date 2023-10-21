@@ -1,7 +1,7 @@
 {
     "Welcome 1": {
         "name": "Welcome 1",
-        "type": "completeWithoutOrder",
+        "type": "completeInOrder",
         "description": "Welcome Pilot! To show your loyalty, we must see what you are capable of. With our small gift of 50.000 credits, go ahead and buy and equip some lasers and ammo, and bring us any thetys' head! Oh, and find one far away from the base, and show us their cargo!",
         "reward": {
             "stats": {
@@ -17,91 +17,35 @@
                 { "itemName": "rocket1", "amount": 50 }
             ]
         },
-        "task": {
-            "fly": [
-                {
-                    "distance": 5000,
-                    "map": "any",
-                    "completed": "false"
-                }
-            ],
-            "kill": [
-                {
-                    "targetName": "thetys",
-                    "amount": 1,
-                    "map": "any",
-                    "completed": "false"
-                }
-            ],
-            "collect": [
-                {
-                    "oreName": "radium",
-                    "mapName": "P-1",
-                    "amount": 10,
-                    "completed": "false"
-                }
-            ]
-        },
-        "requiredLevel": 1
-    },
-    "Worthy opponent 1": {
-        "name": "Worthy opponent 1",
-        "type": "completeWithoutOrder",
-        "description": "You did well on the last task, but now we have agroed the pesky thetys' alliance. We must secure our borders and show them who is the boss!",
-        "reward": {
-            "stats": {
-                "experience": 20000,
-                "honor": 512,
-                "credits": 20000,
-                "thulium": 256
+        "tasks": [
+            {
+                "_type": "fly",
+                "distance": 5000,
+                "map": "any",
+                "completed": "false"
             },
-            "items": [{ "itemName": "sp2", "amount": 1 }]
-        },
-        "task": {
-            "fly": [],
-            "kill": [
-                {
-                    "targetName": "thetys",
-                    "amount": 10,
-                    "map": "any",
-                    "completed": "false"
-                }
-            ],
-            "collect": []
-        },
-        "requiredLevel": 1
-    },
-    "Retribution 1": {
-        "name": "Retribution 1",
-        "type": "completeWithoutOrder",
-        "description": "The pesky thetys are at it again! Now the long-forgotten gang had came to our galaxy and position themselves in free galactic space and made a new alliance with plasmoids. This has to stop. Bring us their gang leaders head!",
-        "reward": {
-            "stats": {
-                "experience": 20000,
-                "honor": 512,
-                "credits": 10000,
-                "thulium": 5000
+            {
+                "_type": "kill",
+                "targetName": "thetys",
+                "amount": 1,
+                "map": "any",
+                "completed": "false"
             },
-            "items": [{ "itemName": "laser4", "amount": 1 }]
-        },
-        "task": {
-            "fly": [],
-            "kill": [
-                {
-                    "targetName": "plasmoid",
-                    "amount": 4,
-                    "map": "P-1",
-                    "completed": "false"
-                },
-                {
-                    "targetName": "boss-thetys",
-                    "amount": 1,
-                    "map": "P-1",
-                    "completed": "false"
-                }
-            ],
-            "collect": []
-        },
+            {
+                "_type": "collect",
+                "oreName": "radium",
+                "mapName": "P-1",
+                "amount": 10,
+                "completed": "false"
+            },
+            {
+                "_type": "kill",
+                "targetName": "thetys",
+                "amount": 1,
+                "map": "any",
+                "completed": "false"
+            }
+        ],
         "requiredLevel": 1
     }
 }
