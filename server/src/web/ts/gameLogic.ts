@@ -1082,7 +1082,6 @@ async function updateObject(object: THREE.Object3D, entity: any) {
             lastEntityPosition = new THREE.Vector3(posX, 0, posY);
             camera.position.set(posX, camera.position.y, posY);
             controls.target.copy(targetDirection);
-            object.add(audioListener);
             isFirstUpdateForPlayer = false;
         } else if (lastEntityPosition !== null) {
             const dx = posX - lastEntityPosition.x;
@@ -1204,11 +1203,11 @@ async function deleteObject(uuid: string) {
         sound.setRefDistance(20);
         sound.setBuffer(laserHitSoundBuffer);
         sound.setVolume(0.7);
-        scene.add(sound)
-        sound.position.copy(object.position)
+        scene.add(sound);
+        sound.position.copy(object.position);
         sound.onEnded = function () {
             currentSounds--;
-            scene.remove(sound)
+            scene.remove(sound);
         };
         sound.play();
     } else if (object.name === "rocketProjectile") {
@@ -1219,11 +1218,11 @@ async function deleteObject(uuid: string) {
             sound.setRefDistance(20);
             sound.setBuffer(rocketHitSoundBuffer);
             sound.setVolume(0.1);
-            scene.add(sound)
-            sound.position.copy(object.position)    
+            scene.add(sound);
+            sound.position.copy(object.position);
             sound.onEnded = function () {
                 currentSounds--;
-                scene.remove(sound)
+                scene.remove(sound);
             };
             sound.play();
         }
