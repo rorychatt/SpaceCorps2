@@ -1,6 +1,12 @@
 import { Alien } from "./Alien";
 import { CargoDrop, OreResource } from "./CargoDrop";
-import { CompanyBase, Entity, SafeZone, Portal, calculateEntityPosition} from "./Entity";
+import {
+    CompanyBase,
+    Entity,
+    SafeZone,
+    Portal,
+    calculateEntityPosition,
+} from "./Entity";
 import { Item, PossibleItems } from "./Inventory";
 import { Player } from "./Player";
 import { ProjectileServer } from "./ProjectileServer";
@@ -72,20 +78,22 @@ export class Spacemap {
     randomSpawnAlien() {
         let safeZones: SafeZone[] = [];
 
-        for (const portal in this._config.staticEntities.portals) {
-            let location = this._config.staticEntities.portals[portal].location;
-            let postion = calculateEntityPosition(location, this._config.size);
-            let radii = this._config.staticEntities.portals[portal].safeZoneRadii;
-            safeZones.push(new SafeZone(postion, radii))
+        for (const _portal in this._config.staticEntities.portals) {
+            const portal = this._config.staticEntities.portals[_portal];
+            safeZones.push(
+                new SafeZone(
+                    calculateEntityPosition(portal.location, this._config.size),
+                    portal.safeZoneRadii
+                )
+            );
         }
         if (this._config.staticEntities.base) {
+            // redo
             let location = this._config.staticEntities.base.location;
             let postion = calculateEntityPosition(location, this._config.size);
             let radii = this._config.staticEntities.base.safeZoneRadii;
-            safeZones.push(new SafeZone(postion, radii))
+            safeZones.push(new SafeZone(postion, radii));
         }
-        
-
 
         for (const spawnableAlien in this._config.spawnableAliens) {
             const alienConfig = this._config.spawnableAliens[spawnableAlien];
@@ -93,30 +101,49 @@ export class Spacemap {
                 let alienCount = 0;
 
                 for (const entity of this.entities) {
-                    if (entity instanceof Alien && entity.name && alienCount < alienConfig.spawnLimit) {
+                    if (
+                        entity instanceof Alien &&
+                        entity.name &&
+                        alienCount < alienConfig.spawnLimit
+                    ) {
                         alienCount++;
                     }
                 }
                 if (alienCount < alienConfig.spawnLimit) {
                     let spawnAttempt = 0;
+                    let position: Vector2D | undefined
                     while (spawnAttempt < 10) {
-                        let x = (0.5 - Math.random()) * 10;
-                        let y = (0.5 - Math.random()) * 10;
+                        const newPosition = {x: (0.5 - Math.random()) * 10, y: (0.5 - Math.random()) * 10}
+                        if(true){
+                            //check if its in any safe zone or not
+                            position = newPosition
+                            return
+                        }
                     }
-                    this.spawnAlien(spawnableAlien, {
-                        x: (0.5 - Math.random()) * 10,
-                        y: (0.5 - Math.random()) * 10,
-                    });
+                    if(!position){
+                        this.spawnAlien(spawnableAlien, {
+                            x: (0.5 - Math.random()) * 10,
+                            y: (0.5 - Math.random()) * 10,
+                        });
+                    } else {
+                        this.spawnAlien(spawnableAlien, position)
+                    }
+
                 }
-            }   
-        }        
+            }
+        }
     }
 
     loadStaticEntities() {
         for (const portal in this._config.staticEntities.portals) {
             const _cfg = this._config.staticEntities.portals[portal];
             this.entities.push(
-                new Portal(this, _cfg.location, _cfg.destination, _cfg.safeZoneRadii)
+                new Portal(
+                    this,
+                    _cfg.location,
+                    _cfg.destination,
+                    _cfg.safeZoneRadii
+                )
             );
         }
         if (this._config.staticEntities.base) {

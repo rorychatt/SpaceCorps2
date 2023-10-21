@@ -14,8 +14,12 @@ export class SafeZone {
         this.radius = radius;
     }
 
-    isInSafeZone(x: number, y: number) {
-        if ((x - this.position.x)**2 + (y - this.position.y)**2) {
+    isInSafeZone(position: Vector2D): boolean {
+        //TODO: dont forget about radii
+        if (
+            (position.x - this.position.x) ** 2 +
+            (position.y - this.position.y) ** 2
+        ) {
             return true;
         } else {
             return false;
@@ -67,18 +71,16 @@ export class CompanyBase extends Entity {
     readonly _type: string = "CompanyBase";
 
     constructor(
-        map: Spacemap, 
-        location: StaticEntityLocations, 
+        map: Spacemap,
+        location: StaticEntityLocations,
         name: string,
         safeZoneRadii: number
-        ) {
-            super(name, "CompanyBase");
-            this.location = location;
-            this.position = calculateEntityPosition(location, map.size);
-            this.safeZoneRadii = safeZoneRadii;
+    ) {
+        super(name, "CompanyBase");
+        this.location = location;
+        this.position = calculateEntityPosition(location, map.size);
+        this.safeZoneRadii = safeZoneRadii;
     }
-
-
 }
 
 export function calculateEntityPosition(
