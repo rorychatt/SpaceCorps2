@@ -9,20 +9,22 @@
             "portals": [
                 {
                     "location": "left",
-                    "destination": "P-1"
+                    "destination": "P-1",
+                    "radii": 10
                 }
             ],
             "base": {
                 "location": "right",
-                "name": "MCC-Base"
+                "name": "MCC-Base",
+                "radii": 10
             }
         },
         "spawnableAliens": {
             "thetys": {
-                "spawnLimit": 64
+                "spawnLimit": 32
             },
             "plasmoid": {
-                "spawnLimit": 48
+                "spawnLimit": 32
             }
         }
     },
@@ -36,20 +38,22 @@
             "portals": [
                 {
                     "location": "bottom",
-                    "destination": "P-1"
+                    "destination": "P-1",
+                    "radii": 10
                 }
             ],
             "base": {
                 "location": "top",
-                "name": "ORO-Base"
+                "name": "ORO-Base",
+                "radii": 10
             }
         },
         "spawnableAliens": {
             "thetys": {
-                "spawnLimit": 64
+                "spawnLimit": 32
             },
             "plasmoid": {
-                "spawnLimit": 48
+                "spawnLimit": 32
             }
         }
     },
@@ -63,20 +67,22 @@
             "portals": [
                 {
                     "location": "right",
-                    "destination": "P-1"
+                    "destination": "P-1",
+                    "radii": 10
                 }
             ],
             "base": {
                 "location": "left",
-                "name": "GVG-Base"
+                "name": "GVG-Base",
+                "radii": 10
             }
         },
         "spawnableAliens": {
             "thetys": {
-                "spawnLimit": 64
+                "spawnLimit": 32
             },
             "plasmoid": {
-                "spawnLimit": 48
+                "spawnLimit": 32
             }
         }
     },
@@ -90,20 +96,22 @@
             "portals": [
                 {
                     "location": "top",
-                    "destination": "P-1"
+                    "destination": "P-1",
+                    "radii": 10
                 }
             ],
             "base": {
                 "location": "bottom",
-                "name": "TRU-Base"
+                "name": "TRU-Base",
+                "radii": 10
             }
         },
         "spawnableAliens": {
             "thetys": {
-                "spawnLimit": 64
+                "spawnLimit": 32
             },
             "plasmoid": {
-                "spawnLimit": 48
+                "spawnLimit": 32
             }
             
         }
@@ -118,28 +126,32 @@
             "portals": [
                 {
                     "location": "left",
-                    "destination": "G-1"
+                    "destination": "G-1",
+                    "radii": 10
                 },
                 {
                     "location": "right",
-                    "destination": "M-1"
+                    "destination": "M-1",
+                    "radii": 10
                 },
                 {
                     "location": "top",
-                    "destination": "O-1"
+                    "destination": "O-1",
+                    "radii": 10
                 },
                 {
                     "location": "bottom",
-                    "destination": "T-1"
+                    "destination": "T-1",
+                    "radii": 10
                 }
             ]
         },
         "spawnableAliens": {
             "thetys": {
-                "spawnLimit": 64
+                "spawnLimit": 32
             },
             "plasmoid": {
-                "spawnLimit": 48
+                "spawnLimit": 32
             }
         }
     }

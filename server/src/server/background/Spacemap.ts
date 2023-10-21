@@ -1,6 +1,6 @@
 import { Alien } from "./Alien";
 import { CargoDrop, OreResource } from "./CargoDrop";
-import { CompanyBase, Entity, Portal } from "./Entity";
+import { CompanyBase, Entity, SafeZone, Portal, calculateEntityPosition} from "./Entity";
 import { Item, PossibleItems } from "./Inventory";
 import { Player } from "./Player";
 import { ProjectileServer } from "./ProjectileServer";
@@ -14,6 +14,7 @@ export class Spacemap {
     _maxAliens?: number;
     _allowedAliens?: string[];
     projectileServer: ProjectileServer;
+    safezones?: SafeZone[];
 
     public constructor(config: SpacemapConfig) {
         this.entities = [];
@@ -69,6 +70,23 @@ export class Spacemap {
     }
 
     randomSpawnAlien() {
+        let safeZones: SafeZone[] = [];
+
+        for (const portal in this._config.staticEntities.portals) {
+            let location = this._config.staticEntities.portals[portal].location;
+            let postion = calculateEntityPosition(location, this._config.size);
+            let radii = this._config.staticEntities.portals[portal].safeZoneRadii;
+            safeZones.push(new SafeZone(postion, radii))
+        }
+        if (this._config.staticEntities.base) {
+            let location = this._config.staticEntities.base.location;
+            let postion = calculateEntityPosition(location, this._config.size);
+            let radii = this._config.staticEntities.base.safeZoneRadii;
+            safeZones.push(new SafeZone(postion, radii))
+        }
+        
+
+
         for (const spawnableAlien in this._config.spawnableAliens) {
             const alienConfig = this._config.spawnableAliens[spawnableAlien];
             if (alienConfig.spawnLimit) {
@@ -80,9 +98,12 @@ export class Spacemap {
                     }
                 }
                 if (alienCount < alienConfig.spawnLimit) {
+                    let spawnAttempt = 0;
+                    while (spawnAttempt < 10) {
+                        let x = (0.5 - Math.random()) * 10;
+                        let y = (0.5 - Math.random()) * 10;
+                    }
                     this.spawnAlien(spawnableAlien, {
-                        // TODO: Tweak parameters so aliens spawn accross the map, avoiding areas where there are portals
-    
                         x: (0.5 - Math.random()) * 10,
                         y: (0.5 - Math.random()) * 10,
                     });
@@ -95,7 +116,7 @@ export class Spacemap {
         for (const portal in this._config.staticEntities.portals) {
             const _cfg = this._config.staticEntities.portals[portal];
             this.entities.push(
-                new Portal(this, _cfg.location, _cfg.destination)
+                new Portal(this, _cfg.location, _cfg.destination, _cfg.safeZoneRadii)
             );
         }
         if (this._config.staticEntities.base) {
@@ -103,7 +124,8 @@ export class Spacemap {
                 new CompanyBase(
                     this,
                     this._config.staticEntities.base.location,
-                    this._config.staticEntities.base.name
+                    this._config.staticEntities.base.name,
+                    this._config.staticEntities.base.safeZoneRadii
                 )
             );
         }
@@ -120,6 +142,7 @@ export interface Vector2D {
 }
 
 export interface PortalConfig {
+    safeZoneRadii: number;
     readonly location: StaticEntityLocations;
     readonly destination: string;
 }
@@ -127,6 +150,7 @@ export interface PortalConfig {
 export interface StaticEntitiesConfig {
     portals: PortalConfig[];
     base?: {
+        safeZoneRadii: number;
         readonly location: StaticEntityLocations;
         readonly name: string;
     };
