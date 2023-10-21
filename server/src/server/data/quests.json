@@ -2,14 +2,20 @@
     "Welcome 1": {
         "name": "Welcome 1",
         "type": "completeWithoutOrder",
+        "description": "Welcome Pilot! To show your loyalty, we must see what you are capable of. With our small gift of 50.000 credits, go ahead and buy and equip some lasers and ammo, and bring us any thetys' head! Oh, and find one far away from the base, and show us their cargo!",
         "reward": {
             "stats": {
-                "experience": 2500,
-                "honor": 512,
+                "experience": 3000,
+                "honor": 100,
                 "credits": 8000,
-                "thulium": 80
+                "thulium": 100
             },
-            "items": [{ "itemName": "laser1", "amount": 1 }]
+            "items": [
+                { "itemName": "laser2", "amount": 1 },
+                { "itemName": "x1", "amount": 1000 },
+                { "itemName": "x2", "amount": 100 },
+                { "itemName": "rocket1", "amount": 50 }
+            ]
         },
         "task": {
             "fly": [
@@ -22,6 +28,7 @@
             "kill": [
                 {
                     "targetName": "thetys",
+                    "amount": 1,
                     "map": "any",
                     "completed": "false"
                 }
@@ -34,6 +41,66 @@
                     "completed": "false"
                 }
             ]
+        },
+        "requiredLevel": 1
+    },
+    "Worthy opponent 1": {
+        "name": "Worthy opponent 1",
+        "type": "completeWithoutOrder",
+        "description": "You did well on the last task, but now we have agroed the pesky thetys' alliance. We must secure our borders and show them who is the boss!",
+        "reward": {
+            "stats": {
+                "experience": 20000,
+                "honor": 512,
+                "credits": 20000,
+                "thulium": 256
+            },
+            "items": [{ "itemName": "sp2", "amount": 1 }]
+        },
+        "task": {
+            "fly": [],
+            "kill": [
+                {
+                    "targetName": "thetys",
+                    "amount": 10,
+                    "map": "any",
+                    "completed": "false"
+                }
+            ],
+            "collect": []
+        },
+        "requiredLevel": 1
+    },
+    "Retribution 1": {
+        "name": "Retribution 1",
+        "type": "completeWithoutOrder",
+        "description": "The pesky thetys are at it again! Now the long-forgotten gang had came to our galaxy and position themselves in free galactic space and made a new alliance with plasmoids. This has to stop. Bring us their gang leaders head!",
+        "reward": {
+            "stats": {
+                "experience": 20000,
+                "honor": 512,
+                "credits": 10000,
+                "thulium": 5000
+            },
+            "items": [{ "itemName": "laser4", "amount": 1 }]
+        },
+        "task": {
+            "fly": [],
+            "kill": [
+                {
+                    "targetName": "plasmoid",
+                    "amount": 4,
+                    "map": "P-1",
+                    "completed": "false"
+                },
+                {
+                    "targetName": "boss-thetys",
+                    "amount": 1,
+                    "map": "P-1",
+                    "completed": "false"
+                }
+            ],
+            "collect": []
         },
         "requiredLevel": 1
     }
