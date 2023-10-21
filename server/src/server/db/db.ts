@@ -81,7 +81,7 @@ export function setupDatabaseConnection(): Promise<void> {
                 const settingsPlayerQuery: string = `
                     CREATE TABLE IF NOT EXISTS gamesettings (
                         username VARCHAR(255) PRIMARY KEY,
-                        volume INT DEFAULT 100,
+                        volume INT DEFAULT 5,
                         antiAliasing BOOLEAN DEFAULT FALSE 
                     );`;
 

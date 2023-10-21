@@ -127,7 +127,7 @@ export class Inventory {
             console.log(`Can not equip item, ship already full`);
         } else {
             await ship.equipLaser(laserName);
-            console.log(`Equipped '${laserName}' to '${shipName}'.`);
+            // console.log(`Equipped '${laserName}' to '${shipName}'.`);
             this.removeFirstItemByProperty(this.lasers, "name", laserName);
         }
     }
@@ -155,7 +155,7 @@ export class Inventory {
             console.log(`Can not equip item, ship already full`);
         } else {
             await ship.equipSpeedGenerator(generatorName);
-            console.log(`Equipped '${generatorName}' to '${shipName}'.`);
+            // console.log(`Equipped '${generatorName}' to '${shipName}'.`);
             this.removeFirstItemByProperty(
                 this.speedGenerators,
                 "name",
@@ -187,7 +187,7 @@ export class Inventory {
             console.log(`Can not equip item, ship already full`);
         } else {
             await ship.equipShieldGenerator(generatorName);
-            console.log(`Equipped '${generatorName}' to '${shipName}'.`);
+            // console.log(`Equipped '${generatorName}' to '${shipName}'.`);
             this.removeFirstItemByProperty(
                 this.shieldGenerators,
                 "name",

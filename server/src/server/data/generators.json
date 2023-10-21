@@ -17,16 +17,23 @@
     },
     "sp1": {
         "name": "sp1",
-        "baseSpeed": 10,
+        "baseSpeed": 5,
         "price": {
             "credits": 10000
         }
     },
     "sp2": {
         "name": "sp2",
-        "baseSpeed": 20,
+        "baseSpeed": 10,
         "price": {
             "credits": 20000
+        }
+    },
+    "sp99": {
+        "name": "sp99",
+        "baseSpeed": 100,
+        "price": {
+            "credits": 1
         }
     }
 }
