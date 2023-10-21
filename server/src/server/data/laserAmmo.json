@@ -23,7 +23,7 @@
         "shieldDamageMultiplier": 0,
         "color": "green",
         "price":{
-            "thulium": 1000
+            "thulium": 1
         }
     },
     "x4":{
@@ -32,7 +32,7 @@
         "shieldDamageMultiplier": 0,
         "color": "white",
         "price":{
-            "thulium": 1000
+            "thulium": 2
         }
     }
 }
