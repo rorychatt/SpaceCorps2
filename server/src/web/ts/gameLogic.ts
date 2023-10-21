@@ -54,6 +54,8 @@ const refreshTop10ExperienceBtn = document.getElementById(
     "getTop10ExperienceBtn"
 ) as HTMLButtonElement | undefined;
 
+const objectCache: Record<string, THREE.Group> = {};
+
 if (refreshTop10ExperienceBtn && refreshTop10HonorBtn) {
     refreshTop10ExperienceBtn.addEventListener("click", () => {
         socket.emit("getTop10Experience", playerName);
@@ -816,237 +818,332 @@ function rescaleOnWindowResize(): void {
     });
 }
 
-async function createObject(data: any) {
+function createDefaultObject(data: any): THREE.Object3D {
+    const boxgeometry = new THREE.BoxGeometry();
+    const boxmaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+    });
+    const defcube = new THREE.Mesh(boxgeometry, boxmaterial);
+    defcube.uuid = data.uuid;
+    defcube.position.set(data.position.x, 0, data.position.y);
+    defcube.name = data.name;
+    objectDataMap[data.uuid] = { data: defcube };
+    scene.add(defcube);
+    return defcube;
+}
+
+function setupAlienObject(model: THREE.Object3D, data: any) {
+    model.uuid = data.uuid;
+    model.position.set(data.position.x, 0, data.position.y);
+    setNameRecursively(model, data.name, data.uuid, rayCastLayerNo);
+
+    const nickBarContainer = document.createElement("div");
+    const nickname = document.createElement("div");
+    nickname.className = "nicknameLabel";
+    nickname.textContent = `${data.name}`;
+
+    const healthBar = document.createElement("div");
+    healthBar.className = "health_bar";
+
+    const hpBar = document.createElement("div");
+    hpBar.className = "hp_health_bar";
+
+    const spBar = document.createElement("div");
+    spBar.className = "sp_health_bar";
+
+    const maxHP = data.maxHealth;
+    const maxSP = data.maxShields;
+
+    hpBar.style.width = `${data.hitPoints.hullPoints / maxHP}`;
+
+    spBar.style.width = `${data.hitPoints.shieldPoints / maxSP}`;
+
+    healthBar.appendChild(hpBar);
+    healthBar.appendChild(spBar);
+
+    nickBarContainer.appendChild(nickname);
+    nickBarContainer.appendChild(healthBar);
+    nickBarContainer.setAttribute("uuid", data.uuid);
+    nickBarContainer.classList.add("nickBarContainer");
+
+    const label = new CSS2DObject(nickBarContainer);
+
+    labelMap[data.uuid] = label;
+    label.position.y = -0.75;
+    (model as any).hitPoints = data.hitPoints;
+    model.add(label);
+    scene.add(model);
+    objectDataMap[data.uuid] = { data: model };
+}
+
+function setupPlayerObject(model: THREE.Object3D, data: any) {
+    model.uuid = data.uuid;
+    model.position.set(data.position.x, 0, data.position.y);
+    setNameRecursively(model, data.name, data.uuid, rayCastLayerNo);
+    if (data.name == playerName) {
+        controls.update();
+    }
+
+    const text = document.createElement("div");
+    text.className = "nicknameLabel";
+    text.style.color = "rgb(255,255,255)";
+    text.style.fontSize = "12";
+    text.textContent = `${data.name}`;
+    const label = new CSS2DObject(text);
+    labelMap[data.uuid] = label;
+    label.position.y = -0.75;
+    label.uuid = data.uuid;
+    (model as any).hitPoints = data.hitPoints;
+    model.add(label);
+    scene.add(model);
+    objectDataMap[data.uuid] = { data: model };
+}
+
+function setupPortalObject(model: THREE.Object3D, data: any) {
+    model.uuid = data.uuid;
+    model.position.set(data.position.x, 0, data.position.y);
+    model.add(createSafeZoneRing(5));
+    setNameRecursively(model, data.name, data.uuid);
+    scene.add(model);
+    model.lookAt(new THREE.Vector3(0, 0, 0));
+    objectDataMap[data.uuid] = { data: model };
+}
+
+function removeCSSChildrenOfObject(object: THREE.Object3D) {
+    let childrenToRemove: THREE.Object3D[] = [];
+    object.traverse((child) => {
+        if (child instanceof CSS2DObject || child.name == "lockOnCirle") {
+            childrenToRemove.push(child);
+        }
+    });
+    for (const child of childrenToRemove) {
+        if (child.parent) {
+            child.parent.remove(child);
+        }
+    }
+}
+
+async function createObject(data: any): Promise<THREE.Object3D> {
     return new Promise(async (resolve) => {
-        // console.log(`Spawning new object: ${data.name}`);
-        const loader = new GLTFLoader();
-        objectDataMap[data.uuid] = { data: null };
-        switch (data._type) {
-            case "Alien":
-                loader.load(
-                    `./assets/models/aliens/${data.name}/${data.name}.glb`,
-                    async (glb) => {
-                        const model = glb.scene;
-                        model.uuid = data.uuid;
-                        model.position.set(data.position.x, 0, data.position.y);
-                        setNameRecursively(
-                            model,
-                            data.name,
-                            data.uuid,
-                            rayCastLayerNo
-                        );
-
-                        const nickBarContainer = document.createElement("div");
-                        const nickname = document.createElement("div");
-                        nickname.className = "nicknameLabel";
-                        nickname.textContent = `${data.name}`;
-
-                        const healthBar = document.createElement("div");
-                        healthBar.className = "health_bar";
-
-                        const hpBar = document.createElement("div");
-                        hpBar.className = "hp_health_bar";
-
-                        const spBar = document.createElement("div");
-                        spBar.className = "sp_health_bar";
-
-                        const maxHP = data.maxHealth;
-                        const maxSP = data.maxShields;
-
-                        hpBar.style.width = `${
-                            data.hitPoints.hullPoints / maxHP
-                        }`;
-
-                        spBar.style.width = `${
-                            data.hitPoints.shieldPoints / maxSP
-                        }`;
-
-                        healthBar.appendChild(hpBar);
-                        healthBar.appendChild(spBar);
-
-                        nickBarContainer.appendChild(nickname);
-                        nickBarContainer.appendChild(healthBar);
-                        nickBarContainer.setAttribute("uuid", data.uuid);
-                        nickBarContainer.classList.add("nickBarContainer");
-
-                        const label = new CSS2DObject(nickBarContainer);
-
-                        labelMap[data.uuid] = label;
-                        label.position.y = -0.75;
-                        (model as any).hitPoints = data.hitPoints;
-                        model.add(label);
-                        scene.add(model);
-                        objectDataMap[data.uuid] = { data: model };
-                        resolve(model);
-                    }
-                );
-                break;
-            case "Player":
-                loader.load(
-                    `./assets/models/ships/${data.activeShipName}/${data.activeShipName}.glb`,
-                    async (glb) => {
-                        const model = glb.scene;
-                        model.uuid = data.uuid;
-                        model.position.set(data.position.x, 0, data.position.y);
-                        setNameRecursively(
-                            model,
-                            data.name,
-                            data.uuid,
-                            rayCastLayerNo
-                        );
-                        if (data.name == playerName) {
-                            controls.update();
-                        }
-
-                        const text = document.createElement("div");
-                        text.className = "nicknameLabel";
-                        text.style.color = "rgb(255,255,255)";
-                        text.style.fontSize = "12";
-                        text.textContent = `${data.name}`;
-                        const label = new CSS2DObject(text);
-                        labelMap[data.uuid] = label;
-                        label.position.y = -0.75;
-                        label.uuid = data.uuid;
-                        (model as any).hitPoints = data.hitPoints;
-                        model.add(label);
-                        scene.add(model);
-                        objectDataMap[data.uuid] = { data: model };
-                        resolve(model);
-                    }
-                );
-                break;
-            case "Portal":
-                loader.load(
-                    `./assets/models/portals/portal.glb`,
-                    async (glb) => {
-                        const model = glb.scene;
-                        model.uuid = data.uuid;
-                        model.position.set(data.position.x, 0, data.position.y);
-                        model.add(createSafeZoneRing(5));
-                        setNameRecursively(model, data.name, data.uuid);
-                        scene.add(model);
-                        model.lookAt(new THREE.Vector3(0, 0, 0));
-                        objectDataMap[data.uuid] = { data: model };
-                        resolve(model);
-                    }
-                );
-                break;
-            case "LaserProjectile":
-                const lineMaterial = new THREE.LineBasicMaterial({
-                    color: data.color,
-                    linewidth: 4,
-                });
-                const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-                    new THREE.Vector3(0, 0, 0),
-                    new THREE.Vector3(0, 0, 1),
-                ]);
-                const line = new THREE.Line(lineGeometry, lineMaterial);
-                line.uuid = data.uuid;
-                line.name = data.name;
-                line.position.set(data.position.x, 0, data.position.y);
-                line.lookAt(data.targetPosition.x, 0, data.targetPosition.y);
-                scene.add(line);
-                objectDataMap[data.uuid] = { data: line };
-
-                const pointLight = new THREE.PointLight(data.color, 0.5, 10);
-                pointLight.position.set(0, 0, 0);
-
-                line.add(pointLight);
-
-                if (currentSounds <= maxConcurrentSounds) {
-                    currentSounds++;
-                    const sound = new THREE.PositionalAudio(audioListener);
-                    sound.setBuffer(laserShootSoundBuffer);
-                    sound.setRefDistance(20);
-                    sound.setVolume(0.3);
-                    sound.onEnded = () => {
-                        currentSounds--;
-                    };
-                    line.add(sound);
-                    sound.play();
-                }
-
-                break;
-            case "RocketProjectile":
-                const rocketMaterial = new THREE.LineBasicMaterial({
-                    color: "red",
-                    linewidth: 16,
-                });
-                const rocketGeometry = new THREE.BufferGeometry().setFromPoints(
-                    [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0.5)]
-                );
-                const rocket = new THREE.Line(rocketGeometry, rocketMaterial);
-                rocket.uuid = data.uuid;
-                rocket.name = data.name;
-                rocket.position.set(data.position.x, 0, data.position.y);
-                rocket.lookAt(data.targetPosition.x, 0, data.targetPosition.y);
-                scene.add(rocket);
-                objectDataMap[data.uuid] = { data: rocket };
-
-                const rocketSound = new THREE.PositionalAudio(audioListener);
-
-                if (currentSounds <= maxConcurrentSounds) {
-                    currentSounds++;
-                    rocketSound.setBuffer(rocketShootSoundBuffer);
-                    rocketSound.setRefDistance(20);
-                    rocketSound.setVolume(0.15);
-                    rocketSound.onEnded = function () {
-                        currentSounds--;
-                    };
-                    rocket.add(rocketSound);
-                    rocketSound.play();
-                }
-
-                break;
-            case "CargoDrop":
-                const cargoDropGeometry = new THREE.BoxGeometry(
-                    0.25,
-                    0.25,
-                    0.25
-                );
-                const cargoDropMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xffff00,
-                });
-                const cargoDrop = new THREE.Mesh(
-                    cargoDropGeometry,
-                    cargoDropMaterial
-                );
-                cargoDrop.uuid = data.uuid;
-                cargoDrop.position.set(data.position.x, -1, data.position.y);
-                objectDataMap[data.uuid] = { data: cargoDrop };
-                cargoDrop.layers.enable(rayCastLayerNo);
-                setNameRecursively(cargoDrop, "CargoDrop", data.uuid);
-                scene.add(cargoDrop);
-                resolve(cargoDrop);
-                break;
-            case "CompanyBase":
-                loader.load(`./assets/models/base/base.glb`, async (glb) => {
+        if (data._type == "Player") {
+            if (objectCache[data.activeShipName]) {
+                const clonedObject = objectCache[data.activeShipName].clone(true);
+                removeCSSChildrenOfObject(clonedObject);
+            } else {
+                const loader = new GLTFLoader();
+                const modelUrl = `./assets/models/ships/${data.activeShipName}/${data.activeShipName}.glb`;
+                objectDataMap[data.uuid] = { data: null };
+                loader.load(modelUrl, async (glb) => {
                     const model = glb.scene;
-                    model.uuid = data.uuid;
-                    model.position.set(data.position.x, 0, data.position.y);
-                    model.add(createSafeZoneRing(10));
-                    setNameRecursively(model, data.name, data.uuid);
-                    scene.add(model);
-                    model.lookAt(new THREE.Vector3(0, 0, 0));
-                    objectDataMap[data.uuid] = { data: model };
+                    objectCache[data.name] = model;
+                    setupPlayerObject(model, data);
                     resolve(model);
                 });
-                break;
-
-            default:
-                // console.log(data._type);
-                const boxgeometry = new THREE.BoxGeometry();
-                const boxmaterial = new THREE.MeshBasicMaterial({
-                    color: 0x00ff00,
+            }
+        } else {
+            if (objectCache[data.name]) {
+                const clonedObject = objectCache[data.name].clone(true);
+                let childrenToRemove: THREE.Object3D[] = [];
+                clonedObject.traverse((child) => {
+                    if (child instanceof CSS2DObject) {
+                        childrenToRemove.push(child);
+                    }
                 });
-                const defcube = new THREE.Mesh(boxgeometry, boxmaterial);
-                defcube.uuid = data.uuid;
-                defcube.position.set(data.position.x, 0, data.position.y);
-                defcube.name = data.name;
-                objectDataMap[data.uuid] = { data: defcube };
-                scene.add(defcube);
-                resolve(defcube);
-                break;
+                for (const child of childrenToRemove) {
+                    if (child.parent) {
+                        child.parent.remove(child);
+                    }
+                }
+                switch (data._type) {
+                    case "Alien":
+                        const alien = clonedObject;
+                        setupAlienObject(alien, data);
+                        resolve(alien);
+                        break;
+                    case "Portal":
+                        const portal = clonedObject;
+                        objectCache[data.name] = portal;
+                        setupPortalObject(portal, data);
+                        resolve(portal);
+                        break;
+                    default:
+                        console.log("Unknown data", data);
+                        return;
+                }
+                resolve(clonedObject);
+                return;
+            }
+
+            const loader = new GLTFLoader();
+            objectDataMap[data.uuid] = { data: null };
+
+            let modelUrl = "";
+            switch (data._type) {
+                case "Alien":
+                    modelUrl = `./assets/models/aliens/${data.name}/${data.name}.glb`;
+                    loader.load(modelUrl, async (glb) => {
+                        const model = glb.scene;
+                        objectCache[data.name] = model;
+                        setupAlienObject(model, data);
+                        resolve(model);
+                    });
+                    break;
+                case "Portal":
+                    modelUrl = "./assets/models/portals/portal.glb";
+                    loader.load(modelUrl, async (glb) => {
+                        const model = glb.scene;
+                        objectCache[data.name] = model;
+                        setupPortalObject(model, data);
+                        resolve(model);
+                    });
+                    break;
+                case "LaserProjectile":
+                    const lineMaterial = new THREE.LineBasicMaterial({
+                        color: data.color,
+                        linewidth: 4,
+                    });
+                    const lineGeometry =
+                        new THREE.BufferGeometry().setFromPoints([
+                            new THREE.Vector3(0, 0, 0),
+                            new THREE.Vector3(0, 0, 1),
+                        ]);
+                    const line = new THREE.Line(lineGeometry, lineMaterial);
+                    line.uuid = data.uuid;
+                    line.name = data.name;
+                    line.position.set(data.position.x, 0, data.position.y);
+                    line.lookAt(
+                        data.targetPosition.x,
+                        0,
+                        data.targetPosition.y
+                    );
+                    scene.add(line);
+                    objectDataMap[data.uuid] = { data: line };
+
+                    const pointLight = new THREE.PointLight(
+                        data.color,
+                        0.5,
+                        10
+                    );
+                    pointLight.position.set(0, 0, 0);
+
+                    line.add(pointLight);
+
+                    if (currentSounds <= maxConcurrentSounds) {
+                        currentSounds++;
+                        const sound = new THREE.PositionalAudio(audioListener);
+                        sound.setBuffer(laserShootSoundBuffer);
+                        sound.setRefDistance(20);
+                        sound.setVolume(0.3);
+                        sound.onEnded = () => {
+                            currentSounds--;
+                        };
+                        line.add(sound);
+                        sound.play();
+                    }
+                    break;
+                case "RocketProjectile":
+                    const rocketMaterial = new THREE.LineBasicMaterial({
+                        color: "red",
+                        linewidth: 16,
+                    });
+                    const rocketGeometry =
+                        new THREE.BufferGeometry().setFromPoints([
+                            new THREE.Vector3(0, 0, 0),
+                            new THREE.Vector3(0, 0, 0.5),
+                        ]);
+                    const rocket = new THREE.Line(
+                        rocketGeometry,
+                        rocketMaterial
+                    );
+                    rocket.uuid = data.uuid;
+                    rocket.name = data.name;
+                    rocket.position.set(data.position.x, 0, data.position.y);
+                    rocket.lookAt(
+                        data.targetPosition.x,
+                        0,
+                        data.targetPosition.y
+                    );
+                    scene.add(rocket);
+                    objectDataMap[data.uuid] = { data: rocket };
+
+                    const rocketSound = new THREE.PositionalAudio(
+                        audioListener
+                    );
+
+                    if (currentSounds <= maxConcurrentSounds) {
+                        currentSounds++;
+                        rocketSound.setBuffer(rocketShootSoundBuffer);
+                        rocketSound.setRefDistance(20);
+                        rocketSound.setVolume(0.15);
+                        rocketSound.onEnded = function () {
+                            currentSounds--;
+                        };
+                        rocket.add(rocketSound);
+                        rocketSound.play();
+                    }
+
+                    break;
+                case "CargoDrop":
+                    const cargoDropGeometry = new THREE.BoxGeometry(
+                        0.25,
+                        0.25,
+                        0.25
+                    );
+                    const cargoDropMaterial = new THREE.MeshStandardMaterial({
+                        color: 0xffff00,
+                    });
+                    const cargoDrop = new THREE.Mesh(
+                        cargoDropGeometry,
+                        cargoDropMaterial
+                    );
+                    cargoDrop.uuid = data.uuid;
+                    cargoDrop.position.set(
+                        data.position.x,
+                        -1,
+                        data.position.y
+                    );
+                    objectDataMap[data.uuid] = { data: cargoDrop };
+                    cargoDrop.layers.enable(rayCastLayerNo);
+                    setNameRecursively(cargoDrop, "CargoDrop", data.uuid);
+                    scene.add(cargoDrop);
+                    resolve(cargoDrop);
+                    break;
+                case "Portal":
+                    modelUrl = "./assets/models/portals/portal.glb";
+                    loader.load(modelUrl, async (glb) => {
+                        const model = glb.scene;
+                        // Save to cache for later use
+                        objectCache["Portal"] = model;
+                        // Perform setup steps for Portal
+                        setupPortalObject(model, data);
+                        resolve(model);
+                    });
+                    break;
+                case "CompanyBase":
+                    loader.load(
+                        `./assets/models/base/base.glb`,
+                        async (glb) => {
+                            const model = glb.scene;
+                            model.uuid = data.uuid;
+                            model.position.set(
+                                data.position.x,
+                                0,
+                                data.position.y
+                            );
+                            model.add(createSafeZoneRing(10));
+                            setNameRecursively(model, data.name, data.uuid);
+                            scene.add(model);
+                            model.lookAt(new THREE.Vector3(0, 0, 0));
+                            objectDataMap[data.uuid] = { data: model };
+                            resolve(model);
+                        }
+                    );
+                    break;
+                default:
+                    const defaultObject = createDefaultObject(data);
+                    resolve(defaultObject);
+                    break;
+            }
         }
     });
 }
