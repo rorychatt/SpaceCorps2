@@ -748,6 +748,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
 
             case "s":
                 console.log(currentSounds);
+                break;
 
             case " ":
                 if (lockOnCircle?.parent != undefined) {
@@ -785,8 +786,10 @@ const findClosestPortal = (
 
 function createLighting() {
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(1, 1, 1); // Adjust the light's position
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.25);
+    directionalLight.position.set(1, 1, 1);
     scene.add(directionalLight);
+    scene.add(ambientLight);
 }
 
 function createSkybox(mapname: string) {
@@ -864,6 +867,7 @@ async function createObject(data: any) {
                         nickBarContainer.appendChild(nickname);
                         nickBarContainer.appendChild(healthBar);
                         nickBarContainer.setAttribute("uuid", data.uuid);
+                        nickBarContainer.classList.add("nickBarContainer");
 
                         const label = new CSS2DObject(nickBarContainer);
 
@@ -929,7 +933,7 @@ async function createObject(data: any) {
                 break;
             case "LaserProjectile":
                 const lineMaterial = new THREE.LineBasicMaterial({
-                    color: "red",
+                    color: data.color,
                     linewidth: 4,
                 });
                 const lineGeometry = new THREE.BufferGeometry().setFromPoints([
@@ -944,12 +948,13 @@ async function createObject(data: any) {
                 scene.add(line);
                 objectDataMap[data.uuid] = { data: line };
 
-                const pointLight = new THREE.PointLight(0xff0000, 0.5, 10);
+                const pointLight = new THREE.PointLight(data.color, 0.5, 10);
                 pointLight.position.set(0, 0, 0);
 
                 line.add(pointLight);
 
                 if (currentSounds <= maxConcurrentSounds) {
+                    currentSounds++;
                     const sound = new THREE.PositionalAudio(audioListener);
                     sound.setBuffer(laserShootSoundBuffer);
                     sound.setRefDistance(20);
@@ -981,6 +986,7 @@ async function createObject(data: any) {
                 const rocketSound = new THREE.PositionalAudio(audioListener);
 
                 if (currentSounds <= maxConcurrentSounds) {
+                    currentSounds++;
                     rocketSound.setBuffer(rocketShootSoundBuffer);
                     rocketSound.setRefDistance(20);
                     rocketSound.setVolume(0.15);
@@ -1205,6 +1211,7 @@ async function deleteObject(uuid: string) {
         object.add(sound);
     } else if (object.name === "rocketProjectile") {
         if (currentSounds <= maxConcurrentSounds) {
+            currentSounds++;
             const sound = new THREE.PositionalAudio(audioListener);
             sound.position.copy(object.position);
             sound.setRefDistance(20);
@@ -1688,15 +1695,14 @@ async function handleItemAmountChange(
             }
         } else {
             const totalPrice =
-            itemPrice.thulium * parseInt(itemAmountInput.value);
-        const itemPriceElement = itemContainer.querySelector(".item_price");
+                itemPrice.thulium * parseInt(itemAmountInput.value);
+            const itemPriceElement = itemContainer.querySelector(".item_price");
 
-        if (itemPriceElement) {
-            itemPriceElement.textContent = `Price: ${await beautifyNumberToUser(
-                totalPrice
-            )} thulium`;
-        }
-
+            if (itemPriceElement) {
+                itemPriceElement.textContent = `Price: ${await beautifyNumberToUser(
+                    totalPrice
+                )} thulium`;
+            }
         }
     }
 }
@@ -1935,7 +1941,7 @@ async function createAndTriggerExplosion(object: THREE.Object3D) {
 
     if (currentSounds <= maxConcurrentSounds) {
         const sound = new THREE.PositionalAudio(audioListener);
-
+        currentSounds++;
         sound.setBuffer(explosionSoundBuffer);
         sound.setVolume(1);
         sound.onEnded = function () {

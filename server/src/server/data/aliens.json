@@ -32,6 +32,39 @@
             "speed": 360
         }
     },
+    "boss-thetys": {
+        "hitPoints": {
+            "hullPoints": 8000,
+            "shieldPoints": 4000,
+            "shieldAbsorbance": 0.5
+        },
+        "damage": {
+            "maxDamage": 400,
+            "variance": 0.2,
+            "criticalChance": 0.01,
+            "criticalMultipler": 2
+        },
+        "oreDrop": [
+            {
+                "oreName": "radium",
+                "amount": 40
+            },
+            {
+                "oreName": "agronite",
+                "amount": 40
+            }
+        ],
+        "killReward": {
+            "credits": 4000,
+            "thulium": 4,
+            "experience": 1000,
+            "honor": 6
+        },
+        "movement": {
+            "behaviour": "passive",
+            "speed": 400
+        }
+    },
     "plasmoid": {
         "hitPoints": {
             "hullPoints": 4000,
@@ -47,11 +80,11 @@
         "oreDrop": [
             {
                 "oreName": "radium",
-                "amount": 10
+                "amount": 20
             },
             {
                 "oreName": "agronite",
-                "amount": 5
+                "amount": 20
             }
         ],
         "killReward": {

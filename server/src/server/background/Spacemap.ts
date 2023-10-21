@@ -107,7 +107,6 @@ export class Spacemap {
             const alienConfig = this._config.spawnableAliens[spawnableAlien];
             if (alienConfig.spawnLimit) {
                 let alienCount = 0;
-
                 for (const entity of this.entities) {
                     if (
                         entity instanceof Alien &&

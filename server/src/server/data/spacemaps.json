@@ -24,7 +24,10 @@
                 "spawnLimit": 32
             },
             "plasmoid": {
-                "spawnLimit": 32
+                "spawnLimit": 16
+            },
+            "boss-thetys": {
+                "spawnLimit": 4
             }
         }
     },
@@ -53,7 +56,10 @@
                 "spawnLimit": 32
             },
             "plasmoid": {
-                "spawnLimit": 32
+                "spawnLimit": 16
+            },
+            "boss-thetys": {
+                "spawnLimit": 4
             }
         }
     },
@@ -82,7 +88,10 @@
                 "spawnLimit": 32
             },
             "plasmoid": {
-                "spawnLimit": 32
+                "spawnLimit": 16
+            },
+            "boss-thetys": {
+                "spawnLimit": 4
             }
         }
     },
@@ -111,9 +120,11 @@
                 "spawnLimit": 32
             },
             "plasmoid": {
-                "spawnLimit": 32
+                "spawnLimit": 16
+            },
+            "boss-thetys": {
+                "spawnLimit": 4
             }
-            
         }
     },
     "P-1": {
@@ -147,11 +158,11 @@
             ]
         },
         "spawnableAliens": {
-            "thetys": {
-                "spawnLimit": 32
-            },
             "plasmoid": {
-                "spawnLimit": 32
+                "spawnLimit": 24
+            },
+            "boss-thetys": {
+                "spawnLimit": 12
             }
         }
     }

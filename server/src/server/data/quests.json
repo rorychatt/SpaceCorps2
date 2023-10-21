@@ -1,40 +1,51 @@
 {
     "Welcome 1": {
         "name": "Welcome 1",
-        "type": "completeWithoutOrder",
+        "type": "completeInOrder",
+        "description": "Welcome Pilot! To show your loyalty, we must see what you are capable of. With our small gift of 50.000 credits, go ahead and buy and equip some lasers and ammo, and bring us any thetys' head! Oh, and find one far away from the base, and show us their cargo!",
         "reward": {
             "stats": {
-                "experience": 2500,
-                "honor": 512,
+                "experience": 3000,
+                "honor": 100,
                 "credits": 8000,
-                "thulium": 80
+                "thulium": 100
             },
-            "items": [{ "itemName": "laser1", "amount": 1 }]
-        },
-        "task": {
-            "fly": [
-                {
-                    "distance": 5000,
-                    "map": "any",
-                    "completed": "false"
-                }
-            ],
-            "kill": [
-                {
-                    "targetName": "thetys",
-                    "map": "any",
-                    "completed": "false"
-                }
-            ],
-            "collect": [
-                {
-                    "oreName": "radium",
-                    "mapName": "P-1",
-                    "amount": 10,
-                    "completed": "false"
-                }
+            "items": [
+                { "itemName": "laser2", "amount": 1 },
+                { "itemName": "x1", "amount": 1000 },
+                { "itemName": "x2", "amount": 100 },
+                { "itemName": "rocket1", "amount": 50 }
             ]
         },
+        "tasks": [
+            {
+                "_type": "fly",
+                "distance": 5000,
+                "map": "any",
+                "completed": "false"
+            },
+            {
+                "_type": "kill",
+                "targetName": "thetys",
+                "amount": 1,
+                "map": "any",
+                "completed": "false"
+            },
+            {
+                "_type": "collect",
+                "oreName": "radium",
+                "mapName": "P-1",
+                "amount": 10,
+                "completed": "false"
+            },
+            {
+                "_type": "kill",
+                "targetName": "thetys",
+                "amount": 1,
+                "map": "any",
+                "completed": "false"
+            }
+        ],
         "requiredLevel": 1
     }
 }
