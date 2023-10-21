@@ -15,10 +15,9 @@ export class SafeZone {
     }
 
     isInSafeZone(position: Vector2D): boolean {
-        //TODO: dont forget about radii
         if (
             (position.x - this.position.x) ** 2 +
-            (position.y - this.position.y) ** 2
+            (position.y - this.position.y) ** 2 <= this.radius
         ) {
             return true;
         } else {

@@ -6,7 +6,7 @@ import {
     SafeZone,
     Portal,
     calculateEntityPosition,
-} from "./Entity";
+} from "./Entity.js";
 import { Item, PossibleItems } from "./Inventory";
 import { Player } from "./Player";
 import { ProjectileServer } from "./ProjectileServer";
@@ -76,8 +76,13 @@ export class Spacemap {
     }
 
     randomSpawnAlien() {
+        // Defenition of map size
+        let width = this._config.size.width;
+        let height = this._config.size.height;
+        // Defentition of the safe zones array
         let safeZones: SafeZone[] = [];
 
+        // Considering all the portals as the safe zone
         for (const _portal in this._config.staticEntities.portals) {
             const portal = this._config.staticEntities.portals[_portal];
             safeZones.push(
@@ -87,14 +92,17 @@ export class Spacemap {
                 )
             );
         }
+        // Considering base as a safe zone
         if (this._config.staticEntities.base) {
-            // redo
-            let location = this._config.staticEntities.base.location;
-            let postion = calculateEntityPosition(location, this._config.size);
-            let radii = this._config.staticEntities.base.safeZoneRadii;
-            safeZones.push(new SafeZone(postion, radii));
+            const base = this._config.staticEntities.base;
+            safeZones.push(
+                new SafeZone(
+                    calculateEntityPosition(base.location, this._config.size), 
+                    base.safeZoneRadii
+                )
+            );
         }
-
+        // Iterating over every alien
         for (const spawnableAlien in this._config.spawnableAliens) {
             const alienConfig = this._config.spawnableAliens[spawnableAlien];
             if (alienConfig.spawnLimit) {
@@ -109,26 +117,37 @@ export class Spacemap {
                         alienCount++;
                     }
                 }
+                // If allowed - spawn an alien
                 if (alienCount < alienConfig.spawnLimit) {
-                    let spawnAttempt = 0;
-                    let position: Vector2D | undefined
-                    while (spawnAttempt < 10) {
-                        const newPosition = {x: (0.5 - Math.random()) * 10, y: (0.5 - Math.random()) * 10}
-                        if(true){
-                            //check if its in any safe zone or not
-                            position = newPosition
-                            return
+                    let spawnAttempt = 0; // if exceede maximum value alien will spawn aroun the center of map, exluding safe zones
+                    let position: Vector2D | undefined // position for alien spawn
+                    while (spawnAttempt < 5) {
+                        // Trying to generate new position
+                        const newPosition = {
+                            x: Math.floor(Math.random() * (width + 1) - width / 2), 
+                            y: Math.floor(Math.random() * (height + 1) - height / 2)
                         }
+                        // Checking whether new position is in safe zone, if it is, then increments spawnAtempt and goes to the new iteration
+                        for (const safeZone of safeZones) {
+                            if (safeZone.isInSafeZone(newPosition)) {
+                                spawnAttempt++;
+                                continue;
+                            }
+                        }
+                        // Break the cycle if position is not in any of the safe zones
+                        position = newPosition
+                        break;
                     }
+                    
                     if(!position){
+                        // If failed to generate spawn position(position undefined), then spaw occures around the map center
                         this.spawnAlien(spawnableAlien, {
                             x: (0.5 - Math.random()) * 10,
                             y: (0.5 - Math.random()) * 10,
                         });
-                    } else {
+                    } else { 
                         this.spawnAlien(spawnableAlien, position)
                     }
-
                 }
             }
         }
