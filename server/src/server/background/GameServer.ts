@@ -176,7 +176,7 @@ export class GameServer {
                         closestPortal.destination
                     ].entities.filter((e) => {
                         if (e instanceof Portal) {
-                            if ((e.destination == oldMap.name)) {
+                            if (e.destination == oldMap.name) {
                                 return true;
                             }
                         }
@@ -223,7 +223,11 @@ export class GameServer {
         newMapName: string,
         targetPos?: Vector2D
     ) {
+        const oldMapName = player.currentMap;
         player.currentMap = newMapName;
+        this.spacemaps[oldMapName].entities = this.spacemaps[
+            oldMapName
+        ].entities.filter((entity) => entity.uuid !== player.uuid);
         this.spacemaps[player.currentMap].entities.push(player);
         if (targetPos) {
             player.position = { x: targetPos.x, y: targetPos.y };
@@ -288,7 +292,10 @@ export class GameServer {
                         player.targetCargoDrop
                     );
 
-                    this.questServer.registerOreCollection({ playerUUID: player.uuid, cargoDrop: player.targetCargoDrop });
+                    this.questServer.registerOreCollection({
+                        playerUUID: player.uuid,
+                        cargoDrop: player.targetCargoDrop,
+                    });
 
                     this.spacemaps[
                         player.targetCargoDrop.currentMap
@@ -374,7 +381,10 @@ export class GameServer {
                             entity.killReward
                         );
 
-                        this.questServer.registerAlienKill({ playerUUID: entity.lastAttackedByUUID, entityName: entity.name });
+                        this.questServer.registerAlienKill({
+                            playerUUID: entity.lastAttackedByUUID,
+                            entityName: entity.name,
+                        });
                     }
                     if (entity.cargoDrop) {
                         const cargoContents = { ...entity.cargoDrop };
@@ -385,6 +395,13 @@ export class GameServer {
                         `Removed ${entity.name} from map ${spacemapName} because its HP finished.`
                     );
                     return false;
+                } else if (
+                    entity instanceof Player &&
+                    entity.hitPoints.hullPoints <= 0
+                ) {
+                    //TODO: Respawn logic
+                    entity.hitPoints.hullPoints = 10000;
+                    this.sendPlayerToNewMap(entity, "M-1", { x: 0, y: 0 });
                 }
                 return true;
             });
