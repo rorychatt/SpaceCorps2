@@ -361,6 +361,25 @@ function handleHTTPRequests() {
         );
     });
 
+    app.get("/tween", (req, res) => {
+        res.sendFile(
+            path.join(
+                __dirname,
+                "..",
+                "..",
+                "dist",
+                "web",
+                "ts",
+                "tween.js"
+            ),
+            {
+                headers: {
+                    "Content-Type": "application/javascript",
+                },
+            }
+        );
+    });
+
     app.get("/three/examples/jsm/controls/OrbitControls", (req, res) => {
         res.sendFile(
             path.join(

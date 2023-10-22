@@ -24,7 +24,7 @@ import { QuestServer } from "./QuestServer";
 import { RankingServer } from "./RankingServer";
 import { Worker } from "worker_threads";
 
-export const tickrate = 144;
+export const tickrate = 60;
 
 export class GameServer {
     spacemaps: Spacemaps;
@@ -176,7 +176,7 @@ export class GameServer {
                         closestPortal.destination
                     ].entities.filter((e) => {
                         if (e instanceof Portal) {
-                            if ((e.destination == oldMap.name)) {
+                            if (e.destination == oldMap.name) {
                                 return true;
                             }
                         }
@@ -223,7 +223,11 @@ export class GameServer {
         newMapName: string,
         targetPos?: Vector2D
     ) {
+        const oldMapName = player.currentMap;
         player.currentMap = newMapName;
+        this.spacemaps[oldMapName].entities = this.spacemaps[
+            oldMapName
+        ].entities.filter((entity) => entity.uuid !== player.uuid);
         this.spacemaps[player.currentMap].entities.push(player);
         if (targetPos) {
             player.position = { x: targetPos.x, y: targetPos.y };
@@ -262,10 +266,12 @@ export class GameServer {
     }
 
     async proccessRandomSpawns() {
-        for (const spacemapName in this._spacemapNames) {
-            this.spacemaps[
-                this._spacemapNames[spacemapName]
-            ].randomSpawnAlien();
+        if (this.tickCount == tickrate - 1) {
+            for (const spacemapName in this._spacemapNames) {
+                this.spacemaps[
+                    this._spacemapNames[spacemapName]
+                ].randomSpawnAlien();
+            }
         }
     }
 
@@ -389,6 +395,13 @@ export class GameServer {
                         `Removed ${entity.name} from map ${spacemapName} because its HP finished.`
                     );
                     return false;
+                } else if (
+                    entity instanceof Player &&
+                    entity.hitPoints.hullPoints <= 0
+                ) {
+                    //TODO: Respawn logic
+                    entity.hitPoints.hullPoints = 10000;
+                    this.sendPlayerToNewMap(entity, "M-1", { x: 0, y: 0 });
                 }
                 return true;
             });

@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "1.5.55",
+  "version": "1.5.62",
   "description": "",
   "type": "module",
   "main": "index.js",
@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tweenjs/tween.js": "^21.0.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",

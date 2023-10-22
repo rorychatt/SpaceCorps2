@@ -25,11 +25,11 @@ class PlayerDTO {
     name: string;
     position: any;
     _type: string;
-    hitPoints?: any;
-    stats?: any;
-    company?: string;
-    targetUUID?: string;
-    activeShipName?: string;
+    hitPoints: any;
+    stats: any;
+    company: string;
+    targetUUID: string;
+    activeShipName: string;
     uuid: string;
 
     constructor(player: any) {

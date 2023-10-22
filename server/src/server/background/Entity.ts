@@ -5,6 +5,26 @@ import {
     SpacemapSize,
     Vector2D,
 } from "./Spacemap";
+export class SafeZone {
+    position: Vector2D;
+    radius: number;
+
+    constructor(position: Vector2D, radius: number) {
+        this.position = position;
+        this.radius = radius;
+    }
+
+    isInSafeZone(position: Vector2D): boolean {
+        if (
+            (position.x - this.position.x) ** 2 +
+            (position.y - this.position.y) ** 2 <= this.radius
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
 export class Entity {
     readonly name: string;
     position: Vector2D;
@@ -25,17 +45,20 @@ export class Entity {
 export class Portal extends Entity {
     location: StaticEntityLocations;
     destination: string;
+    safeZoneRadii: number;
     readonly _type: string = "Portal";
 
     constructor(
         map: Spacemap,
         location: StaticEntityLocations,
-        destination: string
+        destination: string,
+        safeZoneRadii: number
     ) {
         super(map.name, "Portal");
         this.location = location;
         this.destination = destination;
         this.currentMap = map._config.name;
+        this.safeZoneRadii = safeZoneRadii;
 
         this.position = calculateEntityPosition(location, map.size);
     }
@@ -43,16 +66,23 @@ export class Portal extends Entity {
 
 export class CompanyBase extends Entity {
     location: StaticEntityLocations;
+    safeZoneRadii: number;
     readonly _type: string = "CompanyBase";
 
-    constructor(map: Spacemap, location: StaticEntityLocations, name: string) {
+    constructor(
+        map: Spacemap,
+        location: StaticEntityLocations,
+        name: string,
+        safeZoneRadii: number
+    ) {
         super(name, "CompanyBase");
         this.location = location;
         this.position = calculateEntityPosition(location, map.size);
+        this.safeZoneRadii = safeZoneRadii;
     }
 }
 
-function calculateEntityPosition(
+export function calculateEntityPosition(
     location: StaticEntityLocations,
     mapSize: SpacemapSize
 ): Vector2D {

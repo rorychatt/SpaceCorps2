@@ -1,6 +1,4 @@
-// @ts-ignore
-export const socket = io("http://localhost:3000");
-
+// Import Statements
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -9,7 +7,11 @@ import {
     CSS2DObject,
     // @ts-ignore
 } from "./three/addons/renderers/CSS2DRenderer.js";
+import * as TWEEN from "@tweenjs/tween.js";
+// @ts-ignore
+export const socket = io("http://localhost:3000");
 
+// HTML Elements
 let loginDiv = document.getElementById("loginDiv") as HTMLElement;
 let spacemapDiv = document.getElementById("spacemapDiv") as HTMLElement;
 let contentDiv = document.getElementById("content") as HTMLElement;
@@ -17,9 +19,9 @@ let uiDiv = document.querySelector(".ui") as HTMLElement;
 let consoleBtn = document.querySelector(".console_button") as HTMLElement;
 let gameVersionDiv = document.getElementById("gameversion") as HTMLElement;
 let quests100qDiv = document.getElementById("quest_100q") as HTMLElement;
+let entityLabelsDiv = document.getElementById("entityLabelsDiv");
 
-let playerEntity: any;
-
+// UI Elements
 const creditsElement = document.getElementById("credits_value");
 const thuliumElement = document.getElementById("thulium_value");
 const experienceElement = document.getElementById("experience_value");
@@ -27,18 +29,15 @@ const honorElement = document.getElementById("honor_value");
 const notificationContainer = document.getElementById("notification_container");
 const prestigeElement = document.getElementById("prestige_value");
 const levelElement = document.getElementById("player_level_div");
-
 const simHPElement = document.getElementById("sim_hitpoints");
 const simSPElement = document.getElementById("sim_speed");
 const simSHElement = document.getElementById("sim_shieldpoints");
 const simCargoElement = document.getElementById("sim_cargo");
-
 const volumeLevelInput = document.getElementById(
     "volumeLevelInput"
 ) as HTMLInputElement | null;
 
-let entityLabelsDiv = document.getElementById("entityLabelsDiv");
-
+// Settings Elements
 const switchCheckbox: HTMLInputElement | null = document.querySelector(
     "#setting_switch_antialiasing .chk"
 );
@@ -47,6 +46,7 @@ const volumeValue: HTMLInputElement | null =
 const saveSettingsBtn: HTMLElement | null =
     document.getElementById("save_settings_btn");
 
+// Buttons
 const refreshTop10HonorBtn = document.getElementById("getTop10HonorBtn") as
     | HTMLButtonElement
     | undefined;
@@ -54,61 +54,60 @@ const refreshTop10ExperienceBtn = document.getElementById(
     "getTop10ExperienceBtn"
 ) as HTMLButtonElement | undefined;
 
-if (refreshTop10ExperienceBtn && refreshTop10HonorBtn) {
-    refreshTop10ExperienceBtn.addEventListener("click", () => {
-        socket.emit("getTop10Experience", playerName);
-    });
-    refreshTop10HonorBtn.addEventListener("click", () => {
-        socket.emit("getTop10Honor", playerName);
-    });
-}
-
-let shoppingData: any;
-let playerInventory: any;
-
-let playerName: string;
-
+// Three.js Objects
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
 let renderer: THREE.Renderer;
-let currentMap: any;
 let controls: OrbitControls;
 let canvas: HTMLCanvasElement | null;
-
-let playerObject: THREE.Object3D | undefined = undefined;
 let audioListener: THREE.AudioListener;
-
 let labelRenderer: CSS2DRenderer;
+let lockOnCircle: THREE.Object3D | null;
 
+// Player Data
+let playerEntity: any;
+let playerName: string;
+let playerObject: THREE.Object3D | undefined = undefined;
+let lastEntityPosition: THREE.Vector3 | null = null;
+let isFirstUpdateForPlayer: boolean = true; // flag to identify the first update for the player
+
+// Game Data
+let shoppingData: any;
+let playerInventory: any;
+let currentMap: any;
+const objectCache: Record<string, THREE.Group> = {};
+const objectDataMap: Record<string, { data: any }> = {};
+const labelMap: Record<string, CSS2DObject> = {};
+
+// Chat and Console
 let sendChatMessageButton: HTMLElement | null;
 let chatModalContent: HTMLElement | null;
 let chatModalInput: HTMLInputElement | null;
 let sendConsoleMessageButton: HTMLElement | null;
 let consoleContent: HTMLElement | null;
 let consoleInput: HTMLInputElement | null;
-let lockOnCircle: THREE.Object3D | null;
 
-let lastEntityPosition: THREE.Vector3 | null = null;
-let isFirstUpdateForPlayer: boolean = true; // flag to identify the first update for the player
+// Audio
 let mainThemeMusic: THREE.Audio;
-
-const rayCastLayerNo = 1;
-const particles: any[] = [];
-const damageIndicators: any[] = [];
-
-const objectDataMap: Record<string, { data: any }> = {};
-const labelMap: Record<string, CSS2DObject> = {};
-
-const raycaster = new THREE.Raycaster();
-
-const maxConcurrentSounds = 6;
-let currentSounds: number = 0;
-
 let explosionSoundBuffer: AudioBuffer,
     laserShootSoundBuffer: AudioBuffer,
     rocketShootSoundBuffer: AudioBuffer,
     laserHitSoundBuffer: AudioBuffer,
     rocketHitSoundBuffer: AudioBuffer;
+
+// Misc
+const raycaster = new THREE.Raycaster();
+const rayCastLayerNo = 1;
+const particles: any[] = [];
+const damageIndicators: any[] = [];
+const maxConcurrentSounds = 6;
+let currentSounds: number = 0;
+let isUpdating: boolean = false;
+const tickrate = 60;
+const frameTime = 1000 / tickrate;
+
+// Web Workers
+// const updateObjectsWorker = new Worker("updateObjectsWorker.js");
 
 raycaster.layers.set(rayCastLayerNo);
 setupSoundBuffers();
@@ -196,18 +195,28 @@ socket.on("serverMessage", (data: { type: string; message: string }) => {
 
 socket.on(
     "mapData",
-    (data: {
+    async (data: {
         name: string;
         entities: any[];
         projectiles: any[];
         cargoboxes: any[];
         size: { width: number; height: number };
     }) => {
+        if (isUpdating) {
+            console.warn(`Skipping tick due to client performance issues`);
+        }
+        isUpdating = true;
         if (!currentMap || currentMap.name != data.name) {
             loadNewSpacemap(data);
         }
-        updateObjects(data.entities.concat(data.projectiles, data.cargoboxes));
-        playerObject = scene.getObjectByName(playerName);
+        Promise.resolve(
+            updateObjects(
+                data.entities.concat(data.projectiles, data.cargoboxes)
+            )
+        ).then(() => {
+            playerObject = scene.getObjectByName(playerName);
+            isUpdating = false;
+        });
     }
 );
 
@@ -397,7 +406,7 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
                                 notificationContainer.appendChild(
                                     messageContainer
                                 );
-                                console.log(messageContainer.textContent);
+                                // console.log(messageContainer.textContent);
 
                                 setTimeout(() => {
                                     try {
@@ -489,7 +498,7 @@ function initScene(): void {
     spacemapDiv.hidden = false;
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(
-        75,
+        60,
         window.innerWidth / window.innerHeight,
         0.1,
         1000
@@ -533,6 +542,15 @@ function initScene(): void {
     // Create an animation function to rotate the cube
     const animate = () => {
         requestAnimationFrame(animate);
+
+        TWEEN.update();
+        if (playerObject) {
+            controls.target.set(
+                playerObject.position.x,
+                0,
+                playerObject.position.z
+            );
+        }
 
         // Render the scene
         controls.update();
@@ -611,8 +629,8 @@ function raycastFromCamera(event: any) {
             _names.push(intersect.object.name);
         });
 
-        console.log(`Got following intersects: ${JSON.stringify(_names)}`);
-        console.log(intersects);
+        // console.log(`Got following intersects: ${JSON.stringify(_names)}`);
+        // console.log(intersects);
 
         const isOnlyPlaneAndCargo = _names.every(
             (name) =>
@@ -816,237 +834,333 @@ function rescaleOnWindowResize(): void {
     });
 }
 
-async function createObject(data: any) {
+function createDefaultObject(data: any): THREE.Object3D {
+    const boxgeometry = new THREE.BoxGeometry();
+    const boxmaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+    });
+    const defcube = new THREE.Mesh(boxgeometry, boxmaterial);
+    defcube.uuid = data.uuid;
+    defcube.position.set(data.position.x, 0, data.position.y);
+    defcube.name = data.name;
+    objectDataMap[data.uuid] = { data: defcube };
+    scene.add(defcube);
+    return defcube;
+}
+
+function setupAlienObject(model: THREE.Object3D, data: any) {
+    model.uuid = data.uuid;
+    model.position.set(data.position.x, 0, data.position.y);
+    setNameRecursively(model, data.name, data.uuid, rayCastLayerNo);
+
+    const nickBarContainer = document.createElement("div");
+    const nickname = document.createElement("div");
+    nickname.className = "nicknameLabel";
+    nickname.textContent = `${data.name}`;
+
+    const healthBar = document.createElement("div");
+    healthBar.className = "health_bar";
+
+    const hpBar = document.createElement("div");
+    hpBar.className = "hp_health_bar";
+
+    const spBar = document.createElement("div");
+    spBar.className = "sp_health_bar";
+
+    const maxHP = data.maxHealth;
+    const maxSP = data.maxShields;
+
+    hpBar.style.width = `${data.hitPoints.hullPoints / maxHP}`;
+
+    spBar.style.width = `${data.hitPoints.shieldPoints / maxSP}`;
+
+    healthBar.appendChild(hpBar);
+    healthBar.appendChild(spBar);
+
+    nickBarContainer.appendChild(nickname);
+    nickBarContainer.appendChild(healthBar);
+    nickBarContainer.setAttribute("uuid", data.uuid);
+    nickBarContainer.classList.add("nickBarContainer");
+
+    const label = new CSS2DObject(nickBarContainer);
+
+    labelMap[data.uuid] = label;
+    label.position.y = -0.75;
+    (model as any).hitPoints = data.hitPoints;
+    model.add(label);
+    scene.add(model);
+    objectDataMap[data.uuid] = { data: model };
+}
+
+function setupPlayerObject(model: THREE.Object3D, data: any) {
+    model.uuid = data.uuid;
+    model.position.set(data.position.x, 0, data.position.y);
+    setNameRecursively(model, data.name, data.uuid, rayCastLayerNo);
+    if (data.name == playerName) {
+        controls.update();
+    }
+
+    const text = document.createElement("div");
+    text.className = "nicknameLabel";
+    text.style.color = "rgb(255,255,255)";
+    text.style.fontSize = "12";
+    text.textContent = `${data.name}`;
+    const label = new CSS2DObject(text);
+    labelMap[data.uuid] = label;
+    label.position.y = -0.75;
+    label.uuid = data.uuid;
+    (model as any).hitPoints = data.hitPoints;
+    model.add(label);
+    scene.add(model);
+    objectDataMap[data.uuid] = { data: model };
+}
+
+function setupPortalObject(model: THREE.Object3D, data: any) {
+    model.uuid = data.uuid;
+    model.position.set(data.position.x, 0, data.position.y);
+    model.add(createSafeZoneRing(5));
+    setNameRecursively(model, data.name, data.uuid);
+    scene.add(model);
+    model.lookAt(new THREE.Vector3(0, 0, 0));
+    objectDataMap[data.uuid] = { data: model };
+}
+
+function removeCSSChildrenOfObject(object: THREE.Object3D) {
+    let childrenToRemove: THREE.Object3D[] = [];
+    object.traverse((child) => {
+        if (child instanceof CSS2DObject || child.name == "lockOnCirle") {
+            childrenToRemove.push(child);
+        }
+    });
+    for (const child of childrenToRemove) {
+        if (child.parent) {
+            child.parent.remove(child);
+        }
+    }
+}
+
+async function createObject(data: any): Promise<THREE.Object3D> {
     return new Promise(async (resolve) => {
-        // console.log(`Spawning new object: ${data.name}`);
-        const loader = new GLTFLoader();
-        objectDataMap[data.uuid] = { data: null };
-        switch (data._type) {
-            case "Alien":
-                loader.load(
-                    `./assets/models/aliens/${data.name}/${data.name}.glb`,
-                    async (glb) => {
-                        const model = glb.scene;
-                        model.uuid = data.uuid;
-                        model.position.set(data.position.x, 0, data.position.y);
-                        setNameRecursively(
-                            model,
-                            data.name,
-                            data.uuid,
-                            rayCastLayerNo
-                        );
-
-                        const nickBarContainer = document.createElement("div");
-                        const nickname = document.createElement("div");
-                        nickname.className = "nicknameLabel";
-                        nickname.textContent = `${data.name}`;
-
-                        const healthBar = document.createElement("div");
-                        healthBar.className = "health_bar";
-
-                        const hpBar = document.createElement("div");
-                        hpBar.className = "hp_health_bar";
-
-                        const spBar = document.createElement("div");
-                        spBar.className = "sp_health_bar";
-
-                        const maxHP = data.maxHealth;
-                        const maxSP = data.maxShields;
-
-                        hpBar.style.width = `${
-                            data.hitPoints.hullPoints / maxHP
-                        }`;
-
-                        spBar.style.width = `${
-                            data.hitPoints.shieldPoints / maxSP
-                        }`;
-
-                        healthBar.appendChild(hpBar);
-                        healthBar.appendChild(spBar);
-
-                        nickBarContainer.appendChild(nickname);
-                        nickBarContainer.appendChild(healthBar);
-                        nickBarContainer.setAttribute("uuid", data.uuid);
-                        nickBarContainer.classList.add("nickBarContainer");
-
-                        const label = new CSS2DObject(nickBarContainer);
-
-                        labelMap[data.uuid] = label;
-                        label.position.y = -0.75;
-                        (model as any).hitPoints = data.hitPoints;
-                        model.add(label);
-                        scene.add(model);
-                        objectDataMap[data.uuid] = { data: model };
-                        resolve(model);
-                    }
-                );
-                break;
-            case "Player":
-                loader.load(
-                    `./assets/models/ships/${data.activeShipName}/${data.activeShipName}.glb`,
-                    async (glb) => {
-                        const model = glb.scene;
-                        model.uuid = data.uuid;
-                        model.position.set(data.position.x, 0, data.position.y);
-                        setNameRecursively(
-                            model,
-                            data.name,
-                            data.uuid,
-                            rayCastLayerNo
-                        );
-                        if (data.name == playerName) {
-                            controls.update();
-                        }
-
-                        const text = document.createElement("div");
-                        text.className = "nicknameLabel";
-                        text.style.color = "rgb(255,255,255)";
-                        text.style.fontSize = "12";
-                        text.textContent = `${data.name}`;
-                        const label = new CSS2DObject(text);
-                        labelMap[data.uuid] = label;
-                        label.position.y = -0.75;
-                        label.uuid = data.uuid;
-                        (model as any).hitPoints = data.hitPoints;
-                        model.add(label);
-                        scene.add(model);
-                        objectDataMap[data.uuid] = { data: model };
-                        resolve(model);
-                    }
-                );
-                break;
-            case "Portal":
-                loader.load(
-                    `./assets/models/portals/portal.glb`,
-                    async (glb) => {
-                        const model = glb.scene;
-                        model.uuid = data.uuid;
-                        model.position.set(data.position.x, 0, data.position.y);
-                        model.add(createSafeZoneRing(5));
-                        setNameRecursively(model, data.name, data.uuid);
-                        scene.add(model);
-                        model.lookAt(new THREE.Vector3(0, 0, 0));
-                        objectDataMap[data.uuid] = { data: model };
-                        resolve(model);
-                    }
-                );
-                break;
-            case "LaserProjectile":
-                const lineMaterial = new THREE.LineBasicMaterial({
-                    color: data.color,
-                    linewidth: 4,
-                });
-                const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-                    new THREE.Vector3(0, 0, 0),
-                    new THREE.Vector3(0, 0, 1),
-                ]);
-                const line = new THREE.Line(lineGeometry, lineMaterial);
-                line.uuid = data.uuid;
-                line.name = data.name;
-                line.position.set(data.position.x, 0, data.position.y);
-                line.lookAt(data.targetPosition.x, 0, data.targetPosition.y);
-                scene.add(line);
-                objectDataMap[data.uuid] = { data: line };
-
-                const pointLight = new THREE.PointLight(data.color, 0.5, 10);
-                pointLight.position.set(0, 0, 0);
-
-                line.add(pointLight);
-
-                if (currentSounds <= maxConcurrentSounds) {
-                    currentSounds++;
-                    const sound = new THREE.PositionalAudio(audioListener);
-                    sound.setBuffer(laserShootSoundBuffer);
-                    sound.setRefDistance(20);
-                    sound.setVolume(0.3);
-                    sound.onEnded = () => {
-                        currentSounds--;
-                    };
-                    sound.play();
-                    line.add(sound);
-                }
-
-                break;
-            case "RocketProjectile":
-                const rocketMaterial = new THREE.LineBasicMaterial({
-                    color: "red",
-                    linewidth: 16,
-                });
-                const rocketGeometry = new THREE.BufferGeometry().setFromPoints(
-                    [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0.5)]
-                );
-                const rocket = new THREE.Line(rocketGeometry, rocketMaterial);
-                rocket.uuid = data.uuid;
-                rocket.name = data.name;
-                rocket.position.set(data.position.x, 0, data.position.y);
-                rocket.lookAt(data.targetPosition.x, 0, data.targetPosition.y);
-                scene.add(rocket);
-                objectDataMap[data.uuid] = { data: rocket };
-
-                const rocketSound = new THREE.PositionalAudio(audioListener);
-
-                if (currentSounds <= maxConcurrentSounds) {
-                    currentSounds++;
-                    rocketSound.setBuffer(rocketShootSoundBuffer);
-                    rocketSound.setRefDistance(20);
-                    rocketSound.setVolume(0.15);
-                    rocketSound.onEnded = function () {
-                        currentSounds--;
-                    };
-                    rocketSound.play();
-                    rocket.add(rocketSound);
-                }
-
-                break;
-            case "CargoDrop":
-                const cargoDropGeometry = new THREE.BoxGeometry(
-                    0.25,
-                    0.25,
-                    0.25
-                );
-                const cargoDropMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xffff00,
-                });
-                const cargoDrop = new THREE.Mesh(
-                    cargoDropGeometry,
-                    cargoDropMaterial
-                );
-                cargoDrop.uuid = data.uuid;
-                cargoDrop.position.set(data.position.x, -1, data.position.y);
-                objectDataMap[data.uuid] = { data: cargoDrop };
-                cargoDrop.layers.enable(rayCastLayerNo);
-                setNameRecursively(cargoDrop, "CargoDrop", data.uuid);
-                scene.add(cargoDrop);
-                resolve(cargoDrop);
-                break;
-            case "CompanyBase":
-                loader.load(`./assets/models/base/base.glb`, async (glb) => {
+        if (data._type == "Player") {
+            if (objectCache[data.activeShipName]) {
+                const clonedObject =
+                    objectCache[data.activeShipName].clone(true);
+                removeCSSChildrenOfObject(clonedObject);
+            } else {
+                const loader = new GLTFLoader();
+                const modelUrl = `./assets/models/ships/${data.activeShipName}/${data.activeShipName}.glb`;
+                objectDataMap[data.uuid] = { data: null };
+                loader.load(modelUrl, async (glb) => {
                     const model = glb.scene;
-                    model.uuid = data.uuid;
-                    model.position.set(data.position.x, 0, data.position.y);
-                    model.add(createSafeZoneRing(10));
-                    setNameRecursively(model, data.name, data.uuid);
-                    scene.add(model);
-                    model.lookAt(new THREE.Vector3(0, 0, 0));
-                    objectDataMap[data.uuid] = { data: model };
+                    objectCache[data.name] = model;
+                    setupPlayerObject(model, data);
                     resolve(model);
                 });
-                break;
-
-            default:
-                // console.log(data._type);
-                const boxgeometry = new THREE.BoxGeometry();
-                const boxmaterial = new THREE.MeshBasicMaterial({
-                    color: 0x00ff00,
+            }
+        } else {
+            if (objectCache[data.name]) {
+                const clonedObject = objectCache[data.name].clone(true);
+                let childrenToRemove: THREE.Object3D[] = [];
+                clonedObject.traverse((child) => {
+                    if (child instanceof CSS2DObject || child.name == "lockOnCircle") {
+                        childrenToRemove.push(child);
+                    }
                 });
-                const defcube = new THREE.Mesh(boxgeometry, boxmaterial);
-                defcube.uuid = data.uuid;
-                defcube.position.set(data.position.x, 0, data.position.y);
-                defcube.name = data.name;
-                objectDataMap[data.uuid] = { data: defcube };
-                scene.add(defcube);
-                resolve(defcube);
-                break;
+                for (const child of childrenToRemove) {
+                    if (child.parent) {
+                        child.parent.remove(child);
+                    }
+                }
+                switch (data._type) {
+                    case "Alien":
+                        const alien = clonedObject;
+                        setupAlienObject(alien, data);
+                        resolve(alien);
+                        break;
+                    case "Portal":
+                        const portal = clonedObject;
+                        objectCache[data.name] = portal;
+                        setupPortalObject(portal, data);
+                        resolve(portal);
+                        break;
+                    default:
+                        console.log("Unknown data", data);
+                        return;
+                }
+                resolve(clonedObject);
+                return;
+            }
+
+            const loader = new GLTFLoader();
+            objectDataMap[data.uuid] = { data: null };
+
+            let modelUrl = "";
+            switch (data._type) {
+                case "Alien":
+                    modelUrl = `./assets/models/aliens/${data.name}/${data.name}.glb`;
+                    loader.load(modelUrl, async (glb) => {
+                        const model = glb.scene;
+                        objectCache[data.name] = model;
+                        setupAlienObject(model, data);
+                        resolve(model);
+                    });
+                    break;
+                case "Portal":
+                    modelUrl = "./assets/models/portals/portal.glb";
+                    loader.load(modelUrl, async (glb) => {
+                        const model = glb.scene;
+                        objectCache[data.name] = model;
+                        setupPortalObject(model, data);
+                        resolve(model);
+                    });
+                    break;
+                case "LaserProjectile":
+                    const lineMaterial = new THREE.LineBasicMaterial({
+                        color: data.color,
+                        linewidth: 4,
+                    });
+                    const lineGeometry =
+                        new THREE.BufferGeometry().setFromPoints([
+                            new THREE.Vector3(0, 0, 0),
+                            new THREE.Vector3(0, 0, 1),
+                        ]);
+                    const line = new THREE.Line(lineGeometry, lineMaterial);
+                    line.uuid = data.uuid;
+                    line.name = data.name;
+                    line.position.set(data.position.x, 0, data.position.y);
+                    line.lookAt(
+                        data.targetPosition.x,
+                        0,
+                        data.targetPosition.y
+                    );
+                    scene.add(line);
+                    objectDataMap[data.uuid] = { data: line };
+
+                    const pointLight = new THREE.PointLight(
+                        data.color,
+                        0.5,
+                        10
+                    );
+                    pointLight.position.set(0, 0, 0);
+
+                    line.add(pointLight);
+
+                    if (currentSounds <= maxConcurrentSounds) {
+                        currentSounds++;
+                        const sound = new THREE.PositionalAudio(audioListener);
+                        sound.setBuffer(laserShootSoundBuffer);
+                        sound.setRefDistance(20);
+                        sound.setVolume(0.3);
+                        sound.onEnded = () => {
+                            currentSounds--;
+                        };
+                        line.add(sound);
+                        sound.play();
+                    }
+                    break;
+                case "RocketProjectile":
+                    const rocketMaterial = new THREE.LineBasicMaterial({
+                        color: "red",
+                        linewidth: 16,
+                    });
+                    const rocketGeometry =
+                        new THREE.BufferGeometry().setFromPoints([
+                            new THREE.Vector3(0, 0, 0),
+                            new THREE.Vector3(0, 0, 0.5),
+                        ]);
+                    const rocket = new THREE.Line(
+                        rocketGeometry,
+                        rocketMaterial
+                    );
+                    rocket.uuid = data.uuid;
+                    rocket.name = data.name;
+                    rocket.position.set(data.position.x, 0, data.position.y);
+                    rocket.lookAt(
+                        data.targetPosition.x,
+                        0,
+                        data.targetPosition.y
+                    );
+                    scene.add(rocket);
+                    objectDataMap[data.uuid] = { data: rocket };
+
+                    const rocketSound = new THREE.PositionalAudio(
+                        audioListener
+                    );
+
+                    if (currentSounds <= maxConcurrentSounds) {
+                        currentSounds++;
+                        rocketSound.setBuffer(rocketShootSoundBuffer);
+                        rocketSound.setRefDistance(20);
+                        rocketSound.setVolume(0.15);
+                        rocketSound.onEnded = function () {
+                            currentSounds--;
+                        };
+                        rocket.add(rocketSound);
+                        rocketSound.play();
+                    }
+
+                    break;
+                case "CargoDrop":
+                    const cargoDropGeometry = new THREE.BoxGeometry(
+                        0.25,
+                        0.25,
+                        0.25
+                    );
+                    const cargoDropMaterial = new THREE.MeshStandardMaterial({
+                        color: 0xffff00,
+                    });
+                    const cargoDrop = new THREE.Mesh(
+                        cargoDropGeometry,
+                        cargoDropMaterial
+                    );
+                    cargoDrop.uuid = data.uuid;
+                    cargoDrop.position.set(
+                        data.position.x,
+                        -1,
+                        data.position.y
+                    );
+                    objectDataMap[data.uuid] = { data: cargoDrop };
+                    cargoDrop.layers.enable(rayCastLayerNo);
+                    setNameRecursively(cargoDrop, "CargoDrop", data.uuid);
+                    scene.add(cargoDrop);
+                    resolve(cargoDrop);
+                    break;
+                case "Portal":
+                    modelUrl = "./assets/models/portals/portal.glb";
+                    loader.load(modelUrl, async (glb) => {
+                        const model = glb.scene;
+                        // Save to cache for later use
+                        objectCache["Portal"] = model;
+                        // Perform setup steps for Portal
+                        setupPortalObject(model, data);
+                        resolve(model);
+                    });
+                    break;
+                case "CompanyBase":
+                    loader.load(
+                        `./assets/models/base/base.glb`,
+                        async (glb) => {
+                            const model = glb.scene;
+                            model.uuid = data.uuid;
+                            model.position.set(
+                                data.position.x,
+                                0,
+                                data.position.y
+                            );
+                            model.add(createSafeZoneRing(10));
+                            setNameRecursively(model, data.name, data.uuid);
+                            scene.add(model);
+                            model.lookAt(new THREE.Vector3(0, 0, 0));
+                            objectDataMap[data.uuid] = { data: model };
+                            resolve(model);
+                        }
+                    );
+                    break;
+                default:
+                    const defaultObject = createDefaultObject(data);
+                    resolve(defaultObject);
+                    break;
+            }
         }
     });
 }
@@ -1059,6 +1173,20 @@ async function updateObject(object: THREE.Object3D, entity: any) {
     const targetDirection = new THREE.Vector3(posX, 0, posY);
     const distanceSquared =
         (posX - object.position.x) ** 2 + (posY - object.position.z) ** 2;
+
+    function _tween(object: any, targetPos: THREE.Vector3) {
+        const positionTween = new TWEEN.Tween(object.position)
+            .to(
+                {
+                    x: targetPos.x,
+                    y: 0,
+                    z: targetPos.z,
+                },
+                frameTime
+            )
+            .easing(TWEEN.Easing.Linear.None);
+        positionTween.start();
+    }
 
     if (targetUUID) {
         const targetObject = getObjectByUUID(targetUUID);
@@ -1080,20 +1208,15 @@ async function updateObject(object: THREE.Object3D, entity: any) {
     if (name === playerName) {
         if (isFirstUpdateForPlayer) {
             lastEntityPosition = new THREE.Vector3(posX, 0, posY);
-            camera.position.set(posX, camera.position.y, posY);
-            controls.target.copy(targetDirection);
-            object.add(audioListener);
+            // camera.position.set(posX, camera.position.y, posY);
+            // object.add(camera)
+
+            controls.update();
+            controls.target.copy(object.position);
             isFirstUpdateForPlayer = false;
         } else if (lastEntityPosition !== null) {
-            const dx = posX - lastEntityPosition.x;
-            const dz = posY - lastEntityPosition.z;
-            lastEntityPosition.copy(targetDirection);
-            camera.position.add(new THREE.Vector3(dx, 0, dz));
-            controls.target.add(new THREE.Vector3(dx, 0, dz));
         }
-        controls.update();
     }
-
     if (hitPoints) {
         const { hullPoints, shieldPoints } = hitPoints;
         const dhp = (object as any).hitPoints.hullPoints - hullPoints;
@@ -1165,11 +1288,9 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         }
     }
 
-    object.position.copy(
-        name !== "CargoDrop"
-            ? targetDirection
-            : new THREE.Vector3(posX, -1, posY)
-    );
+    if (name !== "CargoDrop") {
+        _tween(object, targetDirection);
+    }
 }
 
 async function deleteObject(uuid: string) {
@@ -1204,11 +1325,13 @@ async function deleteObject(uuid: string) {
         sound.setRefDistance(20);
         sound.setBuffer(laserHitSoundBuffer);
         sound.setVolume(0.7);
+        scene.add(sound);
+        sound.position.copy(object.position);
         sound.onEnded = function () {
             currentSounds--;
+            scene.remove(sound);
         };
         sound.play();
-        object.add(sound);
     } else if (object.name === "rocketProjectile") {
         if (currentSounds <= maxConcurrentSounds) {
             currentSounds++;
@@ -1217,11 +1340,13 @@ async function deleteObject(uuid: string) {
             sound.setRefDistance(20);
             sound.setBuffer(rocketHitSoundBuffer);
             sound.setVolume(0.1);
+            scene.add(sound);
+            sound.position.copy(object.position);
             sound.onEnded = function () {
                 currentSounds--;
+                scene.remove(sound);
             };
             sound.play();
-            object.add(sound);
         }
     }
 
@@ -1232,34 +1357,36 @@ async function deleteObject(uuid: string) {
 }
 
 async function updateObjects(_data: any[]) {
-    let existingUUIDs: string[] = [];
+    const existingUUIDs = new Set<string>();
 
     await Promise.all(
         _data.map(async (entity) => {
-            if (entity.name == playerName) {
-                updatePlayerInfo(entity);
+            if (entity.name === playerName) {
+                await updatePlayerInfo(entity);
             }
             if (objectDataMap.hasOwnProperty(entity.uuid)) {
                 const object = getObjectByUUID(entity.uuid);
                 if (object) {
-                    updateObject(object, entity);
+                    await updateObject(object, entity);
                 } else {
-                    // FIXME: better asyncronous code: we are actually getting errors here
                     // console.log(
-                    //     `WARNING: Could not find object for uuid: ${entity.uuid}`
+                    //     `Could not find object from entity ${entity.uuid}`,
+                    //     entity
                     // );
                 }
             } else {
-                createObject(entity);
+                await createObject(entity);
             }
-            existingUUIDs.push(entity.uuid);
+            existingUUIDs.add(entity.uuid);
         })
     );
 
     await Promise.all(
         Object.keys(objectDataMap)
-            .filter((uuid) => !existingUUIDs.includes(uuid))
-            .map((uuid) => deleteObject(uuid))
+            .filter((uuid) => !existingUUIDs.has(uuid))
+            .map(async (uuid) => {
+                await deleteObject(uuid);
+            })
     );
 }
 
@@ -1356,16 +1483,92 @@ async function updatePlayerInfo(entity: any) {
         simSPElement.textContent = speed;
         simCargoElement.textContent = cargo;
     }
-    if (JSON.stringify(playerInventory) != JSON.stringify(entity.inventory)) {
+
+    async function arraysAreDifferentAsync<T>(
+        arr1: T[],
+        arr2: T[],
+        prop: keyof T
+    ): Promise<boolean> {
+        return new Promise((resolve) => {
+            if (arr1.length !== arr2.length) resolve(true);
+
+            const names1 = arr1.map((item) => item[prop]);
+            const names2 = arr2.map((item) => item[prop]);
+
+            resolve(!names1.every((name, index) => name === names2[index]));
+        });
+    }
+
+    if (!playerInventory) {
         playerInventory = entity.inventory;
-        displayShipsInHangar();
-        displayItemsInWorkroom();
-        displayActiveItems();
+
+        // Directly update the UI if playerInventory was undefined
+        Promise.all([
+            displayShipsInHangar(),
+            displayItemsInWorkroom(),
+            displayActiveItems(),
+        ])
+            .then(() => {
+                console.log("UI updated successfully");
+            })
+            .catch((error) => {
+                console.error(
+                    "An error occurred while updating the UI:",
+                    error
+                );
+            });
+    } else {
+        const shouldUpdateUI = await Promise.all([
+            arraysAreDifferentAsync(
+                playerInventory.lasers,
+                entity.inventory.lasers,
+                "name"
+            ),
+            arraysAreDifferentAsync(
+                playerInventory.shieldGenerators,
+                entity.inventory.shieldGenerators,
+                "name"
+            ),
+            arraysAreDifferentAsync(
+                playerInventory.speedGenerators,
+                entity.inventory.speedGenerators,
+                "name"
+            ),
+            arraysAreDifferentAsync(
+                playerInventory.ammunition,
+                entity.inventory.ammunition,
+                "name"
+            ),
+            arraysAreDifferentAsync(
+                playerInventory.ships,
+                entity.inventory.ships,
+                "name"
+            ),
+        ]).then((results) => results.some((result) => result === true));
+
+        if (shouldUpdateUI) {
+            playerInventory = entity.inventory; // Update playerInventory after the check
+
+            Promise.all([
+                displayShipsInHangar(),
+                displayItemsInWorkroom(),
+                displayActiveItems(),
+            ])
+                .then(() => {
+                    console.log("UI updated successfully");
+                })
+                .catch((error) => {
+                    console.error(
+                        "An error occurred while updating the UI:",
+                        error
+                    );
+                });
+        }
     }
 }
 
 function getObjectByUUID(uuid: string) {
-    return scene.children.find((object) => object.uuid === uuid) || null;
+    return scene.getObjectByProperty("uuid", uuid) || null;
 }
 
 async function createStars() {
@@ -1497,6 +1700,33 @@ async function loadEventListeners() {
             mainThemeMusic.setVolume(parseInt(volumeLevelInput.value) / 100);
         });
     }
+
+    if (refreshTop10ExperienceBtn && refreshTop10HonorBtn) {
+        refreshTop10ExperienceBtn.addEventListener("click", () => {
+            socket.emit("getTop10Experience", playerName);
+        });
+        refreshTop10HonorBtn.addEventListener("click", () => {
+            socket.emit("getTop10Honor", playerName);
+        });
+    }
+
+    // updateObjectsWorker.addEventListener('message', (event) => {
+    //     const { type, payload } = event.data;
+
+    //     switch (type) {
+    //       case 'updatedEntities':
+    //         payload.forEach((updatedEntity: any) => {
+    //           const object = getObjectByUUID(updatedEntity.uuid);
+    //           if (object) {
+    //             updateObject(object, updatedEntity);
+    //           }
+    //         });
+    //         break;
+
+    //       default:
+    //         console.warn(`Unknown message type received: ${type}`);
+    //     }
+    //   });
 }
 
 async function displayShoppingItems() {
@@ -1707,30 +1937,42 @@ async function handleItemAmountChange(
     }
 }
 
-async function displayShipsInHangar() {
-    const categoryContainer = document.getElementById("hangar_storage");
+function displayShipsInHangar(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const categoryContainer = document.getElementById("hangar_storage");
 
-    if (!categoryContainer) {
-        console.error("Category container 'hangar_storage' not found.");
-        return;
-    }
+        if (!categoryContainer) {
+            console.error("Category container 'hangar_storage' not found.");
+            reject(new Error("Category container 'hangar_storage' not found."));
+            return;
+        }
 
-    categoryContainer.innerHTML = "";
+        categoryContainer.innerHTML = "";
 
-    for (const ship of playerInventory.ships) {
-        const hangarItemContainer = createShopItemContainer(
-            ship.name,
-            ship.name
-        );
-        const equipButton = createEquipButton();
+        try {
+            for (const ship of playerInventory.ships) {
+                const hangarItemContainer = createShopItemContainer(
+                    ship.name,
+                    ship.name
+                );
+                const equipButton = createEquipButton();
 
-        hangarItemContainer.appendChild(equipButton);
-        categoryContainer.appendChild(hangarItemContainer);
+                hangarItemContainer.appendChild(equipButton);
+                categoryContainer.appendChild(hangarItemContainer);
 
-        equipButton.addEventListener("click", () => {
-            handleEquipButtonClick(ship.name);
-        });
-    }
+                equipButton.addEventListener("click", () => {
+                    handleEquipButtonClick(ship.name);
+                });
+            }
+            resolve();
+        } catch (error) {
+            console.error(
+                "An error occurred while displaying ships in hangar:",
+                error
+            );
+            reject(error);
+        }
+    });
 }
 
 function createShopItemContainer(itemName: string, iconName: string) {
@@ -1764,82 +2006,123 @@ async function handleEquipButtonClick(itemName: string) {
     });
 }
 
-async function displayItemsInWorkroom() {
-    const categoryContainer = document.getElementById("workroom_storage");
+function displayItemsInWorkroom(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const categoryContainer = document.getElementById("workroom_storage");
 
-    if (!categoryContainer) {
-        console.error("Category container 'workroom_storage' not found.");
-        return;
-    }
-
-    categoryContainer.innerHTML = "";
-
-    function addItemToContainer(item: any) {
-        const workroomItemContainer = createShopItemContainer(
-            item.name,
-            item.name
-        );
-        const equipButton = createEquipButton();
-
-        workroomItemContainer.appendChild(equipButton);
-        if (categoryContainer) {
-            categoryContainer.appendChild(workroomItemContainer);
+        if (!categoryContainer) {
+            console.error("Category container 'workroom_storage' not found.");
+            reject(
+                new Error("Category container 'workroom_storage' not found.")
+            );
+            return;
         }
 
-        equipButton.addEventListener("click", () => {
-            handleEquipButtonClick(item.name);
-        });
-    }
+        categoryContainer.innerHTML = "";
 
-    for (const laser of playerInventory.lasers) {
-        addItemToContainer(laser);
-    }
+        try {
+            function addItemToContainer(item: any) {
+                const workroomItemContainer = createShopItemContainer(
+                    item.name,
+                    item.name
+                );
+                const equipButton = createEquipButton();
 
-    for (const shieldGenerator of playerInventory.shieldGenerators) {
-        addItemToContainer(shieldGenerator);
-    }
+                workroomItemContainer.appendChild(equipButton);
+                if (!categoryContainer) {
+                    console.error(
+                        "Category container 'workroom_storage' not found."
+                    );
+                    reject(
+                        new Error(
+                            "Category container 'workroom_storage' not found."
+                        )
+                    );
+                    return;
+                }
 
-    for (const speedGenerator of playerInventory.speedGenerators) {
-        addItemToContainer(speedGenerator);
-    }
+                categoryContainer.appendChild(workroomItemContainer);
+
+                equipButton.addEventListener("click", () => {
+                    handleEquipButtonClick(item.name);
+                });
+            }
+
+            for (const laser of playerInventory.lasers) {
+                addItemToContainer(laser);
+            }
+
+            for (const shieldGenerator of playerInventory.shieldGenerators) {
+                addItemToContainer(shieldGenerator);
+            }
+
+            for (const speedGenerator of playerInventory.speedGenerators) {
+                addItemToContainer(speedGenerator);
+            }
+
+            resolve();
+        } catch (error) {
+            console.error(
+                "An error occurred while displaying items in workroom:",
+                error
+            );
+            reject(error);
+        }
+    });
 }
 
-async function displayActiveItems() {
-    for (const ship of playerInventory.ships) {
-        if (ship.isActive) {
-            const categoryContainers = [
-                "workroom_active_lasers",
-                "workroom_active_generators",
-                "workroom_active_extras",
-            ];
+function displayActiveItems(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        try {
+            for (const ship of playerInventory.ships) {
+                if (ship.isActive) {
+                    const categoryContainers = [
+                        "workroom_active_lasers",
+                        "workroom_active_generators",
+                        "workroom_active_extras",
+                    ];
 
-            for (const categoryContainerId of categoryContainers) {
-                const categoryContainer =
-                    document.getElementById(categoryContainerId);
+                    for (const categoryContainerId of categoryContainers) {
+                        const categoryContainer =
+                            document.getElementById(categoryContainerId);
 
-                if (categoryContainer) {
-                    categoryContainer.innerHTML = "";
-                    const items = getCategoryItems(ship, categoryContainerId);
-                    items.forEach((item: any) =>
-                        addItemToContainer(item, categoryContainer)
-                    );
+                        if (categoryContainer) {
+                            categoryContainer.innerHTML = "";
+                            const items = getCategoryItems(
+                                ship,
+                                categoryContainerId
+                            );
+                            items.forEach((item: any) =>
+                                addItemToContainer(item, categoryContainer)
+                            );
+                        }
+                    }
                 }
             }
+
+            const categoryContainer4 = document.getElementById("ammo_lasers");
+            const categoryContainer5 = document.getElementById("ammo_rockets");
+
+            if (!categoryContainer4 || !categoryContainer5) {
+                reject(new Error("Ammo category containers not found."));
+                return;
+            }
+
+            clearCategoryContainer(categoryContainer4);
+            clearCategoryContainer(categoryContainer5);
+
+            displayAmmunition(categoryContainer4, "LaserAmmo");
+            displayAmmunition(categoryContainer5, "RocketAmmo");
+
+            resolve();
+        } catch (error) {
+            console.error(
+                "An error occurred while displaying active items:",
+                error
+            );
+            reject(error);
         }
-    }
-
-    const categoryContainer4 = document.getElementById("ammo_lasers");
-    const categoryContainer5 = document.getElementById("ammo_rockets");
-
-    if (!categoryContainer4 || !categoryContainer5) return;
-
-    clearCategoryContainer(categoryContainer4);
-    clearCategoryContainer(categoryContainer5);
-
-    if (categoryContainer4 && categoryContainer5) {
-        displayAmmunition(categoryContainer4, "LaserAmmo");
-        displayAmmunition(categoryContainer5, "RocketAmmo");
-    }
+    });
 }
 
 function clearCategoryContainer(categoryContainer: HTMLElement) {
@@ -1947,8 +2230,8 @@ async function createAndTriggerExplosion(object: THREE.Object3D) {
         sound.onEnded = function () {
             currentSounds--;
         };
-        sound.play();
         scene.add(sound);
+        sound.play();
         sound.position.copy(object.position);
         setTimeout(() => {
             scene.remove(sound);
