@@ -24,7 +24,7 @@ import { QuestServer } from "./QuestServer";
 import { RankingServer } from "./RankingServer";
 import { Worker } from "worker_threads";
 
-export const tickrate = 144;
+export const tickrate = 60;
 
 export class GameServer {
     spacemaps: Spacemaps;
