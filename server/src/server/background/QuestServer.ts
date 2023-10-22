@@ -151,7 +151,9 @@ export class QuestServer {
         for(const key in player.currentActiveQuests) {
             if(player.currentActiveQuests[key].completed) return;
 
-            if(player.currentActiveQuests[key].type.toLowerCase() == "completewithoutorder") {
+            const questType = player.currentActiveQuests[key].type as PossibleQuestType;
+
+            if(questType == "completeWithoutOrder") {
                 for(let _task = 0; _task < player.currentActiveQuests[key].tasks.length; _task++) {
                     const task = player.currentActiveQuests[key].tasks[_task] as TaskCollect;
 
@@ -187,7 +189,9 @@ export class QuestServer {
 
         for (const key in player.currentActiveQuests) {
             if (player.currentActiveQuests[key].completed) return;
-                if (player.currentActiveQuests[key].type.toLowerCase() == "completewithoutorder") {
+
+            const questType = player.currentActiveQuests[key].type as PossibleQuestType;
+                if (questType == "completeWithoutOrder") {
                     for (const _task in player.currentActiveQuests[key].tasks) {
                         const task = player.currentActiveQuests[key].tasks[_task] as TaskKill;
 
@@ -204,7 +208,7 @@ export class QuestServer {
                             }
                         }
                     }
-                } else if (player.currentActiveQuests[key].type.toLowerCase() == "completeinorder") {
+                } else if (questType == "completeInOrder") {
                     for (let _task = 0; _task < player.currentActiveQuests[key].tasks.length; _task++) {
                         const task = player.currentActiveQuests[key].tasks[_task] as TaskKill;
                     
