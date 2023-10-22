@@ -404,7 +404,7 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
                                 notificationContainer.appendChild(
                                     messageContainer
                                 );
-                                console.log(messageContainer.textContent);
+                                // console.log(messageContainer.textContent);
 
                                 setTimeout(() => {
                                     try {
@@ -618,8 +618,8 @@ function raycastFromCamera(event: any) {
             _names.push(intersect.object.name);
         });
 
-        console.log(`Got following intersects: ${JSON.stringify(_names)}`);
-        console.log(intersects);
+        // console.log(`Got following intersects: ${JSON.stringify(_names)}`);
+        // console.log(intersects);
 
         const isOnlyPlaneAndCargo = _names.every(
             (name) =>
@@ -1471,7 +1471,6 @@ async function updatePlayerInfo(entity: any) {
         prop: keyof T
     ): Promise<boolean> {
         return new Promise((resolve) => {
-            // Your existing comparison logic here
             if (arr1.length !== arr2.length) resolve(true);
 
             const names1 = arr1.map((item) => item[prop]);
@@ -1481,38 +1480,10 @@ async function updatePlayerInfo(entity: any) {
         });
     }
 
-    playerInventory = entity.inventory
+    if (!playerInventory) {
+        playerInventory = entity.inventory;
 
-    const shouldUpdateUI = await Promise.all([
-        arraysAreDifferentAsync(
-            playerInventory.lasers,
-            entity.inventory.lasers,
-            "name"
-        ),
-        arraysAreDifferentAsync(
-            playerInventory.shieldGenerators,
-            entity.inventory.shieldGenerators,
-            "name"
-        ),
-        arraysAreDifferentAsync(
-            playerInventory.speedGenerators,
-            entity.inventory.speedGenerators,
-            "name"
-        ),
-        arraysAreDifferentAsync(
-            playerInventory.ammunition,
-            entity.inventory.ammunition,
-            "name"
-        ),
-        arraysAreDifferentAsync(
-            playerInventory.ships,
-            entity.inventory.ships,
-            "name"
-        ),
-    ]).then((results) => results.some((result) => result === true));
-
-    if (shouldUpdateUI) {
-
+        // Directly update the UI if playerInventory was undefined
         Promise.all([
             displayShipsInHangar(),
             displayItemsInWorkroom(),
@@ -1527,6 +1498,53 @@ async function updatePlayerInfo(entity: any) {
                     error
                 );
             });
+    } else {
+        const shouldUpdateUI = await Promise.all([
+            arraysAreDifferentAsync(
+                playerInventory.lasers,
+                entity.inventory.lasers,
+                "name"
+            ),
+            arraysAreDifferentAsync(
+                playerInventory.shieldGenerators,
+                entity.inventory.shieldGenerators,
+                "name"
+            ),
+            arraysAreDifferentAsync(
+                playerInventory.speedGenerators,
+                entity.inventory.speedGenerators,
+                "name"
+            ),
+            arraysAreDifferentAsync(
+                playerInventory.ammunition,
+                entity.inventory.ammunition,
+                "name"
+            ),
+            arraysAreDifferentAsync(
+                playerInventory.ships,
+                entity.inventory.ships,
+                "name"
+            ),
+        ]).then((results) => results.some((result) => result === true));
+
+        if (shouldUpdateUI) {
+            playerInventory = entity.inventory; // Update playerInventory after the check
+
+            Promise.all([
+                displayShipsInHangar(),
+                displayItemsInWorkroom(),
+                displayActiveItems(),
+            ])
+                .then(() => {
+                    console.log("UI updated successfully");
+                })
+                .catch((error) => {
+                    console.error(
+                        "An error occurred while updating the UI:",
+                        error
+                    );
+                });
+        }
     }
 }
 
