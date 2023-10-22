@@ -1,7 +1,7 @@
 {
     "Welcome 1": {
         "name": "Welcome 1",
-        "type": "completeInOrder",
+        "type": "completeWithoutOrder",
         "description": "Welcome Pilot! To show your loyalty, we must see what you are capable of. With our small gift of 50.000 credits, go ahead and buy and equip some lasers and ammo, and bring us any thetys' head! Oh, and find one far away from the base, and show us their cargo!",
         "reward": {
             "stats": {
@@ -19,33 +19,34 @@
         },
         "tasks": [
             {
-                "_type": "fly",
-                "distance": 5000,
-                "map": "any",
-                "completed": "false"
-            },
-            {
                 "_type": "kill",
                 "targetName": "thetys",
                 "amount": 1,
                 "map": "any",
-                "completed": "false"
+                "completed": false
+            },
+            {
+                "_type": "fly",
+                "distance": 5000,
+                "map": "any",
+                "completed": false
             },
             {
                 "_type": "collect",
                 "oreName": "radium",
-                "mapName": "P-1",
+                "map": "any",
                 "amount": 10,
-                "completed": "false"
+                "completed": false
             },
             {
                 "_type": "kill",
                 "targetName": "thetys",
                 "amount": 1,
                 "map": "any",
-                "completed": "false"
+                "completed": false
             }
         ],
-        "requiredLevel": 1
+        "requiredLevel": 1,
+        "completed": false
     }
 }
