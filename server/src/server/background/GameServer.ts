@@ -294,10 +294,7 @@ export class GameServer {
                         player.targetCargoDrop
                     );
 
-                    this.questServer.registerOreCollection({
-                        playerUUID: player.uuid,
-                        cargoDrop: player.targetCargoDrop,
-                    });
+                    this.questServer.registerOreCollection({ playerUUID: player.uuid, cargoDrop: player.targetCargoDrop, map: player.targetCargoDrop.currentMap });
 
                     this.spacemaps[
                         player.targetCargoDrop.currentMap
@@ -384,8 +381,9 @@ export class GameServer {
                         );
 
                         this.questServer.registerAlienKill({
-                            playerUUID: entity.lastAttackedByUUID,
-                            entityName: entity.name,
+                            playerUUID: entity.lastAttackedByUUID, 
+                            entityName: entity.name, 
+                            map: spacemap.name
                         });
                     }
                     if (entity.cargoDrop) {
@@ -597,7 +595,6 @@ export class GameServer {
         );
     }
 
-    // тут
     public async addPlayerCollectCargoDrop(
         cargoDrop: CargoDrop,
         player: Player

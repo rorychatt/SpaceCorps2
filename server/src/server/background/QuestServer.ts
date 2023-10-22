@@ -11,31 +11,65 @@ export const questData = JSON.parse(
 
 export type PossibleQuestType = "completeWithoutOrder" | "completeInOrder";
 
-// переделать interface в class?
-
-// class TaskFly extends Task
-
-interface TaskFly {
-    _type: "TaskFly";
-    distance: number;
-    map: string;
+class Task {
     completed: boolean;
+
+    constructor(completed: boolean) {
+        this.completed = completed;
+    }
 }
 
-interface TaskKill {
-    _type: "TaskKill";
+class TaskFly extends Task {
+    readonly _type: string = "fly";
+    distance: number;
+    map: string;
+
+    constructor(distance: number, map: string, completed: boolean) {
+        super(completed);
+
+        this.distance = distance;
+        this.map = map;
+    }
+}
+
+class TaskKill extends Task {
+    readonly _type: string = "kill";
     targetName: string;
     amount: number;
     map: string;
-    completed: boolean;
+
+    constructor(
+        targetName: string,
+        amount: number,
+        map: string,
+        completed: boolean
+    ) {
+        super(completed);
+
+        this.targetName = targetName;
+        this.amount = amount;
+        this.map = map;
+    }
 }
 
-interface TaskCollect {
-    _type: "TaskCollect";
+class TaskCollect extends Task {
+    readonly _type: string = "collect";
     oreName: string;
-    mapName: string;
+    map: string;
     amount: number;
-    completed: boolean;
+
+    constructor(
+        oreName: string,
+        map: string,
+        amount: number,
+        completed: boolean
+    ) {
+        super(completed);
+
+        this.oreName = oreName;
+        this.map = map;
+        this.amount = amount;
+    }
 }
 
 type QuestTask = TaskCollect | TaskFly | TaskKill;
@@ -64,7 +98,7 @@ export class Quest {
         this.reward = reward;
         this.tasks = tasks;
         this.requiredLevel = requiredLevel;
-        this.completed = false;
+        this.completed = completed;
     }
 }
 
@@ -78,7 +112,7 @@ export class QuestServer {
                 questInfo.name,
                 questInfo.type,
                 questInfo.reward,
-                questInfo.task,
+                questInfo.tasks,
                 questInfo.requiredLevel,
                 questInfo.completed
             );
@@ -92,13 +126,13 @@ export class QuestServer {
         if (!player) return console.log(`Can't find player: ${player}`);
 
         for (let i = 0; i < gameServer.questServer.quests.length; i++) {
-            for (let j = 0; j < player.currentActiveQuests.length; j++)
-                if (player.currentActiveQuests[j].name == questName)
-                    return console.log(`Quest: ${questName} already active`);
             if (player.currentActiveQuests.length >= maxQuestsPerPlayer)
                 return console.log(
                     `Max amount of quests per player: ${maxQuestsPerPlayer}`
                 );
+            for (let j = 0; j < player.currentActiveQuests.length; j++)
+                if (player.currentActiveQuests[j].name == questName)
+                    return console.log(`Quest: ${questName} already active`);
             if (gameServer.questServer.quests[i].name == questName)
                 player.addQuest(gameServer.questServer.quests[i]);
         }
@@ -107,69 +141,105 @@ export class QuestServer {
     async registerOreCollection(data: {
         playerUUID: string;
         cargoDrop: CargoDrop;
+        map: string;
     }) {
-        // let player = await gameServer.getPlayerByUUID(data.playerUUID);
+        const player = await gameServer.getPlayerByUUID(data.playerUUID);
 
-        // if (!player) return console.log(`Can't find player: ${player}`);
-        // if (player.currentActiveQuests.length <= 0) return;
+        if(!player) return console.log(`Can't find player: ${player}`);
+        if(player.currentActiveQuests.length <= 0) return;
+        
+        for(const key in player.currentActiveQuests) {
+            if(player.currentActiveQuests[key].completed) return;
 
-        // for (let i = 0; i < player.currentActiveQuests.length; i++) {
-        //     for (let j = 0; j < data.cargoDrop.ores.length; j++) {
-        //         for (
-        //             let k = 0;
-        //             k < player.currentActiveQuests[i].task.collect.length;
-        //             k++
-        //         ) {
-        //             if (
-        //                 data.cargoDrop.ores[i].name ==
-        //                 player.currentActiveQuests[i].task.collect[k].oreName
-        //             ) {
-        //                 if (
-        //                     data.cargoDrop.ores[i].amount >=
-        //                     player.currentActiveQuests[i].task.collect[k].amount
-        //                 ) {
-        //                     player.currentActiveQuests[i].task.collect[
-        //                         k
-        //                     ].completed = true;
-        //                 }
-        //             }
-        //         }
-        //     }
+            const questType = player.currentActiveQuests[key].type as PossibleQuestType;
 
-        //     this.checkForQuestComplete(
-        //         player,
-        //         player.currentActiveQuests[i].name
-        //     );
-        // }
+            if(questType == "completeWithoutOrder") {
+                for(let _task = 0; _task < player.currentActiveQuests[key].tasks.length; _task++) {
+                    const task = player.currentActiveQuests[key].tasks[_task] as TaskCollect;
+
+                    if(!task.completed) {
+                        if(task._type == "collect") {
+                            for(const _cargoDrop in data.cargoDrop.ores) {
+                                if(data.map == task.map || task.map == "any") {
+                                    if(data.cargoDrop.ores[_cargoDrop].name == task.oreName) {
+                                        // доделать
+                                        return this.checkForQuestComplete(
+                                            player,
+                                            player.currentActiveQuests[key].name
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    async registerAlienKill(data: { playerUUID: string; entityName: string }) {
-        // const player = await gameServer.getPlayerByUUID(data.playerUUID);
+    async registerAlienKill(data: {
+        playerUUID: string;
+        entityName: string;
+        map: string;
+    }) {
+        const player = await gameServer.getPlayerByUUID(data.playerUUID);
 
-        // if (!player) return console.log(`Can't find player: ${player}`);
-        // if (player.currentActiveQuests.length <= 0) return;
+        if (!player) return console.log(`Can't find player: ${player}`);
+        if (player.currentActiveQuests.length <= 0) return;
 
-        // for (let i = 0; i < player.currentActiveQuests.length; i++) {
-        //     for (
-        //         let j = 0;
-        //         j < player.currentActiveQuests[i].task.kill.length;
-        //         j++
-        //     ) {
-        //         if (!player.currentActiveQuests[i].task.kill) return;
-        //         if (
-        //             player.currentActiveQuests[i].task.kill[j].targetName !==
-        //             data.entityName
-        //         )
-        //             return;
+        for (const key in player.currentActiveQuests) {
+            if (player.currentActiveQuests[key].completed) return;
 
-        //         player.currentActiveQuests[i].task.kill[j].completed = true;
-        //     }
+            const questType = player.currentActiveQuests[key].type as PossibleQuestType;
+                if (questType == "completeWithoutOrder") {
+                    for (const _task in player.currentActiveQuests[key].tasks) {
+                        const task = player.currentActiveQuests[key].tasks[_task] as TaskKill;
 
-        //     this.checkForQuestComplete(
-        //         player,
-        //         player.currentActiveQuests[i].name
-        //     );
-        // }
+                        if(!task.completed) {
+                            if (task._type == "kill") {
+                                if (task.targetName == data.entityName) {
+                                    if (task.map == data.map || task.map == "any") {
+                                        return this.checkForQuestComplete(
+                                            player,
+                                            player.currentActiveQuests[key].name
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else if (questType == "completeInOrder") {
+                    for (let _task = 0; _task < player.currentActiveQuests[key].tasks.length; _task++) {
+                        const task = player.currentActiveQuests[key].tasks[_task] as TaskKill;
+                    
+                        if (_task == 0 && !task.completed) {
+                            if (task._type == "kill") {
+                                if (task.targetName == data.entityName) {
+                                    if (data.map == task.map || task.map == "any") {
+                                        return this.checkForQuestComplete(
+                                            player,
+                                            player.currentActiveQuests[key].name
+                                        );
+                                    }
+                                }
+                            }
+                        } else if (!task.completed) {
+                            if (!player.currentActiveQuests[key].tasks[_task - 1].completed) console.log("prev quest not completed");
+                            
+                            if(task._type == "kill") {
+                                if (task.targetName == data.entityName) {
+                                    if (data.map == task.map || task.map === "any") {
+                                        return this.checkForQuestComplete(
+                                            player,
+                                            player.currentActiveQuests[key].name
+                                        );
+                                    }
+                                }
+                            } 
+                        }
+                    }
+                }
+        }
     }
 
     // доделать
@@ -180,45 +250,46 @@ export class QuestServer {
     }) {}
 
     async checkForQuestComplete(player: Player, questName: string) {
-    //     for (let i = 0; i < player.completedQuests.length; i++)
-    //         if (player.completedQuests[i].questName == questName)
-    //             return console.log(`Quest: ${questName} already completed!`);
+        console.log(`Player: ${player.name}, completed quest: ${questName}`);
+        //     for (let i = 0; i < player.completedQuests.length; i++)
+        //         if (player.completedQuests[i].questName == questName)
+        //             return console.log(`Quest: ${questName} already completed!`);
 
-    //     for (let i = 0; i < player.currentActiveQuests.length; i++) {
-    //         if (player.currentActiveQuests[i].name == questName) {
-    //             if (
-    //                 player.currentActiveQuests[i].task.collect[0].completed ==
-    //                     true &&
-    //                 player.currentActiveQuests[i].task.kill[0].completed ==
-    //                     true &&
-    //                 player.currentActiveQuests[i].task.fly[0].completed == true
-    //             ) {
-    //                 player.completeQuest(player.currentActiveQuests[i]);
-    //                 player.currentActiveQuests.splice(i, 1);
+        //     for (let i = 0; i < player.currentActiveQuests.length; i++) {
+        //         if (player.currentActiveQuests[i].name == questName) {
+        //             if (
+        //                 player.currentActiveQuests[i].task.collect[0].completed ==
+        //                     true &&
+        //                 player.currentActiveQuests[i].task.kill[0].completed ==
+        //                     true &&
+        //                 player.currentActiveQuests[i].task.fly[0].completed == true
+        //             ) {
+        //                 player.completeQuest(player.currentActiveQuests[i]);
+        //                 player.currentActiveQuests.splice(i, 1);
 
-    //                 if (player.currentActiveQuests[i].reward.stats.credits)
-    //                     gameServer.rewardServer.registerCreditsReward(
-    //                         player.uuid,
-    //                         player.currentActiveQuests[i].reward.stats.credits
-    //                     );
-    //                 if (player.currentActiveQuests[i].reward.stats.thulium)
-    //                     gameServer.rewardServer.registerThuliumReward(
-    //                         player.uuid,
-    //                         player.currentActiveQuests[i].reward.stats.thulium
-    //                     );
-    //                 if (player.currentActiveQuests[i].reward.stats.experience)
-    //                     gameServer.rewardServer.registerExperienceReward(
-    //                         player.uuid,
-    //                         player.currentActiveQuests[i].reward.stats
-    //                             .experience
-    //                     );
-    //                 if (player.currentActiveQuests[i].reward.stats.honor)
-    //                     gameServer.rewardServer.registerHonorReward(
-    //                         player.uuid,
-    //                         player.currentActiveQuests[i].reward.stats.honor
-    //                     );
-    //             }
-    //         }
-    //     }
+        //                 if (player.currentActiveQuests[i].reward.stats.credits)
+        //                     gameServer.rewardServer.registerCreditsReward(
+        //                         player.uuid,
+        //                         player.currentActiveQuests[i].reward.stats.credits
+        //                     );
+        //                 if (player.currentActiveQuests[i].reward.stats.thulium)
+        //                     gameServer.rewardServer.registerThuliumReward(
+        //                         player.uuid,
+        //                         player.currentActiveQuests[i].reward.stats.thulium
+        //                     );
+        //                 if (player.currentActiveQuests[i].reward.stats.experience)
+        //                     gameServer.rewardServer.registerExperienceReward(
+        //                         player.uuid,
+        //                         player.currentActiveQuests[i].reward.stats
+        //                             .experience
+        //                     );
+        //                 if (player.currentActiveQuests[i].reward.stats.honor)
+        //                     gameServer.rewardServer.registerHonorReward(
+        //                         player.uuid,
+        //                         player.currentActiveQuests[i].reward.stats.honor
+        //                     );
+        //             }
+        //         }
+        //     }
     }
 }
