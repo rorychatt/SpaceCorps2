@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "1.5.59",
+  "version": "1.5.60",
   "description": "",
   "type": "module",
   "main": "index.js",
