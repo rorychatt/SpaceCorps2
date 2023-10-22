@@ -1,6 +1,4 @@
-// @ts-ignore
-export const socket = io("http://localhost:3000");
-
+// Import Statements
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -10,6 +8,10 @@ import {
     // @ts-ignore
 } from "./three/addons/renderers/CSS2DRenderer.js";
 
+// @ts-ignore
+export const socket = io("http://localhost:3000");
+
+// HTML Elements
 let loginDiv = document.getElementById("loginDiv") as HTMLElement;
 let spacemapDiv = document.getElementById("spacemapDiv") as HTMLElement;
 let contentDiv = document.getElementById("content") as HTMLElement;
@@ -17,9 +19,9 @@ let uiDiv = document.querySelector(".ui") as HTMLElement;
 let consoleBtn = document.querySelector(".console_button") as HTMLElement;
 let gameVersionDiv = document.getElementById("gameversion") as HTMLElement;
 let quests100qDiv = document.getElementById("quest_100q") as HTMLElement;
+let entityLabelsDiv = document.getElementById("entityLabelsDiv");
 
-let playerEntity: any;
-
+// UI Elements
 const creditsElement = document.getElementById("credits_value");
 const thuliumElement = document.getElementById("thulium_value");
 const experienceElement = document.getElementById("experience_value");
@@ -27,18 +29,15 @@ const honorElement = document.getElementById("honor_value");
 const notificationContainer = document.getElementById("notification_container");
 const prestigeElement = document.getElementById("prestige_value");
 const levelElement = document.getElementById("player_level_div");
-
 const simHPElement = document.getElementById("sim_hitpoints");
 const simSPElement = document.getElementById("sim_speed");
 const simSHElement = document.getElementById("sim_shieldpoints");
 const simCargoElement = document.getElementById("sim_cargo");
-
 const volumeLevelInput = document.getElementById(
     "volumeLevelInput"
 ) as HTMLInputElement | null;
 
-let entityLabelsDiv = document.getElementById("entityLabelsDiv");
-
+// Settings Elements
 const switchCheckbox: HTMLInputElement | null = document.querySelector(
     "#setting_switch_antialiasing .chk"
 );
@@ -47,6 +46,7 @@ const volumeValue: HTMLInputElement | null =
 const saveSettingsBtn: HTMLElement | null =
     document.getElementById("save_settings_btn");
 
+// Buttons
 const refreshTop10HonorBtn = document.getElementById("getTop10HonorBtn") as
     | HTMLButtonElement
     | undefined;
@@ -54,63 +54,58 @@ const refreshTop10ExperienceBtn = document.getElementById(
     "getTop10ExperienceBtn"
 ) as HTMLButtonElement | undefined;
 
-const objectCache: Record<string, THREE.Group> = {};
-
-if (refreshTop10ExperienceBtn && refreshTop10HonorBtn) {
-    refreshTop10ExperienceBtn.addEventListener("click", () => {
-        socket.emit("getTop10Experience", playerName);
-    });
-    refreshTop10HonorBtn.addEventListener("click", () => {
-        socket.emit("getTop10Honor", playerName);
-    });
-}
-
-let shoppingData: any;
-let playerInventory: any;
-
-let playerName: string;
-
+// Three.js Objects
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
 let renderer: THREE.Renderer;
-let currentMap: any;
 let controls: OrbitControls;
 let canvas: HTMLCanvasElement | null;
-
-let playerObject: THREE.Object3D | undefined = undefined;
 let audioListener: THREE.AudioListener;
-
 let labelRenderer: CSS2DRenderer;
+let lockOnCircle: THREE.Object3D | null;
 
+// Player Data
+let playerEntity: any;
+let playerName: string;
+let playerObject: THREE.Object3D | undefined = undefined;
+let lastEntityPosition: THREE.Vector3 | null = null;
+let isFirstUpdateForPlayer: boolean = true; // flag to identify the first update for the player
+
+// Game Data
+let shoppingData: any;
+let playerInventory: any;
+let currentMap: any;
+const objectCache: Record<string, THREE.Group> = {};
+const objectDataMap: Record<string, { data: any }> = {};
+const labelMap: Record<string, CSS2DObject> = {};
+
+// Chat and Console
 let sendChatMessageButton: HTMLElement | null;
 let chatModalContent: HTMLElement | null;
 let chatModalInput: HTMLInputElement | null;
 let sendConsoleMessageButton: HTMLElement | null;
 let consoleContent: HTMLElement | null;
 let consoleInput: HTMLInputElement | null;
-let lockOnCircle: THREE.Object3D | null;
 
-let lastEntityPosition: THREE.Vector3 | null = null;
-let isFirstUpdateForPlayer: boolean = true; // flag to identify the first update for the player
+// Audio
 let mainThemeMusic: THREE.Audio;
-
-const rayCastLayerNo = 1;
-const particles: any[] = [];
-const damageIndicators: any[] = [];
-
-const objectDataMap: Record<string, { data: any }> = {};
-const labelMap: Record<string, CSS2DObject> = {};
-
-const raycaster = new THREE.Raycaster();
-
-const maxConcurrentSounds = 6;
-let currentSounds: number = 0;
-
 let explosionSoundBuffer: AudioBuffer,
     laserShootSoundBuffer: AudioBuffer,
     rocketShootSoundBuffer: AudioBuffer,
     laserHitSoundBuffer: AudioBuffer,
     rocketHitSoundBuffer: AudioBuffer;
+
+// Misc
+const raycaster = new THREE.Raycaster();
+const rayCastLayerNo = 1;
+const particles: any[] = [];
+const damageIndicators: any[] = [];
+const maxConcurrentSounds = 6;
+let currentSounds: number = 0;
+let isUpdating: boolean = false;
+
+// Web Workers
+// const updateObjectsWorker = new Worker("updateObjectsWorker.js");
 
 raycaster.layers.set(rayCastLayerNo);
 setupSoundBuffers();
@@ -198,18 +193,28 @@ socket.on("serverMessage", (data: { type: string; message: string }) => {
 
 socket.on(
     "mapData",
-    (data: {
+    async (data: {
         name: string;
         entities: any[];
         projectiles: any[];
         cargoboxes: any[];
         size: { width: number; height: number };
     }) => {
+        if (isUpdating) {
+            console.warn(`Skipping tick due to client performance issues`);
+        }
+        isUpdating = true;
         if (!currentMap || currentMap.name != data.name) {
             loadNewSpacemap(data);
         }
-        updateObjects(data.entities.concat(data.projectiles, data.cargoboxes));
-        playerObject = scene.getObjectByName(playerName);
+        Promise.resolve(
+            updateObjects(
+                data.entities.concat(data.projectiles, data.cargoboxes)
+            )
+        ).then(() => {
+            playerObject = scene.getObjectByName(playerName);
+            isUpdating = false;
+        });
     }
 );
 
@@ -927,7 +932,8 @@ async function createObject(data: any): Promise<THREE.Object3D> {
     return new Promise(async (resolve) => {
         if (data._type == "Player") {
             if (objectCache[data.activeShipName]) {
-                const clonedObject = objectCache[data.activeShipName].clone(true);
+                const clonedObject =
+                    objectCache[data.activeShipName].clone(true);
                 removeCSSChildrenOfObject(clonedObject);
             } else {
                 const loader = new GLTFLoader();
@@ -1332,34 +1338,36 @@ async function deleteObject(uuid: string) {
 }
 
 async function updateObjects(_data: any[]) {
-    let existingUUIDs: string[] = [];
+    const existingUUIDs = new Set<string>();
 
     await Promise.all(
         _data.map(async (entity) => {
-            if (entity.name == playerName) {
-                updatePlayerInfo(entity);
+            if (entity.name === playerName) {
+                await updatePlayerInfo(entity);
             }
             if (objectDataMap.hasOwnProperty(entity.uuid)) {
                 const object = getObjectByUUID(entity.uuid);
                 if (object) {
-                    updateObject(object, entity);
+                    await updateObject(object, entity);
                 } else {
-                    // FIXME: better asyncronous code: we are actually getting errors here
                     // console.log(
-                    //     `WARNING: Could not find object for uuid: ${entity.uuid}`
+                    //     `Could not find object from entity ${entity.uuid}`,
+                    //     entity
                     // );
                 }
             } else {
-                createObject(entity);
+                await createObject(entity);
             }
-            existingUUIDs.push(entity.uuid);
+            existingUUIDs.add(entity.uuid);
         })
     );
 
     await Promise.all(
         Object.keys(objectDataMap)
-            .filter((uuid) => !existingUUIDs.includes(uuid))
-            .map((uuid) => deleteObject(uuid))
+            .filter((uuid) => !existingUUIDs.has(uuid))
+            .map(async (uuid) => {
+                await deleteObject(uuid);
+            })
     );
 }
 
@@ -1456,16 +1464,74 @@ async function updatePlayerInfo(entity: any) {
         simSPElement.textContent = speed;
         simCargoElement.textContent = cargo;
     }
-    if (JSON.stringify(playerInventory) != JSON.stringify(entity.inventory)) {
-        playerInventory = entity.inventory;
-        displayShipsInHangar();
-        displayItemsInWorkroom();
-        displayActiveItems();
+
+    async function arraysAreDifferentAsync<T>(
+        arr1: T[],
+        arr2: T[],
+        prop: keyof T
+    ): Promise<boolean> {
+        return new Promise((resolve) => {
+            // Your existing comparison logic here
+            if (arr1.length !== arr2.length) resolve(true);
+
+            const names1 = arr1.map((item) => item[prop]);
+            const names2 = arr2.map((item) => item[prop]);
+
+            resolve(!names1.every((name, index) => name === names2[index]));
+        });
+    }
+
+    playerInventory = entity.inventory
+
+    const shouldUpdateUI = await Promise.all([
+        arraysAreDifferentAsync(
+            playerInventory.lasers,
+            entity.inventory.lasers,
+            "name"
+        ),
+        arraysAreDifferentAsync(
+            playerInventory.shieldGenerators,
+            entity.inventory.shieldGenerators,
+            "name"
+        ),
+        arraysAreDifferentAsync(
+            playerInventory.speedGenerators,
+            entity.inventory.speedGenerators,
+            "name"
+        ),
+        arraysAreDifferentAsync(
+            playerInventory.ammunition,
+            entity.inventory.ammunition,
+            "name"
+        ),
+        arraysAreDifferentAsync(
+            playerInventory.ships,
+            entity.inventory.ships,
+            "name"
+        ),
+    ]).then((results) => results.some((result) => result === true));
+
+    if (shouldUpdateUI) {
+
+        Promise.all([
+            displayShipsInHangar(),
+            displayItemsInWorkroom(),
+            displayActiveItems(),
+        ])
+            .then(() => {
+                console.log("UI updated successfully");
+            })
+            .catch((error) => {
+                console.error(
+                    "An error occurred while updating the UI:",
+                    error
+                );
+            });
     }
 }
 
 function getObjectByUUID(uuid: string) {
-    return scene.children.find((object) => object.uuid === uuid) || null;
+    return scene.getObjectByProperty("uuid", uuid) || null;
 }
 
 async function createStars() {
@@ -1597,6 +1663,33 @@ async function loadEventListeners() {
             mainThemeMusic.setVolume(parseInt(volumeLevelInput.value) / 100);
         });
     }
+
+    if (refreshTop10ExperienceBtn && refreshTop10HonorBtn) {
+        refreshTop10ExperienceBtn.addEventListener("click", () => {
+            socket.emit("getTop10Experience", playerName);
+        });
+        refreshTop10HonorBtn.addEventListener("click", () => {
+            socket.emit("getTop10Honor", playerName);
+        });
+    }
+
+    // updateObjectsWorker.addEventListener('message', (event) => {
+    //     const { type, payload } = event.data;
+
+    //     switch (type) {
+    //       case 'updatedEntities':
+    //         payload.forEach((updatedEntity: any) => {
+    //           const object = getObjectByUUID(updatedEntity.uuid);
+    //           if (object) {
+    //             updateObject(object, updatedEntity);
+    //           }
+    //         });
+    //         break;
+
+    //       default:
+    //         console.warn(`Unknown message type received: ${type}`);
+    //     }
+    //   });
 }
 
 async function displayShoppingItems() {
@@ -1807,30 +1900,42 @@ async function handleItemAmountChange(
     }
 }
 
-async function displayShipsInHangar() {
-    const categoryContainer = document.getElementById("hangar_storage");
+function displayShipsInHangar(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const categoryContainer = document.getElementById("hangar_storage");
 
-    if (!categoryContainer) {
-        console.error("Category container 'hangar_storage' not found.");
-        return;
-    }
+        if (!categoryContainer) {
+            console.error("Category container 'hangar_storage' not found.");
+            reject(new Error("Category container 'hangar_storage' not found."));
+            return;
+        }
 
-    categoryContainer.innerHTML = "";
+        categoryContainer.innerHTML = "";
 
-    for (const ship of playerInventory.ships) {
-        const hangarItemContainer = createShopItemContainer(
-            ship.name,
-            ship.name
-        );
-        const equipButton = createEquipButton();
+        try {
+            for (const ship of playerInventory.ships) {
+                const hangarItemContainer = createShopItemContainer(
+                    ship.name,
+                    ship.name
+                );
+                const equipButton = createEquipButton();
 
-        hangarItemContainer.appendChild(equipButton);
-        categoryContainer.appendChild(hangarItemContainer);
+                hangarItemContainer.appendChild(equipButton);
+                categoryContainer.appendChild(hangarItemContainer);
 
-        equipButton.addEventListener("click", () => {
-            handleEquipButtonClick(ship.name);
-        });
-    }
+                equipButton.addEventListener("click", () => {
+                    handleEquipButtonClick(ship.name);
+                });
+            }
+            resolve();
+        } catch (error) {
+            console.error(
+                "An error occurred while displaying ships in hangar:",
+                error
+            );
+            reject(error);
+        }
+    });
 }
 
 function createShopItemContainer(itemName: string, iconName: string) {
@@ -1864,82 +1969,123 @@ async function handleEquipButtonClick(itemName: string) {
     });
 }
 
-async function displayItemsInWorkroom() {
-    const categoryContainer = document.getElementById("workroom_storage");
+function displayItemsInWorkroom(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const categoryContainer = document.getElementById("workroom_storage");
 
-    if (!categoryContainer) {
-        console.error("Category container 'workroom_storage' not found.");
-        return;
-    }
-
-    categoryContainer.innerHTML = "";
-
-    function addItemToContainer(item: any) {
-        const workroomItemContainer = createShopItemContainer(
-            item.name,
-            item.name
-        );
-        const equipButton = createEquipButton();
-
-        workroomItemContainer.appendChild(equipButton);
-        if (categoryContainer) {
-            categoryContainer.appendChild(workroomItemContainer);
+        if (!categoryContainer) {
+            console.error("Category container 'workroom_storage' not found.");
+            reject(
+                new Error("Category container 'workroom_storage' not found.")
+            );
+            return;
         }
 
-        equipButton.addEventListener("click", () => {
-            handleEquipButtonClick(item.name);
-        });
-    }
+        categoryContainer.innerHTML = "";
 
-    for (const laser of playerInventory.lasers) {
-        addItemToContainer(laser);
-    }
+        try {
+            function addItemToContainer(item: any) {
+                const workroomItemContainer = createShopItemContainer(
+                    item.name,
+                    item.name
+                );
+                const equipButton = createEquipButton();
 
-    for (const shieldGenerator of playerInventory.shieldGenerators) {
-        addItemToContainer(shieldGenerator);
-    }
+                workroomItemContainer.appendChild(equipButton);
+                if (!categoryContainer) {
+                    console.error(
+                        "Category container 'workroom_storage' not found."
+                    );
+                    reject(
+                        new Error(
+                            "Category container 'workroom_storage' not found."
+                        )
+                    );
+                    return;
+                }
 
-    for (const speedGenerator of playerInventory.speedGenerators) {
-        addItemToContainer(speedGenerator);
-    }
+                categoryContainer.appendChild(workroomItemContainer);
+
+                equipButton.addEventListener("click", () => {
+                    handleEquipButtonClick(item.name);
+                });
+            }
+
+            for (const laser of playerInventory.lasers) {
+                addItemToContainer(laser);
+            }
+
+            for (const shieldGenerator of playerInventory.shieldGenerators) {
+                addItemToContainer(shieldGenerator);
+            }
+
+            for (const speedGenerator of playerInventory.speedGenerators) {
+                addItemToContainer(speedGenerator);
+            }
+
+            resolve();
+        } catch (error) {
+            console.error(
+                "An error occurred while displaying items in workroom:",
+                error
+            );
+            reject(error);
+        }
+    });
 }
 
-async function displayActiveItems() {
-    for (const ship of playerInventory.ships) {
-        if (ship.isActive) {
-            const categoryContainers = [
-                "workroom_active_lasers",
-                "workroom_active_generators",
-                "workroom_active_extras",
-            ];
+function displayActiveItems(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        try {
+            for (const ship of playerInventory.ships) {
+                if (ship.isActive) {
+                    const categoryContainers = [
+                        "workroom_active_lasers",
+                        "workroom_active_generators",
+                        "workroom_active_extras",
+                    ];
 
-            for (const categoryContainerId of categoryContainers) {
-                const categoryContainer =
-                    document.getElementById(categoryContainerId);
+                    for (const categoryContainerId of categoryContainers) {
+                        const categoryContainer =
+                            document.getElementById(categoryContainerId);
 
-                if (categoryContainer) {
-                    categoryContainer.innerHTML = "";
-                    const items = getCategoryItems(ship, categoryContainerId);
-                    items.forEach((item: any) =>
-                        addItemToContainer(item, categoryContainer)
-                    );
+                        if (categoryContainer) {
+                            categoryContainer.innerHTML = "";
+                            const items = getCategoryItems(
+                                ship,
+                                categoryContainerId
+                            );
+                            items.forEach((item: any) =>
+                                addItemToContainer(item, categoryContainer)
+                            );
+                        }
+                    }
                 }
             }
+
+            const categoryContainer4 = document.getElementById("ammo_lasers");
+            const categoryContainer5 = document.getElementById("ammo_rockets");
+
+            if (!categoryContainer4 || !categoryContainer5) {
+                reject(new Error("Ammo category containers not found."));
+                return;
+            }
+
+            clearCategoryContainer(categoryContainer4);
+            clearCategoryContainer(categoryContainer5);
+
+            displayAmmunition(categoryContainer4, "LaserAmmo");
+            displayAmmunition(categoryContainer5, "RocketAmmo");
+
+            resolve();
+        } catch (error) {
+            console.error(
+                "An error occurred while displaying active items:",
+                error
+            );
+            reject(error);
         }
-    }
-
-    const categoryContainer4 = document.getElementById("ammo_lasers");
-    const categoryContainer5 = document.getElementById("ammo_rockets");
-
-    if (!categoryContainer4 || !categoryContainer5) return;
-
-    clearCategoryContainer(categoryContainer4);
-    clearCategoryContainer(categoryContainer5);
-
-    if (categoryContainer4 && categoryContainer5) {
-        displayAmmunition(categoryContainer4, "LaserAmmo");
-        displayAmmunition(categoryContainer5, "RocketAmmo");
-    }
+    });
 }
 
 function clearCategoryContainer(categoryContainer: HTMLElement) {
