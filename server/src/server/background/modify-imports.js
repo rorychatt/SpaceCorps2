@@ -134,6 +134,11 @@ function fixThreeImport() {
             ` } from "/three/addons/renderers/CSS2DRenderer.js";`
         );
 
+        modifiedData = modifiedData.replace(
+            `import * as TWEEN from "@tweenjs/tween.js"`,
+            `import * as TWEEN from "/tween"`
+        );
+
         writeFile("./dist/web/ts/gameLogic.js", modifiedData, (err) => {
             if (err) {
                 console.error(`Error writing file: ${err}`);

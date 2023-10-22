@@ -11,5 +11,6 @@ server/dist/web/ts/*
 !server/dist/web/ts/OrbitControls.js
 !server/dist/web/ts/GLTFLoader.js
 !server/dist/web/ts/CSS2DRenderer.js
+!server/dist/web/ts/tween.js
 config.json
 temp

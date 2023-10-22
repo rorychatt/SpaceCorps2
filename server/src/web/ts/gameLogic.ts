@@ -7,7 +7,7 @@ import {
     CSS2DObject,
     // @ts-ignore
 } from "./three/addons/renderers/CSS2DRenderer.js";
-
+import * as TWEEN from "@tweenjs/tween.js";
 // @ts-ignore
 export const socket = io("http://localhost:3000");
 
@@ -103,6 +103,8 @@ const damageIndicators: any[] = [];
 const maxConcurrentSounds = 6;
 let currentSounds: number = 0;
 let isUpdating: boolean = false;
+const tickrate = 60;
+const frameTime = 1000 / tickrate;
 
 // Web Workers
 // const updateObjectsWorker = new Worker("updateObjectsWorker.js");
@@ -496,7 +498,7 @@ function initScene(): void {
     spacemapDiv.hidden = false;
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(
-        75,
+        60,
         window.innerWidth / window.innerHeight,
         0.1,
         1000
@@ -540,6 +542,15 @@ function initScene(): void {
     // Create an animation function to rotate the cube
     const animate = () => {
         requestAnimationFrame(animate);
+
+        TWEEN.update();
+        if (playerObject) {
+            controls.target.set(
+                playerObject.position.x,
+                0,
+                playerObject.position.z
+            );
+        }
 
         // Render the scene
         controls.update();
@@ -951,7 +962,7 @@ async function createObject(data: any): Promise<THREE.Object3D> {
                 const clonedObject = objectCache[data.name].clone(true);
                 let childrenToRemove: THREE.Object3D[] = [];
                 clonedObject.traverse((child) => {
-                    if (child instanceof CSS2DObject) {
+                    if (child instanceof CSS2DObject || child.name == "lockOnCircle") {
                         childrenToRemove.push(child);
                     }
                 });
@@ -1163,6 +1174,20 @@ async function updateObject(object: THREE.Object3D, entity: any) {
     const distanceSquared =
         (posX - object.position.x) ** 2 + (posY - object.position.z) ** 2;
 
+    function _tween(object: any, targetPos: THREE.Vector3) {
+        const positionTween = new TWEEN.Tween(object.position)
+            .to(
+                {
+                    x: targetPos.x,
+                    y: 0,
+                    z: targetPos.z,
+                },
+                frameTime
+            )
+            .easing(TWEEN.Easing.Linear.None);
+        positionTween.start();
+    }
+
     if (targetUUID) {
         const targetObject = getObjectByUUID(targetUUID);
         if (targetObject) {
@@ -1183,19 +1208,15 @@ async function updateObject(object: THREE.Object3D, entity: any) {
     if (name === playerName) {
         if (isFirstUpdateForPlayer) {
             lastEntityPosition = new THREE.Vector3(posX, 0, posY);
-            camera.position.set(posX, camera.position.y, posY);
-            controls.target.copy(targetDirection);
+            // camera.position.set(posX, camera.position.y, posY);
+            // object.add(camera)
+
+            controls.update();
+            controls.target.copy(object.position);
             isFirstUpdateForPlayer = false;
         } else if (lastEntityPosition !== null) {
-            const dx = posX - lastEntityPosition.x;
-            const dz = posY - lastEntityPosition.z;
-            lastEntityPosition.copy(targetDirection);
-            camera.position.add(new THREE.Vector3(dx, 0, dz));
-            controls.target.add(new THREE.Vector3(dx, 0, dz));
         }
-        controls.update();
     }
-
     if (hitPoints) {
         const { hullPoints, shieldPoints } = hitPoints;
         const dhp = (object as any).hitPoints.hullPoints - hullPoints;
@@ -1267,11 +1288,9 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         }
     }
 
-    object.position.copy(
-        name !== "CargoDrop"
-            ? targetDirection
-            : new THREE.Vector3(posX, -1, posY)
-    );
+    if (name !== "CargoDrop") {
+        _tween(object, targetDirection);
+    }
 }
 
 async function deleteObject(uuid: string) {
