@@ -75,7 +75,8 @@ export function setupDatabaseConnection(): Promise<void> {
                         shieldGenerators JSON,
                         speedGenerators JSON,
                         ammunition JSON,
-                        ships JSON
+                        ships JSON,
+                        consumables JSON
                     );`;
 
                 const settingsPlayerQuery: string = `
@@ -154,7 +155,7 @@ export async function registerNewUser(username: string, password: string) {
         if (userCredentials == undefined) {
             const loginTableQuery = `INSERT INTO login (username, password, lastLogin) VALUES ("${username}", "${password}", NOW())`;
             const playerEntityQuery = `INSERT INTO playerEntity (username) VALUES ("${username}")`;
-            const inventoryQuery = `INSERT INTO inventory (username, lasers, shieldGenerators, speedGenerators, ships) VALUES ("${username}", "{}", "{}", "{}", '{"protos":{"name":"Protos","maxHealth":8000,"baseSpeed":150,"maxLasers":2,"maxGenerators":2,"isActive":true,"price":{"credits":10000}}}')`;
+            const inventoryQuery = `INSERT INTO inventory (username, lasers, shieldGenerators, speedGenerators, ships, consumables) VALUES ("${username}", "{}", "{}", "{}", '{"protos":{"name":"Protos","maxHealth":8000,"baseSpeed":150,"maxLasers":2,"maxGenerators":2,"isActive":true,"price":{"credits":10000}}}', "{}")`;
             const playerSettingsQuery = `INSERT INTO gamesettings (username) VALUES ("${username}")`;
 
             executeQuery(loginTableQuery);
@@ -188,6 +189,7 @@ export async function updateInventoryData(
             )}',
             ships = '${JSON.stringify(_inventoryData.ships)}',
             ammunition = '${JSON.stringify(_inventoryData.ammunition)}'
+            consumables = '${JSON.stringify(_inventoryData.consumables)}'
         WHERE username = '${username}'`;
 
     return executeQuery(query);

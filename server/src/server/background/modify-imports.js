@@ -175,8 +175,8 @@ function fixPlayer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { Inventory, Laser, LaserAmmo, RocketAmmo, ShieldGenerator, ShipItem, SpeedGenerator, } from "./Inventory";',
-            'import { Inventory, Laser, LaserAmmo, RocketAmmo, ShieldGenerator, ShipItem, SpeedGenerator, } from "./Inventory.js";'
+            'import { CreditsItem, ExperienceItem, HonorItem, Inventory, Laser, LaserAmmo, RocketAmmo, ShieldGenerator, ShipItem, SpeedGenerator, ThuliumItem, } from "./Inventory";',
+            'import { CreditsItem, ExperienceItem, HonorItem, Inventory, Laser, LaserAmmo, RocketAmmo, ShieldGenerator, ShipItem, SpeedGenerator, ThuliumItem, } from "./Inventory.js";'
         );
 
         writeFile("./dist/server/background/Player.js", modifiedData, (err) => {
@@ -417,8 +417,8 @@ function fixShop() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { Laser, LaserAmmo, RocketAmmo, ShieldGenerator, ShipItem, SpeedGenerator, generatorData, laserAmmoData, laserData, rocketAmmoData, shipData, } from "./Inventory";',
-            'import { Laser, LaserAmmo, RocketAmmo, ShieldGenerator, ShipItem, SpeedGenerator, generatorData, laserAmmoData, laserData, rocketAmmoData, shipData, } from "./Inventory.js";'
+            'import { CreditsItem, ExperienceItem, HonorItem, Laser, LaserAmmo, RocketAmmo, ShieldGenerator, ShipItem, SpeedGenerator, consumableItemsData, generatorData, laserAmmoData, laserData, rocketAmmoData, shipData, } from "./Inventory";',
+            'import { CreditsItem, ExperienceItem, HonorItem, Laser, LaserAmmo, RocketAmmo, ShieldGenerator, ShipItem, SpeedGenerator, consumableItemsData, generatorData, laserAmmoData, laserData, rocketAmmoData, shipData, } from "./Inventory.js";'
         );
 
         writeFile("./dist/server/background/Shop.js", modifiedData, (err) => {

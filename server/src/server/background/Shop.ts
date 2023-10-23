@@ -1,5 +1,9 @@
 import { gameServer } from "../main";
 import {
+    ConsumableItems,
+    CreditsItem,
+    ExperienceItem,
+    HonorItem,
     Laser,
     LaserAmmo,
     PossibleItems,
@@ -7,6 +11,7 @@ import {
     ShieldGenerator,
     ShipItem,
     SpeedGenerator,
+    consumableItemsData,
     generatorData,
     laserAmmoData,
     laserData,
@@ -15,9 +20,9 @@ import {
 } from "./Inventory";
 
 export class Shop {
-    items: Record<string, PossibleItems>;
+    items: Record<string, (PossibleItems | ConsumableItems)>;
 
-    constructor() {
+    constructor() { 
         this.items = {};
 
         for (const laserName in laserData) {
@@ -55,13 +60,42 @@ export class Shop {
                 this.addItem(rocketAmmoName, rocketAmmoItem);
             }
         }
+
+        for (const consumableName in consumableItemsData) {
+            if (consumableItemsData[consumableName]) {
+                switch (consumableItemsData[consumableName].type) {
+                    case "ExperienceItem":
+                        const experienceItem = new ExperienceItem(
+                            consumableName
+                        );
+                        this.addItem(consumableName, experienceItem);
+                        break;
+                    case "HonorItem":
+                        const honorItem = new HonorItem(consumableName);
+                        this.addItem(consumableName, honorItem);
+                        break;
+                    case "CreditsItem":
+                        const creditsItem = new CreditsItem(consumableName);
+                        this.addItem(consumableName, creditsItem);
+                        break;
+                    case "ThuliumItem":
+                        const thuliumItem = new HonorItem(consumableName);
+                        this.addItem(consumableName, thuliumItem);
+                        break;
+                    default:
+                        console.log(
+                            `Could not create item in shop for ${consumableName}`
+                        );
+                }
+            }
+        }
     }
 
-    findItemByName(name: string): PossibleItems | undefined {
+    findItemByName(name: string): PossibleItems | ConsumableItems | undefined {
         return this.items[name];
     }
 
-    addItem(name: string, item: PossibleItems) {
+    addItem(name: string, item: PossibleItems | ConsumableItems) {
         this.items[name] = item;
     }
 
@@ -95,7 +129,7 @@ export class Shop {
         } else if (_item instanceof LaserAmmo) {
             item = new LaserAmmo(_item.name, _item.amount);
         } else {
-            console.log(`Unhandled item type!!!`)
+            console.log(`Unhandled item type!!!`);
             return;
         }
 

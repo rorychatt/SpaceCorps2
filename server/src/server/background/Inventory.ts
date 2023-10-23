@@ -1,13 +1,16 @@
 import * as fs from "fs";
 import { OreResource } from "./CargoDrop";
 import { Player } from "./Player";
+import { ExperienceReward, PossibleRewards } from "./Reward";
 
 export const shipData = JSON.parse(
     fs.readFileSync("./src/server/data/ships.json").toString("utf-8")
 );
+
 export const laserData = JSON.parse(
     fs.readFileSync("./src/server/data/lasers.json").toString("utf-8")
 );
+
 export const generatorData = JSON.parse(
     fs.readFileSync("./src/server/data/generators.json").toString("utf-8")
 );
@@ -15,27 +18,30 @@ export const generatorData = JSON.parse(
 export const laserAmmoData = JSON.parse(
     fs.readFileSync("./src/server/data/laserAmmo.json").toString("utf-8")
 );
+
 export const rocketAmmoData = JSON.parse(
     fs.readFileSync("./src/server/data/rocketAmmo.json").toString("utf-8")
 );
 
+export const consumableItemsData = JSON.parse(
+    fs.readFileSync("./src/server/data/consumables.json").toString("utf-8")
+);
+
 export class Inventory {
-    lasers: Laser[];
-    shieldGenerators: ShieldGenerator[];
-    speedGenerators: SpeedGenerator[];
-    ammunition: (LaserAmmo | RocketAmmo)[];
+    lasers: Laser[] = [];
+    shieldGenerators: ShieldGenerator[] = [];
+    speedGenerators: SpeedGenerator[] = [];
+    ammunition: (LaserAmmo | RocketAmmo)[] = [];
+    consumables: ConsumableItems[] = [];
+    ships: ShipItem[] = [];
     selectedLaserAmmo?: LaserAmmo;
     selectedRocketAmmo?: RocketAmmo;
-    ships: ShipItem[];
     cargoBay: CargoBay;
+    ownerUUID: string;
 
-    constructor() {
-        this.lasers = [];
-        this.shieldGenerators = [];
-        this.speedGenerators = [];
-        this.ships = [];
-        this.ammunition = [];
+    constructor(uuid: string) {
         this.cargoBay = new CargoBay();
+        this.ownerUUID = uuid;
     }
 
     getCurrentLaserAmmo() {
@@ -62,7 +68,7 @@ export class Inventory {
         }
     }
 
-    async addItem(item: PossibleItems, amount?: number) {
+    async addItem(item: PossibleItems | ConsumableItems, amount?: number) {
         if (item instanceof Laser) {
             this.lasers.push(item);
         } else if (item instanceof ShieldGenerator) {
@@ -103,6 +109,14 @@ export class Inventory {
                     this.ammunition.push(item);
                 }
             }
+        } else if (item instanceof CreditsItem) {
+            this.consumables.push(item);
+        } else if (item instanceof ThuliumItem) {
+            this.consumables.push(item);
+        } else if (item instanceof ExperienceItem) {
+            this.consumables.push(item);
+        } else if (item instanceof HonorItem) {
+            this.consumables.push(item);
         }
     }
 
@@ -718,9 +732,9 @@ export class ExperienceItem extends Item {
     readonly _type: string = "ExperienceItem";
     amount: number;
 
-    constructor(name: string, experienceAmount: number) {
+    constructor(name: string) {
         super(name);
-        this.amount = experienceAmount;
+        this.amount = consumableItemsData[name].experience;
     }
 }
 
@@ -728,32 +742,29 @@ export class CreditsItem extends Item {
     readonly _type: string = "CreditsItem";
     amount: number;
 
-    constructor(name: string, creditsAmount: number) {
+    constructor(name: string) {
         super(name);
-        this.amount = creditsAmount;
+        this.amount = consumableItemsData[name].credits;
     }
 }
 export class HonorItem extends Item {
     readonly _type: string = "HonorItem";
     amount: number;
 
-    constructor(name: string, honorAmount: number) {
+    constructor(name: string) {
         super(name);
-        this.amount = honorAmount;
+        this.amount = consumableItemsData[name].honor;
     }
 }
 export class ThuliumItem extends Item {
     readonly _type: string = "ThuliumItem";
     amount: number;
 
-    constructor(name: string, thuliumAmount: number) {
+    constructor(name: string) {
         super(name);
-        this.amount = thuliumAmount;
+        this.amount = consumableItemsData[name].thulium;
     }
 }
-
-
-
 export class CargoBayDTO {
     maxCapacity: number;
     ores: OreResource[]; // Assuming OreResource is serializable as-is
@@ -763,7 +774,6 @@ export class CargoBayDTO {
         this.ores = cargoBay.ores;
     }
 }
-
 export class InventoryDataDTO {
     lasers: LaserDTO[] = [];
     shieldGenerators: ShieldGeneratorDTO[] = [];
@@ -771,6 +781,8 @@ export class InventoryDataDTO {
     ammunition: (LaserAmmo | RocketAmmo)[] = [];
     ships: ShipItemDTO[] = [];
     cargoBay: CargoBayDTO = new CargoBayDTO(new CargoBay());
+    //TODO: consumables DTO
+    consumables: ConsumableItems[] = [];
 
     async convertInventory(inventory: Inventory): Promise<void> {
         await Promise.all([
@@ -778,9 +790,17 @@ export class InventoryDataDTO {
             this.convertShieldGenerators(inventory.shieldGenerators),
             this.convertSpeedGenerators(inventory.speedGenerators),
             this.convertShips(inventory.ships),
+            this.convertConsumables(inventory.consumables),
         ]);
         this.ammunition = inventory.ammunition;
         this.cargoBay = new CargoBayDTO(inventory.cargoBay);
+    }
+
+    private async convertConsumables(
+        consumables: ConsumableItems[]
+    ): Promise<void> {
+        //TODO: consumables DTO
+        this.consumables = consumables;
     }
 
     private async convertLasers(lasers: Laser[]): Promise<void> {
@@ -816,14 +836,12 @@ export class InventoryDataDTO {
         );
     }
 }
-
 export class LaserDTO {
     name: string;
     constructor(laser: Laser) {
         this.name = laser.name;
     }
 }
-
 export class ShieldGeneratorDTO {
     name: string;
     _type: string = "ShieldGenerator";
@@ -831,7 +849,6 @@ export class ShieldGeneratorDTO {
         this.name = shieldGenerator.name;
     }
 }
-
 export class SpeedGeneratorDTO {
     name: string;
     _type: string = "SpeedGenerator";
@@ -839,7 +856,6 @@ export class SpeedGeneratorDTO {
         this.name = speedGenerator.name;
     }
 }
-
 export class ShipItemDTO {
     name: string;
     isActive: boolean;
@@ -871,3 +887,9 @@ export type PossibleItems =
     | ShipItem
     | RocketAmmo
     | LaserAmmo;
+
+export type ConsumableItems =
+    | CreditsItem
+    | ThuliumItem
+    | ExperienceItem
+    | HonorItem;
