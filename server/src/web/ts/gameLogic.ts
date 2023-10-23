@@ -328,58 +328,103 @@ socket.on(
     }
 );
 
-socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
-    if (notificationContainer) {
-        for (const key in data.reward) {
-            if (data.reward.hasOwnProperty(key)) {
-                if (key != "recipientUUID") {
-                    const maxEventCount = 8;
-                    let currentEventCount =
-                        notificationContainer.children.length;
+socket.on(
+    "emitRewardInfoToUser",
+    async (data: { reward: any; consumed: boolean }) => {
+        if (notificationContainer) {
+            for (const key in data.reward) {
+                if (data.reward.hasOwnProperty(key)) {
+                    if (key != "recipientUUID") {
+                        const maxEventCount = 8;
+                        let currentEventCount =
+                            notificationContainer.children.length;
 
-                    while (maxEventCount < currentEventCount) {
-                        notificationContainer.firstChild?.remove();
-                        currentEventCount--;
-                    }
+                        while (maxEventCount < currentEventCount) {
+                            notificationContainer.firstChild?.remove();
+                            currentEventCount--;
+                        }
 
-                    if (data.reward[key]._type) {
-                        console.log(data.reward[key]);
-                        const messageContainer = document.createElement("div");
-                        messageContainer.classList.add("notification");
-                        if (!data.reward[key].amount)
-                            data.reward[key].amount = 1;
-                        if (data.reward[key].amount == 0)
-                            data.reward[key].amount = 1;
-                        messageContainer.textContent = `You received ${await beautifyNumberToUser(
-                            data.reward[key].amount
-                        )} ${data.reward[key].name} ${data.reward[key]._type}.`;
-                        notificationContainer.appendChild(messageContainer);
-                        setTimeout(() => {
-                            try {
-                                notificationContainer.removeChild(
-                                    messageContainer
-                                );
-                            } catch (err) {}
-                        }, 5000);
-                    } else {
-                        if (
-                            data.reward[key] !== "items" ||
-                            data.reward[key] !== "amount"
-                        ) {
-                            if (data.reward[key].length) {
-                                data.reward[key].forEach(async (dat: any) => {
-                                    if (dat.amount == 0) dat.amount = 1;
+                        if (data.reward[key]._type) {
+                            console.log(data.reward[key]);
+                            const messageContainer =
+                                document.createElement("div");
+                            messageContainer.classList.add("notification");
+                            if (!data.reward[key].amount)
+                                data.reward[key].amount = 1;
+                            if (data.reward[key].amount == 0)
+                                data.reward[key].amount = 1;
+                            if (data.consumed) {
+                                messageContainer.textContent = `You used ${await beautifyNumberToUser(
+                                    data.reward[key].amount
+                                )} ${data.reward[key].name} ${
+                                    data.reward[key]._type
+                                }.`;
+                            } else {
+                                messageContainer.textContent = `You received ${await beautifyNumberToUser(
+                                    data.reward[key].amount
+                                )} ${data.reward[key].name} ${
+                                    data.reward[key]._type
+                                }.`;
+                            }
+                            notificationContainer.appendChild(messageContainer);
+                            setTimeout(() => {
+                                try {
+                                    notificationContainer.removeChild(
+                                        messageContainer
+                                    );
+                                } catch (err) {}
+                            }, 5000);
+                        } else {
+                            if (
+                                data.reward[key] !== "items" ||
+                                data.reward[key] !== "amount"
+                            ) {
+                                if (data.reward[key].length) {
+                                    data.reward[key].forEach(
+                                        async (dat: any) => {
+                                            if (dat.amount == 0) dat.amount = 1;
+                                            const messageContainer =
+                                                document.createElement("div");
+                                            messageContainer.classList.add(
+                                                "notification"
+                                            );
+                                            messageContainer.textContent = `You received ${await beautifyNumberToUser(
+                                                dat.amount
+                                            )} ${dat.name}.`;
+                                            notificationContainer.appendChild(
+                                                messageContainer
+                                            );
+                                            setTimeout(() => {
+                                                try {
+                                                    notificationContainer.removeChild(
+                                                        messageContainer
+                                                    );
+                                                } catch (err) {}
+                                            }, 5000);
+                                        }
+                                    );
+                                } else {
+                                    if (
+                                        (await beautifyNumberToUser(
+                                            data.reward[key]
+                                        )) == "" ||
+                                        key == "amount"
+                                    ) {
+                                        return;
+                                    }
                                     const messageContainer =
                                         document.createElement("div");
                                     messageContainer.classList.add(
                                         "notification"
                                     );
                                     messageContainer.textContent = `You received ${await beautifyNumberToUser(
-                                        dat.amount
-                                    )} ${dat.name}.`;
+                                        data.reward[key]
+                                    )} ${key}.`;
                                     notificationContainer.appendChild(
                                         messageContainer
                                     );
+                                    // console.log(messageContainer.textContent);
+
                                     setTimeout(() => {
                                         try {
                                             notificationContainer.removeChild(
@@ -387,34 +432,7 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
                                             );
                                         } catch (err) {}
                                     }, 5000);
-                                });
-                            } else {
-                                if (
-                                    (await beautifyNumberToUser(
-                                        data.reward[key]
-                                    )) == "" ||
-                                    key == "amount"
-                                ) {
-                                    return;
                                 }
-                                const messageContainer =
-                                    document.createElement("div");
-                                messageContainer.classList.add("notification");
-                                messageContainer.textContent = `You received ${await beautifyNumberToUser(
-                                    data.reward[key]
-                                )} ${key}.`;
-                                notificationContainer.appendChild(
-                                    messageContainer
-                                );
-                                // console.log(messageContainer.textContent);
-
-                                setTimeout(() => {
-                                    try {
-                                        notificationContainer.removeChild(
-                                            messageContainer
-                                        );
-                                    } catch (err) {}
-                                }, 5000);
                             }
                         }
                     }
@@ -422,7 +440,7 @@ socket.on("emitRewardInfoToUser", async (data: { reward: any }) => {
             }
         }
     }
-});
+);
 
 function savePlayerSettings(data: {
     username: string;
@@ -1547,6 +1565,11 @@ async function updatePlayerInfo(entity: any) {
                 entity.inventory.ships,
                 "name"
             ),
+            arraysAreDifferentAsync(
+                playerInventory.consumables,
+                entity.inventory.consumables,
+                "name"
+            ),
         ]).then((results) => results.some((result) => result === true));
 
         if (shouldUpdateUI) {
@@ -2024,9 +2047,24 @@ function createEquipButton() {
     return equipButton;
 }
 
+function createUseButton() {
+    const useButton = document.createElement("button");
+    useButton.classList.add("profile_btn");
+    useButton.classList.add("profile_use_btn");
+    useButton.textContent = "USE";
+    return useButton;
+}
+
 async function handleEquipButtonClick(itemName: string) {
     // console.log(`You clicked equip button for ship ${itemName}`);
     socket.emit(`equipItemEvent`, {
+        playerName: playerName,
+        itemName: itemName,
+    });
+}
+
+async function handleUseButtonClick(itemName: string) {
+    socket.emit(`useItemEvent`, {
         playerName: playerName,
         itemName: itemName,
     });
@@ -2047,31 +2085,59 @@ function displayItemsInWorkroom(): Promise<void> {
         categoryContainer.innerHTML = "";
 
         try {
-            function addItemToContainer(item: any) {
-                const workroomItemContainer = createShopItemContainer(
-                    item.name,
-                    item.name
-                );
-                const equipButton = createEquipButton();
-
-                workroomItemContainer.appendChild(equipButton);
-                if (!categoryContainer) {
-                    console.error(
-                        "Category container 'workroom_storage' not found."
+            function addItemToContainer(item: any, consumable = false) {
+                // console.log(item);
+                if (!consumable) {
+                    const workroomItemContainer = createShopItemContainer(
+                        item.name,
+                        item.name
                     );
-                    reject(
-                        new Error(
+                    const equipButton = createEquipButton();
+
+                    workroomItemContainer.appendChild(equipButton);
+                    if (!categoryContainer) {
+                        console.error(
                             "Category container 'workroom_storage' not found."
-                        )
+                        );
+                        reject(
+                            new Error(
+                                "Category container 'workroom_storage' not found."
+                            )
+                        );
+                        return;
+                    }
+
+                    categoryContainer.appendChild(workroomItemContainer);
+
+                    equipButton.addEventListener("click", () => {
+                        handleEquipButtonClick(item.name);
+                    });
+                } else {
+                    const workroomItemContainer = createShopItemContainer(
+                        item.name,
+                        item.name
                     );
-                    return;
+                    const useButton = createUseButton();
+
+                    workroomItemContainer.appendChild(useButton);
+                    if (!categoryContainer) {
+                        console.error(
+                            "Category container 'workroom_storage' not found."
+                        );
+                        reject(
+                            new Error(
+                                "Category container 'workroom_storage' not found."
+                            )
+                        );
+                        return;
+                    }
+
+                    categoryContainer.appendChild(workroomItemContainer);
+
+                    useButton.addEventListener("click", () => {
+                        handleUseButtonClick(item.name);
+                    });
                 }
-
-                categoryContainer.appendChild(workroomItemContainer);
-
-                equipButton.addEventListener("click", () => {
-                    handleEquipButtonClick(item.name);
-                });
             }
 
             for (const laser of playerInventory.lasers) {
@@ -2084,6 +2150,10 @@ function displayItemsInWorkroom(): Promise<void> {
 
             for (const speedGenerator of playerInventory.speedGenerators) {
                 addItemToContainer(speedGenerator);
+            }
+
+            for (const consumableItem of playerInventory.consumables) {
+                addItemToContainer(consumableItem, true);
             }
 
             resolve();

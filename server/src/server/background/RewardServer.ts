@@ -1,11 +1,16 @@
 import { updateInventoryData } from "../db/db";
 import { gameServer } from "../main";
 import { CargoDrop } from "./CargoDrop";
-import { PossibleItems } from "./Inventory";
+import {
+    ConsumableItems,
+    PossibleItems,
+    consumableItemsData,
+} from "./Inventory";
 import { Player } from "./Player";
 import {
     AlienKillReward,
     CargoDropReward,
+    ConsumableItemReward,
     CreditsReward,
     CreditsSetReward,
     ExperienceReward,
@@ -13,8 +18,8 @@ import {
     ItemReward,
     PlayerKillReward,
     PossibleRewards,
-    ThulimReward,
-    ThulimSetReward,
+    ThuliumReward,
+    ThuliumSetReward,
 } from "./Reward";
 
 export class RewardServer {
@@ -33,11 +38,11 @@ export class RewardServer {
     }
 
     registerThuliumReward(recipientUUID: string, thulium: number) {
-        this.pendingRewards.push(new ThulimReward(recipientUUID, thulium));
+        this.pendingRewards.push(new ThuliumReward(recipientUUID, thulium));
     }
 
     registerThuliumSetReward(recipientUUID: string, thulium: number) {
-        this.pendingRewards.push(new ThulimSetReward(recipientUUID, thulium));
+        this.pendingRewards.push(new ThuliumSetReward(recipientUUID, thulium));
     }
 
     registerCreditsReward(recipientUUID: string, credits: number) {
@@ -78,7 +83,7 @@ export class RewardServer {
 
     registerItemReward(
         recipientUUID: string,
-        reward: PossibleItems,
+        reward: PossibleItems | ConsumableItems,
         amount?: number
     ) {
         if (amount) {
@@ -94,6 +99,15 @@ export class RewardServer {
         this.pendingRewards.push(new CargoDropReward(recipientUUID, cargoDrop));
     }
 
+    registerConsumableItemReward(
+        recipientUUID: string,
+        consumable: ConsumableItems
+    ) {
+        this.pendingRewards.push(
+            new ConsumableItemReward(recipientUUID, consumable)
+        );
+    }
+
     async issueReward(player: Player, reward: PossibleRewards) {
         if (reward instanceof HonorReward) {
             player.addHonor(reward.honor);
@@ -103,13 +117,13 @@ export class RewardServer {
                 await gameServer.rankingServer.experienceServer.calculatePlayerLevel(
                     player
                 );
-        } else if (reward instanceof ThulimReward) {
+        } else if (reward instanceof ThuliumReward) {
             player.addThulium(reward.thulium);
-        } else if(reward instanceof ThulimSetReward) {
+        } else if (reward instanceof ThuliumSetReward) {
             player.setThulium(reward.thulium);
         } else if (reward instanceof CreditsReward) {
             player.addCredits(reward.credits);
-        } else if(reward instanceof CreditsSetReward) {
+        } else if (reward instanceof CreditsSetReward) {
             player.setCredits(reward.credits);
         } else if (reward instanceof PlayerKillReward) {
             player.addCredits(reward.credits);
@@ -137,6 +151,24 @@ export class RewardServer {
             }
             for (const ore in reward.ores) {
                 player.inventory.cargoBay.addOre(reward.ores[ore]);
+            }
+        } else if (reward instanceof ConsumableItemReward) {
+            if (reward.consumable._type == "ExperienceItem") {
+                player.addExperience(
+                    consumableItemsData[reward.consumable.name].amount
+                );
+            } else if (reward.consumable._type == "HonorItem") {
+                player.addHonor(
+                    consumableItemsData[reward.consumable.name].amount
+                );
+            } else if (reward.consumable._type == "ThuliumItem") {
+                player.addThulium(
+                    consumableItemsData[reward.consumable.name].amount
+                );
+            } else if (reward.consumable._type == "CreditsItem") {
+                player.addCredits(
+                    consumableItemsData[reward.consumable.name].amount
+                );
             }
         }
 

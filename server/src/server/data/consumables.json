@@ -3,120 +3,120 @@
         "name": "5kExp",
         "fullName": "5k Experience",
         "type": "ExperienceItem",
-        "experience": 5000
+        "amount": 5000
     },
     "50kExp": {
         "name": "50kExp",
         "fullName": "50k Experience",
         "type": "ExperienceItem",
-        "experience": 50000
+        "amount": 50000
     },
     "500kExp": {
         "name": "500kExp",
         "fullName": "500k Experience",
         "type": "ExperienceItem",
-        "experience": 500000
+        "amount": 500000
     },
     "5MExp": {
         "name": "5MExp",
         "fullName": "5M Experience",
         "type": "ExperienceItem",
-        "experience": 5000000
+        "amount": 5000000
     },
     "50MExp": {
         "name": "50MExp",
         "fullName": "50M Experience",
         "type": "ExperienceItem",
-        "experience": 50000000
+        "amount": 50000000
     },
     "5kHon": {
         "name": "5kHon",
         "fullName": "5k Honor",
         "type": "HonorItem",
-        "honor": 5000
+        "amount": 5000
     },
     "50kHon": {
         "name": "50kHon",
         "fullName": "50k Honor",
         "type": "HonorItem",
-        "honor": 50000
+        "amount": 50000
     },
     "500kHon": {
         "name": "500kHon",
         "fullName": "500k Honor",
         "type": "HonorItem",
-        "honor": 500000
+        "amount": 500000
     },
     "5MHon": {
         "name": "5MHon",
         "fullName": "5M Honor",
         "type": "HonorItem",
-        "honor": 5000000
+        "amount": 5000000
     },
     "50MHon": {
         "name": "50MHon",
         "fullName": "50M Honor",
         "type": "HonorItem",
-        "honor": 50000000
+        "amount": 50000000
     },
     "5kCred": {
         "name": "5kCred",
         "fullName": "5k Credits",
         "type": "CreditsItem",
-        "credits": 5000
+        "amount": 5000
     },
     "50kCred": {
         "name": "50kCred",
         "fullName": "50k Credits",
         "type": "CreditsItem",
-        "credits": 50000
+        "amount": 50000
     },
     "500kCred": {
         "name": "500kCred",
         "fullName": "500k Credits",
         "type": "CreditsItem",
-        "credits": 500000
+        "amount": 500000
     },
     "5MCred": {
         "name": "5MCred",
         "fullName": "5M Credits",
         "type": "CreditsItem",
-        "credits": 5000000
+        "amount": 5000000
     },
     "50MCred": {
         "name": "50MCred",
         "fullName": "50M Credits",
         "type": "CreditsItem",
-        "credits": 50000000
+        "amount": 50000000
     },
     "5kThul": {
         "name": "5kThul",
         "fullName": "5k Thulium",
         "type": "ThuliumItem",
-        "thulium": 5000
+        "amount": 5000
     },
     "50kThul": {
         "name": "50kThul",
         "fullName": "50k Thulium",
         "type": "ThuliumItem",
-        "thulium": 50000
+        "amount": 50000
     },
     "500kThul": {
         "name": "500kThul",
         "fullName": "500k Thulium",
         "type": "ThuliumItem",
-        "thulium": 500000
+        "amount": 500000
     },
     "5MThul": {
         "name": "5MThul",
         "fullName": "5M Thulium",
         "type": "ThuliumItem",
-        "thulium": 5000000
+        "amount": 5000000
     },
     "50MThul": {
         "name": "50MThul",
         "fullName": "50M Thulium",
         "type": "ThuliumItem",
-        "thulium": 50000000
+        "amount": 50000000
     }
 }

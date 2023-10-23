@@ -23,6 +23,7 @@ import { CargoDrop } from "./CargoDrop";
 import { QuestServer } from "./QuestServer";
 import { RankingServer } from "./RankingServer";
 import { Worker } from "worker_threads";
+import { ConsumableItemReward } from "./Reward";
 
 export const tickrate = 60;
 
@@ -284,17 +285,21 @@ export class GameServer {
                 if (
                     Math.abs(
                         player.position.x - player.targetCargoDrop.position.x
-                    ) < 0.1 &&
+                    ) < 0.2 &&
                     Math.abs(
                         player.position.y - player.targetCargoDrop.position.y
-                    ) < 0.1
+                    ) < 0.2
                 ) {
                     this.rewardServer.registerCargoDropReward(
                         player.uuid,
                         player.targetCargoDrop
                     );
 
-                    this.questServer.registerOreCollection({ playerUUID: player.uuid, cargoDrop: player.targetCargoDrop, map: player.targetCargoDrop.currentMap });
+                    this.questServer.registerOreCollection({
+                        playerUUID: player.uuid,
+                        cargoDrop: player.targetCargoDrop,
+                        map: player.targetCargoDrop.currentMap,
+                    });
 
                     this.spacemaps[
                         player.targetCargoDrop.currentMap
@@ -353,9 +358,17 @@ export class GameServer {
             const player = await this.getPlayerByUUID(reward.recipientUUID);
             if (player) {
                 this.rewardServer.issueReward(player, reward);
-                this.io.to(player.socketId).emit("emitRewardInfoToUser", {
-                    reward: reward,
-                });
+                if ((reward as ConsumableItemReward).consumable) {
+                    this.io.to(player.socketId).emit("emitRewardInfoToUser", {
+                        reward: reward,
+                        consumed: true,
+                    });
+                } else {
+                    this.io.to(player.socketId).emit("emitRewardInfoToUser", {
+                        reward: reward,
+                        consumed: false,
+                    });
+                }
             } else {
                 console.log(
                     `Could not find player with uuid ${reward.recipientUUID} to issue them a reward.`
@@ -381,9 +394,9 @@ export class GameServer {
                         );
 
                         this.questServer.registerAlienKill({
-                            playerUUID: entity.lastAttackedByUUID, 
-                            entityName: entity.name, 
-                            map: spacemap.name
+                            playerUUID: entity.lastAttackedByUUID,
+                            entityName: entity.name,
+                            map: spacemap.name,
                         });
                     }
                     if (entity.cargoDrop) {
@@ -458,6 +471,28 @@ export class GameServer {
                         data.ammo
                     );
                 }
+            }
+        }
+    }
+
+    async registerPlayerUseItemEvent(data: {
+        playerName: string;
+        itemName: string;
+    }) {
+        const player = await this.getPlayerByUsername(data.playerName);
+        if (player) {
+            const itemToUse = await player.inventory.useConsumableItem(
+                data.itemName
+            );
+            if (itemToUse) {
+                this.rewardServer.registerConsumableItemReward(
+                    player.uuid,
+                    itemToUse
+                );
+            } else {
+                console.log(
+                    `Player ${data.playerName} tried to use item they do not own`
+                );
             }
         }
     }

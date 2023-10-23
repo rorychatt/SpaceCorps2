@@ -346,6 +346,17 @@ export class Inventory {
         }
     }
 
+    async useConsumableItem(itemName: string) {
+        let itemToUse: ConsumableItems | undefined = undefined;
+        itemToUse = this.findConsumableItemByName(itemName);
+        if (itemToUse) {
+            this.removeFirstItemByProperty(this.consumables, "name", itemName);
+        } else {
+            console.log(`A player tried to use item they do not own`);
+        }
+        return itemToUse;
+    }
+
     async unequipItem(itemName: string) {
         const activeShip = await this.getActiveShip();
 
@@ -397,6 +408,10 @@ export class Inventory {
 
     findLaserByName(name: string): Laser | undefined {
         return this.lasers.find((laser) => laser.name === name);
+    }
+
+    findConsumableItemByName(name: string): ConsumableItems | undefined {
+        return this.consumables.find((consumable) => consumable.name == name);
     }
 
     findSpeedGeneratorByName(name: string): SpeedGenerator | undefined {
@@ -734,7 +749,7 @@ export class ExperienceItem extends Item {
 
     constructor(name: string) {
         super(name);
-        this.amount = consumableItemsData[name].experience;
+        this.amount = consumableItemsData[name].amount;
     }
 }
 
@@ -744,7 +759,7 @@ export class CreditsItem extends Item {
 
     constructor(name: string) {
         super(name);
-        this.amount = consumableItemsData[name].credits;
+        this.amount = consumableItemsData[name].amount;
     }
 }
 export class HonorItem extends Item {
@@ -753,7 +768,7 @@ export class HonorItem extends Item {
 
     constructor(name: string) {
         super(name);
-        this.amount = consumableItemsData[name].honor;
+        this.amount = consumableItemsData[name].amount;
     }
 }
 export class ThuliumItem extends Item {
@@ -762,7 +777,7 @@ export class ThuliumItem extends Item {
 
     constructor(name: string) {
         super(name);
-        this.amount = consumableItemsData[name].thulium;
+        this.amount = consumableItemsData[name].amount;
     }
 }
 export class CargoBayDTO {
