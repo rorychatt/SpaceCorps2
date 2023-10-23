@@ -9,6 +9,9 @@ import { CargoDrop } from "./CargoDrop";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
 import {
+    CreditsItem,
+    ExperienceItem,
+    HonorItem,
     Inventory,
     Laser,
     LaserAmmo,
@@ -16,6 +19,7 @@ import {
     ShieldGenerator,
     ShipItem,
     SpeedGenerator,
+    ThuliumItem,
 } from "./Inventory";
 import { Quest } from "./QuestServer";
 import { Spacemap, Vector2D } from "./Spacemap";
@@ -33,7 +37,7 @@ export class Player extends Entity {
     rocketReloadState: ReloadStateCharacteristic = "canShoot";
     lastAttackedByUUID?: string;
     speed: number = 150;
-    inventory: Inventory = new Inventory();
+    inventory: Inventory = new Inventory(this.uuid);
     _activeShip: ShipItem | undefined;
     activeShipName: string | undefined;
     isShooting: boolean = false;
@@ -90,7 +94,7 @@ export class Player extends Entity {
     }
 
     async refreshActiveShip() {
-                this._activeShip = await this.inventory.getActiveShip();
+        this._activeShip = await this.inventory.getActiveShip();
         this.activeShipName = this._activeShip?.name;
         this._calculateSpeed();
         this._calculateShields();
@@ -200,6 +204,32 @@ export class Player extends Entity {
                             res2[0].ammunition[ammo].name,
                             res2[0].ammunition[ammo].amount
                         )
+                    );
+                }
+            }
+
+            for (const consumable in res2[0].consumables) {
+                if (res2[0].consumables[consumable]._type == "CreditsItem") {
+                    this.inventory.consumables.push(
+                        new CreditsItem(res2[0].consumables[consumable].name)
+                    );
+                } else if (
+                    res2[0].consumables[consumable]._type == "ThuliumItem"
+                ) {
+                    this.inventory.consumables.push(
+                        new ThuliumItem(res2[0].consumables[consumable].name)
+                    );
+                } else if (
+                    res2[0].consumables[consumable]._type == "ExperienceItem"
+                ) {
+                    this.inventory.consumables.push(
+                        new ExperienceItem(res2[0].consumables[consumable].name)
+                    );
+                } else if (
+                    res2[0].consumables[consumable]._type == "HonorItem"
+                ) {
+                    this.inventory.consumables.push(
+                        new HonorItem(res2[0].consumables[consumable].name)
                     );
                 }
             }

@@ -104,7 +104,7 @@ const maxConcurrentSounds = 6;
 let currentSounds: number = 0;
 let isUpdating: boolean = false;
 const tickrate = 60;
-const frameTime = 1000 / tickrate;
+const frameTime = 1000 / (tickrate - 1);
 
 // Web Workers
 // const updateObjectsWorker = new Worker("updateObjectsWorker.js");
@@ -1712,6 +1712,29 @@ async function loadEventListeners() {
             socket.emit("getTop10Honor", playerName);
         });
     }
+
+    document.querySelectorAll(".item").forEach((item: any) => {
+        item.draggable = true;
+
+        item.addEventListener("dragstart", (e: any) => {
+            e.dataTransfer.setData("text/plain", e.target.id);
+        });
+    });
+
+    document.querySelectorAll(".control-slot").forEach((slot) => {
+        slot.addEventListener("dragover", (e) => {
+            e.preventDefault();
+        });
+
+        slot.addEventListener("drop", (e: any) => {
+            e.preventDefault();
+            const itemId = e.dataTransfer.getData("text/plain");
+            const item = document.getElementById(itemId);
+            if (item) {
+                slot.appendChild(item);
+            }
+        });
+    });
 
     // updateObjectsWorker.addEventListener('message', (event) => {
     //     const { type, payload } = event.data;
