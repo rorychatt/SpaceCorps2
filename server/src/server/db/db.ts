@@ -188,7 +188,7 @@ export async function updateInventoryData(
                 _inventoryData.speedGenerators
             )}',
             ships = '${JSON.stringify(_inventoryData.ships)}',
-            ammunition = '${JSON.stringify(_inventoryData.ammunition)}'
+            ammunition = '${JSON.stringify(_inventoryData.ammunition)}',
             consumables = '${JSON.stringify(_inventoryData.consumables)}'
         WHERE username = '${username}'`;
 
