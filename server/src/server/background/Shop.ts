@@ -11,6 +11,7 @@ import {
     ShieldGenerator,
     ShipItem,
     SpeedGenerator,
+    ThuliumItem,
     consumableItemsData,
     generatorData,
     laserAmmoData,
@@ -79,7 +80,7 @@ export class Shop {
                         this.addItem(consumableName, creditsItem);
                         break;
                     case "ThuliumItem":
-                        const thuliumItem = new HonorItem(consumableName);
+                        const thuliumItem = new ThuliumItem(consumableName);
                         this.addItem(consumableName, thuliumItem);
                         break;
                     default:

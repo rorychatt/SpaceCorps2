@@ -1,5 +1,5 @@
 import { CargoDrop, OreResource } from "./CargoDrop";
-import { PossibleItems } from "./Inventory";
+import { ConsumableItems, PossibleItems } from "./Inventory";
 
 export class Reward {
     recipientUUID: string;
@@ -72,7 +72,7 @@ export class CreditsSetReward extends Reward {
     }
 }
 
-export class ThulimReward extends Reward {
+export class ThuliumReward extends Reward {
     thulium: number;
 
     constructor(recipientUUID: string, thulium: number) {
@@ -81,7 +81,7 @@ export class ThulimReward extends Reward {
     }
 }
 
-export class ThulimSetReward extends Reward {
+export class ThuliumSetReward extends Reward {
     thulium: number;
 
     constructor(recipientUUID: string, thulium: number) {
@@ -109,13 +109,20 @@ export class HonorReward extends Reward {
 }
 
 export class ItemReward extends Reward {
-    item: PossibleItems;
+    item: PossibleItems | ConsumableItems;
     amount?: number;
 
-    constructor(recipientUUID: string, item: PossibleItems, amount?: number) {
+    constructor(
+        recipientUUID: string,
+        item: PossibleItems | ConsumableItems,
+        amount?: number
+    ) {
         super(recipientUUID);
         this.item = item;
         if (amount) {
+            if ((item as ConsumableItems).amount) {
+                (this.item as ConsumableItems).amount = amount;
+            }
             this.amount = amount;
         }
     }
@@ -132,14 +139,24 @@ export class CargoDropReward extends Reward {
     }
 }
 
+export class ConsumableItemReward extends Reward {
+    consumable: ConsumableItems;
+
+    constructor(recipientUUID: string, consumable: ConsumableItems) {
+        super(recipientUUID);
+        this.consumable = consumable;
+    }
+}
+
 export type PossibleRewards =
     | HonorReward
     | ExperienceReward
-    | ThulimReward
-    | ThulimSetReward
+    | ThuliumReward
+    | ThuliumSetReward
     | CreditsReward
     | CreditsSetReward
     | PlayerKillReward
     | AlienKillReward
     | ItemReward
-    | CargoDropReward;
+    | CargoDropReward
+    | ConsumableItemReward;

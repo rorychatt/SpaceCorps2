@@ -163,6 +163,16 @@ export class ChatServer {
                             }
                         }
                         break;
+                    case "/item":
+                        const _player3 = await gameServer.getPlayerByUsername(message[2]);
+                        const item = await gameServer.shop.findItemByName(message[3]);
+                        if(_player3 && item){
+                            switch(message[1]){
+                                case "give":
+                                    gameServer.rewardServer.registerItemReward( _player3.uuid, item, 1)
+                                    break;
+                            }
+                        }
                 }
             }
         }
