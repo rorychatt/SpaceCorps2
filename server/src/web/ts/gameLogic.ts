@@ -692,7 +692,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                         playerName: playerName,
                         targetUUID: lockOnCircle.parent.uuid,
                         weapons: "lasers",
-                        ammo: "x1",
+                        ammo: "LAB-10",
                     });
                 }
                 break;
@@ -702,7 +702,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                         playerName: playerName,
                         targetUUID: lockOnCircle.parent.uuid,
                         weapons: "lasers",
-                        ammo: "x2",
+                        ammo: "LAB-20",
                     });
                 }
                 break;
@@ -962,7 +962,10 @@ async function createObject(data: any): Promise<THREE.Object3D> {
                 const clonedObject = objectCache[data.name].clone(true);
                 let childrenToRemove: THREE.Object3D[] = [];
                 clonedObject.traverse((child) => {
-                    if (child instanceof CSS2DObject || child.name == "lockOnCircle") {
+                    if (
+                        child instanceof CSS2DObject ||
+                        child.name == "lockOnCircle"
+                    ) {
                         childrenToRemove.push(child);
                     }
                 });

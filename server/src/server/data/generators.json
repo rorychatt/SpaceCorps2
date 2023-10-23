@@ -1,6 +1,7 @@
 {
     "sh1": {
         "name": "sh1",
+        "fullName": "Shield Generator 1",
         "shieldPoints": 10000,
         "shieldAbsorbance": 0.7,
         "price": {
@@ -9,6 +10,7 @@
     },
     "sh2": {
         "name": "sh2",
+        "fullName": "Shield Generator 2",
         "shieldPoints": 15000,
         "shieldAbsorbance": 0.8,
         "price": {
@@ -17,6 +19,7 @@
     },
     "sp1": {
         "name": "sp1",
+        "fullName": "Speed Generator 1",
         "baseSpeed": 5,
         "price": {
             "credits": 10000
@@ -24,6 +27,7 @@
     },
     "sp2": {
         "name": "sp2",
+        "fullName": "Speed Generator 2",
         "baseSpeed": 10,
         "price": {
             "credits": 20000
@@ -31,6 +35,7 @@
     },
     "sp99": {
         "name": "sp99",
+        "fullName": "Admin's Speed Generator 100",
         "baseSpeed": 100,
         "price": {
             "credits": 1
