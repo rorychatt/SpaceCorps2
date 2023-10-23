@@ -1,6 +1,7 @@
 {
-    "rocket1": {
-        "name": "rocket1",
+    "PRP-2023": {
+        "name": "PRP-2023",
+        "fullName": "Propelled Rocket Projectile 2023",
         "maxDamage": 2000,
         "damageVariance": 0.1,
         "criticalChance": 0.7,
