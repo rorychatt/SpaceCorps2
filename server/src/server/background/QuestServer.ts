@@ -191,13 +191,7 @@ export class QuestServer {
             return console.log(`Can't find player: ${data.playerUUID}`);
         if (player.currentActiveQuests.length <= 0) return;
 
-        // Loop through each active quest
         for (const quest of player.currentActiveQuests) {
-            // if (
-            //     quest.type === "completeInOrder" &&
-            //     !(quest.tasks[0]._type === "collect")
-            // )
-            //     continue;
             let previousCompleted = true;
             for (const task of quest.tasks) {
                 if (task instanceof TaskCollect && !task.completed) {
@@ -252,11 +246,6 @@ export class QuestServer {
 
         // Loop through each active quest
         for (const quest of player.currentActiveQuests) {
-            if (
-                quest.type === "completeInOrder" &&
-                !(quest.tasks[0]._type === "kill")
-            )
-                continue;
 
             let previousCompleted = true;
             for (const task of quest.tasks) {
