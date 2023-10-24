@@ -10,6 +10,7 @@ const quitDiv = document.getElementById("quit_container") as HTMLElement;
 const playerModalDiv = document.getElementById("player_info_modal") as HTMLElement;
 const shipModalDiv = document.getElementById("ship_info_modal") as HTMLElement;
 const chatModalDiv = document.getElementById("chat_info_modal") as HTMLElement;
+const chatModelDivClass = document.querySelector(".chat_info_modal") as HTMLElement;
 const spacemapModalDiv = document.getElementById("spacemap_info_modal") as HTMLElement;
 const logModalDiv = document.getElementById("log_info_modal") as HTMLElement;
 const assemblyModalDiv = document.getElementById("assembly_info_modal") as HTMLElement;

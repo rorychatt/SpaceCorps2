@@ -726,7 +726,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                 break;
 
             case "Enter":
-                if (chatModalDiv.style.display == "block") {
+                if (chatModelDivClass?.classList.contains("shown")) {
                     const messageText = chatModalInput?.value.trim();
                     if (messageText && chatModalInput && chatModalContent) {
                         socket.emit("sendChatMessageToServer", {
