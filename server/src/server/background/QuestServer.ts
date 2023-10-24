@@ -122,24 +122,33 @@ export class QuestServer {
 
     async issueQuest(username: string, questName: string) {
         const player = await gameServer.getPlayerByUsername(username);
-
+    
         if (!player) return console.log(`Can't find player: ${username}`);
-
+    
+        // Check if player already has the maximum number of quests
         if (player.currentActiveQuests.length >= maxQuestsPerPlayer) {
             return console.log("Max quests reached for player");
         }
-
+    
+        // Find the quest in available quests
         const quest = this.quests.find((q) => q.name === questName);
-
+    
         if (!quest) return console.log("Quest not found");
-
+    
+        // Check player level
         if (player.level < quest.requiredLevel) {
             return console.log("Player level not sufficient for this quest");
         }
-
+    
+        // Check if player already has this quest
+        if (player.currentActiveQuests.some((q) => q.name === quest.name)) {
+            return console.log("Player already has this quest");
+        }
+    
+        // Add the quest to player's active quests
         player.currentActiveQuests.push({ ...quest });
     }
-
+    
     async registerOreCollection(data: {
         playerUUID: string;
         cargoDrop: CargoDrop;
