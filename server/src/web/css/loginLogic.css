@@ -777,12 +777,14 @@ h1 {
     width: auto;
     min-width: 15vh;
 
-    padding: 0;
+    padding: 5px;
 
     background-color: var(--main-theme-color);
 
     animation: fadeInOutAndExpand 0.5s ease-in-out forwards;
     transform-origin: center center;
+
+
 }
 
 .ship_info_modal_header,
@@ -828,7 +830,7 @@ h1 {
     height: 100%;
     width: 30%;
 
-    border-right: 1px solid red;
+    border-right: 1px solid white;
 
     font-family: "AudioWide";
     font-size: 2vh;
@@ -2229,4 +2231,48 @@ input[type="number"]::-webkit-outer-spin-button {
     font-size: 16px;
     font-weight: 500;
     text-align: left;
+}
+
+/* Active Quest */
+
+.active_questbook_content {
+    height: 90%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.active_questbook_name {
+    color: white;
+    font-family: 'AudioWide';
+
+    font-size: 1.5vh;
+    
+    height: 20%;
+    text-align: center;
+}
+
+.active_questbook_task {
+    color: white;
+    font-family: 'AudioWide';
+    
+    height: 40%;
+    text-align: center;   
+}
+
+.active_questbook_reward {
+    color: white;
+    font-family: 'AudioWide';
+    
+    height: 35%;
+    text-align: center;
+}
+
+.quest_task_kill, .quest_task_fly, .quest_task_collect {
+    color: white;
+}
+
+.quest_reward_stats, .quest_reward_items {
+    color: white;
 }
