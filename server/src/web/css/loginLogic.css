@@ -2284,3 +2284,17 @@ input[type="number"]::-webkit-outer-spin-button {
 .quest_reward_items {
     color: white;
 }
+
+.item_icon_counter {
+    position: absolute;
+    display: block;
+    color: white;
+    font-size: 6px;
+    font-family: 'AudioWide';
+    margin-top: 22px;
+}
+
+.control-slot {
+    display: flex;
+    overflow: hidden;
+}
