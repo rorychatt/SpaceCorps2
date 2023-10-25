@@ -238,6 +238,7 @@ socket.on(
             },
         };
         displayShoppingItems();
+        displayHotbarItems();
     }
 );
 
@@ -792,7 +793,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                         playerName: playerName,
                         targetUUID: lockOnCircle.parent.uuid,
                         weapons: "rockets",
-                        ammo: "rocket1",
+                        ammo: "PRP-2023",
                     });
                 }
                 break;
@@ -1751,31 +1752,67 @@ async function loadEventListeners() {
 
         slot.addEventListener("drop", (e: any) => {
             e.preventDefault();
-            const itemId = e.dataTransfer.getData("text/plain");
-            const item = document.getElementById(itemId);
-            if (item) {
-                slot.appendChild(item);
-            }
+            const itemName = JSON.parse(
+                e.dataTransfer.getData("text/plain")
+            ).itemName;
+            const key = slot.getAttribute("data-key");
+            slot.innerHTML = "";
+
+            slot.appendChild(createNewIcon(itemName));
+
+            // Do something to assign this item to the keyboard key
+            console.log(key);
         });
     });
+}
 
-    // updateObjectsWorker.addEventListener('message', (event) => {
-    //     const { type, payload } = event.data;
+async function displayHotbarItems(
+    data = shoppingData.ammunition,
+    parentCategory = null
+) {
+    const categoryRow = document.querySelector(".category-row");
+    console.log(data);
+    if (categoryRow) {
+        for (const category in data) {
+            if (typeof data[category] === "object" && !data[category].name) {
+                const categoryDiv = document.createElement("div");
+                categoryDiv.className = "category";
+                categoryDiv.innerText = parentCategory
+                    ? `${parentCategory} > ${category}`
+                    : category;
+                categoryRow.appendChild(categoryDiv);
+                categoryDiv.addEventListener("click", function () {
+                    displayItems(data[category], category);
+                });
+            } else if (parentCategory) {
+                displayItems(data, parentCategory);
+            }
+        }
+        function displayItems(data: any, category: string) {
+            const itemsRow = document.querySelector(".items-row");
+            if (!itemsRow) return;
+            itemsRow.innerHTML = "";
+            for (const item in data) {
+                const itemDiv = document.createElement("div");
+                itemDiv.className = "item";
+                itemDiv.innerText = data[item].name;
+                itemsRow.appendChild(itemDiv);
 
-    //     switch (type) {
-    //       case 'updatedEntities':
-    //         payload.forEach((updatedEntity: any) => {
-    //           const object = getObjectByUUID(updatedEntity.uuid);
-    //           if (object) {
-    //             updateObject(object, updatedEntity);
-    //           }
-    //         });
-    //         break;
-
-    //       default:
-    //         console.warn(`Unknown message type received: ${type}`);
-    //     }
-    //   });
+                // Enable drag-and-drop
+                itemDiv.draggable = true;
+                itemDiv.addEventListener("dragstart", function (event: any) {
+                    const dragData = {
+                        itemName: item,
+                        category: category, // Include the category in drag data
+                    };
+                    event.dataTransfer.setData(
+                        "text/plain",
+                        JSON.stringify(dragData)
+                    );
+                });
+            }
+        }
+    }
 }
 
 async function displayShoppingItems() {

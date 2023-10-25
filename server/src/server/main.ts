@@ -284,7 +284,7 @@ io.on("connection", (socket) => {
     socket.on(
         "useItemEvent",
         async (data: { playerName: string; itemName: string }) => {
-            gameServer.registerPlayerUseItemEvent(data)
+            gameServer.registerPlayerUseItemEvent(data);
         }
     );
 
