@@ -783,8 +783,6 @@ h1 {
 
     animation: fadeInOutAndExpand 0.5s ease-in-out forwards;
     transform-origin: center center;
-
-
 }
 
 .ship_info_modal_header,
@@ -1652,7 +1650,6 @@ input[type="number"]::-webkit-outer-spin-button {
     background-color: #555;
 }
 
-
 /* Ammunition */
 .workroom_ammo {
     display: flex;
@@ -1751,8 +1748,16 @@ input[type="number"]::-webkit-outer-spin-button {
     font-size: 14px;
     position: absolute;
     z-index: 99;
-    left: 0;
-    bottom: 0;
+    left: 1px;
+    bottom: 16px;
+}
+
+#gamefps {
+    font-size: 14px;
+    position: absolute;
+    z-index: 99;
+    left: 1px;
+    bottom: 1px;
 }
 
 .top10honor_container {
@@ -2245,34 +2250,37 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .active_questbook_name {
     color: white;
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
 
     font-size: 1.5vh;
-    
+
     height: 20%;
     text-align: center;
 }
 
 .active_questbook_task {
     color: white;
-    font-family: 'AudioWide';
-    
+    font-family: "AudioWide";
+
     height: 40%;
-    text-align: center;   
+    text-align: center;
 }
 
 .active_questbook_reward {
     color: white;
-    font-family: 'AudioWide';
-    
+    font-family: "AudioWide";
+
     height: 35%;
     text-align: center;
 }
 
-.quest_task_kill, .quest_task_fly, .quest_task_collect {
+.quest_task_kill,
+.quest_task_fly,
+.quest_task_collect {
     color: white;
 }
 
-.quest_reward_stats, .quest_reward_items {
+.quest_reward_stats,
+.quest_reward_items {
     color: white;
 }

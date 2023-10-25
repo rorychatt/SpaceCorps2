@@ -18,6 +18,7 @@ let contentDiv = document.getElementById("content") as HTMLElement;
 let uiDiv = document.querySelector(".ui") as HTMLElement;
 let consoleBtn = document.querySelector(".console_button") as HTMLElement;
 let gameVersionDiv = document.getElementById("gameversion") as HTMLElement;
+let gamefpsDiv = document.getElementById("gamefps") as HTMLElement;
 let quests100qDiv = document.getElementById("quest_100q") as HTMLElement;
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
 
@@ -105,6 +106,8 @@ let currentSounds: number = 0;
 let isUpdating: boolean = false;
 const tickrate = 60;
 const frameTime = 1000 / (tickrate - 1);
+let lastTime = 0;
+let frameCount = 0;
 
 // Web Workers
 // const updateObjectsWorker = new Worker("updateObjectsWorker.js");
@@ -559,7 +562,7 @@ function initScene(): void {
     camera.add(audioListener);
 
     // Create an animation function to rotate the cube
-    const animate = () => {
+    const animate = (time?: any) => {
         requestAnimationFrame(animate);
 
         TWEEN.update();
@@ -598,6 +601,15 @@ function initScene(): void {
         damageIndicators.forEach((damageIndicator) => {
             damageIndicator.position.add(new THREE.Vector3(0, 0.01, 0));
         });
+
+        frameCount++;
+        let elapsed = (time - lastTime) / 1000;
+        if (elapsed >= 1) {
+            const fps = frameCount / elapsed;
+            gamefpsDiv.innerHTML = `FPS: ${fps.toFixed(4)}`;
+            frameCount = 0;
+            lastTime = time;
+        }
     };
 
     controls = new OrbitControls(camera, renderer.domElement);
