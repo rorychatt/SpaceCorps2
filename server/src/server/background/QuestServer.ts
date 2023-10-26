@@ -380,22 +380,32 @@ export class QuestServer {
             );
         }
 
-        gameServer.rewardServer.registerCreditsReward(
-            player.uuid,
-            quest.reward.stats.credits
-        );
-        gameServer.rewardServer.registerThuliumReward(
-            player.uuid,
-            quest.reward.stats.thulium
-        );
-        gameServer.rewardServer.registerExperienceReward(
-            player.uuid,
-            quest.reward.stats.experience
-        );
-        gameServer.rewardServer.registerHonorReward(
-            player.uuid,
-            quest.reward.stats.honor  
-        );
+        if(quest.reward.stats) {
+            if(quest.reward.stats.thulium) {
+                gameServer.rewardServer.registerThuliumReward(
+                    player.uuid,
+                    quest.reward.stats.thulium
+                );
+            }
+            if(quest.reward.stats.credits) {
+                gameServer.rewardServer.registerCreditsReward(
+                    player.uuid,
+                    quest.reward.stats.credits
+                );
+            }
+            if(quest.reward.stats.experience) {
+                gameServer.rewardServer.registerExperienceReward(
+                    player.uuid,
+                    quest.reward.stats.experience
+                );
+            }
+            if(quest.reward.stats.honor) {
+                gameServer.rewardServer.registerHonorReward(
+                    player.uuid,
+                    quest.reward.stats.honor  
+                );
+            }
+        }
 
         player.completedQuests.push({ questName: questName, completed: true });
         player.currentActiveQuests = player.currentActiveQuests.filter(q => q.name !== questName);
