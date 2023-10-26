@@ -85,12 +85,20 @@ export function setupDatabaseConnection(): Promise<void> {
                         volume INT DEFAULT 5,
                         antiAliasing BOOLEAN DEFAULT FALSE 
                     );`;
+                const quests: string = `
+                    CREATE TABLE IF NOT EXISTS quests (
+                        username VARCHAR(255) PRIMARY KEY,
+                        completedQuests JSON,
+                        currentQuests JSON
+                    )
+                `;
 
                 await Promise.all([
                     executeQuery(loginTableQuery),
                     executeQuery(playerEntityQuery),
                     executeQuery(inventoryQuery),
                     executeQuery(settingsPlayerQuery),
+                    executeQuery(quests),
                 ]);
 
                 resolve();  // Resolve promise if no error occurs
@@ -157,11 +165,13 @@ export async function registerNewUser(username: string, password: string) {
             const playerEntityQuery = `INSERT INTO playerEntity (username) VALUES ("${username}")`;
             const inventoryQuery = `INSERT INTO inventory (username, lasers, shieldGenerators, speedGenerators, ships, consumables) VALUES ("${username}", "{}", "{}", "{}", '{"protos":{"name":"Protos","maxHealth":8000,"baseSpeed":150,"maxLasers":2,"maxGenerators":2,"isActive":true,"price":{"credits":10000}}}', "{}")`;
             const playerSettingsQuery = `INSERT INTO gamesettings (username) VALUES ("${username}")`;
+            const quests = `INSERT INTO quests (username, completedQuests , currentQuests) VALUES ("${username}", "{}", "{}")`;
 
             executeQuery(loginTableQuery);
             executeQuery(playerEntityQuery);
             executeQuery(inventoryQuery);
             executeQuery(playerSettingsQuery);
+            executeQuery(quests);
         } else {
             console.log("Can't register user");
         }
