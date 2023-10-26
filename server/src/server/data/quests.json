@@ -12,8 +12,8 @@
             },
             "items": [
                 { "itemName": "laser2", "amount": 1 },
-                { "itemName": "x1", "amount": 1000 },
-                { "itemName": "x2", "amount": 100 },
+                { "itemName": "LAB-10", "amount": 1000 },
+                { "itemName": "LAB-20", "amount": 100 },
                 { "itemName": "rocket1", "amount": 50 }
             ]
         },
@@ -63,8 +63,8 @@
             },
             "items": [
                 { "itemName": "laser2", "amount": 1 },
-                { "itemName": "x1", "amount": 1000 },
-                { "itemName": "x2", "amount": 100 },
+                { "itemName": "LAB-10", "amount": 1000 },
+                { "itemName": "LAB-20", "amount": 100 },
                 { "itemName": "rocket1", "amount": 50 }
             ]
         },

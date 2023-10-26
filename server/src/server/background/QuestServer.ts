@@ -163,7 +163,7 @@ export class QuestServer {
         // Find the quest in available quests
         const quest = this.quests.find((q) => q.name === questName);
 
-        if (!quest) return console.log("Quest not found");
+        if (!quest) return console.log(`Quest: ${questName} not found! Player: ${username}`);
 
         // Check player level
         if (player.level < quest.requiredLevel) {
@@ -178,6 +178,23 @@ export class QuestServer {
         // Add the quest to player's active quests
         player.currentActiveQuests.push(quest);
         return console.log(`Issued quest ${questName} to player: ${username}`);
+    }
+
+    async removeQuest(username: string, questName: string) {
+        const player = await gameServer.getPlayerByUsername(username);
+
+        if(!player) return console.log(`Can't find player: ${username}`);
+
+        if(player.currentActiveQuests.length <= 0) return console.log(`Player: ${username} has no active quests`);
+        
+        const quest = player.currentActiveQuests.find((q) => q.name === questName);
+
+        if(!quest) return console.log(`Quest: ${questName} not found! Player: ${username}`);
+
+        // Remove the quest
+        player.currentActiveQuests = player.currentActiveQuests.filter(q => q.name !== questName);
+
+        console.log(`Removed quest: ${questName}, player: ${username}`);
     }
 
     async registerOreCollection(data: {
@@ -347,6 +364,52 @@ export class QuestServer {
 
         // Quest is completed
         quest.completed = true;
-        // TODO: give rewards to player and move the quest to completedQuests
+
+        for(let i = 0; i < quest.reward.items.length; i++) {
+            const item = gameServer.shop.findItemByName(quest.reward.items[i].itemName);
+
+            if(!item) { 
+                console.log(`Can't find item: ${quest.reward.items[i].itemName}`);
+                continue;
+            };
+
+            gameServer.rewardServer.registerItemReward(
+                player.uuid,
+                item,
+                quest.reward.items[i].amount
+            );
+        }
+
+        if(quest.reward.stats) {
+            if(quest.reward.stats.thulium) {
+                gameServer.rewardServer.registerThuliumReward(
+                    player.uuid,
+                    quest.reward.stats.thulium
+                );
+            }
+            if(quest.reward.stats.credits) {
+                gameServer.rewardServer.registerCreditsReward(
+                    player.uuid,
+                    quest.reward.stats.credits
+                );
+            }
+            if(quest.reward.stats.experience) {
+                gameServer.rewardServer.registerExperienceReward(
+                    player.uuid,
+                    quest.reward.stats.experience
+                );
+            }
+            if(quest.reward.stats.honor) {
+                gameServer.rewardServer.registerHonorReward(
+                    player.uuid,
+                    quest.reward.stats.honor  
+                );
+            }
+        }
+
+        player.completedQuests.push({ questName: questName, completed: true });
+        player.currentActiveQuests = player.currentActiveQuests.filter(q => q.name !== questName);
+
+        console.log(`Successfully rewards for quest: ${questName}, player: ${player.name}`);
     }
 }
