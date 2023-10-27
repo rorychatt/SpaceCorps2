@@ -41,8 +41,8 @@ function fixGameServer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { QuestServer } from "./QuestServer";',
-            'import { QuestServer } from "./QuestServer.js";'
+            'import { CompletedQuestDTO, QuestDTO, QuestServer, QuestTaskDTO } from "./QuestServer";',
+            'import { CompletedQuestDTO, QuestDTO, QuestServer, QuestTaskDTO } from "./QuestServer.js";'
         );
 
         modifiedData = modifiedData.replace(
@@ -61,8 +61,8 @@ function fixGameServer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { savePlayerData } from "../db/db";',
-            'import { savePlayerData } from "../db/db.js";'
+            'import { saveCompletedQuests, saveCurrentQuests, savePlayerData } from "../db/db";',
+            'import { saveCompletedQuests, saveCurrentQuests, savePlayerData } from "../db/db.js";'
         );
 
         modifiedData = modifiedData.replace(
@@ -160,8 +160,8 @@ function fixPlayer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { getInventoryData, getUserDataByUsername, } from "../db/db";',
-            'import { getInventoryData, getUserDataByUsername, } from "../db/db.js";'
+            'import { getQuests, getInventoryData, getUserDataByUsername, } from "../db/db";',
+            'import { getQuests, getInventoryData, getUserDataByUsername, } from "../db/db.js";'
         );
 
         modifiedData = modifiedData.replace(
@@ -172,6 +172,11 @@ function fixPlayer() {
         modifiedData = modifiedData.replace(
             'import { gameServer } from "../main";',
             'import { gameServer } from "../main.js";'
+        );
+
+        modifiedData = modifiedData.replace(
+            'import { Quest, questData } from "./QuestServer";',
+            'import { Quest, questData } from "./QuestServer.js";'
         );
 
         modifiedData = modifiedData.replace(
