@@ -476,6 +476,7 @@ socket.on(
 socket.on(
     "hotbarMappingData",
     (data: { username: string; hotbarMapping: HotbarMapping }) => {
+        hotbarMapping = data.hotbarMapping;
         updateHotbarItems(data.hotbarMapping);
     }
 );
@@ -1903,7 +1904,6 @@ function updateHotbarItems(hotbarMapping: HotbarMapping) {
         }
     });
 }
-
 
 async function displayShoppingItems() {
     // console.log(shoppingData);
