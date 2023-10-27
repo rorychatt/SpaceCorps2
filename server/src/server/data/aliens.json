@@ -72,7 +72,7 @@
             "shieldAbsorbance": 0.6
         },
         "damage": {
-            "maxDamage": 130,
+            "maxDamage": 180,
             "variance": 0.4,
             "criticalChance": 0.02,
             "criticalMultipler": 3
@@ -96,6 +96,39 @@
         "movement": {
             "behaviour": "passive",
             "speed": 360
+        }
+    },
+    "boss-plasmoid": {
+        "hitPoints": {
+            "hullPoints": 16000,
+            "shieldPoints": 16000,
+            "shieldAbsorbance": 0.7
+        },
+        "damage": {
+            "maxDamage": 650,
+            "variance": 0.25,
+            "criticalChance": 0.05,
+            "criticalMultipler": 4
+        },
+        "oreDrop": [
+            {
+                "oreName": "radium",
+                "amount": 100
+            },
+            {
+                "oreName": "agronite",
+                "amount": 100
+            }
+        ],
+        "killReward": {
+            "credits": 15000,
+            "thulium": 16,
+            "experience": 2000,
+            "honor": 15
+        },
+        "movement":{
+            "behaviour": "passive",
+            "speed": 450
         }
     }
 }

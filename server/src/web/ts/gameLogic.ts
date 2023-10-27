@@ -104,6 +104,7 @@ const damageIndicators: any[] = [];
 const maxConcurrentSounds = 6;
 let currentSounds: number = 0;
 let isUpdating: boolean = false;
+let currentSelectedQuestKey = 0;
 const tickrate = 60;
 const frameTime = 1000 / (tickrate - 1);
 let lastTime = 0;
@@ -278,6 +279,8 @@ socket.on("questsData", (data: { username: string; quests: any[] }) => {
         quests100qDiv.removeChild(quests100qDiv.firstChild);
     }
 
+    console.log(data.quests);
+
     data.quests.forEach((quest) => {
         const _questName = quest.questName;
         const { completed } = quest;
@@ -287,10 +290,11 @@ socket.on("questsData", (data: { username: string; quests: any[] }) => {
 
         const questNumber = document.createElement("div");
         questNumber.classList.add("quest_number");
+        questNumber.textContent = quest.questNo;
 
         const questNameDiv = document.createElement("div");
         questNameDiv.classList.add("quest_name");
-        questNameDiv.textContent = _questName;
+        questNameDiv.textContent = `${_questName}: ${quest.description}`;
 
         const acceptButton = document.createElement("button");
         acceptButton.classList.add("quest_accept");
@@ -776,7 +780,6 @@ function handleKeyboardButton(e: KeyboardEvent) {
         ]);
 
         if (validKeys.has(e.key) && lockOnCircle?.parent) {
-            console.log(hotbarMapping[e.key]);
             socket.emit("shootEvent", {
                 playerName: playerName,
                 targetUUID: lockOnCircle.parent.uuid,
@@ -1834,6 +1837,19 @@ async function loadEventListeners() {
             }
         });
     });
+
+    // Add event listeners to dots in questbook
+    for (let i = 0; i <= 4; i++) {
+        const dot = document.getElementById(`dot_${i}`);
+        dot?.addEventListener("click", () => {
+            displayQuest(playerEntity.currentActiveQuests[i]);
+            currentSelectedQuestKey = i;
+        });
+    }
+
+    setInterval(() => {
+        displayQuest(playerEntity.currentActiveQuests[currentSelectedQuestKey]);
+    }, 1000);
 }
 
 async function displayHotbarItems(
@@ -2610,4 +2626,88 @@ function createSafeZoneRing(
     safeZoneCircle.position.set(0, 0.01, 0);
     safeZoneCircle.name = "portalSafeZone";
     return safeZoneCircle;
+}
+
+function displayQuest(quest: any) {
+    // Show the quest name
+    if (quest == undefined) {
+        document.getElementById("activeQuestName")!.innerHTML = "";
+        document.getElementById("activeQuestTask")!.innerHTML = "";
+        document.getElementById("activeQuestReward")!.innerHTML = "";
+        return;
+    }
+    document.getElementById("activeQuestName")!.innerText = quest.questName;
+
+    // Show the quest tasks
+    const taskDiv = document.getElementById("activeQuestTask")!;
+    taskDiv.innerHTML = `Tasks: ${quest.type}`;
+    quest.tasks.forEach((task: any) => {
+        const taskElement = document.createElement("div");
+        taskElement.className = `quest_task_${task._type}`;
+        taskElement.innerText = `${task._type}: ${
+            task.targetName || task.oreName || ""
+        } ( ${parseInt(task.currentAmount)} / ${
+            task.amount || parseInt(task.distance)
+        } ) map: ${task.map}`;
+        taskDiv.appendChild(taskElement);
+    });
+
+    // Show the quest rewards
+    const rewardDiv = document.getElementById("activeQuestReward")!;
+    rewardDiv.innerHTML = "Rewards:";
+    const statsDiv = document.createElement("div");
+    statsDiv.className = "quest_reward_stats";
+    let statsTexts = [];
+
+    if (
+        quest.reward.stats.experience !== undefined &&
+        quest.reward.stats.experience !== 0
+    ) {
+        statsTexts.push(`Experience: ${quest.reward.stats.experience}`);
+    }
+
+    if (
+        quest.reward.stats.credits !== undefined &&
+        quest.reward.stats.credits !== 0
+    ) {
+        statsTexts.push(`Credits: ${quest.reward.stats.credits}`);
+    }
+
+    if (
+        quest.reward.stats.honor !== undefined &&
+        quest.reward.stats.honor !== 0
+    ) {
+        statsTexts.push(`Honor: ${quest.reward.stats.honor}`);
+    }
+
+    if (
+        quest.reward.stats.thulium !== undefined &&
+        quest.reward.stats.thulium !== 0
+    ) {
+        statsTexts.push(`Thulium: ${quest.reward.stats.thulium}`);
+    }
+
+    // Join the array using '<br>' as the separator to create the final string.
+    statsDiv.innerHTML = statsTexts.join("<br>");
+
+    rewardDiv.appendChild(statsDiv);
+
+    // Create a container for the quest items
+    const itemsDiv = document.createElement("div");
+    itemsDiv.className = "quest_reward_items";
+
+    // Create a title for the items section
+    const itemsTitle = document.createElement("div");
+    itemsTitle.innerText = "Items:";
+    itemsDiv.appendChild(itemsTitle);
+
+    // Loop through each item to create individual item elements and append them to the itemsDiv
+    quest.reward.items.forEach((item: any) => {
+        const individualItemDiv = document.createElement("div");
+        individualItemDiv.innerText = `${item.itemName} (${item.amount})`;
+        itemsDiv.appendChild(individualItemDiv);
+    });
+
+    // Append the itemsDiv to the rewardDiv
+    rewardDiv.appendChild(itemsDiv);
 }

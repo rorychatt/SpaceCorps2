@@ -2,7 +2,35 @@
     "Welcome 1": {
         "questName": "Welcome 1",
         "type": "completeWithoutOrder",
+        "questNo": 1,
         "description": "Welcome Pilot! To show your loyalty, we must see what you are capable of. With our small gift of 50.000 credits, go ahead and buy and equip some lasers and ammo, and bring us any thetys' head! Oh, and find one far away from the base, and show us their cargo!",
+        "tasks": [
+            {
+                "_type": "kill",
+                "_id": 0,
+                "targetName": "thetys",
+                "amount": 3,
+                "map": "any",
+                "completed": false
+            },
+            {
+                "_type": "fly",
+                "_id": 1,
+                "distance": 250,
+                "map": "any",
+                "completed": false
+            },
+            {
+                "_type": "collect",
+                "_id": 2,
+                "oreName": "radium",
+                "map": "any",
+                "amount": 10,
+                "completed": false
+            }
+        ],
+        "requiredLevel": 1,
+        "completed": false,
         "reward": {
             "stats": {
                 "experience": 3000,
@@ -16,42 +44,90 @@
                 { "itemName": "LAB-20", "amount": 100 },
                 { "itemName": "PRP-2023", "amount": 50 }
             ]
-        },
+        }
+    },
+    "Consequences 1": {
+        "questName": "Consequences 1",
+        "questNo": 2,
+        "type": "completeInOrder",
+        "description": "You did well on your previous task. However, those pesky thetys did not like what you did! They assembled into small groups together with plasmoid and are raiding our convoys. This problem must be dealt with! But make sure to first take out their boss!",
         "tasks": [
             {
                 "_type": "kill",
                 "_id": 0,
+                "targetName": "plasmoid",
+                "map": "any",
+                "amount": 1
+            },
+            {
+                "_type": "kill",
+                "_id": 1,
                 "targetName": "thetys",
-                "amount": 3,
+                "map": "any",
+                "amount": 10
+            }
+        ],
+        "requiredLevel": 1,
+        "completed": false,
+        "reward": {
+            "stats": {
+                "experience": 5000,
+                "credits": 20000,
+                "thulium": 10000
+            },
+            "items": [{ "itemName": "laser4", "amount": 1 }]
+        }
+    },
+    "A new Adventure 1": {
+        "questName": "A new Adventure 1",
+        "questNo": 3,
+        "type": "completeInOrder",
+        "description": "Wow. You made it. New problem. We found out about the leaders of the thetys fraction. Destroy them and leave no evidence!",
+        "tasks": [
+            {
+                "_type": "kill",
+                "_id": 0,
+                "targetName": "boss-thetys",
+                "amount": 2,
                 "map": "any",
                 "completed": false
             },
             {
-                "_type": "fly",
+                "_type": "kill",
                 "_id": 1,
-                "distance": 5000,
-                "map": "any",
+                "targetName": "boss-thetys",
+                "amount": 4,
+                "map": "P-1",
                 "completed": false
             },
             {
                 "_type": "kill",
                 "_id": 2,
-                "targetName": "thetys",
-                "amount": 1,
-                "map": "any",
-                "completed": false
-            },
-            {
-                "_type": "collect",
-                "_id": 3,
-                "oreName": "radium",
-                "map": "any",
-                "amount": 10,
-                "currentAmount": 0,
+                "targetName": "boss-plasmoid",
+                "amount": 4,
+                "map": "P-1",
                 "completed": false
             }
         ],
         "requiredLevel": 1,
-        "completed": false
+        "completed": false,
+        "reward": {
+            "stats": {
+                "experience": 10000,
+                "honor": 1000,
+                "thulium": 5000,
+                "credits": 100000
+            },
+            "items": [
+                {
+                    "itemName": "sh2",
+                    "amount": 1
+                },
+                {
+                    "itemName": "LAB-30",
+                    "amount": 5000
+                }
+            ]
+        }
     }
 }
