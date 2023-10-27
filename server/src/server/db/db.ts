@@ -94,7 +94,7 @@ export function setupDatabaseConnection(): Promise<void> {
                     CREATE TABLE IF NOT EXISTS gamesettings (
                         username VARCHAR(255) PRIMARY KEY,
                         volume INT DEFAULT 5,
-                        antiAliasing BOOLEAN DEFAULT FALSE 
+                        antiAliasing BOOLEAN DEFAULT TRUE
                     );`;
             const questsQuery: string = `
                     CREATE TABLE IF NOT EXISTS quests (
