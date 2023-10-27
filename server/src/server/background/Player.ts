@@ -4,6 +4,7 @@ import {
     getInventoryData,
     getUserDataByUsername,
     QuestsInterface,
+    getPlayerHotbarSettings,
 } from "../db/db";
 import { gameServer } from "../main";
 import { Alien, Durability } from "./Alien";
@@ -240,21 +241,30 @@ export class Player extends Entity {
             }
         }
 
-        if(res3) {
-            if(res3.completedQuests.length > 0) {
-                for(let i = 0; i < res3.completedQuests.length; i++) {
-                    this.completedQuests.push({questName: res3.completedQuests[i].questName});
-                }   
+        if (res3) {
+            if (res3.completedQuests.length > 0) {
+                for (let i = 0; i < res3.completedQuests.length; i++) {
+                    this.completedQuests.push({
+                        questName: res3.completedQuests[i].questName,
+                    });
+                }
             }
 
-            if(res3.currentQuests.length > 0) {
-                for(let i = 0; i < res3.currentQuests.length; i++) {
+            if (res3.currentQuests.length > 0) {
+                for (let i = 0; i < res3.currentQuests.length; i++) {
                     const quest = res3.currentQuests[i];
 
-                    for(const key in questData) {
-                        if(questData[key].questName == quest.questName) {
-                            const newQuest = new Quest(quest.questName, questData[key].type, questData[key].reward, questData[key].tasks, questData[key].requiredLevel, questData[key].completed);
-                            
+                    for (const key in questData) {
+                        if (questData[key].questName == quest.questName) {
+                            const newQuest = new Quest(
+                                quest.questName,
+                                questData[key].type,
+                                questData[key].reward,
+                                questData[key].tasks,
+                                questData[key].requiredLevel,
+                                questData[key].completed
+                            );
+
                             newQuest.setAllTasksProgress(quest.tasksProgress);
 
                             this.currentActiveQuests.push(newQuest);
@@ -265,9 +275,6 @@ export class Player extends Entity {
                 }
             }
         }
-
-        // console.log(JSON.stringify(this.currentActiveQuests));
-        // console.log(this.completedQuests);
 
         this.currentMap = templateData.currentMap;
         this.position = {

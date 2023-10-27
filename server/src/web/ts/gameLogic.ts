@@ -113,6 +113,7 @@ let frameCount = 0;
 
 type HotbarMapping = {
     [key: string]: null | { itemName: string };
+    "0": null;
     "1": null;
     "2": null;
     "3": null;
@@ -122,10 +123,10 @@ type HotbarMapping = {
     "7": null;
     "8": null;
     "9": null;
-    "0": null;
 };
 
-const hotbarMapping: HotbarMapping = {
+let hotbarMapping: HotbarMapping = {
+    "0": null,
     "1": null,
     "2": null,
     "3": null,
@@ -135,7 +136,6 @@ const hotbarMapping: HotbarMapping = {
     "7": null,
     "8": null,
     "9": null,
-    "0": null,
 };
 
 raycaster.layers.set(rayCastLayerNo);
@@ -299,7 +299,7 @@ socket.on("questsData", (data: { username: string; quests: any[] }) => {
         acceptButton.addEventListener("click", () => {
             socket.emit("acceptQuest", {
                 username: data.username,
-                questName: _questName
+                questName: _questName,
             });
         });
 
@@ -473,6 +473,13 @@ socket.on(
     }
 );
 
+socket.on(
+    "hotbarMappingData",
+    (data: { username: string; hotbarMapping: HotbarMapping }) => {
+        updateHotbarItems(data.hotbarMapping);
+    }
+);
+
 function savePlayerSettings(data: {
     username: string;
     volume: string;
@@ -499,14 +506,13 @@ function savePlayerHotbarSettings(data: {
 }) {
     if (data.hotbarMapping) {
         socket.emit("savePlayerHotbarSettings", {
-            usernane: data.username,
+            username: data.username,
             hotbarMapping: JSON.stringify(data.hotbarMapping),
         });
     }
 }
 
 async function loadNewSpacemap(data: any) {
-    console.log(data);
     clearScene(scene);
     lockOnCircle?.removeFromParent();
     try {
@@ -1820,6 +1826,10 @@ async function loadEventListeners() {
                 hotbarMapping[key] = {
                     itemName: itemName as string,
                 };
+                savePlayerHotbarSettings({
+                    username: playerName,
+                    hotbarMapping: hotbarMapping,
+                });
             }
         });
     });
@@ -1830,7 +1840,6 @@ async function displayHotbarItems(
     parentCategory = null
 ) {
     const categoryRow = document.querySelector(".category-row");
-    console.log(data);
     if (categoryRow) {
         for (const category in data) {
             if (typeof data[category] === "object" && !data[category].name) {
@@ -1873,6 +1882,28 @@ async function displayHotbarItems(
         }
     }
 }
+
+function updateHotbarItems(hotbarMapping: HotbarMapping) {
+    const hotbarSlots = document.querySelectorAll(".control-slot");
+
+    hotbarSlots.forEach((slot) => {
+        const key = slot.getAttribute("data-key");
+
+        if (key && key in hotbarMapping) {
+            const hotbarItem = hotbarMapping[key];
+
+            // Clear existing item
+            slot.innerHTML = "";
+
+            if (hotbarItem) {
+                // If the slot has an item, create a new icon and append it
+                const newIcon = createNewIcon(hotbarItem.itemName);
+                slot.appendChild(newIcon);
+            }
+        }
+    });
+}
+
 
 async function displayShoppingItems() {
     // console.log(shoppingData);

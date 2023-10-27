@@ -7,6 +7,7 @@ import {
     QuestDTO,
     QuestTaskDTO,
 } from "../background/QuestServer.js";
+import { HotbarSettingsData } from "../main.js";
 
 export interface UserCredentials {
     username: string;
@@ -96,7 +97,7 @@ export function setupDatabaseConnection(): Promise<void> {
                         volume INT DEFAULT 5,
                         antiAliasing BOOLEAN DEFAULT TRUE
                     );`;
-            const questsQuery: string = `
+                const questsQuery: string = `
                     CREATE TABLE IF NOT EXISTS quests (
                         username VARCHAR(255) PRIMARY KEY,
                         completedQuests JSON,
@@ -116,7 +117,7 @@ export function setupDatabaseConnection(): Promise<void> {
                     executeQuery(inventoryQuery),
                     executeQuery(settingsPlayerQuery),
                     executeQuery(questsQuery),
-                    executeQuery(hotbarMappingQuery)
+                    executeQuery(hotbarMappingQuery),
                 ]);
 
                 resolve(); // Resolve promise if no error occurs
@@ -184,8 +185,8 @@ export async function registerNewUser(username: string, password: string) {
             const inventoryQuery = `INSERT INTO inventory (username, lasers, shieldGenerators, speedGenerators, ships, consumables, ammunition) VALUES ("${username}", "{}", "{}", "{}", '{"protos":{"name":"Protos","maxHealth":8000,"baseSpeed":150,"maxLasers":2,"maxGenerators":2,"isActive":true,"price":{"credits":10000}}}', "{}", "{}")`;
             const playerSettingsQuery = `INSERT INTO gamesettings (username) VALUES ("${username}")`;
             const questsQuery = `INSERT INTO quests (username, completedQuests , currentQuests) VALUES ("${username}", "{}", "{}")`;
-            const hotbarQuery = `INSERT INTO hotbarMapping (username, hotbarMapping) VALUES ("${username}", "{}")`
-            
+            const hotbarQuery = `INSERT INTO hotbarMapping (username, hotbarMapping) VALUES ("${username}", "{}")`;
+
             executeQuery(loginTableQuery);
             executeQuery(playerEntityQuery);
             executeQuery(inventoryQuery);
@@ -283,6 +284,22 @@ export function savePlayerSettings(data: {
             username = '${data.username}';
         `;
     executeQuery(query);
+}
+
+export function savePlayerHotbarSettings(data: HotbarSettingsData) {
+    const query = `
+        UPDATE hotbarMapping
+        SET
+            hotbarMapping = '${data.hotbarMapping}'
+        WHERE
+            username = '${data.username}'
+    `;
+    executeQuery(query);
+}
+
+export function getPlayerHotbarSettings(username: string) {
+    const query = `SELECT * FROM hotbarMapping WHERE username = '${username}'`;
+    return executeQuery(query);
 }
 
 export function getQuests(username: string) {

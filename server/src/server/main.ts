@@ -5,9 +5,11 @@ import http from "http";
 import { Server, Socket } from "socket.io";
 import {
     executeQuery,
+    getPlayerHotbarSettings,
     getUserByUsername,
     loadPlayerSettings,
     registerNewUser,
+    savePlayerHotbarSettings,
     savePlayerSettings,
     setupDatabaseConnection,
 } from "./db/db.js";
@@ -122,6 +124,17 @@ io.on("connection", (socket) => {
                         quests: gameServer.questServer.quests,
                     });
 
+                    socket.emit("hotbarMappingData", {
+                        username: userCredentials.username,
+                        hotbarMapping: (
+                            (
+                                await getPlayerHotbarSettings(
+                                    userCredentials.username
+                                )
+                            )[0] as any
+                        ).hotbarMapping,
+                    });
+
                     console.log(
                         `${userCredentials.username} logs into the game`
                     );
@@ -205,9 +218,7 @@ io.on("connection", (socket) => {
 
     socket.on(
         "completeQuest",
-        (data: { username: string; questName: string }) => {
-            
-        }
+        (data: { username: string; questName: string }) => {}
     );
 
     socket.on(
@@ -326,6 +337,10 @@ io.on("connection", (socket) => {
     socket.on("saveSettings", (settingsData: SettingsData) => {
         savePlayerSettings(settingsData);
     });
+
+    socket.on("savePlayerHotbarSettings", (hotbarData: HotbarSettingsData) => {
+        savePlayerHotbarSettings(hotbarData);
+    });
 });
 
 function handleHTTPRequests() {
@@ -429,4 +444,17 @@ function handleHTTPRequests() {
     });
 }
 
-type SettingsData = { username: string; volume: number; antiAliasing: boolean };
+export type SettingsData = {
+    username: string;
+    volume: number;
+    antiAliasing: boolean;
+};
+
+export type HotbarSettingsData = {
+    username: string;
+    hotbarMapping: HotbarMapping;
+};
+
+export type HotbarMapping = {
+    [key: string]: null | { itemName: string };
+};
