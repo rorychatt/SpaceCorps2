@@ -1,7 +1,9 @@
 import {
     PlayerEntityInterface,
+    getQuests,
     getInventoryData,
     getUserDataByUsername,
+    QuestsInterface,
 } from "../db/db";
 import { gameServer } from "../main";
 import { Alien, Durability } from "./Alien";
@@ -21,7 +23,7 @@ import {
     SpeedGenerator,
     ThuliumItem,
 } from "./Inventory";
-import { Quest } from "./QuestServer";
+import { Quest, QuestDTO, QuestTaskDTO, questData } from "./QuestServer";
 import { Spacemap, Vector2D } from "./Spacemap";
 
 export class Player extends Entity {
@@ -46,7 +48,7 @@ export class Player extends Entity {
     targetUUID: string | undefined = undefined;
     level: number = 1;
     currentActiveQuests: Quest[] = [];
-    completedQuests: { questName: string; completed: boolean }[] = [];
+    completedQuests: { questName: string }[] = [];
 
     public constructor(socketId: string, map: Spacemap, username: string) {
         super(map.name, username);
@@ -90,7 +92,7 @@ export class Player extends Entity {
     }
 
     async completeQuest(quest: Quest) {
-        this.completedQuests.push({ questName: quest.name, completed: true });
+        this.completedQuests.push({ questName: quest.questName });
     }
 
     async refreshActiveShip() {
@@ -117,6 +119,9 @@ export class Player extends Entity {
             this.name
         )) as PlayerEntityInterface[];
         const res2 = await getInventoryData(this.name);
+        const res3Data = await getQuests(this.name);
+        const res3 = res3Data[0] as QuestsInterface;
+
         if (res && res.length > 0) {
             const data = res[0];
             templateData = {
@@ -234,6 +239,36 @@ export class Player extends Entity {
                 }
             }
         }
+
+        if(res3) {
+            if(res3.completedQuests.length > 0) {
+                for(let i = 0; i < res3.completedQuests.length; i++) {
+                    this.completedQuests.push({questName: res3.completedQuests[i].questName});
+                }   
+            }
+
+            if(res3.currentQuests.length > 0) {
+                for(let i = 0; i < res3.currentQuests.length; i++) {
+                    const quest = res3.currentQuests[i];
+
+                    for(const key in questData) {
+                        if(questData[key].questName == quest.questName) {
+                            const newQuest = new Quest(quest.questName, questData[key].type, questData[key].reward, questData[key].tasks, questData[key].requiredLevel, questData[key].completed);
+                            
+                            newQuest.setAllTasksProgress(quest.tasksProgress);
+
+                            this.currentActiveQuests.push(newQuest);
+
+                            // console.log(JSON.stringify(`NEW QUEST TASKS: ${JSON.stringify(newQuest.tasks)}`));
+                        }
+                    }
+                }
+            }
+        }
+
+        // console.log(JSON.stringify(this.currentActiveQuests));
+        // console.log(this.completedQuests);
+
         this.currentMap = templateData.currentMap;
         this.position = {
             x: templateData.positionX,

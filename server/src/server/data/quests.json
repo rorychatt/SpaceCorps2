@@ -1,6 +1,6 @@
 {
     "Welcome 1": {
-        "name": "Welcome 1",
+        "questName": "Welcome 1",
         "type": "completeWithoutOrder",
         "description": "Welcome Pilot! To show your loyalty, we must see what you are capable of. With our small gift of 50.000 credits, go ahead and buy and equip some lasers and ammo, and bring us any thetys' head! Oh, and find one far away from the base, and show us their cargo!",
         "reward": {
@@ -14,25 +14,28 @@
                 { "itemName": "laser2", "amount": 1 },
                 { "itemName": "LAB-10", "amount": 1000 },
                 { "itemName": "LAB-20", "amount": 100 },
-                { "itemName": "rocket1", "amount": 50 }
+                { "itemName": "PRP-2023", "amount": 50 }
             ]
         },
         "tasks": [
             {
                 "_type": "kill",
+                "_id": 0,
                 "targetName": "thetys",
-                "amount": 1,
+                "amount": 3,
                 "map": "any",
                 "completed": false
             },
             {
                 "_type": "fly",
+                "_id": 1,
                 "distance": 5000,
                 "map": "any",
                 "completed": false
             },
             {
                 "_type": "kill",
+                "_id": 2,
                 "targetName": "thetys",
                 "amount": 1,
                 "map": "any",
@@ -40,60 +43,11 @@
             },
             {
                 "_type": "collect",
+                "_id": 3,
                 "oreName": "radium",
                 "map": "any",
                 "amount": 10,
                 "currentAmount": 0,
-                "completed": false
-            }
-        ],
-        "requiredLevel": 1,
-        "completed": false
-    },
-    "Welcome 2": {
-        "name": "Welcome 2",
-        "type": "completeInOrder",
-        "description": "Welcome Pilot! To show your loyalty, we must see what you are capable of. With our small gift of 50.000 credits, go ahead and buy and equip some lasers and ammo, and bring us any thetys' head! Oh, and find one far away from the base, and show us their cargo!",
-        "reward": {
-            "stats": {
-                "experience": 3000,
-                "honor": 100,
-                "credits": 8000,
-                "thulium": 100
-            },
-            "items": [
-                { "itemName": "laser2", "amount": 1 },
-                { "itemName": "LAB-10", "amount": 1000 },
-                { "itemName": "LAB-20", "amount": 100 },
-                { "itemName": "rocket1", "amount": 50 }
-            ]
-        },
-        "tasks": [
-            {
-                "_type": "kill",
-                "targetName": "thetys",
-                "amount": 1,
-                "map": "any",
-                "completed": false
-            },
-            {
-                "_type": "fly",
-                "distance": 5000,
-                "map": "any",
-                "completed": false
-            },
-            {
-                "_type": "kill",
-                "targetName": "thetys",
-                "amount": 1,
-                "map": "any",
-                "completed": false
-            },
-            {
-                "_type": "collect",
-                "oreName": "radium",
-                "map": "any",
-                "amount": 10,
                 "completed": false
             }
         ],

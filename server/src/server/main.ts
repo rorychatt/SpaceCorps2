@@ -206,18 +206,7 @@ io.on("connection", (socket) => {
     socket.on(
         "completeQuest",
         (data: { username: string; questName: string }) => {
-            // data: {username: ... , questName: string}
-            // gameServer.questServer.issueQuest(username: string, questName: string)
-            // for(let i = 0; i < gameServer.players.length; i++) {
-            //     if(gameServer.players[i].name == data.username) {
-            //         for(let j = 0; j < gameServer.players[i].currentActiveQuests.length; j++) {
-            //             gameServer.players[i].currentActiveQuests = gameServer.players[i].currentActiveQuests.filter(item => item != gameServer.players[i].currentActiveQuests[j]);
-            //             gameServer.questServer.quests[j].completed = true;
-            //             console.log(gameServer.players[i].currentActiveQuests);
-            //             console.log("gameServer.questServer.quests[j]:", gameServer.questServer.quests[j]);
-            //         }
-            //     }
-            // }
+            
         }
     );
 

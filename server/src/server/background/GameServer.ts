@@ -7,7 +7,7 @@ import {
     readPackageJson,
 } from "./loadGameData";
 import { Server, Socket } from "socket.io";
-import { savePlayerData } from "../db/db";
+import { saveCompletedQuests, saveCurrentQuests, savePlayerData } from "../db/db";
 import { ChatServer } from "./ChatServer";
 import { DamageEvent } from "./DamageEvent";
 import { Entity, Portal } from "./Entity";
@@ -20,7 +20,7 @@ import {
 } from "./Projectiles";
 import { Shop } from "./Shop";
 import { CargoDrop } from "./CargoDrop";
-import { QuestServer } from "./QuestServer";
+import { CompletedQuestDTO, QuestDTO, QuestServer, QuestTaskDTO } from "./QuestServer";
 import { RankingServer } from "./RankingServer";
 import { Worker } from "worker_threads";
 import { ConsumableItemReward } from "./Reward";
@@ -572,6 +572,34 @@ export class GameServer {
 
             if (disconnectedPlayer.stats) {
                 savePlayerData(disconnectedPlayer);
+            }
+
+            if(disconnectedPlayer.currentActiveQuests) {
+                let questDTO: QuestDTO[] = [];
+
+                for(let i = 0; i < disconnectedPlayer.currentActiveQuests.length; i++) {
+                    let tasksDTO: QuestTaskDTO[] = [];
+
+                    for(let j = 0; j < disconnectedPlayer.currentActiveQuests[i].tasks.length; j++) {
+                        tasksDTO.push(new QuestTaskDTO(disconnectedPlayer.currentActiveQuests[i].tasks[j]._id, disconnectedPlayer.currentActiveQuests[i].tasks[j].currentAmount, disconnectedPlayer.currentActiveQuests[i].tasks[j].completed)); 
+                    
+                        // console.log("KILLED ENTITY", disconnectedPlayer.currentActiveQuests[i].tasks[j].currentAmount);
+                    }   
+                        
+                    questDTO.push(new QuestDTO(disconnectedPlayer.currentActiveQuests[i].questName, tasksDTO));
+                }
+
+                saveCurrentQuests({username: disconnectedPlayer.name, currentQuests: questDTO});
+            }
+
+            if(disconnectedPlayer.completedQuests) {
+                let completedQuestsDTO: CompletedQuestDTO[] = [];
+
+                for(let i = 0; i < disconnectedPlayer.completedQuests.length; i++) {
+                    completedQuestsDTO.push(new CompletedQuestDTO(disconnectedPlayer.completedQuests[i].questName));
+                }
+
+                saveCompletedQuests({username: disconnectedPlayer.name, completedQuests: completedQuestsDTO});
             }
 
             console.log(`Player ${disconnectedPlayer.name} disconnected`);
