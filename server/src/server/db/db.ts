@@ -2,7 +2,11 @@ import * as mysql from "mysql2";
 import { Config, readServerConfigFile } from "../background/ServerConfig.js";
 import { Player } from "../background/Player.js";
 import { Inventory, InventoryDataDTO } from "../background/Inventory.js";
-import { CompletedQuestDTO, QuestDTO, QuestTaskDTO } from "../background/QuestServer.js";
+import {
+    CompletedQuestDTO,
+    QuestDTO,
+    QuestTaskDTO,
+} from "../background/QuestServer.js";
 
 export interface UserCredentials {
     username: string;
@@ -27,7 +31,7 @@ export interface PlayerEntityInterface {
 export interface QuestsInterface {
     username: string;
     completedQuests: { questName: string }[];
-    currentQuests: { questName: string, tasksProgress: any[] }[];
+    currentQuests: { questName: string; tasksProgress: any[] }[];
 }
 
 export let pool: mysql.Pool;
@@ -92,11 +96,17 @@ export function setupDatabaseConnection(): Promise<void> {
                         volume INT DEFAULT 5,
                         antiAliasing BOOLEAN DEFAULT FALSE 
                     );`;
-                const quests: string = `
+            const questsQuery: string = `
                     CREATE TABLE IF NOT EXISTS quests (
                         username VARCHAR(255) PRIMARY KEY,
                         completedQuests JSON,
                         currentQuests JSON
+                    )
+                `;
+                const hotbarMappingQuery: string = `
+                  CREATE TABLE IF NOT EXISTS hotbarMapping (
+                        username VARCHAR(255) PRIMARY KEY,
+                        hotbarMapping JSON
                     )
                 `;
 
@@ -105,10 +115,11 @@ export function setupDatabaseConnection(): Promise<void> {
                     executeQuery(playerEntityQuery),
                     executeQuery(inventoryQuery),
                     executeQuery(settingsPlayerQuery),
-                    executeQuery(quests),
+                    executeQuery(questsQuery),
+                    executeQuery(hotbarMappingQuery)
                 ]);
 
-                resolve();  // Resolve promise if no error occurs
+                resolve(); // Resolve promise if no error occurs
             } catch (err) {
                 console.error("Error executing query:", err);
                 reject(err); // Reject promise if error occurs
@@ -172,13 +183,15 @@ export async function registerNewUser(username: string, password: string) {
             const playerEntityQuery = `INSERT INTO playerEntity (username) VALUES ("${username}")`;
             const inventoryQuery = `INSERT INTO inventory (username, lasers, shieldGenerators, speedGenerators, ships, consumables) VALUES ("${username}", "{}", "{}", "{}", '{"protos":{"name":"Protos","maxHealth":8000,"baseSpeed":150,"maxLasers":2,"maxGenerators":2,"isActive":true,"price":{"credits":10000}}}', "{}")`;
             const playerSettingsQuery = `INSERT INTO gamesettings (username) VALUES ("${username}")`;
-            const quests = `INSERT INTO quests (username, completedQuests , currentQuests) VALUES ("${username}", "{}", "{}")`;
-
+            const questsQuery = `INSERT INTO quests (username, completedQuests , currentQuests) VALUES ("${username}", "{}", "{}")`;
+            const hotbarQuery = `INSERT INTO hotbarQuery (username, hotbarMapping) VALUES ("${username}", "{}")`
+            
             executeQuery(loginTableQuery);
             executeQuery(playerEntityQuery);
             executeQuery(inventoryQuery);
             executeQuery(playerSettingsQuery);
-            executeQuery(quests);
+            executeQuery(questsQuery);
+            executeQuery(hotbarQuery);
         } else {
             console.log("Can't register user");
         }
@@ -217,15 +230,20 @@ export function getInventoryData(username: string): Promise<any> {
     return executeQuery(query);
 }
 
-export async function executeQuery<T>(query: string, values?: any[]): Promise<T[]> {
+export async function executeQuery<T>(
+    query: string,
+    values?: any[]
+): Promise<T[]> {
     return new Promise<T[]>((resolve, reject) => {
         pool.query(query, values, (error, results) => {
             if (error) {
-                console.error(`Error while querying DB, err = ${JSON.stringify(error)}`);
+                console.error(
+                    `Error while querying DB, err = ${JSON.stringify(error)}`
+                );
                 reject(error);
                 return;
             }
-            resolve(Array.isArray(results) ? results as T[] : [results as T]);
+            resolve(Array.isArray(results) ? (results as T[]) : [results as T]);
         });
     });
 }
@@ -251,7 +269,11 @@ export function savePlayerData(player: Player): void {
     updateInventoryData(player.name, player.inventory);
 }
 
-export function savePlayerSettings(data: { username: string; volume: number; antiAliasing: boolean }) {
+export function savePlayerSettings(data: {
+    username: string;
+    volume: number;
+    antiAliasing: boolean;
+}) {
     const query = `
         UPDATE gamesettings
         SET
@@ -268,7 +290,10 @@ export function getQuests(username: string) {
     return executeQuery(query);
 }
 
-export function saveCurrentQuests(data: { username: string, currentQuests: QuestDTO[] }) {
+export function saveCurrentQuests(data: {
+    username: string;
+    currentQuests: QuestDTO[];
+}) {
     const query = `
         UPDATE quests   
         SET
@@ -279,7 +304,10 @@ export function saveCurrentQuests(data: { username: string, currentQuests: Quest
     executeQuery(query);
 }
 
-export function saveCompletedQuests(data: { username: string, completedQuests: CompletedQuestDTO[] }) {
+export function saveCompletedQuests(data: {
+    username: string;
+    completedQuests: CompletedQuestDTO[];
+}) {
     const query = `
         UPDATE quests
         SET
