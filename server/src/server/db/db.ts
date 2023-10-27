@@ -184,7 +184,7 @@ export async function registerNewUser(username: string, password: string) {
             const inventoryQuery = `INSERT INTO inventory (username, lasers, shieldGenerators, speedGenerators, ships, consumables) VALUES ("${username}", "{}", "{}", "{}", '{"protos":{"name":"Protos","maxHealth":8000,"baseSpeed":150,"maxLasers":2,"maxGenerators":2,"isActive":true,"price":{"credits":10000}}}', "{}")`;
             const playerSettingsQuery = `INSERT INTO gamesettings (username) VALUES ("${username}")`;
             const questsQuery = `INSERT INTO quests (username, completedQuests , currentQuests) VALUES ("${username}", "{}", "{}")`;
-            const hotbarQuery = `INSERT INTO hotbarQuery (username, hotbarMapping) VALUES ("${username}", "{}")`
+            const hotbarQuery = `INSERT INTO hotbarMapping (username, hotbarMapping) VALUES ("${username}", "{}")`
             
             executeQuery(loginTableQuery);
             executeQuery(playerEntityQuery);
