@@ -109,8 +109,34 @@ const frameTime = 1000 / (tickrate - 1);
 let lastTime = 0;
 let frameCount = 0;
 
-// Web Workers
-// const updateObjectsWorker = new Worker("updateObjectsWorker.js");
+// Hotbar
+
+type HotbarMapping = {
+    [key: string]: null | { itemName: string };
+    "1": null;
+    "2": null;
+    "3": null;
+    "4": null;
+    "5": null;
+    "6": null;
+    "7": null;
+    "8": null;
+    "9": null;
+    "0": null;
+};
+
+const hotbarMapping: HotbarMapping = {
+    "1": null,
+    "2": null,
+    "3": null,
+    "4": null,
+    "5": null,
+    "6": null,
+    "7": null,
+    "8": null,
+    "9": null,
+    "0": null,
+};
 
 raycaster.layers.set(rayCastLayerNo);
 setupSoundBuffers();
@@ -467,6 +493,18 @@ function savePlayerSettings(data: {
     }
 }
 
+function savePlayerHotbarSettings(data: {
+    username: string;
+    hotbarMapping: HotbarMapping;
+}) {
+    if (data.hotbarMapping) {
+        socket.emit("savePlayerHotbarSettings", {
+            usernane: data.username,
+            hotbarMapping: JSON.stringify(data.hotbarMapping),
+        });
+    }
+}
+
 async function loadNewSpacemap(data: any) {
     console.log(data);
     clearScene(scene);
@@ -717,99 +755,105 @@ function raycastFromCamera(event: any) {
 
 function handleKeyboardButton(e: KeyboardEvent) {
     if (playerName) {
-        switch (e.key) {
-            case "1":
-                if (lockOnCircle?.parent != undefined) {
-                    socket.emit("shootEvent", {
-                        playerName: playerName,
-                        targetUUID: lockOnCircle.parent.uuid,
-                        weapons: "lasers",
-                        ammo: "LAB-10",
-                    });
-                }
-                break;
-            case "2":
-                if (lockOnCircle?.parent != undefined) {
-                    socket.emit("shootEvent", {
-                        playerName: playerName,
-                        targetUUID: lockOnCircle.parent.uuid,
-                        weapons: "lasers",
-                        ammo: "LAB-20",
-                    });
-                }
-                break;
+        const validKeys = new Set([
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "0",
+        ]);
 
-            case "Enter":
-                if (chatModelDivClass?.classList.contains("shown")) {
-                    const messageText = chatModalInput?.value.trim();
-                    if (messageText && chatModalInput && chatModalContent) {
-                        socket.emit("sendChatMessageToServer", {
-                            username: playerName,
-                            message: messageText,
-                        });
-                        chatModalInput.value = "";
+        if (validKeys.has(e.key) && lockOnCircle?.parent) {
+            console.log(hotbarMapping[e.key]);
+            socket.emit("shootEvent", {
+                playerName: playerName,
+                targetUUID: lockOnCircle.parent.uuid,
+                weapons: "lasers",
+                ammo: hotbarMapping[e.key]?.itemName,
+            });
+        } else {
+            switch (e.key) {
+                case "Enter":
+                    if (chatModelDivClass?.classList.contains("shown")) {
+                        const messageText = chatModalInput?.value.trim();
+                        if (messageText && chatModalInput && chatModalContent) {
+                            socket.emit("sendChatMessageToServer", {
+                                username: playerName,
+                                message: messageText,
+                            });
+                            chatModalInput.value = "";
+                        }
+                    } else if (consoleDiv.style.display == "block") {
+                        const consoleMessageText = consoleInput?.value.trim();
+                        if (
+                            consoleMessageText &&
+                            consoleInput &&
+                            consoleContent
+                        ) {
+                            socket.emit("sendConsoleMessageToServer", {
+                                username: playerName,
+                                message: consoleMessageText,
+                            });
+                            consoleInput.value = "";
+                        }
                     }
-                } else if (consoleDiv.style.display == "block") {
-                    const consoleMessageText = consoleInput?.value.trim();
-                    if (consoleMessageText && consoleInput && consoleContent) {
-                        socket.emit("sendConsoleMessageToServer", {
-                            username: playerName,
-                            message: consoleMessageText,
-                        });
-                        consoleInput.value = "";
-                    }
-                }
-                break;
-            case "j":
-                const portals = currentMap.entities.filter(
-                    (entity: { _type: string }) => entity._type === "Portal"
-                );
-                const closestPortal = findClosestPortal(
-                    playerEntity.position,
-                    portals
-                );
-                console.log(portals);
-                console.log(closestPortal);
-                if (closestPortal) {
-                    if (
-                        Math.sqrt(
-                            Math.pow(
-                                closestPortal.position.x -
-                                    playerEntity.position.x,
-                                2
-                            ) +
+                    break;
+                case "j":
+                    const portals = currentMap.entities.filter(
+                        (entity: { _type: string }) => entity._type === "Portal"
+                    );
+                    const closestPortal = findClosestPortal(
+                        playerEntity.position,
+                        portals
+                    );
+                    console.log(portals);
+                    console.log(closestPortal);
+                    if (closestPortal) {
+                        if (
+                            Math.sqrt(
                                 Math.pow(
-                                    closestPortal.position.y -
-                                        playerEntity.position.y,
+                                    closestPortal.position.x -
+                                        playerEntity.position.x,
                                     2
-                                )
-                        ) < 5
-                    ) {
-                        socket.emit("attemptTeleport", {
+                                ) +
+                                    Math.pow(
+                                        closestPortal.position.y -
+                                            playerEntity.position.y,
+                                        2
+                                    )
+                            ) < 5
+                        ) {
+                            socket.emit("attemptTeleport", {
+                                playerName: playerName,
+                            });
+                        }
+                    }
+                    break;
+
+                case "o":
+                    console.log(scene);
+                    break;
+
+                case "s":
+                    console.log(currentSounds);
+                    break;
+
+                case " ":
+                    if (lockOnCircle?.parent != undefined) {
+                        socket.emit("shootEvent", {
                             playerName: playerName,
+                            targetUUID: lockOnCircle.parent.uuid,
+                            weapons: "rockets",
+                            ammo: "PRP-2023",
                         });
                     }
-                }
-                break;
-
-            case "o":
-                console.log(scene);
-                break;
-
-            case "s":
-                console.log(currentSounds);
-                break;
-
-            case " ":
-                if (lockOnCircle?.parent != undefined) {
-                    socket.emit("shootEvent", {
-                        playerName: playerName,
-                        targetUUID: lockOnCircle.parent.uuid,
-                        weapons: "rockets",
-                        ammo: "PRP-2023",
-                    });
-                }
-                break;
+                    break;
+            }
         }
     }
 }
@@ -1772,9 +1816,11 @@ async function loadEventListeners() {
             slot.innerHTML = "";
 
             slot.appendChild(createNewIcon(itemName));
-
-            // Do something to assign this item to the keyboard key
-            console.log(key);
+            if (key && key in hotbarMapping) {
+                hotbarMapping[key] = {
+                    itemName: itemName as string,
+                };
+            }
         });
     });
 }
