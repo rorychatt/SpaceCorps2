@@ -258,18 +258,9 @@ export class Player extends Entity {
                         if (questData[key].questName == quest.questName) {
                             const newQuest = new Quest(
                                 quest.questName,
-                                questData[key].type,
-                                questData[key].reward,
-                                questData[key].tasks,
-                                questData[key].requiredLevel,
-                                questData[key].completed
                             );
-
                             newQuest.setAllTasksProgress(quest.tasksProgress);
-
                             this.currentActiveQuests.push(newQuest);
-
-                            // console.log(JSON.stringify(`NEW QUEST TASKS: ${JSON.stringify(newQuest.tasks)}`));
                         }
                     }
                 }

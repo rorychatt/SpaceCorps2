@@ -162,7 +162,10 @@
                 "spawnLimit": 24
             },
             "boss-thetys": {
-                "spawnLimit": 12
+                "spawnLimit": 10
+            },
+            "boss-plasmoid": {
+                "spawnLimit": 6
             }
         }
     }

@@ -110,7 +110,7 @@ export class Spacemap {
                 for (const entity of this.entities) {
                     if (
                         entity instanceof Alien &&
-                        entity.name &&
+                        entity.name == spawnableAlien &&
                         alienCount < alienConfig.spawnLimit
                     ) {
                         alienCount++;

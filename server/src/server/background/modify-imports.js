@@ -41,8 +41,8 @@ function fixGameServer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { CompletedQuestDTO, QuestDTO, QuestServer, QuestTaskDTO } from "./QuestServer";',
-            'import { CompletedQuestDTO, QuestDTO, QuestServer, QuestTaskDTO } from "./QuestServer.js";'
+            'import { CompletedQuestDTO, QuestDTO, QuestServer, QuestTaskDTO, } from "./QuestServer";',
+            'import { CompletedQuestDTO, QuestDTO, QuestServer, QuestTaskDTO, } from "./QuestServer.js";'
         );
 
         modifiedData = modifiedData.replace(
@@ -61,8 +61,8 @@ function fixGameServer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { saveCompletedQuests, saveCurrentQuests, savePlayerData } from "../db/db";',
-            'import { saveCompletedQuests, saveCurrentQuests, savePlayerData } from "../db/db.js";'
+            'import { saveCompletedQuests, saveCurrentQuests, savePlayerData, } from "../db/db";',
+            'import { saveCompletedQuests, saveCurrentQuests, savePlayerData, } from "../db/db.js";'
         );
 
         modifiedData = modifiedData.replace(

@@ -316,7 +316,6 @@ h1 {
     color: var(--login-container-white-background);
     font-family: "AudioWide";
     font-size: 1.25vh;
-
     text-align: center;
     flex-grow: 1;
 }
@@ -771,18 +770,15 @@ h1 {
 .questbook_modal {
     position: absolute;
     border: 1px solid var(--login-container-white-background);
-
     height: auto;
-    height: 20vh;
+    /* height: 20vh; */
     width: auto;
     min-width: 15vh;
-
     padding: 5px;
-
     background-color: var(--main-theme-color);
-
     animation: fadeInOutAndExpand 0.5s ease-in-out forwards;
     transform-origin: center center;
+    font-size: 1vh;
 }
 
 .ship_info_modal_header,
@@ -2175,20 +2171,22 @@ input[type="number"]::-webkit-outer-spin-button {
     display: flex;
     flex-direction: row;
     width: 100%;
-    height: 2vh;
-
+    /* height: 2vh; */
     border: 1px solid var(--login-container-white-background);
     justify-content: space-around;
 }
 
 .quest_number {
     display: flex;
-    width: 10%;
+    font-size: 20px;
     justify-content: center;
     align-items: center;
     text-align: center;
-
     border: 1px solid red;
+    /* padding: 2vh; */
+    color: white;
+    font-family: 'Audiowide';
+    min-width: 48px;
 }
 
 .quest_name {
@@ -2197,22 +2195,22 @@ input[type="number"]::-webkit-outer-spin-button {
     justify-content: center;
     align-items: center;
     text-align: center;
-
     border: 1px solid green;
+    font-family: 'Audiowide';
+    color: white;
 }
 
 .quest_accept {
     display: flex;
-    width: 15%;
+    /* width: 15%; */
     justify-content: center;
     align-items: center;
     text-align: center;
-
     font-size: 1.8vh;
     font-family: "AudioWide";
     color: var(--login-container-white-background);
     border: 1px solid yellowgreen;
-    padding: 0;
+    /* padding: 5px; */
 }
 
 .sim_content {
@@ -2240,6 +2238,18 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* Active Quest */
 
+.quest_dot {
+    height: 8px;
+    width: 8px;
+    margin: 5px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.quest_selector {/* max-height: 6px; */display: flex;/* align-items: center; */justify-content: center;}
+
 .active_questbook_content {
     height: 90%;
     width: 100%;
@@ -2261,8 +2271,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .active_questbook_task {
     color: white;
     font-family: "AudioWide";
-
-    height: 40%;
+    /* height: 40%; */
     text-align: center;
 }
 
@@ -2290,7 +2299,7 @@ input[type="number"]::-webkit-outer-spin-button {
     display: block;
     color: white;
     font-size: 6px;
-    font-family: 'AudioWide';
+    font-family: "AudioWide";
     margin-top: 22px;
 }
 
