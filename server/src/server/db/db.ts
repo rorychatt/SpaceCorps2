@@ -2,6 +2,7 @@ import * as mysql from "mysql2";
 import { Config, readServerConfigFile } from "../background/ServerConfig.js";
 import { Player } from "../background/Player.js";
 import { Inventory, InventoryDataDTO } from "../background/Inventory.js";
+import { CompletedQuestDTO, QuestDTO, QuestTaskDTO } from "../background/QuestServer.js";
 
 export interface UserCredentials {
     username: string;
@@ -21,6 +22,12 @@ export interface PlayerEntityInterface {
     experience: number;
     honor: number;
     level: number;
+}
+
+export interface QuestsInterface {
+    username: string;
+    completedQuests: { questName: string }[];
+    currentQuests: { questName: string, tasksProgress: any[] }[];
 }
 
 export let pool: mysql.Pool;
@@ -253,5 +260,32 @@ export function savePlayerSettings(data: { username: string; volume: number; ant
         WHERE
             username = '${data.username}';
         `;
+    executeQuery(query);
+}
+
+export function getQuests(username: string) {
+    const query = `SELECT * FROM quests WHERE username = '${username}'`;
+    return executeQuery(query);
+}
+
+export function saveCurrentQuests(data: { username: string, currentQuests: QuestDTO[] }) {
+    const query = `
+        UPDATE quests   
+        SET
+            currentQuests = '${JSON.stringify(data.currentQuests)}'
+        WHERE
+            username = '${data.username}'
+    `;
+    executeQuery(query);
+}
+
+export function saveCompletedQuests(data: { username: string, completedQuests: CompletedQuestDTO[] }) {
+    const query = `
+        UPDATE quests
+        SET
+            completedQuests = '${JSON.stringify(data.completedQuests)}'
+        WHERE
+            username = '${data.username}'
+    `;
     executeQuery(query);
 }

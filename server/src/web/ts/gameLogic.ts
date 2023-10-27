@@ -253,7 +253,8 @@ socket.on("questsData", (data: { username: string; quests: any[] }) => {
     }
 
     data.quests.forEach((quest) => {
-        const { name, completed } = quest;
+        const _questName = quest.questName;
+        const { completed } = quest;
 
         const questContainer = document.createElement("div");
         questContainer.classList.add("quest_cont");
@@ -261,9 +262,9 @@ socket.on("questsData", (data: { username: string; quests: any[] }) => {
         const questNumber = document.createElement("div");
         questNumber.classList.add("quest_number");
 
-        const questName = document.createElement("div");
-        questName.classList.add("quest_name");
-        questName.textContent = name;
+        const questNameDiv = document.createElement("div");
+        questNameDiv.classList.add("quest_name");
+        questNameDiv.textContent = _questName;
 
         const acceptButton = document.createElement("button");
         acceptButton.classList.add("quest_accept");
@@ -272,12 +273,12 @@ socket.on("questsData", (data: { username: string; quests: any[] }) => {
         acceptButton.addEventListener("click", () => {
             socket.emit("acceptQuest", {
                 username: data.username,
-                questName: name,
+                questName: _questName
             });
         });
 
         questContainer.appendChild(questNumber);
-        questContainer.appendChild(questName);
+        questContainer.appendChild(questNameDiv);
         questContainer.appendChild(acceptButton);
         quests100qDiv.appendChild(questContainer);
 

@@ -14,9 +14,11 @@ export type PossibleQuestType = "completeWithoutOrder" | "completeInOrder";
 class Task {
     completed: boolean;
     currentAmount: number = 0;
+    _id: number;
 
-    constructor(completed: boolean) {
+    constructor(completed: boolean, _id: number) {
         this.completed = completed;
+        this._id = _id;
     }
 }
 
@@ -25,8 +27,8 @@ class TaskFly extends Task {
     distance: number;
     map: string;
 
-    constructor(distance: number, map: string, completed: boolean) {
-        super(completed);
+    constructor(distance: number, map: string, completed: boolean, _id: number) {
+        super(completed, _id);
 
         this.distance = distance;
         this.map = map;
@@ -43,9 +45,10 @@ class TaskKill extends Task {
         targetName: string,
         amount: number,
         map: string,
-        completed: boolean
+        completed: boolean,
+        _id: number
     ) {
-        super(completed);
+        super(completed, _id);
 
         this.targetName = targetName;
         this.amount = amount;
@@ -63,9 +66,10 @@ class TaskCollect extends Task {
         oreName: string,
         map: string,
         amount: number,
-        completed: boolean
+        completed: boolean,
+        _id: number
     ) {
-        super(completed);
+        super(completed, _id);
 
         this.oreName = oreName;
         this.map = map;
@@ -75,8 +79,20 @@ class TaskCollect extends Task {
 
 type QuestTask = TaskCollect | TaskFly | TaskKill;
 
+export class QuestTaskDTO {
+    taskId: number;
+    currentAmount: number;
+    completed: boolean;
+
+    constructor(taskId: number, currentAmount: number, completed: boolean) {
+        this.taskId = taskId;
+        this.currentAmount = currentAmount;
+        this.completed = completed;
+    }
+}
+
 export class Quest {
-    name: string;
+    questName: string;
     type: PossibleQuestType;
     reward: {
         stats: PlayerStats;
@@ -87,14 +103,14 @@ export class Quest {
     completed: boolean;
 
     constructor(
-        name: string,
+        questName: string,
         type: PossibleQuestType,
         reward: any,
         tasks: QuestTask[],
         requiredLevel: number,
         completed: boolean
     ) {
-        this.name = name;
+        this.questName = questName;
         this.type = type;
         this.reward = reward;
         this.tasks = tasks;
@@ -105,35 +121,72 @@ export class Quest {
     addTask(task: QuestTask) {
         this.tasks.push(task);
     }
+
+    setTaskProgress(progress: QuestTaskDTO) {
+        try {
+            this.tasks[progress.taskId].currentAmount = progress.currentAmount;
+            this.tasks[progress.taskId].completed = progress.completed;
+
+            // console.log(`SETTED TASK CURRENT AMOUNT: ${JSON.stringify(this.tasks[progress.taskId].currentAmount)}`);
+        } catch(err) {
+            return console.log(`Error: ${err}`);
+        }
+    }
+
+    setAllTasksProgress(progress: QuestTaskDTO[]) {
+        for(const key in progress) {
+            // console.log(`SET ALL PROGRESS: ${JSON.stringify(progress[key])}`);
+            this.setTaskProgress(progress[key]);
+        }
+    }
+}
+
+export class QuestDTO {
+    questName: string;
+    tasksProgress: QuestTaskDTO[];
+
+    constructor(questName: string, tasksProgress: QuestTaskDTO[]) {
+        this.questName = questName;
+        this.tasksProgress = tasksProgress;
+    }
+}
+
+export class CompletedQuestDTO {
+    questName: string;
+
+    constructor(questName: string) {
+        this.questName = questName;
+    }
 }
 
 export class QuestServer {
     quests: Quest[] = [];
 
     constructor() {
-        for (const questName in questData) {
-            const questInfo = questData[questName];
+        for (const _questName in questData) {
+            const questInfo = questData[_questName];
             const quest = new Quest(
-                questInfo.name,
+                questInfo.questName,
                 questInfo.type,
                 questInfo.reward,
                 [],
                 questInfo.requiredLevel,
                 questInfo.completed
             );
-            for (const task of questData[questName].tasks) {
+            for (const task of questData[_questName].tasks) {
                 if (task._type == "kill") {
                     quest.addTask(
                         new TaskKill(
                             task.targetName,
                             task.amount,
                             task.map,
-                            task.completed
+                            task.completed,
+                            task._id
                         )
                     );
                 } else if (task._type == "fly") {
                     quest.addTask(
-                        new TaskFly(task.distance, task.map, task.completed)
+                        new TaskFly(task.distance, task.map, task.completed, task._id)
                     );
                 } else if (task._type == "collect") {
                     quest.addTask(
@@ -141,7 +194,8 @@ export class QuestServer {
                             task.oreName,
                             task.map,
                             task.amount,
-                            task.completed
+                            task.completed,
+                            task._id
                         )
                     );
                 }
@@ -161,7 +215,7 @@ export class QuestServer {
         }
 
         // Find the quest in available quests
-        const quest = this.quests.find((q) => q.name === questName);
+        const quest = this.quests.find((q) => q.questName === questName);
 
         if (!quest) return console.log(`Quest: ${questName} not found! Player: ${username}`);
 
@@ -171,12 +225,13 @@ export class QuestServer {
         }
 
         // Check if player already has this quest
-        if (player.currentActiveQuests.some((q) => q.name === quest.name)) {
+        if (player.currentActiveQuests.some((q) => q.questName === quest.questName)) {
             return console.log("Player already has this quest");
         }
 
         // Add the quest to player's active quests
         player.currentActiveQuests.push(quest);
+        // console.log(`QUESTTASKS: ${JSON.stringify(quest.tasks)}`);
         return console.log(`Issued quest ${questName} to player: ${username}`);
     }
 
@@ -187,12 +242,12 @@ export class QuestServer {
 
         if(player.currentActiveQuests.length <= 0) return console.log(`Player: ${username} has no active quests`);
         
-        const quest = player.currentActiveQuests.find((q) => q.name === questName);
+        const quest = player.currentActiveQuests.find((q) => q.questName === questName);
 
         if(!quest) return console.log(`Quest: ${questName} not found! Player: ${username}`);
 
         // Remove the quest
-        player.currentActiveQuests = player.currentActiveQuests.filter(q => q.name !== questName);
+        player.currentActiveQuests = player.currentActiveQuests.filter(q => q.questName !== questName);
 
         console.log(`Removed quest: ${questName}, player: ${username}`);
     }
@@ -345,7 +400,7 @@ export class QuestServer {
 
     async checkForQuestComplete(player: Player, questName: string) {
         const quest = player.currentActiveQuests.find(
-            (q) => q.name === questName
+            (q) => q.questName === questName
         );
 
         if (!quest)
@@ -407,8 +462,8 @@ export class QuestServer {
             }
         }
 
-        player.completedQuests.push({ questName: questName, completed: true });
-        player.currentActiveQuests = player.currentActiveQuests.filter(q => q.name !== questName);
+        player.completedQuests.push({ questName: questName });
+        player.currentActiveQuests = player.currentActiveQuests.filter(q => q.questName !== questName);
 
         console.log(`Successfully rewards for quest: ${questName}, player: ${player.name}`);
     }
