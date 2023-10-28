@@ -104,36 +104,38 @@ io.on("connection", (socket) => {
                         userCredentials.username
                     );
 
-                    socket.emit("loadPlayerSettings", {
-                        username: userCredentials.username,
-                        playerSettings: playerSettings,
-                    });
-
-                    socket.emit("shopData", {
-                        lasers: laserData,
-                        generators: generatorData,
-                        ships: shipData,
-                        ammunition: {
-                            laserAmmo: laserAmmoData,
-                            rocketAmmo: rocketAmmoData,
-                        },
-                    });
-
-                    socket.emit("questsData", {
-                        username: userCredentials.username,
-                        quests: gameServer.questServer.quests,
-                    });
-
-                    socket.emit("hotbarMappingData", {
-                        username: userCredentials.username,
-                        hotbarMapping: (
-                            (
-                                await getPlayerHotbarSettings(
-                                    userCredentials.username
-                                )
-                            )[0] as any
-                        ).hotbarMapping,
-                    });
+                    await Promise.all([
+                        socket.emit("loadPlayerSettings", {
+                            username: userCredentials.username,
+                            playerSettings: playerSettings,
+                        }),
+                        socket.emit("shopData", {
+                            lasers: laserData,
+                            generators: generatorData,
+                            ships: shipData,
+                            ammunition: {
+                                laserAmmo: laserAmmoData,
+                                rocketAmmo: rocketAmmoData,
+                            },
+                        }),
+                        socket.emit("questsData", {
+                            username: userCredentials.username,
+                            quests: gameServer.questServer.quests,
+                        }),
+                        socket.emit("hotbarMappingData", {
+                            username: userCredentials.username,
+                            hotbarMapping: (
+                                (
+                                    await getPlayerHotbarSettings(
+                                        userCredentials.username
+                                    )
+                                )[0] as any
+                            ).hotbarMapping,
+                        }),
+                        socket.emit("universeData", {
+                            maps: await readGameDataConfigFiles(),
+                        }),
+                    ]);
 
                     console.log(
                         `${userCredentials.username} logs into the game`
