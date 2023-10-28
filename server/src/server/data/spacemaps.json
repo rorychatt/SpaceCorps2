@@ -159,13 +159,13 @@
         },
         "spawnableAliens": {
             "plasmoid": {
-                "spawnLimit": 24
+                "spawnLimit": 2400
             },
             "boss-thetys": {
-                "spawnLimit": 10
+                "spawnLimit": 1000
             },
             "boss-plasmoid": {
-                "spawnLimit": 6
+                "spawnLimit": 600
             }
         }
     }

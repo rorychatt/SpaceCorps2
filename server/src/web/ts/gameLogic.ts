@@ -244,6 +244,7 @@ socket.on(
                 data.entities.concat(data.projectiles, data.cargoboxes)
             )
         ).then(() => {
+            //TODO: this needs to be updated
             playerObject = scene.getObjectByName(playerName);
             isUpdating = false;
         });
@@ -1460,7 +1461,7 @@ async function updateObjects(_data: any[]) {
             if (entity.name === playerName) {
                 await updatePlayerInfo(entity);
             }
-            if (objectDataMap.hasOwnProperty(entity.uuid)) {
+            if (objectDataMap[entity.uuid]) {
                 const object = getObjectByUUID(entity.uuid);
                 if (object) {
                     await updateObject(object, entity);
@@ -1669,7 +1670,8 @@ async function updatePlayerInfo(entity: any) {
 }
 
 function getObjectByUUID(uuid: string) {
-    return scene.getObjectByProperty("uuid", uuid) || null;
+    return objectDataMap[uuid].data || null
+    // return scene.getObjectByProperty("uuid", uuid) || null;
 }
 
 async function createStars() {
