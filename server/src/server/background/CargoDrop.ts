@@ -23,8 +23,8 @@ export class OreSpawn extends Entity {
     _type: string = "OreSpawn";
     ores: OreResource[] = [];
 
-    constructor(map: Spacemap, position: Vector2D, ores: OreResource[]) {
-        super(map.name, "OreSpawn", position);
+    constructor(currentMap: string, position: Vector2D, ores: OreResource[]) {
+        super(currentMap, "OreSpawn", position);
         this.ores = ores;
     }
 }

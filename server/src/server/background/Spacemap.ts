@@ -1,5 +1,5 @@
 import { Alien } from "./Alien";
-import { CargoDrop, OreResource } from "./CargoDrop";
+import { CargoDrop, OreResource, OreSpawn } from "./CargoDrop";
 import {
     CompanyBase,
     Entity,
@@ -16,6 +16,7 @@ export class Spacemap {
     readonly size: SpacemapSize;
     entities: PossibleSpacemapEntities[];
     cargoboxes: CargoDrop[] = [];
+    oreSpawns: OreSpawn[] = [];
     _config: SpacemapConfig;
     _maxAliens?: number;
     _allowedAliens?: string[];
@@ -43,6 +44,11 @@ export class Spacemap {
     spawnAlien(name: string, position: Vector2D) {
         const alien = new Alien(this, name, position);
         this.entities.push(alien);
+    }
+
+    spawnOre(ores: OreResource[], position: Vector2D) {
+        const oreSpawn = new OreSpawn(this.name, position, ores);
+        this.oreSpawns.push(oreSpawn);
     }
 
     spawnCargoBoxFromAlien(cargoContents: {
@@ -97,7 +103,7 @@ export class Spacemap {
             const base = this._config.staticEntities.base;
             safeZones.push(
                 new SafeZone(
-                    calculateEntityPosition(base.location, this._config.size), 
+                    calculateEntityPosition(base.location, this._config.size),
                     base.safeZoneRadii
                 )
             );
@@ -119,13 +125,17 @@ export class Spacemap {
                 // If allowed - spawn an alien
                 if (alienCount < alienConfig.spawnLimit) {
                     let spawnAttempt = 0; // if exceede maximum value alien will spawn aroun the center of map, exluding safe zones
-                    let position: Vector2D | undefined // position for alien spawn
+                    let position: Vector2D | undefined; // position for alien spawn
                     while (spawnAttempt < 5) {
                         // Trying to generate new position
                         const newPosition = {
-                            x: Math.floor(Math.random() * (width + 1) - width / 2), 
-                            y: Math.floor(Math.random() * (height + 1) - height / 2)
-                        }
+                            x: Math.floor(
+                                Math.random() * (width + 1) - width / 2
+                            ),
+                            y: Math.floor(
+                                Math.random() * (height + 1) - height / 2
+                            ),
+                        };
                         // Checking whether new position is in safe zone, if it is, then increments spawnAtempt and goes to the new iteration
                         for (const safeZone of safeZones) {
                             if (safeZone.isInSafeZone(newPosition)) {
@@ -134,18 +144,18 @@ export class Spacemap {
                             }
                         }
                         // Break the cycle if position is not in any of the safe zones
-                        position = newPosition
+                        position = newPosition;
                         break;
                     }
-                    
-                    if(!position){
+
+                    if (!position) {
                         // If failed to generate spawn position(position undefined), then spaw occures around the map center
                         this.spawnAlien(spawnableAlien, {
                             x: (0.5 - Math.random()) * 10,
                             y: (0.5 - Math.random()) * 10,
                         });
-                    } else { 
-                        this.spawnAlien(spawnableAlien, position)
+                    } else {
+                        this.spawnAlien(spawnableAlien, position);
                     }
                 }
             }
