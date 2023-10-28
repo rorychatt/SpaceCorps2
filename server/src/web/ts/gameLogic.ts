@@ -485,6 +485,13 @@ socket.on(
     }
 );
 
+socket.on(
+    "universeData",
+    (data: {maps: any}) => {
+        console.log("Universe data", data.maps)
+    }
+)
+
 function savePlayerSettings(data: {
     username: string;
     volume: string;
