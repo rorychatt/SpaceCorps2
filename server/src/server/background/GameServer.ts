@@ -34,7 +34,7 @@ import { RankingServer } from "./RankingServer";
 import { Worker } from "worker_threads";
 import { ConsumableItemReward } from "./Reward";
 
-export const tickrate = 60;
+export const tickrate = 20;
 
 export class GameServer {
     spacemaps: Spacemaps;
@@ -301,10 +301,10 @@ export class GameServer {
                 if (
                     Math.abs(
                         player.position.x - player.targetCargoDrop.position.x
-                    ) < 0.25 &&
+                    ) < 0.05 &&
                     Math.abs(
                         player.position.y - player.targetCargoDrop.position.y
-                    ) < 0.25
+                    ) < 0.05
                 ) {
                     this.rewardServer.registerCargoDropReward(
                         player.uuid,

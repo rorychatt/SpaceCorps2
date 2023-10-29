@@ -105,7 +105,7 @@ const maxConcurrentSounds = 6;
 let currentSounds: number = 0;
 let isUpdating: boolean = false;
 let currentSelectedQuestKey = 0;
-const tickrate = 60;
+const tickrate = 20;
 const frameTime = 1000 / tickrate;
 let lastTime = 0;
 let frameCount = 0;
@@ -1256,12 +1256,10 @@ async function updateObject(object: THREE.Object3D, entity: any) {
     const { x: posX, y: posY } = position;
 
     const targetDirection = new THREE.Vector3(posX, 0, posY);
-    const distanceSquared =
-        (posX - object.position.x) ** 2 + (posY - object.position.z) ** 2;
 
     function _tween(object: any, targetPos: THREE.Vector3) {
         let originalPosition = object.position.clone();
-
+        const targetObject = getObjectByUUID(targetUUID);
         const positionTween = new TWEEN.Tween(object.position)
             .to(
                 {
@@ -1273,10 +1271,39 @@ async function updateObject(object: THREE.Object3D, entity: any) {
             )
             .easing(TWEEN.Easing.Linear.None)
             .onUpdate(function () {
+                const deltaVector = object.position
+                    .clone()
+                    .sub(originalPosition);
+
+                const lookAtDirection = originalPosition
+                    .clone()
+                    .add(deltaVector);
+                if (targetObject) {
+                    object.lookAt(targetObject.position);
+                } else {
+                    if (
+                        Math.pow(deltaVector.x, 2) +
+                            Math.pow(deltaVector.z, 2) >
+                        0.00001
+                    ) {
+                        if (
+                            Math.pow(deltaVector.x, 2) +
+                                Math.pow(deltaVector.z, 2) >
+                            0.00001
+                        ) {
+                            const lookTarget = lookAtDirection
+                                .clone()
+                                .add(deltaVector);
+                            const tempObject = new THREE.Object3D();
+                            tempObject.position.copy(object.position);
+                            tempObject.up.copy(object.up);
+                            tempObject.lookAt(lookTarget);
+                            const targetQuaternion = tempObject.quaternion;
+                            object.quaternion.slerp(targetQuaternion, 0.35);
+                        }
+                    }
+                }
                 if (object.name === playerName) {
-                    const deltaVector = object.position
-                        .clone()
-                        .sub(originalPosition);
                     if (isFirstUpdateForPlayer) {
                         lastEntityPosition = targetDirection;
                         camera.position.set(posX, camera.position.y, posY);
@@ -1296,22 +1323,6 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         positionTween.start();
     }
 
-    if (targetUUID) {
-        const targetObject = getObjectByUUID(targetUUID);
-        if (targetObject) {
-            object.lookAt(targetObject.position);
-        }
-    } else {
-        if (distanceSquared > 0.00001) {
-            const oldOrientation = object.rotation.clone();
-            object.lookAt(targetDirection);
-            const targetQuaternion = new THREE.Quaternion().copy(
-                object.quaternion
-            );
-            object.rotation.copy(oldOrientation);
-            object.quaternion.slerp(targetQuaternion, 0.35);
-        }
-    }
     if (hitPoints) {
         const { hullPoints, shieldPoints } = hitPoints;
         const dhp = (object as any).hitPoints.hullPoints - hullPoints;
