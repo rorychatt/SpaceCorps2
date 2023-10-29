@@ -2,8 +2,8 @@
     "M-1": {
         "name": "M-1",
         "size": {
-            "width": 160,
-            "height": 90
+            "width": 320,
+            "height": 180
         },
         "staticEntities": {
             "portals": [
@@ -46,8 +46,8 @@
     "O-1": {
         "name": "O-1",
         "size": {
-            "width": 160,
-            "height": 90
+            "width": 320,
+            "height": 180
         },
         "staticEntities": {
             "portals": [
@@ -90,8 +90,8 @@
     "G-1": {
         "name": "G-1",
         "size": {
-            "width": 160,
-            "height": 90
+            "width": 320,
+            "height": 180
         },
         "staticEntities": {
             "portals": [
@@ -134,8 +134,8 @@
     "T-1": {
         "name": "T-1",
         "size": {
-            "width": 160,
-            "height": 90
+            "width": 320,
+            "height": 180
         },
         "staticEntities": {
             "portals": [
@@ -178,8 +178,8 @@
     "P-1": {
         "name": "P-1",
         "size": {
-            "width": 160,
-            "height": 90
+            "width": 320,
+            "height": 180
         },
         "staticEntities": {
             "portals": [

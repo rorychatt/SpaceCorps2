@@ -599,6 +599,14 @@ function initScene(): void {
     canvas = document.getElementById(
         "THREEJSScene"
     ) as HTMLCanvasElement | null;
+
+    if (!canvas) return;
+
+    // const offscreen = canvas.transferControlToOffscreen();
+    // const worker = new Worker("worker.js");
+
+    // worker.postMessage({ type: "init", canvas: offscreen }, [offscreen]);
+
     spacemapDiv.appendChild(renderer.domElement);
     spacemapDiv.appendChild(labelRenderer.domElement);
 
@@ -1286,21 +1294,24 @@ async function updateObject(object: THREE.Object3D, entity: any) {
                             Math.pow(deltaVector.z, 2) >
                         0.00001
                     ) {
-                        if (
-                            Math.pow(deltaVector.x, 2) +
-                                Math.pow(deltaVector.z, 2) >
-                            0.00001
-                        ) {
-                            const lookTarget = lookAtDirection
-                                .clone()
-                                .add(deltaVector);
-                            const tempObject = new THREE.Object3D();
-                            tempObject.position.copy(object.position);
-                            tempObject.up.copy(object.up);
-                            tempObject.lookAt(lookTarget);
-                            const targetQuaternion = tempObject.quaternion;
-                            object.quaternion.slerp(targetQuaternion, 0.35);
-                        }
+                        const lookTarget = lookAtDirection
+                            .clone()
+                            .add(deltaVector);
+                        const targetQuaternion = new THREE.Quaternion();
+                        targetQuaternion.setFromRotationMatrix(
+                            new THREE.Matrix4().lookAt(
+                                object.position,
+                                lookTarget,
+                                object.up
+                            )
+                        );
+                        targetQuaternion.multiply(
+                            new THREE.Quaternion().setFromAxisAngle(
+                                new THREE.Vector3(0, 1, 0),
+                                Math.PI
+                            )
+                        );
+                        object.quaternion.slerp(targetQuaternion, 0.35);
                     }
                 }
                 if (object.name === playerName) {
