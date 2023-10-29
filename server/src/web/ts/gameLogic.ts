@@ -106,7 +106,7 @@ let currentSounds: number = 0;
 let isUpdating: boolean = false;
 let currentSelectedQuestKey = 0;
 const tickrate = 60;
-const frameTime = 1000 / (tickrate - 1);
+const frameTime = 1000 / tickrate;
 let lastTime = 0;
 let frameCount = 0;
 
@@ -486,12 +486,9 @@ socket.on(
     }
 );
 
-socket.on(
-    "universeData",
-    (data: {maps: any}) => {
-        console.log("Universe data", data.maps)
-    }
-)
+socket.on("universeData", (data: { maps: any }) => {
+    console.log("Universe data", data.maps);
+});
 
 function savePlayerSettings(data: {
     username: string;
@@ -622,18 +619,8 @@ function initScene(): void {
     // Create an animation function to rotate the cube
     const animate = (time?: any) => {
         requestAnimationFrame(animate);
-
         TWEEN.update();
-        if (playerObject) {
-            controls.target.set(
-                playerObject.position.x,
-                0,
-                playerObject.position.z
-            );
-        }
 
-        // Render the scene
-        controls.update();
         renderer.render(scene, camera);
         labelRenderer.render(scene, camera);
 
@@ -1034,6 +1021,7 @@ function removeCSSChildrenOfObject(object: THREE.Object3D) {
 }
 
 async function createObject(data: any): Promise<THREE.Object3D> {
+    // console.log(`Creating new Object ${data.name}`);
     return new Promise(async (resolve) => {
         if (data._type == "Player") {
             if (objectCache[data.activeShipName]) {
@@ -1272,6 +1260,8 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         (posX - object.position.x) ** 2 + (posY - object.position.z) ** 2;
 
     function _tween(object: any, targetPos: THREE.Vector3) {
+        let originalPosition = object.position.clone();
+
         const positionTween = new TWEEN.Tween(object.position)
             .to(
                 {
@@ -1281,7 +1271,28 @@ async function updateObject(object: THREE.Object3D, entity: any) {
                 },
                 frameTime
             )
-            .easing(TWEEN.Easing.Linear.None);
+            .easing(TWEEN.Easing.Linear.None)
+            .onUpdate(function () {
+                if (object.name === playerName) {
+                    const deltaVector = object.position
+                        .clone()
+                        .sub(originalPosition);
+                    if (isFirstUpdateForPlayer) {
+                        lastEntityPosition = targetDirection;
+                        camera.position.set(posX, camera.position.y, posY);
+                        controls.target.copy(targetDirection);
+                        object.add(audioListener);
+                        isFirstUpdateForPlayer = false;
+                    } else if (lastEntityPosition !== null) {
+                        lastEntityPosition.add(deltaVector);
+                        object.position.copy(lastEntityPosition);
+                        camera.position.add(deltaVector);
+                        controls.target.add(deltaVector);
+                        originalPosition = lastEntityPosition.clone();
+                    }
+                    controls.update();
+                }
+            });
         positionTween.start();
     }
 
@@ -1299,19 +1310,6 @@ async function updateObject(object: THREE.Object3D, entity: any) {
             );
             object.rotation.copy(oldOrientation);
             object.quaternion.slerp(targetQuaternion, 0.35);
-        }
-    }
-
-    if (name === playerName) {
-        if (isFirstUpdateForPlayer) {
-            lastEntityPosition = new THREE.Vector3(posX, 0, posY);
-            // camera.position.set(posX, camera.position.y, posY);
-            // object.add(camera)
-
-            controls.update();
-            controls.target.copy(object.position);
-            isFirstUpdateForPlayer = false;
-        } else if (lastEntityPosition !== null) {
         }
     }
     if (hitPoints) {
@@ -1455,36 +1453,37 @@ async function deleteObject(uuid: string) {
 
 async function updateObjects(_data: any[]) {
     const existingUUIDs = new Set<string>();
+    const updatePromises: Promise<any>[] = [];
 
-    await Promise.all(
-        _data.map(async (entity) => {
-            if (entity.name === playerName) {
-                await updatePlayerInfo(entity);
+    for (const entity of _data) {
+        if (entity.name === playerName) {
+            updatePromises.push(updatePlayerInfo(entity));
+        }
+
+        if (objectDataMap[entity.uuid]) {
+            const object = getObjectByUUID(entity.uuid);
+            if (object) {
+                updatePromises.push(updateObject(object, entity));
             }
-            if (objectDataMap[entity.uuid]) {
-                const object = getObjectByUUID(entity.uuid);
-                if (object) {
-                    await updateObject(object, entity);
-                } else {
-                    // console.log(
-                    //     `Could not find object from entity ${entity.uuid}`,
-                    //     entity
-                    // );
-                }
-            } else {
-                await createObject(entity);
-            }
-            existingUUIDs.add(entity.uuid);
-        })
+        } else {
+            updatePromises.push(createObject(entity));
+        }
+
+        existingUUIDs.add(entity.uuid);
+    }
+
+    await Promise.all(updatePromises);
+
+    const deleteUUIDs = new Set(Object.keys(objectDataMap));
+    for (const existingUUID of existingUUIDs) {
+        deleteUUIDs.delete(existingUUID);
+    }
+
+    const deletePromises = Array.from(deleteUUIDs).map((uuid) =>
+        deleteObject(uuid)
     );
 
-    await Promise.all(
-        Object.keys(objectDataMap)
-            .filter((uuid) => !existingUUIDs.has(uuid))
-            .map(async (uuid) => {
-                await deleteObject(uuid);
-            })
-    );
+    await Promise.all(deletePromises);
 }
 
 async function checkPlayerCurrency(price: {
@@ -1670,8 +1669,10 @@ async function updatePlayerInfo(entity: any) {
 }
 
 function getObjectByUUID(uuid: string) {
-    return objectDataMap[uuid].data || null
-    // return scene.getObjectByProperty("uuid", uuid) || null;
+    if (objectDataMap[uuid]) {
+        return objectDataMap[uuid].data || null;
+    }
+    return null;
 }
 
 async function createStars() {

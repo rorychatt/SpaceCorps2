@@ -29,7 +29,19 @@
             "boss-thetys": {
                 "spawnLimit": 4
             }
-        }
+        },
+        "oreSpawns": [
+            {
+                "oreName": "radium",
+                "qualityLevel": 1,
+                "amount": 10
+            },
+            {
+                "oreName": "agronite",
+                "qualityLevel": 1,
+                "amount": 10
+            }
+        ]
     },
     "O-1": {
         "name": "O-1",
@@ -61,7 +73,19 @@
             "boss-thetys": {
                 "spawnLimit": 4
             }
-        }
+        },
+        "oreSpawns": [
+            {
+                "oreName": "radium",
+                "qualityLevel": 1,
+                "amount": 10
+            },
+            {
+                "oreName": "agronite",
+                "qualityLevel": 1,
+                "amount": 10
+            }
+        ]
     },
     "G-1": {
         "name": "G-1",
@@ -93,7 +117,19 @@
             "boss-thetys": {
                 "spawnLimit": 4
             }
-        }
+        },
+        "oreSpawns": [
+            {
+                "oreName": "radium",
+                "qualityLevel": 1,
+                "amount": 10
+            },
+            {
+                "oreName": "agronite",
+                "qualityLevel": 1,
+                "amount": 10
+            }
+        ]
     },
     "T-1": {
         "name": "T-1",
@@ -125,7 +161,19 @@
             "boss-thetys": {
                 "spawnLimit": 4
             }
-        }
+        },
+        "oreSpawns": [
+            {
+                "oreName": "radium",
+                "qualityLevel": 1,
+                "amount": 10
+            },
+            {
+                "oreName": "agronite",
+                "qualityLevel": 1,
+                "amount": 10
+            }
+        ]
     },
     "P-1": {
         "name": "P-1",
@@ -167,6 +215,18 @@
             "boss-plasmoid": {
                 "spawnLimit": 600
             }
-        }
+        },
+        "oreSpawns": [
+            {
+                "oreName": "radium",
+                "qualityLevel": 2,
+                "amount": 10
+            },
+            {
+                "oreName": "agronite",
+                "qualityLevel": 2,
+                "amount": 10
+            }
+        ]
     }
 }

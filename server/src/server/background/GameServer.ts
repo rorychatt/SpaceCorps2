@@ -283,6 +283,13 @@ export class GameServer {
                 ].randomSpawnAlien();
             }
         }
+        if (this.tickCount == tickrate - 1) {
+            for (const spacemapName in this._spacemapNames) {
+                this.spacemaps[
+                    this._spacemapNames[spacemapName]
+                ].randomSpawnOreSpawn();
+            }
+        }
     }
 
     async processPlayerInputs() {
@@ -413,7 +420,7 @@ export class GameServer {
                         cargoContents.position = entity.position;
                         spacemap.spawnCargoBoxFromAlien(cargoContents);
                     }
-                    
+
                     console.log(
                         `Removed ${entity.name} from map ${spacemapName} because its HP finished.`
                     );

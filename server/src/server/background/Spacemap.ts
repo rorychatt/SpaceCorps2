@@ -1,5 +1,10 @@
 import { Alien } from "./Alien";
-import { CargoDrop, OreResource, OreSpawn } from "./CargoDrop";
+import {
+    CargoDrop,
+    OreResource,
+    OreSpawn,
+    PossibleOreNames,
+} from "./CargoDrop";
 import {
     CompanyBase,
     Entity,
@@ -35,8 +40,8 @@ export class Spacemap {
         this.entities.push(alien);
     }
 
-    spawnOre(ores: OreResource[], position: Vector2D) {
-        const oreSpawn = new OreSpawn(this.name, position, ores);
+    spawnOre(ores: OreResource[], position: Vector2D, qualityLevel?: number) {
+        const oreSpawn = new OreSpawn(this.name, position, ores, qualityLevel);
         this.oreSpawns.push(oreSpawn);
     }
 
@@ -77,9 +82,9 @@ export class Spacemap {
                 let alienCount = 0;
                 for (const entity of this.entities) {
                     if (
+                        alienCount < alienConfig.spawnLimit &&
                         entity instanceof Alien &&
-                        entity.name == spawnableAlien &&
-                        alienCount < alienConfig.spawnLimit
+                        entity.name == spawnableAlien
                     ) {
                         alienCount++;
                     }
@@ -90,6 +95,27 @@ export class Spacemap {
                 }
             }
         }
+    }
+
+    randomSpawnOreSpawn() {
+        if (!this._config.oreSpawns) return;
+        this._config.oreSpawns.forEach((data) => {
+            let currentAmount = 0;
+            for (const entity of this.entities) {
+                if (
+                    currentAmount < data.amount &&
+                    entity instanceof OreSpawn &&
+                    entity.name == data.oreName
+                ) {
+                    currentAmount++;
+                }
+            }
+            if (currentAmount < data.amount) {
+                const spawnPosition = attemptGetSpawnPosition(this);
+                const oreResource = new OreResource(data.oreName, data.amount);
+                this.spawnOre([oreResource], spawnPosition, data.qualityLevel);
+            }
+        });
     }
 
     loadStaticEntities() {
@@ -207,8 +233,14 @@ export interface SpacemapConfig {
     size: SpacemapSize;
     staticEntities: StaticEntitiesConfig;
     spawnableAliens?: SpawnableAliens;
+    oreSpawns?: SpawnableOreSpawn[];
 }
 
+export interface SpawnableOreSpawn {
+    oreName: PossibleOreNames;
+    qualityLevel: number;
+    amount: number;
+}
 export interface SpawnableAliens {
     [alienName: string]: {
         spawnLimit: number;

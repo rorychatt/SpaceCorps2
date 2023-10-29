@@ -215,8 +215,8 @@ function fixSpacemap() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { CargoDrop, OreSpawn } from "./CargoDrop";',
-            'import { CargoDrop, OreSpawn } from "./CargoDrop.js";',
+            'import { CargoDrop, OreResource, OreSpawn, } from "./CargoDrop";',
+            'import { CargoDrop, OreResource, OreSpawn, } from "./CargoDrop.js";',
         );
 
         writeFile(

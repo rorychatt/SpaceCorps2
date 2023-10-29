@@ -3,7 +3,7 @@ import { PossibleItems } from "./Inventory";
 import { Spacemap, Vector2D } from "./Spacemap";
 
 export class CargoDrop extends Entity {
-    _type: string = "CargoDrop";
+    readonly _type: string = "CargoDrop";
     ores: OreResource[] = [];
     items: PossibleItems[] = [];
 
@@ -20,23 +20,44 @@ export class CargoDrop extends Entity {
 }
 
 export class OreSpawn extends Entity {
-    _type: string = "OreSpawn";
+    readonly _type: string = "OreSpawn";
     ores: OreResource[] = [];
+    qualityLevel: number = 1;
 
-    constructor(currentMap: string, position: Vector2D, ores: OreResource[]) {
+    constructor(
+        currentMap: string,
+        position: Vector2D,
+        ores: OreResource[],
+        qualityLevel?: number
+    ) {
         super(currentMap, "OreSpawn", position);
         this.ores = ores;
+        if (qualityLevel) {
+            this.qualityLevel = qualityLevel;
+            this._recalculateOres();
+        }
+    }
+
+    _recalculateOres() {
+        if (this.qualityLevel >= 2)
+            this.ores.forEach((ore) => {
+                ore.amount = Math.floor(
+                    Math.pow(ore.amount, this.qualityLevel - 0.75)
+                );
+            });
     }
 }
 
 export class OreResource {
-    _type: string = "Ore";
+    readonly _type: string = "Ore";
     name: PossibleOreNames;
-    amount: number;
+    amount: number = 1;
 
-    constructor(name: PossibleOreNames, amount: number) {
+    constructor(name: PossibleOreNames, amount?: number) {
         this.name = name;
-        this.amount = amount;
+        if (amount) {
+            this.amount = amount;
+        }
     }
 }
 
