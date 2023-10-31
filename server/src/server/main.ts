@@ -56,7 +56,7 @@ setupDatabaseConnection().then(() => {
 handleHTTPRequests();
 
 io.on("connection", (socket) => {
-    console.log("A user connected");
+    // console.log("A user connected");
 
     socket.on("disconnect", () => {
         console.log("A user disconnected");
@@ -69,6 +69,11 @@ io.on("connection", (socket) => {
                 socket.emit("userisAdmin");
             }
         }
+    });
+
+    socket.on("verifyToken", (data: {token: string}) => {
+        console.log(`${data.token} loaded their game renderer`)
+        socket.join(data.token);
     });
 
     socket.on(
@@ -98,6 +103,7 @@ io.on("connection", (socket) => {
                     socket.emit("loginSuccessful", {
                         username: userCredentials.username,
                         gameversion: gameServer._version,
+                        token: socket.id
                     });
 
                     const playerSettings = await loadPlayerSettings(
@@ -388,6 +394,82 @@ function handleHTTPRequests() {
         );
     });
 
+    app.get("/FontLoader.js", (req, res) => {
+        res.sendFile(
+            path.join(
+                __dirname,
+                "..",
+                "..",
+                "dist",
+                "web",
+                "ts",
+                "FontLoader.js"
+            ),
+            {
+                headers: {
+                    "Content-Type": "application/javascript",
+                },
+            }
+        );
+    });
+
+    app.get("/SocketIOClient.js", (req, res) => {
+        res.sendFile(
+            path.join(
+                __dirname,
+                "..",
+                "..",
+                "dist",
+                "web",
+                "ts",
+                "SocketIOClient.js"
+            ),
+            {
+                headers: {
+                    "Content-Type": "application/javascript",
+                },
+            }
+        );
+    });
+
+    app.get("/TextGeometry.js", (req, res) => {
+        res.sendFile(
+            path.join(
+                __dirname,
+                "..",
+                "..",
+                "dist",
+                "web",
+                "ts",
+                "TextGeometry.js"
+            ),
+            {
+                headers: {
+                    "Content-Type": "application/javascript",
+                },
+            }
+        );
+    });
+
+    app.get("/BufferGeometryUtils.js", (req, res) => {
+        res.sendFile(
+            path.join(
+                __dirname,
+                "..",
+                "..",
+                "dist",
+                "web",
+                "ts",
+                "BufferGeometryUtils.js"
+            ),
+            {
+                headers: {
+                    "Content-Type": "application/javascript",
+                },
+            }
+        );
+    });
+
     app.get("/three/examples/jsm/controls/OrbitControls", (req, res) => {
         res.sendFile(
             path.join(
@@ -436,6 +518,24 @@ function handleHTTPRequests() {
                 "web",
                 "ts",
                 "CSS2DRenderer.js"
+            ),
+            {
+                headers: {
+                    "Content-Type": "application/javascript",
+                },
+            }
+        );
+    });
+    app.get("/gameLogicWorker.js", (req, res) => {
+        res.sendFile(
+            path.join(
+                __dirname,
+                "..",
+                "..",
+                "dist",
+                "web",
+                "ts",
+                "gameLogicWorker.js"
             ),
             {
                 headers: {

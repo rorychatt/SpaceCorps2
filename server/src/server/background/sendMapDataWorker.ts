@@ -79,7 +79,7 @@ class RocketProjectileDTO {
     }
 }
 
-const renderRadius = Math.pow(35, 2)
+const renderRadius = Math.pow(35, 2);
 
 if (parentPort) {
     parentPort.on(
@@ -112,16 +112,24 @@ if (parentPort) {
                     .filter((e: any) => {
                         return (
                             Math.pow(e.position.x - player.position.x, 2) +
-                                (e.position.y - player.position.y, 2) <=
-                            renderRadius || e._type == "Portal" || e._type == "CompanyBase"
+                                Math.pow(e.position.y - player.position.y, 2) <=
+                                renderRadius ||
+                            e._type == "Portal" ||
+                            e._type == "CompanyBase"
                         );
                     });
 
                 const projectilesDTO = mapData.projectileServer.projectiles
                     .map((projectile: any) => {
-                        if (projectile._type && projectile._type == "LaserProjectile") {
+                        if (
+                            projectile._type &&
+                            projectile._type == "LaserProjectile"
+                        ) {
                             return new LaserProjectileDTO(projectile);
-                        } else if (projectile._type && projectile._type == "RocketProjectile") {
+                        } else if (
+                            projectile._type &&
+                            projectile._type == "RocketProjectile"
+                        ) {
                             return new RocketProjectileDTO(projectile);
                         }
                         return projectile;
@@ -129,14 +137,14 @@ if (parentPort) {
                     .filter((e: any) => {
                         return (
                             Math.pow(e.position.x - player.position.x, 2) +
-                                (e.position.y - player.position.y, 2) <=
+                                Math.pow(e.position.y - player.position.y, 2) <=
                             renderRadius
                         );
                     });
                 const cargoboxes = mapData.cargoboxes.filter((e: any) => {
                     return (
                         Math.pow(e.position.x - player.position.x, 2) +
-                            (e.position.y - player.position.y, 2) <=
+                            Math.pow(e.position.y - player.position.y, 2) <=
                         renderRadius
                     );
                 });

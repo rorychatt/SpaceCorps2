@@ -453,19 +453,23 @@ export class Player extends Entity {
                 x: this.destination.x - this.position.x,
                 y: this.destination.y - this.position.y,
             };
-            const totalDistance = Math.sqrt(
-                direction.x ** 2 + direction.y ** 2
-            );
-            if (travelledDistance < totalDistance) {
+            const totalDistance = Math.sqrt(direction.x ** 2 + direction.y ** 2);
+    
+            if (travelledDistance >= totalDistance) {
+                this.position = {
+                    x: this.destination.x,
+                    y: this.destination.y,
+                };
+                this.destination = null;
+            } else {
                 const dx = (travelledDistance / totalDistance) * direction.x;
                 const dy = (travelledDistance / totalDistance) * direction.y;
                 this.position = {
                     x: this.position.x + dx,
                     y: this.position.y + dy,
                 };
-            } else {
-                this.destination = null;
             }
+    
             if (this.currentActiveQuests.length > 0) {
                 gameServer.questServer.registerFlyDistance({
                     playerUUID: this.uuid,
@@ -475,7 +479,7 @@ export class Player extends Entity {
             }
         }
     }
-
+    
     addHonor(honor: number) {
         this.stats.honor = this.stats.honor + honor;
     }

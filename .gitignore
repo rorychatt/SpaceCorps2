@@ -12,5 +12,9 @@ server/dist/web/ts/*
 !server/dist/web/ts/GLTFLoader.js
 !server/dist/web/ts/CSS2DRenderer.js
 !server/dist/web/ts/tween.js
+!server/dist/web/ts/FontLoader.js
+!server/dist/web/ts/TextGeometry.js
+!server/dist/web/ts/SocketIoClient.js
+!server/dist/web/ts/BufferGeometryUtils.js
 config.json
 temp
