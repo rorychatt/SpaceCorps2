@@ -1,15 +1,5 @@
-// Import Statements
-import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import {
-    CSS2DRenderer,
-    CSS2DObject,
-    // @ts-ignore
-} from "./three/addons/renderers/CSS2DRenderer.js";
-import * as TWEEN from "@tweenjs/tween.js";
-// @ts-ignore
-export const socket = io("http://localhost:3000");
+import { io } from "socket.io-client";
+export const socket = io!("http://localhost:3000");
 
 // HTML Elements
 let loginDiv = document.getElementById("loginDiv") as HTMLElement;
@@ -19,8 +9,10 @@ let uiDiv = document.querySelector(".ui") as HTMLElement;
 let consoleBtn = document.querySelector(".console_button") as HTMLElement;
 let gameVersionDiv = document.getElementById("gameversion") as HTMLElement;
 let gamefpsDiv = document.getElementById("gamefps") as HTMLElement;
+let gameupsDiv = document.getElementById("gameups") as HTMLElement;
 let quests100qDiv = document.getElementById("quest_100q") as HTMLElement;
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
+const canvas = document.querySelector("#THREEJSScene") as HTMLCanvasElement;
 
 // UI Elements
 const creditsElement = document.getElementById("credits_value");
@@ -55,31 +47,6 @@ const refreshTop10ExperienceBtn = document.getElementById(
     "getTop10ExperienceBtn"
 ) as HTMLButtonElement | undefined;
 
-// Three.js Objects
-let scene: THREE.Scene;
-let camera: THREE.PerspectiveCamera;
-let renderer: THREE.Renderer;
-let controls: OrbitControls;
-let canvas: HTMLCanvasElement | null;
-let audioListener: THREE.AudioListener;
-let labelRenderer: CSS2DRenderer;
-let lockOnCircle: THREE.Object3D | null;
-
-// Player Data
-let playerEntity: any;
-let playerName: string;
-let playerObject: THREE.Object3D | undefined = undefined;
-let lastEntityPosition: THREE.Vector3 | null = null;
-let isFirstUpdateForPlayer: boolean = true; // flag to identify the first update for the player
-
-// Game Data
-let shoppingData: any;
-let playerInventory: any;
-let currentMap: any;
-const objectCache: Record<string, THREE.Group> = {};
-const objectDataMap: Record<string, { data: any }> = {};
-const labelMap: Record<string, CSS2DObject> = {};
-
 // Chat and Console
 let sendChatMessageButton: HTMLElement | null;
 let chatModalContent: HTMLElement | null;
@@ -88,27 +55,13 @@ let sendConsoleMessageButton: HTMLElement | null;
 let consoleContent: HTMLElement | null;
 let consoleInput: HTMLInputElement | null;
 
-// Audio
-let mainThemeMusic: THREE.Audio;
-let explosionSoundBuffer: AudioBuffer,
-    laserShootSoundBuffer: AudioBuffer,
-    rocketShootSoundBuffer: AudioBuffer,
-    laserHitSoundBuffer: AudioBuffer,
-    rocketHitSoundBuffer: AudioBuffer;
-
-// Misc
-const raycaster = new THREE.Raycaster();
-const rayCastLayerNo = 1;
-const particles: any[] = [];
-const damageIndicators: any[] = [];
-const maxConcurrentSounds = 6;
-let currentSounds: number = 0;
-let isUpdating: boolean = false;
-let currentSelectedQuestKey = 0;
-const tickrate = 20;
-const frameTime = 1000 / tickrate;
-let lastTime = 0;
-let frameCount = 0;
+// Game Data
+let shoppingData: any;
+let playerInventory: any;
+let playerName: string;
+let playerEntity: any;
+let currentMap: any;
+let lockOnCircleParent: any;
 
 // Hotbar
 
@@ -139,8 +92,130 @@ let hotbarMapping: HotbarMapping = {
     "9": null,
 };
 
-raycaster.layers.set(rayCastLayerNo);
-setupSoundBuffers();
+// MISC
+
+let gameLogicWorker: Worker;
+let currentSelectedQuestKey = 0;
+let upsCount = 0;
+let lastTime = Date.now();
+let token: string;
+
+const mouseEventHandler = makeSendPropertiesHandler([
+    "ctrlKey",
+    "metaKey",
+    "shiftKey",
+    "button",
+    "pointerType",
+    "clientX",
+    "clientY",
+    "pageX",
+    "pageY",
+]);
+const wheelEventHandlerImpl = makeSendPropertiesHandler(["deltaX", "deltaY"]);
+const keydownEventHandler = makeSendPropertiesHandler([
+    "ctrlKey",
+    "metaKey",
+    "shiftKey",
+    "keyCode",
+]);
+
+function wheelEventHandler(event: any, sendFn: any) {
+    event.preventDefault();
+    wheelEventHandlerImpl(event, sendFn);
+}
+
+function preventDefaultHandler(event: any) {
+    event.preventDefault();
+}
+
+function copyProperties(src: any, properties: any, dst: any) {
+    for (const name of properties) {
+        dst[name] = src[name];
+    }
+}
+
+function makeSendPropertiesHandler(properties: any) {
+    return function sendProperties(event: any, sendFn: any) {
+        const data = { type: event.type };
+        copyProperties(event, properties, data);
+        sendFn(data);
+    };
+}
+
+function touchEventHandler(event: any, sendFn: any) {
+    const touches: any = [];
+    const data = { type: event.type, touches };
+    for (let i = 0; i < event.touches.length; ++i) {
+        const touch = event.touches[i];
+        touches.push({
+            pageX: touch.pageX,
+            pageY: touch.pageY,
+        });
+    }
+
+    sendFn(data);
+}
+
+// The four arrow keys
+const orbitKeys = {
+    "37": true, // left
+    "38": true, // up
+    "39": true, // right
+    "40": true, // down
+};
+
+function filteredKeydownEventHandler(event: any, sendFn: any) {
+    const { keyCode } = event;
+    //@ts-ignore
+    if (orbitKeys[keyCode]) {
+        event.preventDefault();
+        keydownEventHandler(event, sendFn);
+    }
+}
+
+let nextProxyId = 0;
+class ElementProxy {
+    id: any;
+    worker: any;
+    constructor(element: any, worker: any, eventHandlers: any) {
+        this.id = nextProxyId++;
+        this.worker = worker;
+        const sendEvent = (data: any) => {
+            this.worker.postMessage({
+                type: "event",
+                id: this.id,
+                data,
+            });
+        };
+
+        // register an id
+        worker.postMessage({
+            type: "makeProxy",
+            id: this.id,
+        });
+        sendSize();
+        for (const [eventName, handler] of Object.entries(eventHandlers)) {
+            element.addEventListener(eventName, function (event: any) {
+                //@ts-ignore
+                handler(event, sendEvent);
+            });
+        }
+
+        function sendSize() {
+            const rect = element.getBoundingClientRect();
+            sendEvent({
+                type: "size",
+                left: rect.left,
+                top: rect.top,
+                width: element.clientWidth,
+                height: element.clientHeight,
+            });
+        }
+
+        // really need to use ResizeObserver
+        window.addEventListener("resize", sendSize);
+    }
+}
 
 socket.on("connect", () => {
     console.log("Connected to the socket.io server");
@@ -152,11 +227,11 @@ socket.on("userisAdmin", () => {
 
 socket.on(
     "loginSuccessful",
-    (data: { username: string; gameversion: string }) => {
+    (data: { username: string; gameversion: string; token: string }) => {
         console.log(`Successful login as ${data.username}, starting game...`);
         playerName = data.username;
-        initScene();
-        rescaleOnWindowResize();
+        token = data.token;
+        // rescaleOnWindowResize();
         uiDiv.hidden = false;
         gameVersionDiv.innerHTML = data.gameversion;
         socket.emit("checkisAdmin", data.username);
@@ -174,10 +249,16 @@ socket.on(
                     switchCheckbox.checked =
                         data.playerSettings[i].antiAliasing;
 
-                    recreateRenderer(data.playerSettings[i].antiAliasing);
-                    mainThemeMusic.setVolume(
-                        parseInt(data.playerSettings[i].volume) / 100
-                    );
+                    // gameLogicWorker.postMessage({
+                    //     type: "recreateRenderer",
+                    //     antiAliasing: data.playerSettings[i].antiAliasing,
+                    // });
+
+                    initScene(data.playerSettings[i].antiAliasing, token);
+
+                    // mainThemeMusic.setVolume(
+                    //     parseInt(data.playerSettings[i].volume) / 100
+                    // );
                 }
             }
         }
@@ -224,34 +305,6 @@ socket.on("serverMessage", (data: { type: string; message: string }) => {
 });
 
 socket.on(
-    "mapData",
-    async (data: {
-        name: string;
-        entities: any[];
-        projectiles: any[];
-        cargoboxes: any[];
-        size: { width: number; height: number };
-    }) => {
-        if (isUpdating) {
-            console.warn(`Skipping tick due to client performance issues`);
-        }
-        isUpdating = true;
-        if (!currentMap || currentMap.name != data.name) {
-            loadNewSpacemap(data);
-        }
-        Promise.resolve(
-            updateObjects(
-                data.entities.concat(data.projectiles, data.cargoboxes)
-            )
-        ).then(() => {
-            //TODO: this needs to be updated
-            playerObject = scene.getObjectByName(playerName);
-            isUpdating = false;
-        });
-    }
-);
-
-socket.on(
     "shopData",
     (data: {
         lasers: any[];
@@ -270,6 +323,35 @@ socket.on(
         };
         displayShoppingItems();
         displayHotbarItems();
+    }
+);
+
+socket.on(
+    "mapData",
+    async (data: {
+        name: string;
+        entities: any[];
+        projectiles: any[];
+        cargoboxes: any[];
+        size: { width: number; height: number };
+    }) => {
+        // gameLogicWorker.postMessage({
+        //     type: "mapData",
+        //     mapData: data,
+        //     playerName: playerName,
+        // });
+        upsCount++;
+
+        const time = Date.now();
+        const elapsed = (time - lastTime) / 1000;
+
+        if (elapsed >= 1) {
+            const ups = upsCount / elapsed;
+            gameupsDiv.innerHTML = `Client UPS: ${ups.toFixed(4)}`;
+
+            upsCount = 0;
+            lastTime = time;
+        }
     }
 );
 
@@ -490,1063 +572,6 @@ socket.on("universeData", (data: { maps: any }) => {
     console.log("Universe data", data.maps);
 });
 
-function savePlayerSettings(data: {
-    username: string;
-    volume: string;
-    antiAliasing: boolean;
-}) {
-    if (data.antiAliasing) {
-        socket.emit("saveSettings", {
-            username: data.username,
-            volume: parseInt(data.volume),
-            antiAliasing: 1,
-        });
-    } else {
-        socket.emit("saveSettings", {
-            username: data.username,
-            volume: parseInt(data.volume),
-            antiAliasing: 0,
-        });
-    }
-}
-
-function savePlayerHotbarSettings(data: {
-    username: string;
-    hotbarMapping: HotbarMapping;
-}) {
-    if (data.hotbarMapping) {
-        socket.emit("savePlayerHotbarSettings", {
-            username: data.username,
-            hotbarMapping: JSON.stringify(data.hotbarMapping),
-        });
-    }
-}
-
-async function loadNewSpacemap(data: any) {
-    clearScene(scene);
-    lockOnCircle?.removeFromParent();
-    try {
-        currentMap = data;
-        await Promise.all([
-            loadSpacemapPlane(data),
-            createStars(),
-            createLighting(),
-            createSkybox(data.name),
-            loadStaticEntities(data),
-        ]);
-    } catch (error) {
-        console.log(`Got an error while loading new spacemap: ${data.name}`);
-    }
-}
-
-async function loadSpacemapPlane(data: any) {
-    const material = new THREE.MeshBasicMaterial({
-        color: 0x00ff00,
-        side: THREE.FrontSide,
-        transparent: true,
-        opacity: 0.03,
-    });
-    const geometry = new THREE.PlaneGeometry(data.size.width, data.size.height);
-    const plane = new THREE.Mesh(geometry, material);
-    plane.position.set(0, 0, 0);
-    plane.rotation.x = -Math.PI / 2;
-    plane.name = "movingPlane";
-    plane.layers.enable(rayCastLayerNo);
-    scene.add(plane);
-}
-
-async function loadStaticEntities(data: any) {
-    return;
-}
-
-function clearScene(scene: THREE.Scene) {
-    for (const object in objectDataMap) {
-        deleteObject(object);
-    }
-
-    while (scene.children.length > 0) {
-        scene.remove(scene.children[0]);
-    }
-}
-
-function initScene(): void {
-    contentDiv.hidden = true;
-    loginDiv.hidden = true;
-    spacemapDiv.hidden = false;
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(
-        60,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-    );
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-
-    // Set the size of the renderer to match the window size
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    // Append the renderer to the HTML container
-    renderer.domElement.id = "THREEJSScene";
-    document.getElementById("spacemapDiv")?.appendChild(renderer.domElement);
-
-    labelRenderer = new CSS2DRenderer();
-    labelRenderer.setSize(window.innerWidth, window.innerHeight);
-    labelRenderer.domElement.style.position = "absolute";
-    labelRenderer.domElement.style.top = "0px";
-    labelRenderer.domElement.style.pointerEvents = "none";
-    labelRenderer.domElement.id = "entityLabelsDiv";
-
-    canvas = document.getElementById(
-        "THREEJSScene"
-    ) as HTMLCanvasElement | null;
-
-    if (!canvas) return;
-
-    // const offscreen = canvas.transferControlToOffscreen();
-    // const worker = new Worker("worker.js");
-
-    // worker.postMessage({ type: "init", canvas: offscreen }, [offscreen]);
-
-    spacemapDiv.appendChild(renderer.domElement);
-    spacemapDiv.appendChild(labelRenderer.domElement);
-
-    entityLabelsDiv = document.getElementById("entityLabelsDiv");
-
-    createStars();
-
-    loadEventListeners();
-
-    // Position the camera
-    camera.position.x = 4;
-    camera.position.y = 5;
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-    audioListener = new THREE.AudioListener();
-    camera.add(audioListener);
-
-    // Create an animation function to rotate the cube
-    const animate = (time?: any) => {
-        requestAnimationFrame(animate);
-        TWEEN.update();
-
-        renderer.render(scene, camera);
-        labelRenderer.render(scene, camera);
-
-        particles.forEach((_particles) => {
-            _particles.forEach(
-                (particle: {
-                    position: { add: (arg0: any) => void };
-                    velocity: any;
-                }) => {
-                    particle.position.add(particle.velocity);
-                }
-            );
-        });
-
-        scene.children.forEach((child) => {
-            if (child instanceof THREE.Mesh && child.name === "CargoDrop") {
-                child.rotation.x += 0.001;
-                child.rotation.y += 0.001;
-                child.rotation.z += 0.001;
-            }
-        });
-
-        damageIndicators.forEach((damageIndicator) => {
-            damageIndicator.position.add(new THREE.Vector3(0, 0.01, 0));
-        });
-
-        frameCount++;
-        let elapsed = (time - lastTime) / 1000;
-        if (elapsed >= 1) {
-            const fps = frameCount / elapsed;
-            gamefpsDiv.innerHTML = `FPS: ${fps.toFixed(4)}`;
-            frameCount = 0;
-            lastTime = time;
-        }
-    };
-
-    controls = new OrbitControls(camera, renderer.domElement);
-    updateControlsSettings();
-
-    mainThemeMusic = new THREE.Audio(audioListener);
-
-    const audioLoader = new THREE.AudioLoader();
-
-    audioLoader.load("./assets/sounds/mainTheme.ogg", function (buffer) {
-        mainThemeMusic.setBuffer(buffer);
-        mainThemeMusic.setLoop(true);
-        if (volumeLevelInput && volumeLevelInput.value) {
-            mainThemeMusic.setVolume(parseInt(volumeLevelInput.value) / 100);
-        } else {
-            mainThemeMusic.setVolume(0.07);
-        }
-        mainThemeMusic.play();
-    });
-
-    const lockOnCircleGeometry = new THREE.RingGeometry(1.5, 1.55, 32);
-    const lockOnCirleMaterial = new THREE.MeshBasicMaterial({
-        color: 0xff0000,
-        side: THREE.DoubleSide,
-    });
-    lockOnCircle = new THREE.Mesh(lockOnCircleGeometry, lockOnCirleMaterial);
-    lockOnCircle.rotation.x = 1.57079633;
-    lockOnCircle.position.set(0, 0, 0);
-    lockOnCircle.name = "lockOnCircle";
-
-    // Call the animate function to start the animation loop
-    animate();
-}
-
-function raycastFromCamera(event: any) {
-    const mouse = new THREE.Vector2();
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    raycaster.setFromCamera(mouse, camera);
-
-    const intersects = raycaster.intersectObjects(scene.children, true);
-
-    let _names: string[] = [];
-
-    if (intersects.length > 0) {
-        intersects.forEach((intersect) => {
-            _names.push(intersect.object.name);
-        });
-
-        // console.log(`Got following intersects: ${JSON.stringify(_names)}`);
-        // console.log(intersects);
-
-        const isOnlyPlaneAndCargo = _names.every(
-            (name) =>
-                name === "movingPlane" ||
-                name === "CargoDrop" ||
-                name === playerName
-        );
-        const firstCargoDrop = intersects.find(
-            (intersect) => intersect.object.name === "CargoDrop"
-        );
-
-        if (isOnlyPlaneAndCargo && firstCargoDrop) {
-            socket.emit("playerCollectCargoBox", {
-                playerName: playerName,
-                cargoDropUUID: firstCargoDrop.object.uuid,
-            });
-        } else if (
-            intersects.length === 1 &&
-            intersects[0].object.name === "movingPlane"
-        ) {
-            socket.emit("playerMoveToDestination", {
-                targetPosition: {
-                    x: intersects[0].point.x,
-                    y: intersects[0].point.z,
-                },
-            });
-        } else {
-            let object = intersects[0].object;
-            if (
-                object.name !== playerName &&
-                object.name !== "CargoDrop" &&
-                lockOnCircle &&
-                object.name !== "movingPlane"
-            ) {
-                lockOnCircle?.removeFromParent();
-                object.parent?.add(lockOnCircle);
-            } else {
-                let object = intersects[1].object;
-                if (
-                    object.name !== playerName &&
-                    object.name !== "CargoDrop" &&
-                    lockOnCircle &&
-                    object.name !== "movingPlane"
-                ) {
-                    lockOnCircle?.removeFromParent();
-                    object.parent?.add(lockOnCircle);
-                }
-            }
-        }
-    }
-}
-
-function handleKeyboardButton(e: KeyboardEvent) {
-    if (playerName) {
-        const validKeys = new Set([
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8",
-            "9",
-            "0",
-        ]);
-
-        if (validKeys.has(e.key) && lockOnCircle?.parent) {
-            socket.emit("shootEvent", {
-                playerName: playerName,
-                targetUUID: lockOnCircle.parent.uuid,
-                weapons: "lasers",
-                ammo: hotbarMapping[e.key]?.itemName,
-            });
-        } else {
-            switch (e.key) {
-                case "Enter":
-                    if (chatModelDivClass?.classList.contains("shown")) {
-                        const messageText = chatModalInput?.value.trim();
-                        if (messageText && chatModalInput && chatModalContent) {
-                            socket.emit("sendChatMessageToServer", {
-                                username: playerName,
-                                message: messageText,
-                            });
-                            chatModalInput.value = "";
-                        }
-                    } else if (consoleDiv.style.display == "block") {
-                        const consoleMessageText = consoleInput?.value.trim();
-                        if (
-                            consoleMessageText &&
-                            consoleInput &&
-                            consoleContent
-                        ) {
-                            socket.emit("sendConsoleMessageToServer", {
-                                username: playerName,
-                                message: consoleMessageText,
-                            });
-                            consoleInput.value = "";
-                        }
-                    }
-                    break;
-                case "j":
-                    const portals = currentMap.entities.filter(
-                        (entity: { _type: string }) => entity._type === "Portal"
-                    );
-                    const closestPortal = findClosestPortal(
-                        playerEntity.position,
-                        portals
-                    );
-                    console.log(portals);
-                    console.log(closestPortal);
-                    if (closestPortal) {
-                        if (
-                            Math.sqrt(
-                                Math.pow(
-                                    closestPortal.position.x -
-                                        playerEntity.position.x,
-                                    2
-                                ) +
-                                    Math.pow(
-                                        closestPortal.position.y -
-                                            playerEntity.position.y,
-                                        2
-                                    )
-                            ) < 5
-                        ) {
-                            socket.emit("attemptTeleport", {
-                                playerName: playerName,
-                            });
-                        }
-                    }
-                    break;
-
-                case "o":
-                    console.log(scene);
-                    break;
-
-                case "s":
-                    console.log(currentSounds);
-                    break;
-
-                case " ":
-                    if (lockOnCircle?.parent != undefined) {
-                        socket.emit("shootEvent", {
-                            playerName: playerName,
-                            targetUUID: lockOnCircle.parent.uuid,
-                            weapons: "rockets",
-                            ammo: "PRP-2023",
-                        });
-                    }
-                    break;
-            }
-        }
-    }
-}
-
-const findClosestPortal = (
-    playerPosition: { x: number; y: number },
-    portals: any[]
-): any | null => {
-    let closestPortal: any | null = null;
-    let closestDistance: number = Infinity;
-
-    for (const portal of portals) {
-        const distance = Math.sqrt(
-            Math.pow(portal.position.x - playerPosition.x, 2) +
-                Math.pow(portal.position.y - playerPosition.y, 2)
-        );
-        if (distance < closestDistance) {
-            closestDistance = distance;
-            closestPortal = portal;
-        }
-    }
-    return closestPortal;
-};
-
-function createLighting() {
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.25);
-    directionalLight.position.set(1, 1, 1);
-    scene.add(directionalLight);
-    scene.add(ambientLight);
-}
-
-function createSkybox(mapname: string) {
-    const loader = new THREE.CubeTextureLoader();
-
-    const texture = loader.load([
-        `./assets/spacemaps/${mapname}/right.png`,
-        `./assets/spacemaps/${mapname}/left.png`,
-        `./assets/spacemaps/${mapname}/top.png`,
-        `./assets/spacemaps/${mapname}/bottom.png`,
-        `./assets/spacemaps/${mapname}/front.png`,
-        `./assets/spacemaps/${mapname}/back.png`,
-    ]);
-
-    scene.background = texture;
-}
-
-function rescaleOnWindowResize(): void {
-    window.addEventListener("resize", () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        labelRenderer.setSize(window.innerWidth, window.innerHeight);
-    });
-}
-
-function createDefaultObject(data: any): THREE.Object3D {
-    const boxgeometry = new THREE.BoxGeometry();
-    const boxmaterial = new THREE.MeshBasicMaterial({
-        color: 0x00ff00,
-    });
-    const defcube = new THREE.Mesh(boxgeometry, boxmaterial);
-    defcube.uuid = data.uuid;
-    defcube.position.set(data.position.x, 0, data.position.y);
-    defcube.name = data.name;
-    objectDataMap[data.uuid] = { data: defcube };
-    scene.add(defcube);
-    return defcube;
-}
-
-function setupAlienObject(model: THREE.Object3D, data: any) {
-    model.uuid = data.uuid;
-    model.position.set(data.position.x, 0, data.position.y);
-    setNameRecursively(model, data.name, data.uuid, rayCastLayerNo);
-
-    const nickBarContainer = document.createElement("div");
-    const nickname = document.createElement("div");
-    nickname.className = "nicknameLabel";
-    nickname.textContent = `${data.name}`;
-
-    const healthBar = document.createElement("div");
-    healthBar.className = "health_bar";
-
-    const hpBar = document.createElement("div");
-    hpBar.className = "hp_health_bar";
-
-    const spBar = document.createElement("div");
-    spBar.className = "sp_health_bar";
-
-    const maxHP = data.maxHealth;
-    const maxSP = data.maxShields;
-
-    hpBar.style.width = `${data.hitPoints.hullPoints / maxHP}`;
-
-    spBar.style.width = `${data.hitPoints.shieldPoints / maxSP}`;
-
-    healthBar.appendChild(hpBar);
-    healthBar.appendChild(spBar);
-
-    nickBarContainer.appendChild(nickname);
-    nickBarContainer.appendChild(healthBar);
-    nickBarContainer.setAttribute("uuid", data.uuid);
-    nickBarContainer.classList.add("nickBarContainer");
-
-    const label = new CSS2DObject(nickBarContainer);
-
-    labelMap[data.uuid] = label;
-    label.position.y = -0.75;
-    (model as any).hitPoints = data.hitPoints;
-    model.add(label);
-    scene.add(model);
-    objectDataMap[data.uuid] = { data: model };
-}
-
-function setupPlayerObject(model: THREE.Object3D, data: any) {
-    model.uuid = data.uuid;
-    model.position.set(data.position.x, 0, data.position.y);
-    setNameRecursively(model, data.name, data.uuid, rayCastLayerNo);
-    if (data.name == playerName) {
-        controls.update();
-    }
-
-    const text = document.createElement("div");
-    text.className = "nicknameLabel";
-    text.style.color = "rgb(255,255,255)";
-    text.style.fontSize = "12";
-    text.textContent = `${data.name}`;
-    const label = new CSS2DObject(text);
-    labelMap[data.uuid] = label;
-    label.position.y = -0.75;
-    label.uuid = data.uuid;
-    (model as any).hitPoints = data.hitPoints;
-    model.add(label);
-    scene.add(model);
-    objectDataMap[data.uuid] = { data: model };
-}
-
-function setupPortalObject(model: THREE.Object3D, data: any) {
-    model.uuid = data.uuid;
-    model.position.set(data.position.x, 0, data.position.y);
-    model.add(createSafeZoneRing(5));
-    setNameRecursively(model, data.name, data.uuid);
-    scene.add(model);
-    model.lookAt(new THREE.Vector3(0, 0, 0));
-    objectDataMap[data.uuid] = { data: model };
-}
-
-function removeCSSChildrenOfObject(object: THREE.Object3D) {
-    let childrenToRemove: THREE.Object3D[] = [];
-    object.traverse((child) => {
-        if (child instanceof CSS2DObject || child.name == "lockOnCirle") {
-            childrenToRemove.push(child);
-        }
-    });
-    for (const child of childrenToRemove) {
-        if (child.parent) {
-            child.parent.remove(child);
-        }
-    }
-}
-
-async function createObject(data: any): Promise<THREE.Object3D> {
-    // console.log(`Creating new Object ${data.name}`);
-    return new Promise(async (resolve) => {
-        if (data._type == "Player") {
-            if (objectCache[data.activeShipName]) {
-                const clonedObject =
-                    objectCache[data.activeShipName].clone(true);
-                removeCSSChildrenOfObject(clonedObject);
-            } else {
-                const loader = new GLTFLoader();
-                const modelUrl = `./assets/models/ships/${data.activeShipName}/${data.activeShipName}.glb`;
-                objectDataMap[data.uuid] = { data: null };
-                loader.load(modelUrl, async (glb) => {
-                    const model = glb.scene;
-                    objectCache[data.name] = model;
-                    setupPlayerObject(model, data);
-                    resolve(model);
-                });
-            }
-        } else {
-            if (objectCache[data.name]) {
-                const clonedObject = objectCache[data.name].clone(true);
-                let childrenToRemove: THREE.Object3D[] = [];
-                clonedObject.traverse((child) => {
-                    if (
-                        child instanceof CSS2DObject ||
-                        child.name == "lockOnCircle"
-                    ) {
-                        childrenToRemove.push(child);
-                    }
-                });
-                for (const child of childrenToRemove) {
-                    if (child.parent) {
-                        child.parent.remove(child);
-                    }
-                }
-                switch (data._type) {
-                    case "Alien":
-                        const alien = clonedObject;
-                        setupAlienObject(alien, data);
-                        resolve(alien);
-                        break;
-                    case "Portal":
-                        const portal = clonedObject;
-                        objectCache[data.name] = portal;
-                        setupPortalObject(portal, data);
-                        resolve(portal);
-                        break;
-                    default:
-                        console.log("Unknown data", data);
-                        return;
-                }
-                resolve(clonedObject);
-                return;
-            }
-
-            const loader = new GLTFLoader();
-            objectDataMap[data.uuid] = { data: null };
-
-            let modelUrl = "";
-            switch (data._type) {
-                case "Alien":
-                    modelUrl = `./assets/models/aliens/${data.name}/${data.name}.glb`;
-                    loader.load(modelUrl, async (glb) => {
-                        const model = glb.scene;
-                        objectCache[data.name] = model;
-                        setupAlienObject(model, data);
-                        resolve(model);
-                    });
-                    break;
-                case "Portal":
-                    modelUrl = "./assets/models/portals/portal.glb";
-                    loader.load(modelUrl, async (glb) => {
-                        const model = glb.scene;
-                        objectCache[data.name] = model;
-                        setupPortalObject(model, data);
-                        resolve(model);
-                    });
-                    break;
-                case "LaserProjectile":
-                    const lineMaterial = new THREE.LineBasicMaterial({
-                        color: data.color,
-                        linewidth: 4,
-                    });
-                    const lineGeometry =
-                        new THREE.BufferGeometry().setFromPoints([
-                            new THREE.Vector3(0, 0, 0),
-                            new THREE.Vector3(0, 0, 1),
-                        ]);
-                    const line = new THREE.Line(lineGeometry, lineMaterial);
-                    line.uuid = data.uuid;
-                    line.name = data.name;
-                    line.position.set(data.position.x, 0, data.position.y);
-                    line.lookAt(
-                        data.targetPosition.x,
-                        0,
-                        data.targetPosition.y
-                    );
-                    scene.add(line);
-                    objectDataMap[data.uuid] = { data: line };
-
-                    const pointLight = new THREE.PointLight(
-                        data.color,
-                        0.5,
-                        10
-                    );
-                    pointLight.position.set(0, 0, 0);
-
-                    line.add(pointLight);
-
-                    if (currentSounds <= maxConcurrentSounds) {
-                        currentSounds++;
-                        const sound = new THREE.PositionalAudio(audioListener);
-                        sound.setBuffer(laserShootSoundBuffer);
-                        sound.setRefDistance(20);
-                        sound.setVolume(0.3);
-                        sound.onEnded = () => {
-                            currentSounds--;
-                        };
-                        line.add(sound);
-                        sound.play();
-                    }
-                    break;
-                case "RocketProjectile":
-                    const rocketMaterial = new THREE.LineBasicMaterial({
-                        color: "red",
-                        linewidth: 16,
-                    });
-                    const rocketGeometry =
-                        new THREE.BufferGeometry().setFromPoints([
-                            new THREE.Vector3(0, 0, 0),
-                            new THREE.Vector3(0, 0, 0.5),
-                        ]);
-                    const rocket = new THREE.Line(
-                        rocketGeometry,
-                        rocketMaterial
-                    );
-                    rocket.uuid = data.uuid;
-                    rocket.name = data.name;
-                    rocket.position.set(data.position.x, 0, data.position.y);
-                    rocket.lookAt(
-                        data.targetPosition.x,
-                        0,
-                        data.targetPosition.y
-                    );
-                    scene.add(rocket);
-                    objectDataMap[data.uuid] = { data: rocket };
-
-                    const rocketSound = new THREE.PositionalAudio(
-                        audioListener
-                    );
-
-                    if (currentSounds <= maxConcurrentSounds) {
-                        currentSounds++;
-                        rocketSound.setBuffer(rocketShootSoundBuffer);
-                        rocketSound.setRefDistance(20);
-                        rocketSound.setVolume(0.15);
-                        rocketSound.onEnded = function () {
-                            currentSounds--;
-                        };
-                        rocket.add(rocketSound);
-                        rocketSound.play();
-                    }
-
-                    break;
-                case "CargoDrop":
-                    const cargoDropGeometry = new THREE.BoxGeometry(
-                        0.25,
-                        0.25,
-                        0.25
-                    );
-                    const cargoDropMaterial = new THREE.MeshStandardMaterial({
-                        color: 0xffff00,
-                    });
-                    const cargoDrop = new THREE.Mesh(
-                        cargoDropGeometry,
-                        cargoDropMaterial
-                    );
-                    cargoDrop.uuid = data.uuid;
-                    cargoDrop.position.set(
-                        data.position.x,
-                        -1,
-                        data.position.y
-                    );
-                    objectDataMap[data.uuid] = { data: cargoDrop };
-                    cargoDrop.layers.enable(rayCastLayerNo);
-                    setNameRecursively(cargoDrop, "CargoDrop", data.uuid);
-                    scene.add(cargoDrop);
-                    resolve(cargoDrop);
-                    break;
-                case "Portal":
-                    modelUrl = "./assets/models/portals/portal.glb";
-                    loader.load(modelUrl, async (glb) => {
-                        const model = glb.scene;
-                        // Save to cache for later use
-                        objectCache["Portal"] = model;
-                        // Perform setup steps for Portal
-                        setupPortalObject(model, data);
-                        resolve(model);
-                    });
-                    break;
-                case "CompanyBase":
-                    loader.load(
-                        `./assets/models/base/base.glb`,
-                        async (glb) => {
-                            const model = glb.scene;
-                            model.uuid = data.uuid;
-                            model.position.set(
-                                data.position.x,
-                                0,
-                                data.position.y
-                            );
-                            model.add(createSafeZoneRing(10));
-                            setNameRecursively(model, data.name, data.uuid);
-                            scene.add(model);
-                            model.lookAt(new THREE.Vector3(0, 0, 0));
-                            objectDataMap[data.uuid] = { data: model };
-                            resolve(model);
-                        }
-                    );
-                    break;
-                default:
-                    const defaultObject = createDefaultObject(data);
-                    resolve(defaultObject);
-                    break;
-            }
-        }
-    });
-}
-
-async function updateObject(object: THREE.Object3D, entity: any) {
-    const { position, targetUUID, name, hitPoints, _type, activeShipName } =
-        entity;
-    const { x: posX, y: posY } = position;
-
-    const targetDirection = new THREE.Vector3(posX, 0, posY);
-
-    function _tween(object: any, targetPos: THREE.Vector3) {
-        let originalPosition = object.position.clone();
-        const targetObject = getObjectByUUID(targetUUID);
-        const positionTween = new TWEEN.Tween(object.position)
-            .to(
-                {
-                    x: targetPos.x,
-                    y: 0,
-                    z: targetPos.z,
-                },
-                frameTime
-            )
-            .easing(TWEEN.Easing.Linear.None)
-            .onUpdate(function () {
-                const deltaVector = object.position
-                    .clone()
-                    .sub(originalPosition);
-
-                const lookAtDirection = originalPosition
-                    .clone()
-                    .add(deltaVector);
-                if (targetObject) {
-                    object.lookAt(targetObject.position);
-                } else {
-                    if (
-                        Math.pow(deltaVector.x, 2) +
-                            Math.pow(deltaVector.z, 2) >
-                        0.00001
-                    ) {
-                        const lookTarget = lookAtDirection
-                            .clone()
-                            .add(deltaVector);
-                        const targetQuaternion = new THREE.Quaternion();
-                        targetQuaternion.setFromRotationMatrix(
-                            new THREE.Matrix4().lookAt(
-                                object.position,
-                                lookTarget,
-                                object.up
-                            )
-                        );
-                        targetQuaternion.multiply(
-                            new THREE.Quaternion().setFromAxisAngle(
-                                new THREE.Vector3(0, 1, 0),
-                                Math.PI
-                            )
-                        );
-                        object.quaternion.slerp(targetQuaternion, 0.35);
-                    }
-                }
-                if (object.name === playerName) {
-                    if (isFirstUpdateForPlayer) {
-                        lastEntityPosition = targetDirection;
-                        camera.position.set(posX, camera.position.y, posY);
-                        controls.target.copy(targetDirection);
-                        object.add(audioListener);
-                        isFirstUpdateForPlayer = false;
-                    } else if (lastEntityPosition !== null) {
-                        lastEntityPosition.add(deltaVector);
-                        object.position.copy(lastEntityPosition);
-                        camera.position.add(deltaVector);
-                        controls.target.add(deltaVector);
-                        originalPosition = lastEntityPosition.clone();
-                    }
-                    controls.update();
-                }
-            });
-        positionTween.start();
-    }
-
-    if (hitPoints) {
-        const { hullPoints, shieldPoints } = hitPoints;
-        const dhp = (object as any).hitPoints.hullPoints - hullPoints;
-        const dsp = (object as any).hitPoints.shieldPoints - shieldPoints;
-
-        if (dhp + dsp > 0) {
-            const text = document.createElement("div");
-            text.className = "damageIndicator";
-            text.style.color = "rgb(255,0,0)";
-            text.style.fontSize = "12";
-            text.textContent = `-${await beautifyNumberToUser(
-                Math.round(dhp + dsp)
-            )}`;
-
-            const damageLabel = new CSS2DObject(text);
-            damageLabel.position.copy(object.position);
-            damageIndicators.push(damageLabel);
-            scene.add(damageLabel);
-
-            setTimeout(() => {
-                scene.remove(damageLabel);
-                if (entityLabelsDiv) {
-                    const child = Array.from(entityLabelsDiv.children).find(
-                        (child) => child.textContent === text.textContent
-                    );
-                    if (child) {
-                        entityLabelsDiv.removeChild(child);
-                    }
-                }
-                const index = damageIndicators.indexOf(damageLabel);
-                if (index !== -1) {
-                    damageIndicators.splice(index, 1);
-                }
-            }, 1000);
-        }
-        if (dhp !== 0 || dsp !== 0) {
-            if (entityLabelsDiv) {
-                const label = Array.from(entityLabelsDiv.children).find(
-                    (child) => child.getAttribute("uuid") === object.uuid
-                );
-                if (label) {
-                    const hpBar = label.children[1].children[0] as HTMLElement;
-                    const spBar = label.children[1].children[1] as HTMLElement;
-                    const maxHp = entity.maxHealth || 100;
-                    const maxSp = entity.maxShields || 100;
-                    hpBar.style.width = `${(hullPoints / maxHp) * 100}%`;
-                    spBar.style.width = `${(shieldPoints / maxSp) * 100}%`;
-                }
-            }
-        }
-    }
-
-    (object as any).hitPoints = hitPoints;
-    if ((object as any).hitPoints && (object as any).hitPoints.hullPoints < 0) {
-        createAndTriggerExplosion(object);
-        deleteObject(object.uuid);
-        return;
-    }
-
-    if (_type && (_type === "Alien" || _type === "Player")) {
-        if ((object as any).activeShipName) {
-            if ((object as any).activeShipName !== activeShipName) {
-                deleteObject(object.uuid);
-                return;
-            }
-        } else {
-            (object as any).activeShipName = activeShipName;
-            // console.log(activeShipName);
-        }
-    }
-
-    if (name !== "CargoDrop") {
-        _tween(object, targetDirection);
-    }
-}
-
-async function deleteObject(uuid: string) {
-    const object = getObjectByUUID(uuid);
-    if (!object) {
-        console.warn(
-            `WARNING: Tried to delete object but could not find it: ${uuid}`
-        );
-        // console.log(objectDataMap);
-        return;
-    }
-
-    const label = getLabelByUUID(uuid);
-    if (label) {
-        labelRenderer.domElement.removeChild(label.element);
-        delete labelMap[uuid];
-    }
-
-    const entityLabelsDiv = document.getElementById("entityLabelsDiv");
-    if (entityLabelsDiv) {
-        entityLabelsDiv.innerHTML = ""; // Clear all child elements
-    } else {
-        console.log("The element with id 'entityLabelsDiv' was not found.");
-    }
-
-    if (
-        object.name === "laserProjectile" &&
-        currentSounds <= maxConcurrentSounds
-    ) {
-        currentSounds++;
-        const sound = new THREE.PositionalAudio(audioListener);
-        sound.setRefDistance(20);
-        sound.setBuffer(laserHitSoundBuffer);
-        sound.setVolume(0.7);
-        scene.add(sound);
-        sound.position.copy(object.position);
-        sound.onEnded = function () {
-            currentSounds--;
-            scene.remove(sound);
-        };
-        sound.play();
-    } else if (object.name === "rocketProjectile") {
-        if (currentSounds <= maxConcurrentSounds) {
-            currentSounds++;
-            const sound = new THREE.PositionalAudio(audioListener);
-            sound.position.copy(object.position);
-            sound.setRefDistance(20);
-            sound.setBuffer(rocketHitSoundBuffer);
-            sound.setVolume(0.1);
-            scene.add(sound);
-            sound.position.copy(object.position);
-            sound.onEnded = function () {
-                currentSounds--;
-                scene.remove(sound);
-            };
-            sound.play();
-        }
-    }
-
-    delete objectDataMap[uuid];
-    scene.remove(object);
-
-    // console.log(`Deleted object with uuid: ${uuid}`);
-}
-
-async function updateObjects(_data: any[]) {
-    const existingUUIDs = new Set<string>();
-    const updatePromises: Promise<any>[] = [];
-
-    for (const entity of _data) {
-        if (entity.name === playerName) {
-            updatePromises.push(updatePlayerInfo(entity));
-        }
-
-        if (objectDataMap[entity.uuid]) {
-            const object = getObjectByUUID(entity.uuid);
-            if (object) {
-                updatePromises.push(updateObject(object, entity));
-            }
-        } else {
-            updatePromises.push(createObject(entity));
-        }
-
-        existingUUIDs.add(entity.uuid);
-    }
-
-    await Promise.all(updatePromises);
-
-    const deleteUUIDs = new Set(Object.keys(objectDataMap));
-    for (const existingUUID of existingUUIDs) {
-        deleteUUIDs.delete(existingUUID);
-    }
-
-    const deletePromises = Array.from(deleteUUIDs).map((uuid) =>
-        deleteObject(uuid)
-    );
-
-    await Promise.all(deletePromises);
-}
-
-async function checkPlayerCurrency(price: {
-    credits?: number;
-    thulium?: number;
-}): Promise<boolean> {
-    const { stats } = playerEntity;
-
-    if (!stats) {
-        return false;
-    }
-
-    const { credits, thulium } = price;
-
-    if (credits && stats.credits < credits) {
-        showErrorMessage(
-            `Not enough credits`,
-            `You have: ${await beautifyNumberToUser(
-                stats.credits
-            )} and need ${await beautifyNumberToUser(
-                credits
-            )} credits to buy this item.`
-        );
-        return false;
-    }
-
-    if (thulium && stats.thulium < thulium) {
-        showErrorMessage(
-            `Not enough thulium`,
-            `You have: ${await beautifyNumberToUser(
-                stats.thulium
-            )} and need ${await beautifyNumberToUser(
-                thulium
-            )} thulium to buy this item.`
-        );
-        return false;
-    }
-
-    return true;
-}
-
 async function updatePlayerInfo(entity: any) {
     playerEntity = entity;
 
@@ -1620,7 +645,6 @@ async function updatePlayerInfo(entity: any) {
     if (!playerInventory) {
         playerInventory = entity.inventory;
 
-        // Directly update the UI if playerInventory was undefined
         Promise.all([
             displayShipsInHangar(),
             displayItemsInWorkroom(),
@@ -1670,7 +694,7 @@ async function updatePlayerInfo(entity: any) {
         ]).then((results) => results.some((result) => result === true));
 
         if (shouldUpdateUI) {
-            playerInventory = entity.inventory; // Update playerInventory after the check
+            playerInventory = entity.inventory;
 
             Promise.all([
                 displayShipsInHangar(),
@@ -1690,64 +714,52 @@ async function updatePlayerInfo(entity: any) {
     }
 }
 
-function getObjectByUUID(uuid: string) {
-    if (objectDataMap[uuid]) {
-        return objectDataMap[uuid].data || null;
+function savePlayerHotbarSettings(data: {
+    username: string;
+    hotbarMapping: HotbarMapping;
+}) {
+    if (data.hotbarMapping) {
+        socket.emit("savePlayerHotbarSettings", {
+            username: data.username,
+            hotbarMapping: JSON.stringify(data.hotbarMapping),
+        });
     }
-    return null;
 }
 
-async function createStars() {
-    const vertices = [];
-
-    for (let i = 0; i < 4096; i++) {
-        const x = (Math.random() - 0.5) * 180;
-        const y = (Math.random() - 0.8) * 60;
-        const z = (Math.random() - 0.5) * 180;
-
-        vertices.push(x, y, z);
-    }
-
-    const geometry = new THREE.BufferGeometry();
-
-    geometry.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(vertices, 3)
-    );
-
-    const material = new THREE.PointsMaterial({ color: 0x888888, size: 0.08 });
-
-    const points = new THREE.Points(geometry, material);
-
-    (points as any).uuid = Math.random();
-    points.name = "stars";
-
-    scene.add(points);
-    points.layers.enable(0);
+async function beautifyNumberToUser(number: number) {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-function getLabelByUUID(uuid: string): CSS2DObject | undefined {
-    return scene.children.find(
-        (child) => child instanceof CSS2DObject && child.uuid === uuid
-    ) as CSS2DObject | undefined;
+function savePlayerSettings(data: {
+    username: string;
+    volume: string;
+    antiAliasing: boolean;
+}) {
+    if (data.antiAliasing) {
+        socket.emit("saveSettings", {
+            username: data.username,
+            volume: parseInt(data.volume),
+            antiAliasing: 1,
+        });
+    } else {
+        socket.emit("saveSettings", {
+            username: data.username,
+            volume: parseInt(data.volume),
+            antiAliasing: 0,
+        });
+    }
 }
 
-function setNameRecursively(
-    object: THREE.Object3D,
-    name: string,
-    uuid: string,
-    layerNo?: number
-) {
-    object.name = name;
-    object.uuid = uuid;
+function createNewIcon(itemName: string) {
+    const itemPng = document.createElement("img");
+    itemPng.classList.add("item_icon_png");
+    itemPng.src = `../assets/icons/${itemName}.png`;
+    itemPng.onerror = () => {
+        itemPng.src = `../assets/icons/defaultIcon.png`;
+        console.log(`Icon ../assets/icons/${itemName}.png not found`);
+    };
 
-    if (layerNo) {
-        object.layers.enable(layerNo);
-    }
-
-    object.children.forEach((child) => {
-        setNameRecursively(child, name, uuid, layerNo);
-    });
+    return itemPng;
 }
 
 async function loadEventListeners() {
@@ -1756,7 +768,13 @@ async function loadEventListeners() {
         function (event) {
             if (event.button === 0) {
                 // Check if the left mouse button (button 0) was released
-                raycastFromCamera(event);
+                gameLogicWorker.postMessage({
+                    type: "raycastFromCamera",
+                    event: {
+                        clientX: event.clientX,
+                        clientY: event.clientY,
+                    },
+                });
             }
         },
         false
@@ -1803,9 +821,15 @@ async function loadEventListeners() {
     switchCheckbox?.addEventListener("change", (event: any) => {
         const isChecked = event.target.checked;
         if (isChecked) {
-            recreateRenderer(true);
+            gameLogicWorker.postMessage({
+                type: "recreateRenderer",
+                antiAliasing: true,
+            });
         } else {
-            recreateRenderer(false);
+            gameLogicWorker.postMessage({
+                type: "recreateRenderer",
+                antiAliasing: false,
+            });
         }
     });
 
@@ -1821,11 +845,11 @@ async function loadEventListeners() {
         });
     }
 
-    if (volumeLevelInput) {
-        volumeLevelInput.addEventListener("change", () => {
-            mainThemeMusic.setVolume(parseInt(volumeLevelInput.value) / 100);
-        });
-    }
+    // if (volumeLevelInput) {
+    //     volumeLevelInput.addEventListener("change", () => {
+    //         mainThemeMusic.setVolume(parseInt(volumeLevelInput.value) / 100);
+    //     });
+    // }
 
     if (refreshTop10ExperienceBtn && refreshTop10HonorBtn) {
         refreshTop10ExperienceBtn.addEventListener("click", () => {
@@ -1882,6 +906,112 @@ async function loadEventListeners() {
     setInterval(() => {
         displayQuest(playerEntity.currentActiveQuests[currentSelectedQuestKey]);
     }, 1000);
+
+    window.addEventListener("resize", sendSize);
+    sendSize();
+
+    window.addEventListener("keypress", handleKeyboardButton);
+}
+
+function handleKeyboardButton(e: KeyboardEvent) {
+    if (playerName) {
+        const validKeys = new Set([
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "0",
+        ]);
+        console.log(playerEntity);
+        if (validKeys.has(e.key) && lockOnCircleParent) {
+            socket.emit("shootEvent", {
+                playerName: playerName,
+                targetUUID: lockOnCircleParent,
+                weapons: "lasers",
+                ammo: hotbarMapping[e.key]?.itemName,
+            });
+        } else {
+            switch (e.key) {
+                case "Enter":
+                    if (chatModelDivClass?.classList.contains("shown")) {
+                        const messageText = chatModalInput?.value.trim();
+                        if (messageText && chatModalInput && chatModalContent) {
+                            socket.emit("sendChatMessageToServer", {
+                                username: playerName,
+                                message: messageText,
+                            });
+                            chatModalInput.value = "";
+                        }
+                    } else if (consoleDiv.style.display == "block") {
+                        const consoleMessageText = consoleInput?.value.trim();
+                        if (
+                            consoleMessageText &&
+                            consoleInput &&
+                            consoleContent
+                        ) {
+                            socket.emit("sendConsoleMessageToServer", {
+                                username: playerName,
+                                message: consoleMessageText,
+                            });
+                            consoleInput.value = "";
+                        }
+                    }
+                    break;
+                case "j":
+                    // const portals = currentMap.entities.filter(
+                    //     (entity: { _type: string }) => entity._type === "Portal"
+                    // );
+                    // const closestPortal = findClosestPortal(
+                    //     playerEntity.position,
+                    //     portals
+                    // );
+                    // console.log(portals);
+                    // console.log(closestPortal);
+                    // if (closestPortal) {
+                    //     if (
+                    //         Math.sqrt(
+                    //             Math.pow(
+                    //                 closestPortal.position.x -
+                    //                     playerEntity.position.x,
+                    //                 2
+                    //             ) +
+                    //                 Math.pow(
+                    //                     closestPortal.position.y -
+                    //                         playerEntity.position.y,
+                    //                     2
+                    //                 )
+                    //         ) < 5
+                    //     ) {
+                    socket.emit("attemptTeleport", {
+                        playerName: playerName,
+                    });
+                    //     }
+                    // }
+                    break;
+                // case "o":
+                //     console.log(scene);
+                //     break;
+                // case "s":
+                //     console.log(currentSounds);
+                //     break;
+                // case " ":
+                //     if (lockOnCircle?.parent != undefined) {
+                //         socket.emit("shootEvent", {
+                //             playerName: playerName,
+                //             targetUUID: lockOnCircle.parent.uuid,
+                //             weapons: "rockets",
+                //             ammo: "PRP-2023",
+                //         });
+                //     }
+                //     break;
+            }
+        }
+    }
 }
 
 async function displayHotbarItems(
@@ -2245,6 +1375,64 @@ async function handleUseButtonClick(itemName: string) {
     });
 }
 
+async function checkPlayerCurrency(price: {
+    credits?: number;
+    thulium?: number;
+}): Promise<boolean> {
+    const { stats } = playerEntity;
+
+    if (!stats) {
+        return false;
+    }
+
+    const { credits, thulium } = price;
+
+    if (credits && stats.credits < credits) {
+        showErrorMessage(
+            `Not enough credits`,
+            `You have: ${await beautifyNumberToUser(
+                stats.credits
+            )} and need ${await beautifyNumberToUser(
+                credits
+            )} credits to buy this item.`
+        );
+        return false;
+    }
+
+    if (thulium && stats.thulium < thulium) {
+        showErrorMessage(
+            `Not enough thulium`,
+            `You have: ${await beautifyNumberToUser(
+                stats.thulium
+            )} and need ${await beautifyNumberToUser(
+                thulium
+            )} thulium to buy this item.`
+        );
+        return false;
+    }
+
+    return true;
+}
+
+async function showErrorMessage(
+    errorTitle: string,
+    errorMessage: string
+): Promise<void> {
+    const errorContainer = document.getElementById("error_container");
+
+    const errorTitleElement = document.getElementById("error_title");
+    const errorMessageElement = document.getElementById("error_message");
+
+    if (errorContainer && errorTitleElement && errorMessageElement) {
+        errorTitleElement.textContent = errorTitle;
+        errorMessageElement.textContent = errorMessage;
+
+        errorContainer.style.display = "block";
+    } else {
+        console.error("Error: Required HTML elements not found.");
+    }
+}
+
 function displayItemsInWorkroom(): Promise<void> {
     return new Promise((resolve, reject) => {
         const categoryContainer = document.getElementById("workroom_storage");
@@ -2470,194 +1658,79 @@ function createAmmoNameDiv(ammoName: string, ammoAmount: number) {
     return ammoNameDiv;
 }
 
-async function createAndTriggerExplosion(object: THREE.Object3D) {
-    const particleGeometry = new THREE.SphereGeometry(0.02, 16, 16);
-    const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-
-    const _particles: any = [];
-
-    for (let i = 0; i < 100; i++) {
-        const particle = new THREE.Mesh(
-            particleGeometry,
-            particleMaterial
-        ) as any;
-        const randomDirection = new THREE.Vector3(
-            Math.random() - 0.5,
-            Math.random() - 0.5,
-            Math.random() - 0.5
-        ).normalize();
-        particle.position.copy(object.position);
-        particle.velocity = randomDirection.multiplyScalar(0.01);
-        _particles.push(particle);
-
-        scene.add(particle);
-    }
-
-    if (currentSounds <= maxConcurrentSounds) {
-        const sound = new THREE.PositionalAudio(audioListener);
-        currentSounds++;
-        sound.setBuffer(explosionSoundBuffer);
-        sound.setVolume(1);
-        sound.onEnded = function () {
-            currentSounds--;
-        };
-        scene.add(sound);
-        sound.play();
-        sound.position.copy(object.position);
-        setTimeout(() => {
-            scene.remove(sound);
-        }, 150);
-    }
-
-    particles.push(_particles);
-
-    setTimeout(() => {
-        _particles.forEach((particle: any) => scene.remove(particle));
-
-        const index = particles.indexOf(_particles);
-        if (index !== -1) {
-            particles.splice(index, 1);
-        }
-
-        _particles.length = 0;
-    }, 500);
-}
-
-async function beautifyNumberToUser(number: number) {
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
-async function showErrorMessage(
-    errorTitle: string,
-    errorMessage: string
-): Promise<void> {
-    const errorContainer = document.getElementById("error_container");
-
-    const errorTitleElement = document.getElementById("error_title");
-    const errorMessageElement = document.getElementById("error_message");
-
-    if (errorContainer && errorTitleElement && errorMessageElement) {
-        errorTitleElement.textContent = errorTitle;
-        errorMessageElement.textContent = errorMessage;
-
-        errorContainer.style.display = "block";
-    } else {
-        console.error("Error: Required HTML elements not found.");
-    }
-}
-
-function setupSoundBuffers() {
-    const explosionSoundAudioLoader = new THREE.AudioLoader();
-    explosionSoundAudioLoader.load(
-        "../assets/sounds/explosion.ogg",
-        function (buffer) {
-            explosionSoundBuffer = buffer;
-        }
-    );
-
-    const laserShootSoundAudioLoader = new THREE.AudioLoader();
-    laserShootSoundAudioLoader.load(
-        "../assets/sounds/laser01.ogg",
-        function (buffer) {
-            laserShootSoundBuffer = buffer;
-        }
-    );
-
-    const rocketShootSoundLoader = new THREE.AudioLoader();
-    rocketShootSoundLoader.load(
-        "../assets/sounds/OLDrocketLaunch.ogg",
-        function (buffer) {
-            rocketShootSoundBuffer = buffer;
-        }
-    );
-
-    const laserHitSoundAudioLoader = new THREE.AudioLoader();
-    laserHitSoundAudioLoader.load(
-        "../assets/sounds/laserHit.ogg",
-        function (buffer) {
-            laserHitSoundBuffer = buffer;
-        }
-    );
-
-    const rocketHitSoundLoader = new THREE.AudioLoader();
-    rocketHitSoundLoader.load(
-        "../assets/sounds/OLDrocketHit.ogg",
-        function (buffer) {
-            rocketHitSoundBuffer = buffer;
-        }
-    );
-}
-
-function recreateRenderer(antialias: boolean) {
-    const container = document.getElementById("spacemapDiv");
-    if (!container) return;
-    const existingRendererElement = container.querySelector("#THREEJSScene");
-    if (existingRendererElement) {
-        container.removeChild(existingRendererElement);
-    }
-    renderer = new THREE.WebGLRenderer({ antialias: antialias });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.domElement.id = "THREEJSScene";
-    if (container.firstChild) {
-        container.insertBefore(renderer.domElement, container.firstChild);
-    } else {
-        container.appendChild(renderer.domElement);
-    }
-    controls = new OrbitControls(camera, renderer.domElement);
-    isFirstUpdateForPlayer = true;
-    renderer.domElement.addEventListener("click", (event) => {
-        raycastFromCamera(event);
-    });
-
-    updateControlsSettings();
-}
-
-function updateControlsSettings() {
-    controls.minDistance = 2;
-    controls.maxDistance = 10;
-    controls.minPolarAngle = 0.3490658504;
-    controls.maxPolarAngle = 1.0471975512;
-    controls.enablePan = false;
-    controls.mouseButtons = {
-        MIDDLE: THREE.MOUSE.DOLLY,
-        RIGHT: THREE.MOUSE.ROTATE,
-    };
-    controls.update();
-}
-
-function createNewIcon(itemName: string) {
-    const itemPng = document.createElement("img");
-    itemPng.classList.add("item_icon_png");
-    itemPng.src = `../assets/icons/${itemName}.png`;
-    itemPng.onerror = () => {
-        itemPng.src = `../assets/icons/defaultIcon.png`;
-        console.log(`Icon ../assets/icons/${itemName}.png not found`);
+function initScene(antialiasing: boolean, token: string): void {
+    const eventHandlers = {
+        contextmenu: preventDefaultHandler,
+        mousedown: mouseEventHandler,
+        mousemove: mouseEventHandler,
+        mouseup: mouseEventHandler,
+        pointerdown: mouseEventHandler,
+        pointermove: mouseEventHandler,
+        pointerup: mouseEventHandler,
+        touchstart: touchEventHandler,
+        touchmove: touchEventHandler,
+        touchend: touchEventHandler,
+        wheel: wheelEventHandler,
+        keydown: filteredKeydownEventHandler,
     };
 
-    return itemPng;
+    if (!canvas.transferControlToOffscreen) {
+        canvas.style.display = "none";
+        alert("UNSUPPORTED BROWSER, BOOO");
+        return;
+    }
+    const offscreenCanvas = canvas.transferControlToOffscreen();
+    contentDiv.hidden = true;
+    loginDiv.hidden = true;
+    spacemapDiv.hidden = false;
+    gameLogicWorker = new Worker("./gameLogicWorker.js", { type: "module" });
+    gameLogicWorker.onerror = function (event) {
+        console.log(event.message, event);
+    };
+
+    const proxy = new ElementProxy(canvas, gameLogicWorker, eventHandlers);
+    gameLogicWorker.postMessage(
+        {
+            type: "main",
+            canvas: offscreenCanvas,
+            canvasId: proxy.id,
+            antialias: antialiasing,
+            playerName: playerName,
+            token: token,
+        },
+        [offscreenCanvas]
+    );
+
+    gameLogicWorker.onmessage = function (event) {
+        if (event.data.type == "updatePlayerInfo") {
+            updatePlayerInfo(event.data.data);
+        } else if (event.data.type == "playerCollectCargoBox") {
+            socket.emit("playerCollectCargoBox", {
+                playerName: event.data.data.playerName,
+                cargoDropUUID: event.data.data.cargoDropUUID,
+            });
+        } else if (event.data.type == "playerMoveToDestination") {
+            socket.emit("playerMoveToDestination", {
+                targetPosition: event.data.data.targetPosition,
+            });
+        } else if (event.data.type == "newLockOnCircleParent") {
+            lockOnCircleParent = event.data.data;
+        } else if (event.data.type == "fps") {
+            gamefpsDiv.innerHTML = `Renderer FPS: ${event.data.fps.toFixed(
+                4
+            )}, drawCalls:  ${event.data.drawCalls}`;
+        }
+    };
+
+    loadEventListeners();
 }
 
-function createSafeZoneRing(
-    radius: number,
-    lineWidth: number = 0.05,
-    segments: number = 64
-) {
-    let safeZoneGeometry = new THREE.RingGeometry(
-        radius - lineWidth,
-        radius,
-        segments
-    );
-    let safeZoneMaterial = new THREE.MeshBasicMaterial({
-        color: 0x00ff00,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.5,
+function sendSize() {
+    gameLogicWorker.postMessage({
+        type: "size",
+        width: canvas.clientWidth,
+        height: canvas.clientHeight,
     });
-    let safeZoneCircle = new THREE.Mesh(safeZoneGeometry, safeZoneMaterial);
-    safeZoneCircle.rotation.x = 1.57079633;
-    safeZoneCircle.position.set(0, 0.01, 0);
-    safeZoneCircle.name = "portalSafeZone";
-    return safeZoneCircle;
 }
 
 function displayQuest(quest: any) {

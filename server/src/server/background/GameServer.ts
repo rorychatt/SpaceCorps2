@@ -276,13 +276,13 @@ export class GameServer {
     }
 
     async proccessRandomSpawns() {
-        if (this.tickCount == tickrate - 1) {
+        // if (this.tickCount == tickrate - 1) {
             for (const spacemapName in this._spacemapNames) {
                 this.spacemaps[
                     this._spacemapNames[spacemapName]
                 ].randomSpawnAlien();
             }
-        }
+        // }
         if (this.tickCount == tickrate - 1) {
             for (const spacemapName in this._spacemapNames) {
                 this.spacemaps[

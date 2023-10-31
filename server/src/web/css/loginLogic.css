@@ -1745,7 +1745,7 @@ input[type="number"]::-webkit-outer-spin-button {
     position: absolute;
     z-index: 99;
     left: 1px;
-    bottom: 16px;
+    bottom: 31px;
 }
 
 #gamefps {
@@ -1754,6 +1754,14 @@ input[type="number"]::-webkit-outer-spin-button {
     z-index: 99;
     left: 1px;
     bottom: 1px;
+}
+
+#gameups {
+    font-size: 14px;
+    position: absolute;
+    z-index: 99;
+    left: 1px;
+    bottom: 16px;
 }
 
 .top10honor_container {
@@ -2306,4 +2314,10 @@ input[type="number"]::-webkit-outer-spin-button {
 .control-slot {
     display: flex;
     overflow: hidden;
+}
+
+.threejsScene {
+    display: block;
+    width: 100%;
+    height: 100%;
 }

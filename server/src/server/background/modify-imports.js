@@ -2,6 +2,7 @@ import { readFile, writeFile } from "fs";
 
 await Promise.all([
     fixThreeImport(),
+    fixThreeImportWorker(),
     fixGameServer(),
     fixPlayer(),
     fixSpacemap(),
@@ -139,7 +140,77 @@ function fixThreeImport() {
             `import * as TWEEN from "/tween"`
         );
 
+        modifiedData = modifiedData.replace(
+            `import { io } from "socket.io-client";`,
+            `import { io } from "/SocketIOClient.js";`
+        );
+
+        modifiedData = modifiedData.replace(
+            `import("socket.io-client").then(SocketIO => {`,
+            `import("/SocketIOClient.js").then(SocketIO => {`
+        );
+
         writeFile("./dist/web/ts/gameLogic.js", modifiedData, (err) => {
+            if (err) {
+                console.error(`Error writing file: ${err}`);
+            }
+        });
+    });
+}
+
+function fixThreeImportWorker() {
+    readFile("./dist/web/ts/gameLogicWorker.js", "utf8", (err, data) => {
+        if (err) {
+            console.error(`Error reading file: ${err}`);
+            return;
+        }
+
+        let modifiedData = data.replace(
+            /import \* as THREE from "three";/g,
+            'import * as THREE from "/three";'
+        );
+
+        modifiedData = modifiedData.replace(
+            `import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";`,
+            `import { GLTFLoader } from "/three/examples/jsm/loaders/GLTFLoader";`
+        );
+
+        modifiedData = modifiedData.replace(
+            /import \{ OrbitControls \} from "three\/examples\/jsm\/controls\/OrbitControls";/g,
+            'import { OrbitControls } from "/three/examples/jsm/controls/OrbitControls";'
+        );
+
+        modifiedData = modifiedData.replace(
+            ` } from "./three/addons/renderers/CSS2DRenderer.js";`,
+            ` } from "/three/addons/renderers/CSS2DRenderer.js";`
+        );
+
+        modifiedData = modifiedData.replace(
+            `import * as TWEEN from "@tweenjs/tween.js"`,
+            `import * as TWEEN from "/tween"`
+        );
+
+        modifiedData = modifiedData.replace(
+            `import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";`,
+            `import { TextGeometry } from "/TextGeometry.js";`
+        );
+
+        modifiedData = modifiedData.replace(
+            `import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";`,
+            `import { FontLoader } from "/FontLoader.js";`
+        );
+
+        modifiedData = modifiedData.replace(
+            `import { io } from "socket.io-client";`,
+            `import { io } from "/SocketIOClient.js";`
+        );
+
+        modifiedData = modifiedData.replace(
+            `import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";`,
+            `import { mergeGeometries } from "/BufferGeometryUtils.js";`
+        );
+
+        writeFile("./dist/web/ts/gameLogicWorker.js", modifiedData, (err) => {
             if (err) {
                 console.error(`Error writing file: ${err}`);
             }
@@ -211,12 +282,12 @@ function fixSpacemap() {
 
         modifiedData = modifiedData.replace(
             'import { CompanyBase, Portal } from "./Entity";',
-            'import { CompanyBase, Portal } from "./Entity.js";',
+            'import { CompanyBase, Portal } from "./Entity.js";'
         );
 
         modifiedData = modifiedData.replace(
             'import { CargoDrop, OreResource, OreSpawn, } from "./CargoDrop";',
-            'import { CargoDrop, OreResource, OreSpawn, } from "./CargoDrop.js";',
+            'import { CargoDrop, OreResource, OreSpawn, } from "./CargoDrop.js";'
         );
 
         writeFile(
@@ -491,7 +562,7 @@ function fixRankingServer() {
     );
 }
 
-function fixSendMapDataWorker(){
+function fixSendMapDataWorker() {
     readFile(
         "./dist/server/background/sendMapDataWorker.js",
         "utf8",
@@ -529,31 +600,26 @@ function fixSendMapDataWorker(){
     );
 }
 
-function fixQuestServer(){
-    readFile(
-        "./dist/server/background/QuestServer.js",
-        "utf8",
-        (err, data) => {
-            if (err) {
-                console.error(`Error reading file: ${err}`);
-                return;
-            }
-
-            let modifiedData = data.replace(
-                'import { gameServer } from "../main";',
-                'import { gameServer } from "../main.js";'
-            );
-
-            writeFile(
-                "./dist/server/background/QuestServer.js",
-                modifiedData,
-                (err) => {
-                    if (err) {
-                        console.error(`Error writing file: ${err}`);
-                    }
-                }
-            );
+function fixQuestServer() {
+    readFile("./dist/server/background/QuestServer.js", "utf8", (err, data) => {
+        if (err) {
+            console.error(`Error reading file: ${err}`);
+            return;
         }
-    );
-}
 
+        let modifiedData = data.replace(
+            'import { gameServer } from "../main";',
+            'import { gameServer } from "../main.js";'
+        );
+
+        writeFile(
+            "./dist/server/background/QuestServer.js",
+            modifiedData,
+            (err) => {
+                if (err) {
+                    console.error(`Error writing file: ${err}`);
+                }
+            }
+        );
+    });
+}
