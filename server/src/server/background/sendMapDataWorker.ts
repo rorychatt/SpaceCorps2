@@ -79,7 +79,7 @@ class RocketProjectileDTO {
     }
 }
 
-const renderRadius = Math.pow(35, 2);
+const renderRadius = Math.pow(28, 2);
 
 if (parentPort) {
     parentPort.on(
