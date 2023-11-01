@@ -2,8 +2,8 @@
     "M-1": {
         "name": "M-1",
         "size": {
-            "width": 160,
-            "height": 90
+            "width": 320,
+            "height": 180
         },
         "staticEntities": {
             "portals": [
@@ -29,13 +29,25 @@
             "boss-thetys": {
                 "spawnLimit": 4
             }
-        }
+        },
+        "oreSpawns": [
+            {
+                "oreName": "radium",
+                "qualityLevel": 1,
+                "amount": 10
+            },
+            {
+                "oreName": "agronite",
+                "qualityLevel": 1,
+                "amount": 10
+            }
+        ]
     },
     "O-1": {
         "name": "O-1",
         "size": {
-            "width": 160,
-            "height": 90
+            "width": 320,
+            "height": 180
         },
         "staticEntities": {
             "portals": [
@@ -61,13 +73,25 @@
             "boss-thetys": {
                 "spawnLimit": 4
             }
-        }
+        },
+        "oreSpawns": [
+            {
+                "oreName": "radium",
+                "qualityLevel": 1,
+                "amount": 10
+            },
+            {
+                "oreName": "agronite",
+                "qualityLevel": 1,
+                "amount": 10
+            }
+        ]
     },
     "G-1": {
         "name": "G-1",
         "size": {
-            "width": 160,
-            "height": 90
+            "width": 320,
+            "height": 180
         },
         "staticEntities": {
             "portals": [
@@ -93,13 +117,25 @@
             "boss-thetys": {
                 "spawnLimit": 4
             }
-        }
+        },
+        "oreSpawns": [
+            {
+                "oreName": "radium",
+                "qualityLevel": 1,
+                "amount": 10
+            },
+            {
+                "oreName": "agronite",
+                "qualityLevel": 1,
+                "amount": 10
+            }
+        ]
     },
     "T-1": {
         "name": "T-1",
         "size": {
-            "width": 160,
-            "height": 90
+            "width": 320,
+            "height": 180
         },
         "staticEntities": {
             "portals": [
@@ -125,13 +161,25 @@
             "boss-thetys": {
                 "spawnLimit": 4
             }
-        }
+        },
+        "oreSpawns": [
+            {
+                "oreName": "radium",
+                "qualityLevel": 1,
+                "amount": 10
+            },
+            {
+                "oreName": "agronite",
+                "qualityLevel": 1,
+                "amount": 10
+            }
+        ]
     },
     "P-1": {
         "name": "P-1",
         "size": {
-            "width": 160,
-            "height": 90
+            "width": 320,
+            "height": 180
         },
         "staticEntities": {
             "portals": [
@@ -159,14 +207,26 @@
         },
         "spawnableAliens": {
             "plasmoid": {
-                "spawnLimit": 24
+                "spawnLimit": 32
             },
             "boss-thetys": {
-                "spawnLimit": 10
+                "spawnLimit": 16
             },
             "boss-plasmoid": {
-                "spawnLimit": 6
+                "spawnLimit": 8
             }
-        }
+        },
+        "oreSpawns": [
+            {
+                "oreName": "radium",
+                "qualityLevel": 2,
+                "amount": 10
+            },
+            {
+                "oreName": "agronite",
+                "qualityLevel": 2,
+                "amount": 10
+            }
+        ]
     }
 }

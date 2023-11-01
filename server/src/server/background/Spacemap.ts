@@ -1,5 +1,10 @@
 import { Alien } from "./Alien";
-import { CargoDrop, OreResource } from "./CargoDrop";
+import {
+    CargoDrop,
+    OreResource,
+    OreSpawn,
+    PossibleOreNames,
+} from "./CargoDrop";
 import {
     CompanyBase,
     Entity,
@@ -16,11 +21,10 @@ export class Spacemap {
     readonly size: SpacemapSize;
     entities: PossibleSpacemapEntities[];
     cargoboxes: CargoDrop[] = [];
+    oreSpawns: OreSpawn[] = [];
     _config: SpacemapConfig;
-    _maxAliens?: number;
-    _allowedAliens?: string[];
     projectileServer: ProjectileServer;
-    safezones?: SafeZone[];
+    safeZones: SafeZone[] = [];
 
     public constructor(config: SpacemapConfig) {
         this.entities = [];
@@ -28,21 +32,17 @@ export class Spacemap {
         this.name = config.name;
         this.size = config.size;
         this.projectileServer = new ProjectileServer(this);
-
-        this._maxAliens = 0;
-        if (this._config.spawnableAliens) {
-            const alienNames = Object.keys(this._config.spawnableAliens);
-            for (const alienName of alienNames) {
-                this._maxAliens +=
-                    this._config.spawnableAliens[alienName].spawnLimit;
-            }
-            this._allowedAliens = alienNames;
-        }
+        this.generateSafeZones();
     }
 
     spawnAlien(name: string, position: Vector2D) {
         const alien = new Alien(this, name, position);
         this.entities.push(alien);
+    }
+
+    spawnOre(ores: OreResource[], position: Vector2D, qualityLevel?: number) {
+        const oreSpawn = new OreSpawn(this.name, position, ores, qualityLevel);
+        this.oreSpawns.push(oreSpawn);
     }
 
     spawnCargoBoxFromAlien(cargoContents: {
@@ -76,80 +76,46 @@ export class Spacemap {
     }
 
     randomSpawnAlien() {
-        // Defenition of map size
-        let width = this._config.size.width;
-        let height = this._config.size.height;
-        // Defentition of the safe zones array
-        let safeZones: SafeZone[] = [];
-
-        // Considering all the portals as the safe zone
-        for (const _portal in this._config.staticEntities.portals) {
-            const portal = this._config.staticEntities.portals[_portal];
-            safeZones.push(
-                new SafeZone(
-                    calculateEntityPosition(portal.location, this._config.size),
-                    portal.safeZoneRadii
-                )
-            );
-        }
-        // Considering base as a safe zone
-        if (this._config.staticEntities.base) {
-            const base = this._config.staticEntities.base;
-            safeZones.push(
-                new SafeZone(
-                    calculateEntityPosition(base.location, this._config.size), 
-                    base.safeZoneRadii
-                )
-            );
-        }
-        // Iterating over every alien
         for (const spawnableAlien in this._config.spawnableAliens) {
             const alienConfig = this._config.spawnableAliens[spawnableAlien];
             if (alienConfig.spawnLimit) {
                 let alienCount = 0;
                 for (const entity of this.entities) {
                     if (
+                        alienCount < alienConfig.spawnLimit &&
                         entity instanceof Alien &&
-                        entity.name == spawnableAlien &&
-                        alienCount < alienConfig.spawnLimit
+                        entity.name == spawnableAlien
                     ) {
                         alienCount++;
                     }
                 }
-                // If allowed - spawn an alien
                 if (alienCount < alienConfig.spawnLimit) {
-                    let spawnAttempt = 0; // if exceede maximum value alien will spawn aroun the center of map, exluding safe zones
-                    let position: Vector2D | undefined // position for alien spawn
-                    while (spawnAttempt < 5) {
-                        // Trying to generate new position
-                        const newPosition = {
-                            x: Math.floor(Math.random() * (width + 1) - width / 2), 
-                            y: Math.floor(Math.random() * (height + 1) - height / 2)
-                        }
-                        // Checking whether new position is in safe zone, if it is, then increments spawnAtempt and goes to the new iteration
-                        for (const safeZone of safeZones) {
-                            if (safeZone.isInSafeZone(newPosition)) {
-                                spawnAttempt++;
-                                continue;
-                            }
-                        }
-                        // Break the cycle if position is not in any of the safe zones
-                        position = newPosition
-                        break;
-                    }
-                    
-                    if(!position){
-                        // If failed to generate spawn position(position undefined), then spaw occures around the map center
-                        this.spawnAlien(spawnableAlien, {
-                            x: (0.5 - Math.random()) * 10,
-                            y: (0.5 - Math.random()) * 10,
-                        });
-                    } else { 
-                        this.spawnAlien(spawnableAlien, position)
-                    }
+                    const spawnPosition = attemptGetSpawnPosition(this);
+                    this.spawnAlien(spawnableAlien, spawnPosition);
                 }
             }
         }
+    }
+
+    randomSpawnOreSpawn() {
+        if (!this._config.oreSpawns) return;
+        this._config.oreSpawns.forEach((data) => {
+            let currentAmount = 0;
+            for (const entity of this.entities) {
+                if (
+                    currentAmount < data.amount &&
+                    entity instanceof OreSpawn &&
+                    entity.name == data.oreName
+                ) {
+                    currentAmount++;
+                }
+            }
+            if (currentAmount < data.amount) {
+                const spawnPosition = attemptGetSpawnPosition(this);
+                const oreResource = new OreResource(data.oreName, data.amount);
+                this.spawnOre([oreResource], spawnPosition, data.qualityLevel);
+            }
+        });
     }
 
     loadStaticEntities() {
@@ -175,6 +141,62 @@ export class Spacemap {
             );
         }
     }
+
+    generateSafeZones() {
+        for (const _portal in this._config.staticEntities.portals) {
+            const portal = this._config.staticEntities.portals[_portal];
+            this.safeZones.push(
+                new SafeZone(
+                    calculateEntityPosition(portal.location, this._config.size),
+                    portal.safeZoneRadii
+                )
+            );
+        }
+
+        if (this._config.staticEntities.base) {
+            const base = this._config.staticEntities.base;
+            this.safeZones.push(
+                new SafeZone(
+                    calculateEntityPosition(base.location, this._config.size),
+                    base.safeZoneRadii
+                )
+            );
+        }
+    }
+}
+
+function attemptGetSpawnPosition(spacemap: Spacemap): Vector2D {
+    let spawnAttempt = 0;
+    let position: Vector2D | undefined;
+    while (spawnAttempt < 5) {
+        const newPosition = {
+            x: Math.floor(
+                Math.random() * (spacemap._config.size.width + 1) -
+                    spacemap._config.size.width / 2
+            ),
+            y: Math.floor(
+                Math.random() * (spacemap._config.size.height + 1) -
+                    spacemap._config.size.height / 2
+            ),
+        };
+        if (spacemap.safeZones) {
+            for (const safeZone of spacemap.safeZones) {
+                if (safeZone.isInSafeZone(newPosition)) {
+                    spawnAttempt++;
+                    continue;
+                }
+            }
+        }
+        position = newPosition;
+        break;
+    }
+    if (!position) {
+        position = {
+            x: (0.5 - Math.random()) * 10,
+            y: (0.5 - Math.random()) * 10,
+        };
+    }
+    return position;
 }
 
 export interface Spacemaps {
@@ -211,8 +233,14 @@ export interface SpacemapConfig {
     size: SpacemapSize;
     staticEntities: StaticEntitiesConfig;
     spawnableAliens?: SpawnableAliens;
+    oreSpawns?: SpawnableOreSpawn[];
 }
 
+export interface SpawnableOreSpawn {
+    oreName: PossibleOreNames;
+    qualityLevel: number;
+    amount: number;
+}
 export interface SpawnableAliens {
     [alienName: string]: {
         spawnLimit: number;

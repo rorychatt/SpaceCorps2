@@ -34,7 +34,7 @@ import { RankingServer } from "./RankingServer";
 import { Worker } from "worker_threads";
 import { ConsumableItemReward } from "./Reward";
 
-export const tickrate = 60;
+export const tickrate = 20;
 
 export class GameServer {
     spacemaps: Spacemaps;
@@ -283,6 +283,13 @@ export class GameServer {
                 ].randomSpawnAlien();
             }
         }
+        if (this.tickCount == tickrate - 1) {
+            for (const spacemapName in this._spacemapNames) {
+                this.spacemaps[
+                    this._spacemapNames[spacemapName]
+                ].randomSpawnOreSpawn();
+            }
+        }
     }
 
     async processPlayerInputs() {
@@ -294,10 +301,10 @@ export class GameServer {
                 if (
                     Math.abs(
                         player.position.x - player.targetCargoDrop.position.x
-                    ) < 0.25 &&
+                    ) < 0.05 &&
                     Math.abs(
                         player.position.y - player.targetCargoDrop.position.y
-                    ) < 0.25
+                    ) < 0.05
                 ) {
                     this.rewardServer.registerCargoDropReward(
                         player.uuid,
@@ -413,7 +420,7 @@ export class GameServer {
                         cargoContents.position = entity.position;
                         spacemap.spawnCargoBoxFromAlien(cargoContents);
                     }
-                    
+
                     console.log(
                         `Removed ${entity.name} from map ${spacemapName} because its HP finished.`
                     );
