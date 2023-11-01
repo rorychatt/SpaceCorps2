@@ -106,7 +106,7 @@ let currentSounds: number = 0;
 let isUpdating: boolean = false;
 let currentSelectedQuestKey = 0;
 const tickrate = 20;
-const frameTime = 1000 / (tickrate-1);
+const frameTime = 1000 / tickrate;
 let lastTime = 0;
 let frameCount = 0;
 
@@ -481,7 +481,9 @@ socket.on(
 socket.on(
     "hotbarMappingData",
     (data: { username: string; hotbarMapping: HotbarMapping }) => {
-        hotbarMapping = data.hotbarMapping;
+        if (Object.keys(data.hotbarMapping).length != 0) {
+            hotbarMapping = data.hotbarMapping;
+        }
         updateHotbarItems(data.hotbarMapping);
     }
 );
@@ -1319,7 +1321,7 @@ async function updateObject(object: THREE.Object3D, entity: any) {
                         lastEntityPosition.copy(targetDirection);
                         camera.position.set(posX, camera.position.y, posY);
                         controls.target.copy(targetDirection);
-                        object.add(audioListener);
+                        // object.add(audioListener);
                         isFirstUpdateForPlayer = false;
                     } else if (lastEntityPosition) {
                         lastEntityPosition.add(deltaVector);
@@ -1865,6 +1867,7 @@ async function loadEventListeners() {
                 hotbarMapping[key] = {
                     itemName: itemName as string,
                 };
+                console.log(hotbarMapping);
                 savePlayerHotbarSettings({
                     username: playerName,
                     hotbarMapping: hotbarMapping,
