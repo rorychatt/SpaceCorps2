@@ -21,6 +21,7 @@ let gameVersionDiv = document.getElementById("gameversion") as HTMLElement;
 let gamefpsDiv = document.getElementById("gamefps") as HTMLElement;
 let quests100qDiv = document.getElementById("quest_100q") as HTMLElement;
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
+let cancelButton = document.getElementById("quest_cancel_btn") as HTMLElement;
 
 // UI Elements
 const creditsElement = document.getElementById("credits_value");
@@ -2657,7 +2658,10 @@ function displayQuest(quest: any) {
             task.amount || parseInt(task.distance)
         } ) map: ${task.map}`;
         taskDiv.appendChild(taskElement);
+        cancelButton.hidden = false;
     });
+
+    console.log(`ZALUPA: ${JSON.stringify(quest)}`);
 
     // Show the quest rewards
     const rewardDiv = document.getElementById("activeQuestReward")!;
@@ -2714,6 +2718,8 @@ function displayQuest(quest: any) {
         individualItemDiv.innerText = `${item.itemName} (${item.amount})`;
         itemsDiv.appendChild(individualItemDiv);
     });
+
+    cancelButton.addEventListener("click", () => socket.emit("cancelQuest", { playerName: playerName, questName: quest.questName}));
 
     // Append the itemsDiv to the rewardDiv
     rewardDiv.appendChild(itemsDiv);
