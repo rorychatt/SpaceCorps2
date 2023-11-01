@@ -985,13 +985,10 @@ function setupAlienObject(model: THREE.Object3D, data: any) {
     objectDataMap[data.uuid] = { data: model };
 }
 
-function setupPlayerObject(model: THREE.Object3D, data: any) {
+async function setupPlayerObject(model: THREE.Object3D, data: any) {
     model.uuid = data.uuid;
     model.position.set(data.position.x, 0, data.position.y);
     setNameRecursively(model, data.name, data.uuid, rayCastLayerNo);
-    if (data.name == playerName) {
-        controls.update();
-    }
 
     const text = document.createElement("div");
     text.className = "nicknameLabel";
@@ -1003,9 +1000,15 @@ function setupPlayerObject(model: THREE.Object3D, data: any) {
     label.position.y = -0.75;
     label.uuid = data.uuid;
     (model as any).hitPoints = data.hitPoints;
+    (model as any).activeShipName = data.activeShipName;
     model.add(label);
     scene.add(model);
     objectDataMap[data.uuid] = { data: model };
+
+    if (data.name == playerName) {
+        controls.update();
+        playerObject = model;
+    }
 }
 
 function setupPortalObject(model: THREE.Object3D, data: any) {
@@ -1040,6 +1043,8 @@ async function createObject(data: any): Promise<THREE.Object3D> {
                 const clonedObject =
                     objectCache[data.activeShipName].clone(true);
                 removeCSSChildrenOfObject(clonedObject);
+                setupPlayerObject(clonedObject, data);
+                resolve(clonedObject);
             } else {
                 const loader = new GLTFLoader();
                 const modelUrl = `./assets/models/ships/${data.activeShipName}/${data.activeShipName}.glb`;
@@ -1263,20 +1268,16 @@ async function createObject(data: any): Promise<THREE.Object3D> {
 }
 
 async function updateObject(object: THREE.Object3D, entity: any) {
-    const { position, targetUUID } = entity;
+    const { position, targetUUID, name, hitPoints, _type, activeShipName } =
+        entity;
     const { x: posX, y: posY } = position;
-    const targetDirection = new THREE.Vector3(posX, 0, posY);
 
-    const reusedVector = new THREE.Vector3();
-    const reusedQuaternion = new THREE.Quaternion();
+    const targetDirection = new THREE.Vector3(posX, 0, posY);
+    const distanceSquared =
+        (posX - object.position.x) ** 2 + (posY - object.position.z) ** 2;
 
     function _tween(object: any, targetPos: THREE.Vector3) {
-        const originalPosition = object.position.clone();
-        const deltaVector = new THREE.Vector3();
-        const lookAtDirection = new THREE.Vector3();
-        const targetObject = getObjectByUUID(targetUUID);
-
-        const isPlayer = object.name === playerName;
+        let originalPosition = object.position.clone();
 
         const positionTween = new TWEEN.Tween(object.position)
             .to(
@@ -1289,55 +1290,47 @@ async function updateObject(object: THREE.Object3D, entity: any) {
             )
             .easing(TWEEN.Easing.Linear.None)
             .onUpdate(function () {
-                deltaVector.copy(object.position).sub(originalPosition);
-                lookAtDirection.copy(originalPosition).add(deltaVector);
-
-                if (targetObject) {
-                    object.lookAt(targetObject.position);
-                } else if (
-                    deltaVector.x * deltaVector.x +
-                        deltaVector.z * deltaVector.z >
-                    0.001
-                ) {
-                    const lookTarget = lookAtDirection.add(deltaVector);
-                    reusedQuaternion.setFromRotationMatrix(
-                        new THREE.Matrix4().lookAt(
-                            object.position,
-                            lookTarget,
-                            object.up
-                        )
-                    );
-                    const axisQuaternion =
-                        new THREE.Quaternion().setFromAxisAngle(
-                            new THREE.Vector3(0, 1, 0),
-                            Math.PI
-                        );
-                    reusedQuaternion.multiply(axisQuaternion);
-                    object.quaternion.slerp(reusedQuaternion, 0.35);
-                }
-
-                if (isPlayer) {
+                if (object.name === playerName) {
+                    const deltaVector = object.position
+                        .clone()
+                        .sub(originalPosition);
                     if (isFirstUpdateForPlayer) {
-                        lastEntityPosition.copy(targetDirection);
+                        lastEntityPosition = targetDirection;
                         camera.position.set(posX, camera.position.y, posY);
                         controls.target.copy(targetDirection);
-                        // object.add(audioListener);
+                        object.add(audioListener);
                         isFirstUpdateForPlayer = false;
-                    } else if (lastEntityPosition) {
+                    } else if (lastEntityPosition !== null) {
                         lastEntityPosition.add(deltaVector);
                         object.position.copy(lastEntityPosition);
                         camera.position.add(deltaVector);
                         controls.target.add(deltaVector);
-                        originalPosition.copy(lastEntityPosition);
+                        originalPosition = lastEntityPosition.clone();
                     }
                     controls.update();
                 }
             });
-
         positionTween.start();
     }
-    if (entity.hitPoints) {
-        const { hullPoints, shieldPoints } = entity.hitPoints;
+
+    if (targetUUID) {
+        const targetObject = getObjectByUUID(targetUUID);
+        if (targetObject) {
+            object.lookAt(targetObject.position);
+        }
+    } else {
+        if (distanceSquared > 0.00001) {
+            const oldOrientation = object.rotation.clone();
+            object.lookAt(targetDirection);
+            const targetQuaternion = new THREE.Quaternion().copy(
+                object.quaternion
+            );
+            object.rotation.copy(oldOrientation);
+            object.quaternion.slerp(targetQuaternion, 0.35);
+        }
+    }
+    if (hitPoints) {
+        const { hullPoints, shieldPoints } = hitPoints;
         const dhp = (object as any).hitPoints.hullPoints - hullPoints;
         const dsp = (object as any).hitPoints.shieldPoints - shieldPoints;
 
@@ -1388,32 +1381,30 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         }
     }
 
-    (object as any).hitPoints = entity.hitPoints;
+    (object as any).hitPoints = hitPoints;
     if ((object as any).hitPoints && (object as any).hitPoints.hullPoints < 0) {
         createAndTriggerExplosion(object);
         deleteObject(object.uuid);
         return;
     }
 
-    if (
-        entity._type &&
-        (entity._type === "Alien" || entity._type === "Player")
-    ) {
+    if (_type && (_type === "Alien" || _type === "Player")) {
         if ((object as any).activeShipName) {
-            if ((object as any).activeShipName !== entity.activeShipName) {
+            if ((object as any).activeShipName !== activeShipName) {
                 deleteObject(object.uuid);
                 return;
             }
         } else {
-            (object as any).activeShipName = entity.activeShipName;
+            (object as any).activeShipName = activeShipName;
             // console.log(activeShipName);
         }
     }
 
-    if (entity.name !== "CargoDrop") {
+    if (name !== "CargoDrop") {
         _tween(object, targetDirection);
     }
 }
+
 
 async function deleteObject(uuid: string) {
     const object = getObjectByUUID(uuid);
@@ -1672,10 +1663,12 @@ async function updatePlayerInfo(entity: any) {
                 entity.inventory.consumables,
                 "name"
             ),
+            playerEntity.activeShipName != (playerObject as any).activeShipName,
         ]).then((results) => results.some((result) => result === true));
 
         if (shouldUpdateUI) {
             playerInventory = entity.inventory; // Update playerInventory after the check
+            console.log("should update ui", entity, playerObject);
 
             Promise.all([
                 displayShipsInHangar(),
