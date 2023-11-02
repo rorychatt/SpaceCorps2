@@ -2288,6 +2288,10 @@ input[type="number"]::-webkit-outer-spin-button {
     justify-content: center;
 }
 
+#quest_cancel_btn {
+    border: 1px solid white;
+}
+
 .quest_task_kill,
 .quest_task_fly,
 .quest_task_collect {
