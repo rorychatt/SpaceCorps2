@@ -2642,9 +2642,12 @@ function displayQuest(quest: any) {
         document.getElementById("activeQuestName")!.innerHTML = "";
         document.getElementById("activeQuestTask")!.innerHTML = "";
         document.getElementById("activeQuestReward")!.innerHTML = "";
+        cancelButton.hidden = true;
         return;
     }
     document.getElementById("activeQuestName")!.innerText = quest.questName;
+
+    cancelButton.hidden = false;
 
     // Show the quest tasks
     const taskDiv = document.getElementById("activeQuestTask")!;
@@ -2658,10 +2661,7 @@ function displayQuest(quest: any) {
             task.amount || parseInt(task.distance)
         } ) map: ${task.map}`;
         taskDiv.appendChild(taskElement);
-        cancelButton.hidden = false;
     });
-
-    console.log(`ZALUPA: ${JSON.stringify(quest)}`);
 
     // Show the quest rewards
     const rewardDiv = document.getElementById("activeQuestReward")!;
