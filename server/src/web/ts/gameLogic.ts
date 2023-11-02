@@ -21,6 +21,7 @@ let gameVersionDiv = document.getElementById("gameversion") as HTMLElement;
 let gamefpsDiv = document.getElementById("gamefps") as HTMLElement;
 let quests100qDiv = document.getElementById("quest_100q") as HTMLElement;
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
+let cancelButton = document.getElementById("quest_cancel_btn") as HTMLElement;
 
 // UI Elements
 const creditsElement = document.getElementById("credits_value");
@@ -2665,9 +2666,12 @@ function displayQuest(quest: any) {
         document.getElementById("activeQuestName")!.innerHTML = "";
         document.getElementById("activeQuestTask")!.innerHTML = "";
         document.getElementById("activeQuestReward")!.innerHTML = "";
+        cancelButton.hidden = true;
         return;
     }
     document.getElementById("activeQuestName")!.innerText = quest.questName;
+
+    cancelButton.hidden = false;
 
     // Show the quest tasks
     const taskDiv = document.getElementById("activeQuestTask")!;
@@ -2738,6 +2742,8 @@ function displayQuest(quest: any) {
         individualItemDiv.innerText = `${item.itemName} (${item.amount})`;
         itemsDiv.appendChild(individualItemDiv);
     });
+
+    cancelButton.addEventListener("click", () => socket.emit("cancelQuest", { playerName: playerName, questName: quest.questName}));
 
     // Append the itemsDiv to the rewardDiv
     rewardDiv.appendChild(itemsDiv);

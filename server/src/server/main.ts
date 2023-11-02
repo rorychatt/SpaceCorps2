@@ -218,6 +218,10 @@ io.on("connection", (socket) => {
         }
     );
 
+    socket.on("cancelQuest", (data: {playerName: string, questName: string}) => {
+        gameServer.questServer.removeQuest(data.playerName, data.questName);
+    });
+
     socket.on(
         "completeQuest",
         (data: { username: string; questName: string }) => {}
