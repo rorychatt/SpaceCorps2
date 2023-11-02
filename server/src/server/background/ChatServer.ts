@@ -94,6 +94,8 @@ export class ChatServer {
                             message[2]
                         );
                         if (player) {
+                            const number = parseInt(message[3], 10);
+                            if(isNaN(number)) return console.log(`Can't give "${message[3]}" isn't number!`);
                             switch (message[1]) {
                                 case "give":
                                     gameServer.rewardServer.registerExperienceReward(
@@ -115,6 +117,8 @@ export class ChatServer {
                             message[2]
                         );
                         if (_player) {
+                            const number = parseInt(message[3], 10);
+                            if(isNaN(number)) return console.log(`Can't give "${message[3]}" isn't number!`);
                             switch (message[1]) {
                                 case "give":
                                     gameServer.rewardServer.registerThuliumReward(
@@ -142,6 +146,8 @@ export class ChatServer {
                             message[2]
                         );
                         if (_player2) {
+                            const number = parseInt(message[3], 10);
+                            if(isNaN(number)) return console.log(`Can't give "${message[3]}" isn't number!`);
                             switch (message[1]) {
                                 case "give":
                                     gameServer.rewardServer.registerCreditsReward(
