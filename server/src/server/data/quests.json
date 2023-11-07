@@ -202,7 +202,7 @@
             }
         }
     },
-    "Prepare Supplies I": {
+    "Prepare supplies I": {
         "questName": "Prepare supplies I",
         "type": "completeWithoutOrder",
         "questNo": 8,
@@ -311,52 +311,5 @@
             },
             "items": [{ "itemName": "laser4", "amount": 1 }]
         }
-    },
-    "Quest Template": {
-        "questName": "Quest Template",
-        "type": "completeWithoutOrder",
-        "questNo": 11,
-        "description": "Welcome Pilot! To show your loyalty, we must see what you are capable of. With our small gift of 50.000 credits, go ahead and buy and equip some lasers and ammo, and bring us any thetys' head! Oh, and find one far away from the base, and show us their cargo!",
-        "tasks": [
-            {
-                "_type": "kill",
-                "_id": 0,
-                "targetName": "thetys",
-                "amount": 3,
-                "map": "any",
-                "completed": false
-            },
-            {
-                "_type": "fly",
-                "_id": 1,
-                "distance": 250,
-                "map": "any",
-                "completed": false
-            },
-            {
-                "_type": "collect",
-                "_id": 2,
-                "oreName": "radium",
-                "map": "any",
-                "amount": 10,
-                "completed": false
-            }
-        ],
-        "requiredLevel": 2,
-        "completed": false,
-        "reward": {
-            "stats": {
-                "experience": 3000,
-                "honor": 100,
-                "credits": 8000,
-                "thulium": 100
-            },
-            "items": [
-                { "itemName": "laser2", "amount": 1 },
-                { "itemName": "LAB-10", "amount": 1000 },
-                { "itemName": "LAB-20", "amount": 100 },
-                { "itemName": "PRP-2023", "amount": 50 }
-            ]
-        }
-    }
+    }    
 }
