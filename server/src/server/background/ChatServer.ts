@@ -38,12 +38,20 @@ export class ChatServer {
                                 );
                                 break;
                             case "p":
-                                const player =
+                                const player: any =
                                     await gameServer.getPlayerByUsername(
                                         message[2]
                                     );
+                                const dataToGet = message[3];
+                                const dataToGet2 = message[4];
+
+                                const data = player[dataToGet] as any;
+
+                                if(dataToGet == "all") return this._sendConsoleMessageToAll(JSON.stringify(player));
+                                if(dataToGet2 != undefined) return this._sendConsoleMessageToAll(data[dataToGet2]);
+                                
                                 this._sendConsoleMessageToAll(
-                                    JSON.stringify(player)
+                                    JSON.stringify(player[dataToGet])
                                 );
                                 break;
                             case "a":
