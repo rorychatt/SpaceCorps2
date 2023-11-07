@@ -1,5 +1,5 @@
 {
-    "Welcome 1": {
+    "Welcome I": {
         "questName": "Welcome I",
         "type": "completeWithoutOrder",
         "questNo": 1,
@@ -25,7 +25,7 @@
             "items": [{ "itemName": "laser2", "amount": 1 }]
         }
     },
-    "Welcome 2": {
+    "Welcome II": {
         "questName": "Welcome II",
         "questNo": 2,
         "type": "completeWithoutOrder",
@@ -50,7 +50,7 @@
             "items": [{ "itemName": "laser3", "amount": 1 }]
         }
     },
-    "Welcome 3": {
+    "Welcome III": {
         "questName": "Welcome III",
         "questNo": 3,
         "type": "completeWithoutOrder",
@@ -84,7 +84,7 @@
             }
         }
     },
-    "Fight back 1": {
+    "Fight back I": {
         "questName": "Fight back I",
         "type": "completeWithoutOrder",
         "questNo": 4,
@@ -143,7 +143,7 @@
             }
         }
     },
-    "Collector 1": {
+    "Collector I": {
         "questName": "Collector I",
         "type": "completeWithoutOrder",
         "questNo": 6,
@@ -202,7 +202,7 @@
             }
         }
     },
-    "Prepare Supplies 1": {
+    "Prepare Supplies I": {
         "questName": "Prepare supplies I",
         "type": "completeWithoutOrder",
         "questNo": 8,
@@ -254,7 +254,7 @@
             }
         }
     },
-    "Avenger 1": {
+    "Avenger I": {
         "questName": "Avenger I",
         "type": "completeInOrder",
         "questNo": 10,
