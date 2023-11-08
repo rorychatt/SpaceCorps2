@@ -130,5 +130,137 @@
             "behaviour": "passive",
             "speed": 450
         }
+    },
+    "surge": {
+        "hitPoints": {
+            "hullPoints": 8000,
+            "shieldPoints": 8000,
+            "shieldAbsorbance": 0.5
+        },
+        "damage": {
+            "maxDamage": 250,
+            "variance": 0.2,
+            "criticalChance": 0.01,
+            "criticalMultipler": 2
+        },
+        "oreDrop": [
+            {
+                "oreName": "radium",
+                "amount": 40
+            },
+            {
+                "oreName": "agronite",
+                "amount": 20
+            }
+        ],
+        "killReward": {
+            "credits": 8000,
+            "thulium": 12,
+            "experience": 375,
+            "honor": 12
+        },
+        "movement": {
+            "behaviour": "passive",
+            "speed": 360
+        }
+    },
+    "boss-surge": {
+        "hitPoints": {
+            "hullPoints": 12000,
+            "shieldPoints": 12000,
+            "shieldAbsorbance": 0.5
+        },
+        "damage": {
+            "maxDamage": 500,
+            "variance": 0.2,
+            "criticalChance": 0.01,
+            "criticalMultipler": 2
+        },
+        "oreDrop": [
+            {
+                "oreName": "radium",
+                "amount": 50
+            },
+            {
+                "oreName": "agronite",
+                "amount": 50
+            }
+        ],
+        "killReward": {
+            "credits": 12000,
+            "thulium": 16,
+            "experience": 500,
+            "honor": 16
+        },
+        "movement": {
+            "behaviour": "passive",
+            "speed": 360
+        }
+    },
+    "verner": {
+        "hitPoints": {
+            "hullPoints": 16000,
+            "shieldPoints": 12000,
+            "shieldAbsorbance": 0.5
+        },
+        "damage": {
+            "maxDamage": 500,
+            "variance": 0.2,
+            "criticalChance": 0.01,
+            "criticalMultipler": 2
+        },
+        "oreDrop": [
+            {
+                "oreName": "radium",
+                "amount": 80
+            },
+            {
+                "oreName": "agronite",
+                "amount": 40
+            }
+        ],
+        "killReward": {
+            "credits": 16000,
+            "thulium": 24,
+            "experience": 500,
+            "honor": 16
+        },
+        "movement": {
+            "behaviour": "passive",
+            "speed": 360
+        }
+    },
+    "boss-verner": {
+        "hitPoints": {
+            "hullPoints": 24000,
+            "shieldPoints": 18000,
+            "shieldAbsorbance": 0.5
+        },
+        "damage": {
+            "maxDamage": 750,
+            "variance": 0.2,
+            "criticalChance": 0.01,
+            "criticalMultipler": 2
+        },
+        "oreDrop": [
+            {
+                "oreName": "radium",
+                "amount": 100
+            },
+            {
+                "oreName": "agronite",
+                "amount": 100
+            }
+        ],
+        "killReward": {
+            "credits": 24000,
+            "thulium": 36,
+            "experience": 750,
+            "honor": 24
+        },
+        "movement": {
+            "behaviour": "passive",
+            "speed": 360
+        }
     }
 }

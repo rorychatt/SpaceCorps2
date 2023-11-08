@@ -311,5 +311,167 @@
             },
             "items": [{ "itemName": "laser4", "amount": 1 }]
         }
-    }    
+    },
+    "Collector II": {
+        "questName": "Collector II",
+        "type": "completeWithoutOrder",
+        "questNo": 11,
+        "description": "",
+        "tasks": [
+            {
+                "_type": "collect",
+                "_id": 0,
+                "oreName": "radium",
+                "map": "any",
+                "amount": 600,
+                "completed": false
+            },
+            {
+                "_type": "collect",
+                "_id": 1,
+                "oreName": "agronite",
+                "map": "any",
+                "amount": 600,
+                "completed": false
+            }
+        ],
+        "requiredLevel": 3,
+        "completed": false,
+        "reward": {
+            "stats": {
+                "experience": 4500,
+                "honor": 768,
+                "thulium": 120,
+                "credits": 20000                
+            }
+        }
+    },
+    "Fight back II": {
+        "questName": "Fight back II",
+        "type": "completeWithoutOrder",
+        "questNo": 12,
+        "description": "",
+        "tasks": [
+            {
+                "_type": "kill",
+                "_id": 0,
+                "targetName": "plasmoid",
+                "amount": 15,
+                "map": "any",
+                "completed": false
+            }
+        ],
+        "requiredLevel": 3,
+        "completed": false,
+        "reward": {
+            "stats": {
+                "experience": 4500,
+                "honor": 768,
+                "thulium": 120,
+                "credits": 20000                
+            }
+        }
+    },
+    "Challenger I": {
+        "questName": "Challenger I",
+        "type": "completeWithoutOrder",
+        "questNo": 13,
+        "description": "",
+        "tasks": [
+            {
+                "_type": "collect",
+                "_id": 0,
+                "oreName": "agronite",
+                "map": "any",
+                "amount": 500,
+                "completed": false
+            },
+            {
+                "_type": "kill",
+                "_id": 1,
+                "targetName": "boss-thetys",
+                "amount": 10,
+                "map": "any",
+                "completed": false
+            }
+        ],
+        "requiredLevel": 3,
+        "completed": false,
+        "reward": {
+            "stats": {
+                "experience": 4500,
+                "honor": 768,
+                "thulium": 120,
+                "credits": 20000                
+            }
+        }
+    },
+    "Old Friend": {
+        "questName": "Old Friend",
+        "type": "completeWithoutOrder",
+        "questNo": 14,
+        "description": "",
+        "tasks": [
+            {
+                "_type": "fly",
+                "_id": 0,
+                "distance": 10000,
+                "map": "any",
+                "completed": false
+            },
+            {
+                "_type": "collect",
+                "_id": 0,
+                "oreName": "radium",
+                "map": "any",
+                "amount": 500,
+                "completed": false
+            }
+        ],
+        "requiredLevel": 3,
+        "completed": false,
+        "reward": {
+            "stats": {
+                "experience": 4500,
+                "honor": 768,
+                "thulium": 120,
+                "credits": 20000                
+            }
+        }
+    },
+    "Who is surge?": {
+        "questName": "Who is surge?",
+        "type": "completeWithoutOrder",
+        "questNo": 15,
+        "description": "",
+        "tasks": [
+            {
+                "_type": "fly",
+                "_id": 0,
+                "distance": 20000,
+                "map": "any",
+                "completed": false
+            },
+            {
+                "_type": "kill",
+                "_id": 1,
+                "targetName": "surge",
+                "amount": 5,
+                "map": "any",
+                "completed": false
+            }
+        ],
+        "requiredLevel": 3,
+        "completed": false,
+        "reward": {
+            "stats": {
+                "experience": 7500,
+                "honor": 1024,
+                "thulium": 200,
+                "credits": 100000                
+            },
+            "items": [{ "itemName": "laser3", "amount": 1 }]
+        }
+    }
+
 }
