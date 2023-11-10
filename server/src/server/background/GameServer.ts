@@ -137,15 +137,16 @@ export class GameServer {
             portals: (Portal | Alien | Entity | Player)[],
             targetPos: Vector2D
         ): Portal | undefined {
-            if (portals.length === 0) {
-                return undefined;
-            }
+            if (portals.length === 0) return undefined;
 
             let closestPortal = portals[0];
             let closestDistance = _getBADDistance(
                 portals[0].position,
                 targetPos
             );
+
+            // console.log(`${closestDistance}`);
+            // console.log(`${JSON.stringify(closestPortal)}`);
 
             for (let i = 1; i < portals.length; i++) {
                 const currentDistance = _getBADDistance(
@@ -158,9 +159,7 @@ export class GameServer {
                 }
             }
 
-            if (closestPortal instanceof Portal) {
-                return closestPortal;
-            }
+            if (closestPortal instanceof Portal) return closestPortal;
         }
 
         function _getBADDistance(position1: Vector2D, position2: Vector2D) {
@@ -182,6 +181,9 @@ export class GameServer {
                 const oldMap = this.spacemaps[player.currentMap];
                 oldMap.entities.filter((e) => e.name !== playerName);
                 if (closestPortal) {
+                    // Count distance
+                    if(Math.sqrt(Math.pow(closestPortal.position.x - player.position.x, 2) + Math.pow(closestPortal.position.y - player.position.y, 2)) > 5) return;
+
                     const targetPos = this.spacemaps[
                         closestPortal.destination
                     ].entities.filter((e) => {
