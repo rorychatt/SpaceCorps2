@@ -829,8 +829,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                         playerEntity.position,
                         portals
                     );
-                    console.log(portals);
-                    console.log(closestPortal);
+
                     if (closestPortal) {
                         if (
                             Math.sqrt(
