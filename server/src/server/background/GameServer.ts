@@ -178,7 +178,6 @@ export class GameServer {
                 const oldMap = this.spacemaps[player.currentMap];
                 oldMap.entities.filter((e) => e.name !== playerName);
                 if (closestPortal) {
-                    // Count distance
                     if((Math.pow(closestPortal.position.x - player.position.x, 2) + Math.pow(closestPortal.position.y - player.position.y, 2)) > Math.pow(closestPortal.safeZoneRadii, 2)) return;
 
                     const targetPos = this.spacemaps[
