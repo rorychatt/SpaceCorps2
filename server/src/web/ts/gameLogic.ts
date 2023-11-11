@@ -822,10 +822,6 @@ function handleKeyboardButton(e: KeyboardEvent) {
                     }
                     break;
                 case "j":
-                    return socket.emit("attemptTeleport", {
-                        playerName: playerName,
-                    });
-
                     const portals = currentMap.entities.filter(
                         (entity: { _type: string }) => entity._type === "Portal"
                     );
