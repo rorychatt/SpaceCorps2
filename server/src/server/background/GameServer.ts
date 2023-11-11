@@ -146,7 +146,6 @@ export class GameServer {
             );
 
             // console.log(`${closestDistance}`);
-            // console.log(`${JSON.stringify(closestPortal)}`);
 
             for (let i = 1; i < portals.length; i++) {
                 const currentDistance = _getBADDistance(
@@ -182,7 +181,10 @@ export class GameServer {
                 oldMap.entities.filter((e) => e.name !== playerName);
                 if (closestPortal) {
                     // Count distance
-                    if(Math.sqrt(Math.pow(closestPortal.position.x - player.position.x, 2) + Math.pow(closestPortal.position.y - player.position.y, 2)) > 5) return;
+                    console.log("Safezoneradii: ", JSON.stringify(closestPortal));
+
+                    // change 5 to radii
+                    if((Math.pow(closestPortal.position.x - player.position.x, 2) + Math.pow(closestPortal.position.y - player.position.y, 2)) > Math.pow(5, 2)) return;
 
                     const targetPos = this.spacemaps[
                         closestPortal.destination
