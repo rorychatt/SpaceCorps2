@@ -35,7 +35,7 @@ export const readGameDataConfigFiles = (): GameDataConfig => {
                     {
                         location: "top",
                         destination: "undefined",
-                        radii: 10
+                        safeZoneRadii: 10
                     },
                 ],
             },

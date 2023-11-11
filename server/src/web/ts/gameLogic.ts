@@ -831,20 +831,7 @@ function handleKeyboardButton(e: KeyboardEvent) {
                     );
 
                     if (closestPortal) {
-                        if (
-                            Math.sqrt(
-                                Math.pow(
-                                    closestPortal.position.x -
-                                        playerEntity.position.x,
-                                    2
-                                ) +
-                                    Math.pow(
-                                        closestPortal.position.y -
-                                            playerEntity.position.y,
-                                        2
-                                    )
-                            ) < 5
-                        ) {
+                        if ((Math.pow(closestPortal.position.x - playerEntity.position.x, 2) + Math.pow(closestPortal.position.y - playerEntity.position.y, 2)) < Math.pow(closestPortal.safeZoneRadii, 2)) {
                             socket.emit("attemptTeleport", {
                                 playerName: playerName,
                             });

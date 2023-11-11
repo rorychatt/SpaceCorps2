@@ -126,7 +126,7 @@ export class Spacemap {
                     this,
                     _cfg.location,
                     _cfg.destination,
-                    _cfg.radii
+                    _cfg.safeZoneRadii
                 )
             );
         }
@@ -148,7 +148,7 @@ export class Spacemap {
             this.safeZones.push(
                 new SafeZone(
                     calculateEntityPosition(portal.location, this._config.size),
-                    portal.radii
+                    portal.safeZoneRadii
                 )
             );
         }
@@ -209,7 +209,7 @@ export interface Vector2D {
 }
 
 export interface PortalConfig {
-    radii: number;
+    safeZoneRadii: number;
     readonly location: StaticEntityLocations;
     readonly destination: string;
 }
