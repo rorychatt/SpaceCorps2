@@ -10,13 +10,13 @@
                 {
                     "location": "left",
                     "destination": "P-1",
-                    "radii": 10
+                    "safeZoneRadii": 5
                 }
             ],
             "base": {
                 "location": "right",
                 "name": "MCC-Base",
-                "radii": 10
+                "safeZoneRadii": 5
             }
         },
         "spawnableAliens": {
@@ -54,13 +54,13 @@
                 {
                     "location": "bottom",
                     "destination": "P-1",
-                    "radii": 10
+                    "safeZoneRadii": 5
                 }
             ],
             "base": {
                 "location": "top",
                 "name": "ORO-Base",
-                "radii": 10
+                "safeZoneRadii": 5
             }
         },
         "spawnableAliens": {
@@ -98,13 +98,13 @@
                 {
                     "location": "right",
                     "destination": "P-1",
-                    "radii": 10
+                    "safeZoneRadii": 5
                 }
             ],
             "base": {
                 "location": "left",
                 "name": "GVG-Base",
-                "radii": 10
+                "safeZoneRadii": 5
             }
         },
         "spawnableAliens": {
@@ -142,13 +142,13 @@
                 {
                     "location": "top",
                     "destination": "P-1",
-                    "radii": 10
+                    "safeZoneRadii": 5
                 }
             ],
             "base": {
                 "location": "bottom",
                 "name": "TRU-Base",
-                "radii": 10
+                "safeZoneRadii": 5
             }
         },
         "spawnableAliens": {
@@ -186,22 +186,22 @@
                 {
                     "location": "left",
                     "destination": "G-1",
-                    "radii": 10
+                    "safeZoneRadii": 5
                 },
                 {
                     "location": "right",
                     "destination": "M-1",
-                    "radii": 10
+                    "safeZoneRadii": 5
                 },
                 {
                     "location": "top",
                     "destination": "O-1",
-                    "radii": 10
+                    "safeZoneRadii": 5
                 },
                 {
                     "location": "bottom",
                     "destination": "T-1",
-                    "radii": 10
+                    "safeZoneRadii": 5
                 }
             ]
         },
