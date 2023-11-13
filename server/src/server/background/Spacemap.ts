@@ -35,6 +35,11 @@ export class Spacemap {
         this.generateSafeZones();
     }
 
+    _getMapSize(name: string): { mapSize: SpacemapSize } {
+        const mapSize: SpacemapSize = this._config.size;
+        return { mapSize };
+    }
+
     spawnAlien(name: string, position: Vector2D) {
         const alien = new Alien(this, name, position);
         this.entities.push(alien);

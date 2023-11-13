@@ -266,6 +266,17 @@ export class GameServer {
             this.spacemaps[this._spacemapNames[spacemapName]].entities.forEach(
                 (entity) => {
                     if (entity instanceof Alien) {
+                        const mapWidth = this.spacemaps[this._spacemapNames[spacemapName]]._getMapSize(spacemapName).mapSize.width;
+                        const mapHeight = this.spacemaps[this._spacemapNames[spacemapName]]._getMapSize(spacemapName).mapSize.height;
+
+                        if(entity._roamDestination?.x || entity._roamDestination?.y) {
+                            if(entity._roamDestination.x >= mapWidth || entity._roamDestination.y >= mapHeight) {
+                                entity._roamDestination = null;
+                                console.log(mapWidth, mapHeight);
+                                return console.log("entity ushel za kartu");
+                            }
+                        }
+
                         entity.passiveRoam();
                     }
                 }
