@@ -842,7 +842,19 @@ function handleKeyboardButton(e: KeyboardEvent) {
                     );
 
                     if (closestPortal) {
-                        if ((Math.pow(closestPortal.position.x - playerEntity.position.x, 2) + Math.pow(closestPortal.position.y - playerEntity.position.y, 2)) < Math.pow(closestPortal.safeZoneRadii, 2)) {
+                        if (
+                            Math.pow(
+                                closestPortal.position.x -
+                                    playerEntity.position.x,
+                                2
+                            ) +
+                                Math.pow(
+                                    closestPortal.position.y -
+                                        playerEntity.position.y,
+                                    2
+                                ) <
+                            Math.pow(closestPortal.safeZoneRadii, 2)
+                        ) {
                             socket.emit("attemptTeleport", {
                                 playerName: playerName,
                             });
@@ -1844,20 +1856,68 @@ async function loadEventListeners() {
             e.preventDefault();
         });
 
+        slot.addEventListener("dragstart", (e: any) => {
+            // Set the dataTransfer data with the origin key and item name
+            const originKey = slot.getAttribute("data-key");
+            if (!originKey) return;
+            const itemName = hotbarMapping[originKey]?.itemName;
+            e.dataTransfer.setData(
+                "text/plain",
+                JSON.stringify({ originKey, itemName })
+            );
+            // Set the slot as the dragging source
+            e.target.classList.add("dragging");
+        });
+
         slot.addEventListener("drop", (e: any) => {
             e.preventDefault();
-            const itemName = JSON.parse(
+            // Get the origin key and item name from the event
+            const { originKey, itemName } = JSON.parse(
                 e.dataTransfer.getData("text/plain")
-            ).itemName;
-            const key = slot.getAttribute("data-key");
-            slot.innerHTML = "";
+            );
+            const destinationKey = slot.getAttribute("data-key");
 
+            if (originKey !== destinationKey) {
+                // Clear the original slot
+                const originSlot = document.querySelector(
+                    `.control-slot[data-key="${originKey}"]`
+                );
+                if (originSlot) {
+                    originSlot.innerHTML = "";
+                    hotbarMapping[originKey] = null;
+                }
+            }
+
+            // Update the destination slot with the new item
+            slot.innerHTML = "";
             slot.appendChild(createNewIcon(itemName));
-            if (key && key in hotbarMapping) {
-                hotbarMapping[key] = {
-                    itemName: itemName as string,
-                };
-                console.log(hotbarMapping);
+            if (!destinationKey) return;
+
+            hotbarMapping[destinationKey] = { itemName: itemName as string };
+
+            console.log(hotbarMapping);
+            savePlayerHotbarSettings({
+                username: playerName,
+                hotbarMapping: hotbarMapping,
+            });
+
+            // Reset dragging source
+            const draggingSource = document.querySelector(
+                ".control-slot.dragging"
+            );
+            if (draggingSource) {
+                draggingSource.classList.remove("dragging");
+            }
+        });
+
+        slot.addEventListener("dragend", (e: any) => {
+            // If the item was not dropped on a slot, clear the original slot and update the hotbarMapping
+            const originKey = slot.getAttribute("data-key");
+            if (!originKey) return;
+            if (hotbarMapping[originKey]?.itemName) {
+                slot.innerHTML = "";
+                hotbarMapping[originKey] = null;
+
                 savePlayerHotbarSettings({
                     username: playerName,
                     hotbarMapping: hotbarMapping,
