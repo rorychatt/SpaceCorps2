@@ -263,10 +263,19 @@ export class GameServer {
 
     async proccessRandomMovements() {
         for (const spacemapName in this._spacemapNames) {
+            const mapWidth = this.spacemaps[this._spacemapNames[spacemapName]].getMapSize().mapSize.width;
+            const mapHeight = this.spacemaps[this._spacemapNames[spacemapName]].getMapSize().mapSize.height;
+
             this.spacemaps[this._spacemapNames[spacemapName]].entities.forEach(
                 (entity) => {
                     if (entity instanceof Alien) {
-                        entity.passiveRoam();
+                        if(entity._roamDestination?.x || entity._roamDestination?.y) {
+                            if(entity._roamDestination.x >= mapWidth || entity._roamDestination.y >= mapHeight) {
+                                entity._roamDestination = null;
+                            }
+                        }
+
+                        entity.passiveRoam(mapWidth, mapHeight);
                     }
                 }
             );
