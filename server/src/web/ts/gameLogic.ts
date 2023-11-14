@@ -9,7 +9,7 @@ import {
 } from "./three/addons/renderers/CSS2DRenderer.js";
 import * as TWEEN from "@tweenjs/tween.js";
 // @ts-ignore
-export const socket = io("http://localhost:3000");
+export const socket = io("http://localhost:3000", { reconnection: false });
 
 // HTML Elements
 let loginDiv = document.getElementById("loginDiv") as HTMLElement;
@@ -527,7 +527,7 @@ function savePlayerHotbarSettings(data: {
 
 async function loadNewSpacemap(data: any) {
     clearScene(scene);
-    lockOnCircle?.removeFromParent();
+    isFirstUpdateForPlayer = true;
     try {
         currentMap = data;
         await Promise.all([
@@ -535,7 +535,7 @@ async function loadNewSpacemap(data: any) {
             createStars(),
             createLighting(),
             createSkybox(data.name),
-            loadStaticEntities(data),
+            loadStaticEntities(data), //TODO
         ]);
     } catch (error) {
         console.log(`Got an error while loading new spacemap: ${data.name}`);
@@ -570,6 +570,25 @@ function clearScene(scene: THREE.Scene) {
     while (scene.children.length > 0) {
         scene.remove(scene.children[0]);
     }
+
+    lockOnCircle?.removeFromParent();
+}
+
+function addCamera(): void {
+    camera = new THREE.PerspectiveCamera(
+        60,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+    );
+
+    // Position the camera
+    camera.position.x = 4;
+    camera.position.y = 5;
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    audioListener = new THREE.AudioListener();
+    camera.add(audioListener);
 }
 
 function initScene(): void {
@@ -577,14 +596,7 @@ function initScene(): void {
     loginDiv.hidden = true;
     spacemapDiv.hidden = false;
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(
-        60,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-    );
     renderer = new THREE.WebGLRenderer({ antialias: true });
-
     // Set the size of the renderer to match the window size
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -619,15 +631,6 @@ function initScene(): void {
 
     loadEventListeners();
 
-    // Position the camera
-    camera.position.x = 4;
-    camera.position.y = 5;
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-    audioListener = new THREE.AudioListener();
-    camera.add(audioListener);
-
-    // Create an animation function to rotate the cube
     const animate = (time?: any) => {
         requestAnimationFrame(animate);
         TWEEN.update();
@@ -670,9 +673,18 @@ function initScene(): void {
         }
     };
 
+    addCamera();
+
     controls = new OrbitControls(camera, renderer.domElement);
     updateControlsSettings();
 
+    _playAmbientSound();
+    _createLockOnCircle();
+
+    animate();
+}
+
+function _playAmbientSound() {
     mainThemeMusic = new THREE.Audio(audioListener);
 
     const audioLoader = new THREE.AudioLoader();
@@ -687,7 +699,9 @@ function initScene(): void {
         }
         mainThemeMusic.play();
     });
+}
 
+function _createLockOnCircle() {
     const lockOnCircleGeometry = new THREE.RingGeometry(1.5, 1.55, 32);
     const lockOnCirleMaterial = new THREE.MeshBasicMaterial({
         color: 0xff0000,
@@ -697,9 +711,6 @@ function initScene(): void {
     lockOnCircle.rotation.x = 1.57079633;
     lockOnCircle.position.set(0, 0, 0);
     lockOnCircle.name = "lockOnCircle";
-
-    // Call the animate function to start the animation loop
-    animate();
 }
 
 function raycastFromCamera(event: any) {
@@ -1285,7 +1296,7 @@ async function updateObject(object: THREE.Object3D, entity: any) {
                         lastEntityPosition = targetDirection;
                         camera.position.set(posX, camera.position.y, posY);
                         controls.target.copy(targetDirection);
-                        object.add(audioListener);
+                        // object.add(audioListener);
                         isFirstUpdateForPlayer = false;
                     } else if (lastEntityPosition !== null) {
                         lastEntityPosition.add(deltaVector);
@@ -1391,7 +1402,6 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         _tween(object, targetDirection);
     }
 }
-
 
 async function deleteObject(uuid: string) {
     const object = getObjectByUUID(uuid);
@@ -2729,7 +2739,12 @@ function displayQuest(quest: any) {
         itemsDiv.appendChild(individualItemDiv);
     });
 
-    cancelButton.addEventListener("click", () => socket.emit("cancelQuest", { playerName: playerName, questName: quest.questName}));
+    cancelButton.addEventListener("click", () =>
+        socket.emit("cancelQuest", {
+            playerName: playerName,
+            questName: quest.questName,
+        })
+    );
 
     // Append the itemsDiv to the rewardDiv
     rewardDiv.appendChild(itemsDiv);
