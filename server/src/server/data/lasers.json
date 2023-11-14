@@ -42,5 +42,16 @@
         "price": {
             "thulium": 16000
         }
+    },
+    "devlaser1": {
+        "name": "devlaser1",
+        "fullName": "Dev Laser 4",
+        "maxDamage": 5000,
+        "damageVariance": 0.1,
+        "criticalChance": 0.15,
+        "criticalMultiplier": 2,
+        "price": {
+            "credits": 1
+        }
     }
 }
