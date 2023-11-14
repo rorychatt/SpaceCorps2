@@ -329,7 +329,7 @@ h1 {
     width: 100%;
     position: absolute;
     top: 0;
-    z-index: 1;
+    z-index: 99;
 }
 
 /* Buttons */
@@ -1454,6 +1454,8 @@ input[type="number"]::-webkit-outer-spin-button {
     width: 25%;
 
     left: 37.5%;
+    
+    z-index: 1;
 }
 
 .notification {
@@ -1462,6 +1464,8 @@ input[type="number"]::-webkit-outer-spin-button {
 
     font-size: 1vh;
     font-family: "AudioWide";
+
+    z-index: 1;
 }
 
 /* Chat Message */
@@ -1472,7 +1476,6 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 /* Console Message */
-
 .console_message {
     color: var(--login-container-white-background);
     font-size: 1.3vh;
