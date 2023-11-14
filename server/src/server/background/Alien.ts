@@ -138,20 +138,11 @@ export class Alien extends Entity {
         return target;
     }
 
-    passiveRoam() {
+    passiveRoam(mapWidth: number, mapHeight: number) {
         if (this.movement?.behaviour === "passive") {
             if (this._roamDestination == null) {
-                // TODO: add boundaries here
-
-                
-                // const maxX = mapsProperties[`${this.currentMap}`].width;
-                // const maxY = mapsProperties[`${this.currentMap}`].height;
-
-                // const dx = (Math.random() - 0.5) * maxX;
-                // const dy = (Math.random() - 0.5) * maxY;
-
-                const dx = (Math.random() - 0.5) * 320;
-                const dy = (Math.random() - 0.5) * 180;
+                const dx = (Math.random() - 0.5) * mapWidth;
+                const dy = (Math.random() - 0.5) * mapHeight;
 
                 this._roamDestination = { x: dx, y: dy };
 

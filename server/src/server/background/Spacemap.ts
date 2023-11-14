@@ -35,7 +35,7 @@ export class Spacemap {
         this.generateSafeZones();
     }
 
-    _getMapSize(name: string): { mapSize: SpacemapSize } {
+    getMapSize(): { mapSize: SpacemapSize } {
         const mapSize: SpacemapSize = this._config.size;
         return { mapSize };
     }
