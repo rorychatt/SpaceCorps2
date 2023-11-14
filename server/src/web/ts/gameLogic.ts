@@ -1968,15 +1968,17 @@ async function displayHotbarItems(
             for (const item in data) {
                 const itemDiv = document.createElement("div");
                 itemDiv.className = "item";
-                itemDiv.innerText = data[item].name;
+
+                const iconImg = createNewIcon(item);
+                itemDiv.appendChild(iconImg);
+
                 itemsRow.appendChild(itemDiv);
 
-                // Enable drag-and-drop
                 itemDiv.draggable = true;
                 itemDiv.addEventListener("dragstart", function (event: any) {
                     const dragData = {
                         itemName: item,
-                        category: category, // Include the category in drag data
+                        category: category,
                     };
                     event.dataTransfer.setData(
                         "text/plain",
