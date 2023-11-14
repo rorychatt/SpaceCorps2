@@ -256,9 +256,7 @@ export class Player extends Entity {
 
                     for (const key in questData) {
                         if (questData[key].questName == quest.questName) {
-                            const newQuest = new Quest(
-                                quest.questName,
-                            );
+                            const newQuest = new Quest(quest.questName);
                             newQuest.setAllTasksProgress(quest.tasksProgress);
                             this.currentActiveQuests.push(newQuest);
                         }
@@ -430,7 +428,12 @@ export class Player extends Entity {
                 const target = (await gameServer.getEntityByUUID(
                     this.targetUUID
                 )) as Alien | Player;
-                if (target) {
+                if (
+                    target &&
+                    target.currentMap == this.currentMap &&
+                    this.inventory.findLaserAmmoByName(ammoName)!.amount >=
+                        this._getLaserAmmoPerShot()
+                ) {
                     this.shootLaserProjectileAtTarget(target, ammoName);
                 } else {
                     this.targetUUID = undefined;
@@ -453,8 +456,10 @@ export class Player extends Entity {
                 x: this.destination.x - this.position.x,
                 y: this.destination.y - this.position.y,
             };
-            const totalDistance = Math.sqrt(direction.x ** 2 + direction.y ** 2);
-    
+            const totalDistance = Math.sqrt(
+                direction.x ** 2 + direction.y ** 2
+            );
+
             if (travelledDistance >= totalDistance) {
                 this.position = {
                     x: this.destination.x,
@@ -469,7 +474,7 @@ export class Player extends Entity {
                     y: this.position.y + dy,
                 };
             }
-    
+
             if (this.currentActiveQuests.length > 0) {
                 gameServer.questServer.registerFlyDistance({
                     playerUUID: this.uuid,
@@ -479,7 +484,7 @@ export class Player extends Entity {
             }
         }
     }
-    
+
     addHonor(honor: number) {
         this.stats.honor = this.stats.honor + honor;
     }

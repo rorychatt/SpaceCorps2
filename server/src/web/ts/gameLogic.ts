@@ -1425,11 +1425,13 @@ async function deleteObject(uuid: string) {
         return;
     }
 
-    const label = getLabelByUUID(uuid);
-    if (label) {
-        labelRenderer.domElement.removeChild(label.element);
-        delete labelMap[uuid];
-    }
+    delete labelMap[uuid];
+
+    // const label = getLabelByUUID(uuid);
+    // if (label) {
+    //     labelRenderer.domElement.removeChild(label.element);
+    //     delete labelMap[uuid];
+    // }
 
     const entityLabelsDiv = document.getElementById("entityLabelsDiv");
     if (entityLabelsDiv) {
