@@ -178,7 +178,18 @@ export class GameServer {
                 const oldMap = this.spacemaps[player.currentMap];
                 oldMap.entities.filter((e) => e.name !== playerName);
                 if (closestPortal) {
-                    if((Math.pow(closestPortal.position.x - player.position.x, 2) + Math.pow(closestPortal.position.y - player.position.y, 2)) > Math.pow(closestPortal.safeZoneRadii, 2)) return;
+                    if (
+                        Math.pow(
+                            closestPortal.position.x - player.position.x,
+                            2
+                        ) +
+                            Math.pow(
+                                closestPortal.position.y - player.position.y,
+                                2
+                            ) >
+                        Math.pow(closestPortal.safeZoneRadii, 2)
+                    )
+                        return;
 
                     const targetPos = this.spacemaps[
                         closestPortal.destination
@@ -263,14 +274,24 @@ export class GameServer {
 
     async proccessRandomMovements() {
         for (const spacemapName in this._spacemapNames) {
-            const mapWidth = this.spacemaps[this._spacemapNames[spacemapName]].getMapSize().mapSize.width;
-            const mapHeight = this.spacemaps[this._spacemapNames[spacemapName]].getMapSize().mapSize.height;
+            const mapWidth =
+                this.spacemaps[this._spacemapNames[spacemapName]].getMapSize()
+                    .mapSize.width;
+            const mapHeight =
+                this.spacemaps[this._spacemapNames[spacemapName]].getMapSize()
+                    .mapSize.height;
 
             this.spacemaps[this._spacemapNames[spacemapName]].entities.forEach(
                 (entity) => {
                     if (entity instanceof Alien) {
-                        if(entity._roamDestination?.x || entity._roamDestination?.y) {
-                            if(entity._roamDestination.x >= mapWidth || entity._roamDestination.y >= mapHeight) {
+                        if (
+                            entity._roamDestination?.x ||
+                            entity._roamDestination?.y
+                        ) {
+                            if (
+                                entity._roamDestination.x >= mapWidth ||
+                                entity._roamDestination.y >= mapHeight
+                            ) {
                                 entity._roamDestination = null;
                             }
                         }
@@ -428,6 +449,12 @@ export class GameServer {
                         spacemap.spawnCargoBoxFromAlien(cargoContents);
                     }
 
+                    for (const player of this.players) {
+                        if (player.targetUUID == entity.uuid) {
+                            player.targetUUID = undefined;
+                        }
+                    }
+
                     console.log(
                         `Removed ${entity.name} from map ${spacemapName} because its HP finished.`
                     );
@@ -464,6 +491,10 @@ export class GameServer {
         ]);
 
         if (attacker && target) {
+            if (attacker.targetUUID != data.targetUUID) {
+                attacker.isShooting = false;
+            }
+
             if (data.weapons == "lasers") {
                 if (attacker.isShooting) {
                     attacker.isShooting = false;
