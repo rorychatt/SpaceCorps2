@@ -23,8 +23,8 @@ MMO RPG game in space. Node.js server, three.js frontend with mySQL database
     git status
     git switch master
     git pull 
-    git checkout -b bugfix/HUJNJA
-    git checkout -b feature/HUJNJA
+    git checkout -b bugfix/ex
+    git checkout -b feature/ex
     
     Pull Request, merge 
     git switch master
