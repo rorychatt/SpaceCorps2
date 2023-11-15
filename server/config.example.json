@@ -1,8 +1,8 @@
 {
     "database":{
-        "host": "179.61.251.216",
-        "user": "rory",
-        "password": "dimaspidoras",
+        "host": "ipaddresshere",
+        "user": "user",
+        "password": "password",
         "database": "spacecorps",
         "waitForConnections": true,
         "connectionLimit": 10,
