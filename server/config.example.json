@@ -10,11 +10,11 @@
         "port": 3307
     },
     "ssh":{
-        "password": "dimaspidoras",
-        "remoteIp": "179.61.251.216"
+        "password": "passwrod",
+        "remoteIp": "remoteip"
     },
     "server":{
-        "localhost": "192.168.1.148",
+        "localhost": "server ip",
         "port": 3000
     }
 }
