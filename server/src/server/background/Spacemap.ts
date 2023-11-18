@@ -19,6 +19,7 @@ import { ProjectileServer } from "./ProjectileServer";
 export class Spacemap {
     readonly name: string;
     readonly size: SpacemapSize;
+    type = "Spacemap";
     entities: PossibleSpacemapEntities[];
     cargoboxes: CargoDrop[] = [];
     oreSpawns: OreSpawn[] = [];

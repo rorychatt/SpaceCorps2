@@ -1,6 +1,6 @@
 import { updateInventoryData } from "../db/db";
 import { gameServer } from "../main";
-import { CargoDrop } from "./CargoDrop";
+import { CargoDrop, OreSpawn } from "./CargoDrop";
 import {
     ConsumableItems,
     PossibleItems,
@@ -16,6 +16,7 @@ import {
     ExperienceReward,
     HonorReward,
     ItemReward,
+    OreSpawnReward,
     PlayerKillReward,
     PossibleRewards,
     ThuliumReward,
@@ -95,8 +96,24 @@ export class RewardServer {
         }
     }
 
-    registerCargoDropReward(recipientUUID: string, cargoDrop: CargoDrop) {
-        this.pendingRewards.push(new CargoDropReward(recipientUUID, cargoDrop));
+    registerCollectionReward(
+        recipientUUID: string,
+        collectable: CargoDrop | OreSpawn
+    ) {
+        switch (collectable._type) {
+            case "CargoDrop":
+                this.pendingRewards.push(
+                    new CargoDropReward(recipientUUID, collectable as CargoDrop)
+                );
+                break;
+            case "OreSpawn":
+                if (collectable instanceof OreSpawn) {
+                }
+                this.pendingRewards.push(
+                    new OreSpawnReward(recipientUUID, collectable as OreSpawn)
+                );
+                break;
+        }
     }
 
     registerConsumableItemReward(

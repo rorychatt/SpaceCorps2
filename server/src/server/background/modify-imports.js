@@ -272,8 +272,8 @@ function fixRewardServer() {
             }
 
             let modifiedData = data.replace(
-                'import { AlienKillReward, CargoDropReward, ConsumableItemReward, CreditsReward, CreditsSetReward, ExperienceReward, HonorReward, ItemReward, PlayerKillReward, ThuliumReward, ThuliumSetReward, } from "./Reward";',
-                'import { AlienKillReward, CargoDropReward, ConsumableItemReward, CreditsReward, CreditsSetReward, ExperienceReward, HonorReward, ItemReward, PlayerKillReward, ThuliumReward, ThuliumSetReward, } from "./Reward.js";'
+                'import { AlienKillReward, CargoDropReward, ConsumableItemReward, CreditsReward, CreditsSetReward, ExperienceReward, HonorReward, ItemReward, OreSpawnReward, PlayerKillReward, ThuliumReward, ThuliumSetReward, } from "./Reward";',
+                'import { AlienKillReward, CargoDropReward, ConsumableItemReward, CreditsReward, CreditsSetReward, ExperienceReward, HonorReward, ItemReward, OreSpawnReward, PlayerKillReward, ThuliumReward, ThuliumSetReward, } from "./Reward.js";',
             );
 
             modifiedData = modifiedData.replace(
@@ -290,6 +290,12 @@ function fixRewardServer() {
                 'import { consumableItemsData, } from "./Inventory";',
                 'import { consumableItemsData, } from "./Inventory.js";'
             );
+
+            modifiedData = modifiedData.replace(
+                'import { OreSpawn } from "./CargoDrop";',
+                'import { OreSpawn } from "./CargoDrop.js";'
+            );
+
 
             writeFile(
                 "./dist/server/background/RewardServer.js",

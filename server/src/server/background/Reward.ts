@@ -1,4 +1,4 @@
-import { CargoDrop, OreResource } from "./CargoDrop";
+import { CargoDrop, OreResource, OreSpawn } from "./CargoDrop";
 import { ConsumableItems, PossibleItems } from "./Inventory";
 
 export class Reward {
@@ -139,6 +139,17 @@ export class CargoDropReward extends Reward {
     }
 }
 
+export class OreSpawnReward extends Reward {
+    ores: OreResource[];
+
+    constructor(recipientUUID: string, oreSpawn: OreSpawn) {
+        super(recipientUUID);
+        this.ores = oreSpawn.ores;
+    }
+}
+
+
+
 export class ConsumableItemReward extends Reward {
     consumable: ConsumableItems;
 
@@ -159,4 +170,5 @@ export type PossibleRewards =
     | AlienKillReward
     | ItemReward
     | CargoDropReward
+    | OreSpawnReward
     | ConsumableItemReward;

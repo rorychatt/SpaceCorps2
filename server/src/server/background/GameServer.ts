@@ -23,7 +23,7 @@ import {
     RocketProjectileDTO,
 } from "./Projectiles";
 import { Shop } from "./Shop";
-import { CargoDrop } from "./CargoDrop";
+import { CargoDrop, OreSpawn, OreSpawnDTO } from "./CargoDrop";
 import {
     CompletedQuestDTO,
     QuestDTO,
@@ -98,6 +98,7 @@ export class GameServer {
                         | RocketProjectileDTO
                     )[];
                     cargoboxes: CargoDrop[];
+                    oreSpawnDTO: OreSpawnDTO[];
                     size: SpacemapSize;
                 }[]
             ) => {
@@ -107,6 +108,7 @@ export class GameServer {
                         entities: e.entitiesDTO,
                         projectiles: e.projectilesDTO,
                         cargoboxes: e.cargoboxes,
+                        oreSpawnDTO: e.oreSpawnDTO,
                         size: e.size,
                     });
                 });
@@ -325,36 +327,57 @@ export class GameServer {
             if (player.destination) {
                 player.flyToDestination();
             }
-            if (player.isCollectingCargoDrop && player.targetCargoDrop) {
+            if (player.isCollectingCollectable && player.targetCollectable) {
                 if (
                     Math.abs(
-                        player.position.x - player.targetCargoDrop.position.x
+                        player.position.x - player.targetCollectable.position.x
                     ) < 0.05 &&
                     Math.abs(
-                        player.position.y - player.targetCargoDrop.position.y
+                        player.position.y - player.targetCollectable.position.y
                     ) < 0.05
                 ) {
-                    this.rewardServer.registerCargoDropReward(
+                    this.rewardServer.registerCollectionReward(
                         player.uuid,
-                        player.targetCargoDrop
+                        player.targetCollectable
                     );
 
                     this.questServer.registerOreCollection({
                         playerUUID: player.uuid,
-                        cargoDrop: player.targetCargoDrop,
-                        map: player.targetCargoDrop.currentMap,
+                        collectable: player.targetCollectable,
+                        map: player.targetCollectable.currentMap,
                     });
 
-                    this.spacemaps[
-                        player.targetCargoDrop.currentMap
-                    ].cargoboxes = this.spacemaps[
-                        player.targetCargoDrop.currentMap
-                    ].cargoboxes.filter((cargobox) => {
-                        return cargobox.uuid !== player.targetCargoDrop?.uuid;
-                    });
+                    switch (player.targetCollectable._type) {
+                        case "OreSpawn":
+                            this.spacemaps[
+                                player.targetCollectable.currentMap
+                            ].oreSpawns = this.spacemaps[
+                                player.targetCollectable.currentMap
+                            ].oreSpawns.filter((oreSpawns) => {
+                                return (
+                                    oreSpawns.uuid !==
+                                    player.targetCollectable?.uuid
+                                );
+                            });
 
-                    player.isCollectingCargoDrop = false;
-                    player.targetCargoDrop = undefined;
+                            break;
+
+                        case "CargoDrop":
+                            this.spacemaps[
+                                player.targetCollectable.currentMap
+                            ].cargoboxes = this.spacemaps[
+                                player.targetCollectable.currentMap
+                            ].cargoboxes.filter((cargobox) => {
+                                return (
+                                    cargobox.uuid !==
+                                    player.targetCollectable?.uuid
+                                );
+                            });
+
+                            break;
+                    }
+                    player.isCollectingCollectable = false;
+                    player.targetCollectable = undefined;
                 }
             }
         });
@@ -692,8 +715,8 @@ export class GameServer {
     ) {
         const player = await this.getPlayerBySocketId(socketId);
         if (player) {
-            player.isCollectingCargoDrop = false;
-            player.targetCargoDrop = undefined;
+            player.isCollectingCollectable = false;
+            player.targetCollectable = undefined;
             player.destination = targetPosition;
         }
     }
@@ -727,8 +750,18 @@ export class GameServer {
             player.socketId
         );
 
-        player.isCollectingCargoDrop = true;
-        player.targetCargoDrop = cargoDrop;
+        player.isCollectingCollectable = true;
+        player.targetCollectable = cargoDrop;
+    }
+
+    public async addPlayerCollectOreSpawn(oreSpawn: OreSpawn, player: Player) {
+        await this.addPlayerMoveToDestination(
+            oreSpawn.position,
+            player.socketId
+        );
+
+        player.isCollectingCollectable = true;
+        player.targetCollectable = oreSpawn;
     }
 
     startServer() {
