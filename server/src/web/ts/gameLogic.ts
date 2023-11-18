@@ -231,6 +231,7 @@ socket.on(
         entities: any[];
         projectiles: any[];
         cargoboxes: any[];
+        oreSpawnDTO: any[];
         size: { width: number; height: number };
     }) => {
         if (isUpdating) {
@@ -242,7 +243,11 @@ socket.on(
         }
         Promise.resolve(
             updateObjects(
-                data.entities.concat(data.projectiles, data.cargoboxes)
+                data.entities.concat(
+                    data.projectiles,
+                    data.cargoboxes,
+                    data.oreSpawnDTO
+                )
             )
         ).then(() => {
             //TODO: this needs to be updated
@@ -732,21 +737,36 @@ function raycastFromCamera(event: any) {
         // console.log(`Got following intersects: ${JSON.stringify(_names)}`);
         // console.log(intersects);
 
-        const isOnlyPlaneAndCargo = _names.every(
+        const isOnlyPlaneAndCollectable = _names.every(
             (name) =>
                 name === "movingPlane" ||
                 name === "CargoDrop" ||
+                name === "OreSpawn" ||
                 name === playerName
         );
-        const firstCargoDrop = intersects.find(
-            (intersect) => intersect.object.name === "CargoDrop"
-        );
 
-        if (isOnlyPlaneAndCargo && firstCargoDrop) {
-            socket.emit("playerCollectCargoBox", {
-                playerName: playerName,
-                cargoDropUUID: firstCargoDrop.object.uuid,
-            });
+        const firstCollectable = intersects.find((intersect) => {
+            return (
+                intersect.object.name === "CargoDrop" ||
+                intersect.object.name === "OreSpawn"
+            );
+        });
+
+        if (isOnlyPlaneAndCollectable && firstCollectable) {
+            switch (firstCollectable.object.name) {
+                case "CargoDrop":
+                    socket.emit("playerCollectCargoBox", {
+                        playerName: playerName,
+                        collectableUUID: firstCollectable.object.uuid,
+                    });
+                    break;
+                case "OreSpawn":
+                    socket.emit("playerCollectOreSpawn", {
+                        playerName: playerName,
+                        collectableUUID: firstCollectable.object.uuid,
+                    });
+                    break;
+            }
         } else if (
             intersects.length === 1 &&
             intersects[0].object.name === "movingPlane"
@@ -1237,6 +1257,27 @@ async function createObject(data: any): Promise<THREE.Object3D> {
                     scene.add(cargoDrop);
                     resolve(cargoDrop);
                     break;
+                case "OreSpawn":
+                    const oreSpawnGeometry = new THREE.BoxGeometry(
+                        0.125,
+                        0.125,
+                        0.125
+                    );
+                    const oreSpawnMaterial = new THREE.MeshStandardMaterial({
+                        color: 0x00ffff,
+                    });
+                    const oreSpawn = new THREE.Mesh(
+                        oreSpawnGeometry,
+                        oreSpawnMaterial
+                    );
+                    oreSpawn.uuid = data.uuid;
+                    oreSpawn.position.set(data.position.x, -1, data.position.y);
+                    objectDataMap[data.uuid] = { data: oreSpawn };
+                    oreSpawn.layers.enable(rayCastLayerNo);
+                    setNameRecursively(oreSpawn, "OreSpawn", data.uuid);
+                    scene.add(oreSpawn);
+                    resolve(oreSpawn);
+                    break;
                 case "Portal":
                     modelUrl = "./assets/models/portals/portal.glb";
                     loader.load(modelUrl, async (glb) => {
@@ -1287,6 +1328,7 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         (posX - object.position.x) ** 2 + (posY - object.position.z) ** 2;
 
     function _tween(object: any, targetPos: THREE.Vector3) {
+
         let originalPosition = object.position.clone();
 
         const positionTween = new TWEEN.Tween(object.position)
@@ -1410,7 +1452,7 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         }
     }
 
-    if (name !== "CargoDrop") {
+    if (name !== "CargoDrop" && object.name !== "OreSpawn") {
         _tween(object, targetDirection);
     }
 }

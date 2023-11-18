@@ -633,10 +633,11 @@ export class ShipItem extends Item {
 }
 
 export class LaserAmmo extends Item {
+    readonly _type: string = "LaserAmmo";
+
     amount: number = 0;
     damageMultiplier: number;
     shieldDamageMultiplier: number = 0;
-    _type: string = "LaserAmmo";
     price: { credits?: number; thulium?: number };
 
     constructor(name: string, amount?: number) {
@@ -655,6 +656,8 @@ export class LaserAmmo extends Item {
 }
 
 export class RocketAmmo extends Item {
+    readonly _type: string = "RocketAmmo";
+
     amount: number = 0;
     maxDamage: number;
     damageVariance: number;
@@ -662,7 +665,6 @@ export class RocketAmmo extends Item {
     criticalMultiplier: number;
     damageRadius: number;
     speed: number;
-    readonly _type: string = "RocketAmmo";
     price: { credits?: number; thulium?: number };
 
     constructor(name: string, amount?: number) {

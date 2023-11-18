@@ -19,7 +19,7 @@ export class ProjectileServer {
     }
 
     createProjectile(
-        type: ProjectileTypes,
+        _type: ProjectileTypes,
         attackerEntity: Player | Alien,
         targetEntity: Player | Alien,
         ammoName: string,
@@ -31,7 +31,7 @@ export class ProjectileServer {
             );
             return;
         }
-        if (type == "LaserProjectile" && damageAmount) {
+        if (_type == "LaserProjectile" && damageAmount) {
             this.projectiles.push(
                 new LaserProjectile(
                     this.spacemap,
@@ -41,7 +41,7 @@ export class ProjectileServer {
                     damageAmount
                 )
             );
-        } else if (type == "RocketProjectile") {
+        } else if (_type == "RocketProjectile") {
             const ammo = (
                 attackerEntity as Player
             ).inventory.getCurrentRocketAmmo();

@@ -296,7 +296,7 @@ io.on("connection", (socket) => {
 
     socket.on(
         "playerCollectCargoBox",
-        async (data: { playerName: string; cargoDropUUID: string }) => {
+        async (data: { playerName: string; collectableUUID: string }) => {
             const player = await gameServer.getPlayerByUsername(
                 data.playerName
             );
@@ -304,7 +304,7 @@ io.on("connection", (socket) => {
                 const cargoDrop = gameServer.spacemaps[
                     player.currentMap
                 ].cargoboxes.find((cargobox) => {
-                    return cargobox.uuid === data.cargoDropUUID;
+                    return cargobox.uuid === data.collectableUUID;
                 });
                 if (cargoDrop) {
                     gameServer.addPlayerCollectCargoDrop(cargoDrop, player);
@@ -312,6 +312,23 @@ io.on("connection", (socket) => {
             }
         }
     );
+
+    socket.on(
+        "playerCollectOreSpawn",
+        async(data: {playerName: string, collectableUUID: string}) => {
+            const player = await gameServer.getPlayerByUsername(
+                data.playerName
+            );
+            if(player){
+                const oreSpawn = gameServer.spacemaps[player.currentMap].oreSpawns.find((orespawn) => {
+                    return orespawn.uuid === data.collectableUUID
+                });
+                if(oreSpawn) {
+                    gameServer.addPlayerCollectOreSpawn(oreSpawn, player)
+                }
+            }
+        }
+    )
 
     socket.on(
         "unequipItemEvent",

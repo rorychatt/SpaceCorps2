@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import { Player, PlayerStats } from "./Player";
 import { gameServer } from "../main";
-import { CargoDrop } from "./CargoDrop";
+import { CargoDrop, OreSpawn } from "./CargoDrop";
 
 const maxQuestsPerPlayer = 3;
 
@@ -279,7 +279,7 @@ export class QuestServer {
 
     async registerOreCollection(data: {
         playerUUID: string;
-        cargoDrop: CargoDrop;
+        collectable: CargoDrop | OreSpawn;
         map: string;
     }) {
         const player = await gameServer.getPlayerByUUID(data.playerUUID);
@@ -292,7 +292,7 @@ export class QuestServer {
             let previousCompleted = true;
             for (const task of quest.tasks) {
                 if (task instanceof TaskCollect && !task.completed) {
-                    for (const ore of data.cargoDrop.ores) {
+                    for (const ore of data.collectable.ores) {
                         if (
                             task._type === "collect" &&
                             (task.map === "any" || task.map === data.map) &&
