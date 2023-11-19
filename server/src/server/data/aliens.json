@@ -31,9 +31,9 @@
             "behaviour": "passive",
             "speed": 360,
             "attackBehaviour": "passive",
-            "aggroRadius": "5",
+            "aggroRadius": "10",
             "maxAggroTime": "10",
-            "maxAttackRadius": "10"
+            "maxAttackRadius": "5"
         }
     },
     "boss-thetys": {

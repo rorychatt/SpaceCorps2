@@ -391,7 +391,10 @@ export class GameServer {
                 ) {
                     defenderEntity.receiveDamage(damage, attackerEntity?.uuid);
 
-                    if(attackerEntity instanceof Player && defenderEntity instanceof Alien) defenderEntity.attackBehavior(attackerEntity);
+                    if(attackerEntity instanceof Player && defenderEntity instanceof Alien) {
+                        await defenderEntity.countAgroRadius(attackerEntity);
+                        await defenderEntity.attackBehavior(attackerEntity);
+                    }
                 } 
             }
         });
@@ -462,7 +465,6 @@ export class GameServer {
                     console.log(
                         `Removed ${entity.name} from map ${spacemapName} because its HP finished.`
                     );
-                    entity.lastAttackedByUUID = null;
                     return false;
                 } else if (
                     entity instanceof Player &&

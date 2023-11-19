@@ -17,7 +17,8 @@ export class Alien extends Entity {
     _maxHP: number;
     _maxSP: number;
     activeShipName: string;
-    lastAttackedByUUID?: string | null;
+    lastAttackedByUUID?: string;
+    targetUUID: string | null;
 
     public constructor(map: Spacemap, name: string, position: Vector2D) {
         super(map.name, name, position);
@@ -52,6 +53,7 @@ export class Alien extends Entity {
         };
         this._maxHP = 1000;
         this._maxSP = 1000;
+        this.targetUUID = "";
         this._getData();
         // console.log(this.movement);
     }
@@ -79,27 +81,35 @@ export class Alien extends Entity {
         }
     }
 
+    countAgroRadius(player: Player) {
+        let dx = Math.sqrt(((this.position.x ** 2) - (player.position.x ** 2)) - this.movement.aggroRadius ** 2);
+        let dy = Math.sqrt(((this.position.y ** 2) - (player.position.y ** 2)) - this.movement.aggroRadius ** 2);
+
+        console.log(`POSITIONS: dx: ${dx}, dy: ${dy}`);
+
+        this._roamDestination = { x: dx, y: dy };
+        this.flyToDestination();
+    }
+
     attackBehavior(player: Player) {
         if(player) {
-            if(this.lastAttackedByUUID) {
-                // console.log(`POSITIONS ENTITY: dx: ${dx}, dy: ${dy}`);
-                // console.log(`POSTIONS PLAYER: x: ${player.position.x}, y: ${player.position.y}`);
+            // this.targetUUID = player.uuid;
+            // this.countAgroRadius(player);
+            // this.flyToDestination();
 
-                // const dx = (this.position.x - player.position.x) - (Math.random() * this.movement.aggroRadius); // if Math.sqrt -> NaN
-                // const dy = (this.position.y - player.position.y) - (Math.random() * this.movement.aggroRadius); // if Math.sqrt -> NaN
+            // const dx = Math.sqrt((this.position.x ** 2) + (player.position.x ** 2)) - this.movement.maxAttackRadius;
+            // const dy = Math.sqrt((this.position.y ** 2) + (player.position.y ** 2)) - this.movement.maxAttackRadius;
 
-                const dx = Math.sqrt(((this.position.x ** 2) + (player.position.x ** 2)) - (Math.random() * this.movement.aggroRadius));
-                const dy = Math.sqrt(((this.position.y ** 2) + (player.position.y ** 2)) - (Math.random() * this.movement.aggroRadius));
-
-                console.log(`dx: ${dx}, dy: ${dy}`);
-
-                this._roamDestination = { x: dx, y: dy };
-                this.flyToDestination();
-
-                setTimeout(() => {
-                    this.lastAttackedByUUID = null;
-                }, 5000); // this.movement.maxAggroTime * 1000
+            if(((Math.sqrt(this.position.x ** 2) - (player.position.x ** 2)) < this.movement.maxAttackRadius ** 2) && 
+              (Math.sqrt((this.position.y ** 2) - (player.position.y ** 2)) < this.movement.maxAttackRadius ** 2)) {
+                console.log(`PLAYER: ${player.name} GOT DAMAGE!`);
+                player.giveDamage();
             }
+
+            console.log(`PENISMEN: ${(Math.sqrt(this.position.x ** 2) - (player.position.x ** 2))}`);
+            console.log(`PENISMEN1: ${(Math.sqrt(this.position.y ** 2) - (player.position.y ** 2))}`);
+
+            setTimeout(() => this.targetUUID = null, 5000); // this.movement.maxAggroTime * 1000
         }
     }
 
