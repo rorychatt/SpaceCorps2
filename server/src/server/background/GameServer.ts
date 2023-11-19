@@ -383,7 +383,6 @@ export class GameServer {
                         damage = _damage;
                     }
                 }
-                // тут
                 if (
                     defenderEntity &&
                     (defenderEntity instanceof Player ||
@@ -391,10 +390,7 @@ export class GameServer {
                 ) {
                     defenderEntity.receiveDamage(damage, attackerEntity?.uuid);
 
-                    if(attackerEntity instanceof Player && defenderEntity instanceof Alien) {
-                        await defenderEntity.countAgroRadius(attackerEntity);
-                        await defenderEntity.attackBehavior(attackerEntity);
-                    }
+                    if(attackerEntity instanceof Player && defenderEntity instanceof Alien) defenderEntity.chasePlayer(attackerEntity);
                 } 
             }
         });

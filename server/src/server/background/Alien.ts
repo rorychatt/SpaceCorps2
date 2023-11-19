@@ -55,7 +55,6 @@ export class Alien extends Entity {
         this._maxSP = 1000;
         this.targetUUID = "";
         this._getData();
-        // console.log(this.movement);
     }
 
     _getData() {
@@ -81,36 +80,40 @@ export class Alien extends Entity {
         }
     }
 
-    countAgroRadius(player: Player) {
-        let dx = Math.sqrt(((this.position.x ** 2) - (player.position.x ** 2)) - this.movement.aggroRadius ** 2);
-        let dy = Math.sqrt(((this.position.y ** 2) - (player.position.y ** 2)) - this.movement.aggroRadius ** 2);
-
-        console.log(`POSITIONS: dx: ${dx}, dy: ${dy}`);
-
-        this._roamDestination = { x: dx, y: dy };
-        this.flyToDestination();
-    }
-
-    attackBehavior(player: Player) {
-        if(player) {
-            // this.targetUUID = player.uuid;
-            // this.countAgroRadius(player);
-            // this.flyToDestination();
-
-            // const dx = Math.sqrt((this.position.x ** 2) + (player.position.x ** 2)) - this.movement.maxAttackRadius;
-            // const dy = Math.sqrt((this.position.y ** 2) + (player.position.y ** 2)) - this.movement.maxAttackRadius;
-
-            if(((Math.sqrt(this.position.x ** 2) - (player.position.x ** 2)) < this.movement.maxAttackRadius ** 2) && 
-              (Math.sqrt((this.position.y ** 2) - (player.position.y ** 2)) < this.movement.maxAttackRadius ** 2)) {
-                console.log(`PLAYER: ${player.name} GOT DAMAGE!`);
-                player.giveDamage();
-            }
-
-            console.log(`PENISMEN: ${(Math.sqrt(this.position.x ** 2) - (player.position.x ** 2))}`);
-            console.log(`PENISMEN1: ${(Math.sqrt(this.position.y ** 2) - (player.position.y ** 2))}`);
-
-            setTimeout(() => this.targetUUID = null, 5000); // this.movement.maxAggroTime * 1000
+    async chasePlayer(player: Player) {
+        if (!player) return console.log(`Player not found!`);
+    
+        const dx = player.position.x - this.position.x;
+        const dy = player.position.y - this.position.y;
+        const distance = Math.sqrt(dx ** 2 + dy ** 2);
+    
+        if (distance > this.movement.maxAttackRadius * 2) {
+            const randomX = player.position.x + Math.random() * (2 * this.movement.maxAttackRadius) - this.movement.maxAttackRadius;
+            const randomY = player.position.y + Math.random() * (2 * this.movement.maxAttackRadius) - this.movement.maxAttackRadius;
+    
+            this._roamDestination = { x: randomX, y: randomY };
+            this.flyToDestination();
+            await this.attackBehavior(player);
+        } else {
+            await this.attackBehavior(player);
         }
+    }
+    
+    async attackBehavior(player: Player) {
+        if (!player) return console.log(`Player not found!`);
+    
+        const dx = player.position.x - this.position.x;
+        const dy = player.position.y - this.position.y;
+        const distance = Math.sqrt(dx ** 2 + dy ** 2);
+    
+        console.log(distance <= this.movement.maxAttackRadius * 2);
+
+        if (distance <= this.movement.maxAttackRadius * 2) {
+            console.log(`PLAYER: ${player.name} GOT DAMAGE!`);
+            player.giveDamage();
+        }
+        
+        setTimeout(() => this.targetUUID = null, 5000);
     }
 
     receiveDamage(damage: number, attackerUUID?: string) {
@@ -151,7 +154,6 @@ export class Alien extends Entity {
         );
     }
 
-    // тут
     giveDamage() {
         const rawDamage =
             this.damage.maxDamage * (1 - Math.random() * this.damage.variance);
@@ -200,15 +202,12 @@ export class Alien extends Entity {
 
     flyToDestination() {
         if (this._roamDestination == null) return;
-
         if (this.movement) {
             const travelledDistance = this.movement.speed / tickrate / 100;
-
             const direction = {
                 x: this._roamDestination.x - this.position.x,
                 y: this._roamDestination.y - this.position.y,
             };
-
             const totalDistance = Math.sqrt(
                 direction.x ** 2 + direction.y ** 2
             );
