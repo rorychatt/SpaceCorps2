@@ -388,9 +388,8 @@ export class GameServer {
                     (defenderEntity instanceof Player ||
                         defenderEntity instanceof Alien)
                 ) {
+                    defenderEntity.targetUUID = attackerEntity?.uuid;
                     defenderEntity.receiveDamage(damage, attackerEntity?.uuid);
-
-                    if(attackerEntity instanceof Player && defenderEntity instanceof Alien) defenderEntity.chasePlayer(attackerEntity);
                 } 
             }
         });
