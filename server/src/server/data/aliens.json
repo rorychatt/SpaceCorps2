@@ -29,7 +29,11 @@
         },
         "movement": {
             "behaviour": "passive",
-            "speed": 360
+            "speed": 360,
+            "attackBehaviour": "passive",
+            "aggroRadius": "5",
+            "maxAggroTime": "10",
+            "maxAttackRadius": "10"
         }
     },
     "boss-thetys": {
@@ -62,7 +66,11 @@
         },
         "movement": {
             "behaviour": "passive",
-            "speed": 400
+            "speed": 400,
+            "attackBehaviour": "agressive",
+            "aggroRadius": "5",
+            "maxAggroTime": "10",
+            "maxAttackRadius": "10"
         }
     },
     "plasmoid": {
@@ -95,7 +103,11 @@
         },
         "movement": {
             "behaviour": "passive",
-            "speed": 360
+            "speed": 360,
+            "attackBehaviour": "passive",
+            "aggroRadius": "5",
+            "maxAggroTime": "10",
+            "maxAttackRadius": "10"
         }
     },
     "boss-plasmoid": {
@@ -128,7 +140,11 @@
         },
         "movement":{
             "behaviour": "passive",
-            "speed": 450
+            "speed": 450,
+            "attackBehaviour": "agressive",
+            "aggroRadius": "5",
+            "maxAggroTime": "10",
+            "maxAttackRadius": "10"
         }
     },
     "surge": {
@@ -161,7 +177,11 @@
         },
         "movement": {
             "behaviour": "passive",
-            "speed": 360
+            "speed": 360,
+            "attackBehaviour": "passive",
+            "aggroRadius": "5",
+            "maxAggroTime": "10",
+            "maxAttackRadius": "10"
         }
     },
     "boss-surge": {
@@ -194,7 +214,11 @@
         },
         "movement": {
             "behaviour": "passive",
-            "speed": 360
+            "speed": 360,
+            "attackBehaviour": "agressive",
+            "aggroRadius": "5",
+            "maxAggroTime": "10",
+            "maxAttackRadius": "10"
         }
     },
     "verner": {
@@ -227,7 +251,11 @@
         },
         "movement": {
             "behaviour": "passive",
-            "speed": 360
+            "speed": 360,
+            "attackBehaviour": "passive",
+            "aggroRadius": "5",
+            "maxAggroTime": "10",
+            "maxAttackRadius": "10"
         }
     },
     "boss-verner": {
@@ -260,7 +288,11 @@
         },
         "movement": {
             "behaviour": "passive",
-            "speed": 360
+            "speed": 360,
+            "attackBehaviour": "agressive",
+            "aggroRadius": "5",
+            "maxAggroTime": "10",
+            "maxAttackRadius": "10"
         }
     }
 }

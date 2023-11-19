@@ -213,6 +213,7 @@ export class GameServer {
             console.error("An error occurred:", error);
         }
     }
+
     _loadSpacemapsFromConfig() {
         const gameDataConfig: GameDataConfig = readGameDataConfigFiles();
         for (const key in gameDataConfig) {
@@ -382,13 +383,16 @@ export class GameServer {
                         damage = _damage;
                     }
                 }
+                // тут
                 if (
                     defenderEntity &&
                     (defenderEntity instanceof Player ||
                         defenderEntity instanceof Alien)
                 ) {
                     defenderEntity.receiveDamage(damage, attackerEntity?.uuid);
-                }
+
+                    if(attackerEntity instanceof Player && defenderEntity instanceof Alien) defenderEntity.attackBehavior(attackerEntity);
+                } 
             }
         });
         this.damageEvents = [];
@@ -458,6 +462,7 @@ export class GameServer {
                     console.log(
                         `Removed ${entity.name} from map ${spacemapName} because its HP finished.`
                     );
+                    entity.lastAttackedByUUID = null;
                     return false;
                 } else if (
                     entity instanceof Player &&

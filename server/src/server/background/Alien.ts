@@ -3,6 +3,7 @@ import * as fs from "fs";
 import { tickrate } from "./GameServer";
 import { Spacemap, Vector2D } from "./Spacemap";
 import { CargoDrop, OreResource, PossibleOreNames } from "./CargoDrop";
+import { Player } from "./Player";
 
 export class Alien extends Entity {
     _type: string = "Alien";
@@ -16,7 +17,7 @@ export class Alien extends Entity {
     _maxHP: number;
     _maxSP: number;
     activeShipName: string;
-    lastAttackedByUUID?: string;
+    lastAttackedByUUID?: string | null;
 
     public constructor(map: Spacemap, name: string, position: Vector2D) {
         super(map.name, name, position);
@@ -42,12 +43,17 @@ export class Alien extends Entity {
             criticalMultiplier: 2,
         };
         this.movement = {
-            behaviour: "passive",
+            behaviour: "circular",
             speed: 360,
+            attackBehaviour: "passive",
+            aggroRadius: 5,
+            maxAggroTime: 10,
+            maxAttackRadius: 10,
         };
         this._maxHP = 1000;
         this._maxSP = 1000;
         this._getData();
+        // console.log(this.movement);
     }
 
     _getData() {
@@ -70,6 +76,30 @@ export class Alien extends Entity {
             this.cargoDrop.ores;
         } catch (error) {
             console.error("Error reading the file:", error);
+        }
+    }
+
+    attackBehavior(player: Player) {
+        if(player) {
+            if(this.lastAttackedByUUID) {
+                // console.log(`POSITIONS ENTITY: dx: ${dx}, dy: ${dy}`);
+                // console.log(`POSTIONS PLAYER: x: ${player.position.x}, y: ${player.position.y}`);
+
+                // const dx = (this.position.x - player.position.x) - (Math.random() * this.movement.aggroRadius); // if Math.sqrt -> NaN
+                // const dy = (this.position.y - player.position.y) - (Math.random() * this.movement.aggroRadius); // if Math.sqrt -> NaN
+
+                const dx = Math.sqrt(((this.position.x ** 2) + (player.position.x ** 2)) - (Math.random() * this.movement.aggroRadius));
+                const dy = Math.sqrt(((this.position.y ** 2) + (player.position.y ** 2)) - (Math.random() * this.movement.aggroRadius));
+
+                console.log(`dx: ${dx}, dy: ${dy}`);
+
+                this._roamDestination = { x: dx, y: dy };
+                this.flyToDestination();
+
+                setTimeout(() => {
+                    this.lastAttackedByUUID = null;
+                }, 5000); // this.movement.maxAggroTime * 1000
+            }
         }
     }
 
@@ -111,6 +141,7 @@ export class Alien extends Entity {
         );
     }
 
+    // тут
     giveDamage() {
         const rawDamage =
             this.damage.maxDamage * (1 - Math.random() * this.damage.variance);
@@ -139,16 +170,20 @@ export class Alien extends Entity {
     }
 
     passiveRoam(mapWidth: number, mapHeight: number) {
-        if (this.movement?.behaviour === "passive") {
-            if (this._roamDestination == null) {
-                const dx = (Math.random() - 0.5) * mapWidth;
-                const dy = (Math.random() - 0.5) * mapHeight;
+        if(this.lastAttackedByUUID) {
+            this.flyToDestination();
+        } else {
+            if (this.movement?.behaviour === "passive") {
+                if (this._roamDestination == null) {
+                    const dx = (Math.random() - 0.5) * mapWidth;
+                    const dy = (Math.random() - 0.5) * mapHeight;
 
-                this._roamDestination = { x: dx, y: dy };
+                    this._roamDestination = { x: dx, y: dy };
 
-                this.flyToDestination();
-            } else {
-                this.flyToDestination();
+                    this.flyToDestination();
+                } else {
+                    this.flyToDestination();
+                }
             }
         }
     }
@@ -251,9 +286,14 @@ export interface AlienDamageCharacteristic {
 export interface AlienMovementCharacteristic {
     behaviour: AlienMovementBehaviour;
     speed: number;
+    attackBehaviour: AttackBehaviour;
+    aggroRadius: number;
+    maxAggroTime: number;
+    maxAttackRadius: number;
 }
 
 export type AlienMovementBehaviour = "passive" | "circular";
+export type AttackBehaviour = "passive" | "aggressive";
 
 interface _OreDropData {
     oreName: PossibleOreNames;
