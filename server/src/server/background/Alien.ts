@@ -49,8 +49,8 @@ export class Alien extends Entity {
             speed: 360,
             attackBehaviour: "passive",
             aggroRadius: 5,
-            maxAggroTime: 10,
-            maxAttackRadius: 10,
+            aggroTime: 10,
+            attackRadius: 10,
         };
         this._maxHP = 1000;
         this._maxSP = 1000;
@@ -84,16 +84,12 @@ export class Alien extends Entity {
     async _chasePlayer(playerUUID: string) {
         const player = await gameServer.getPlayerByUUID(playerUUID);
         if (!player) return console.log(`Player not found!`);
-    
-        // const dx = (player.position.x - this.position.x) - (Math.random() * (2 * this.movement.maxAttackRadius) - this.movement.maxAttackRadius);
-        // const dy = (player.position.y - this.position.y) - (Math.random() * (2 * this.movement.maxAttackRadius) - this.movement.maxAttackRadius);
-    
-        const newX = player.position.x + Math.random() * (2 * this.movementBehaviour.maxAttackRadius) - this.movementBehaviour.maxAttackRadius;
-        const newY = player.position.y + Math.random() * (2 * this.movementBehaviour.maxAttackRadius) - this.movementBehaviour.maxAttackRadius;
+        
+        const newX = player.position.x + Math.random() * (2 * this.movementBehaviour.attackRadius) - this.movementBehaviour.attackRadius;
+        const newY = player.position.y + Math.random() * (2 * this.movementBehaviour.attackRadius) - this.movementBehaviour.attackRadius;
     
         this._roamDestination = { x: newX, y: newY };
         this.flyToDestination();
-        // await this._checkForCanAttack(playerUUID);
     }
     
     async _checkForCanAttack(playerUUID: string) {
@@ -104,11 +100,11 @@ export class Alien extends Entity {
         const dy = player.position.y - this.position.y;
         const distance = Math.sqrt(dx ** 2 + dy ** 2);
     
-        if (distance <= this.movementBehaviour.maxAttackRadius * 2) {
+        if (distance <= this.movementBehaviour.attackRadius * 2) {
             player.giveDamage();
             setTimeout(() => {
                 this.targetUUID = undefined;
-            }, this.movementBehaviour.maxAggroTime * 1000);
+            }, this.movementBehaviour.aggroTime * 1000);
         } else {
             this._chasePlayer(player.uuid);
         }
@@ -296,8 +292,8 @@ export interface MovementBehaviour {
     speed: number;
     attackBehaviour: AttackBehaviour;
     aggroRadius: number;
-    maxAggroTime: number;
-    maxAttackRadius: number;
+    aggroTime: number;
+    attackRadius: number;
 }
 
 export type AlienMovementBehaviour = "passive" | "circular";
