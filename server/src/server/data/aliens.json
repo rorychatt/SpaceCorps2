@@ -27,7 +27,7 @@
             "experience": 125,
             "honor": 1
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
             "speed": 360,
             "attackBehaviour": "passive",
@@ -64,7 +64,7 @@
             "experience": 1000,
             "honor": 6
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
             "speed": 400,
             "attackBehaviour": "agressive",
@@ -101,7 +101,7 @@
             "experience": 400,
             "honor": 3
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
             "speed": 360,
             "attackBehaviour": "passive",
@@ -138,7 +138,7 @@
             "experience": 2000,
             "honor": 15
         },
-        "movement":{
+        "movementBehaviour":{
             "behaviour": "passive",
             "speed": 450,
             "attackBehaviour": "agressive",
@@ -175,7 +175,7 @@
             "experience": 375,
             "honor": 12
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
             "speed": 360,
             "attackBehaviour": "passive",
@@ -212,7 +212,7 @@
             "experience": 500,
             "honor": 16
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
             "speed": 360,
             "attackBehaviour": "agressive",
@@ -249,7 +249,7 @@
             "experience": 500,
             "honor": 16
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
             "speed": 360,
             "attackBehaviour": "passive",
@@ -286,7 +286,7 @@
             "experience": 750,
             "honor": 24
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
             "speed": 360,
             "attackBehaviour": "agressive",
