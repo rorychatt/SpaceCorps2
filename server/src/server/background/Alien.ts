@@ -20,6 +20,7 @@ export class Alien extends Entity {
     activeShipName: string;
     lastAttackedByUUID?: string;
     targetUUID: string | undefined;
+    _timeOutSet: boolean;
 
     public constructor(map: Spacemap, name: string, position: Vector2D) {
         super(map.name, name, position);
@@ -55,6 +56,7 @@ export class Alien extends Entity {
         this._maxHP = 1000;
         this._maxSP = 1000;
         this.targetUUID = "";
+        this._timeOutSet = false;
         this._getData();
     }
 
@@ -101,12 +103,18 @@ export class Alien extends Entity {
         const distance = Math.sqrt(dx ** 2 + dy ** 2);
     
         if (distance <= this.movementBehaviour.attackRadius * 2) {
-            player.giveDamage();
-            setTimeout(() => {
-                this.targetUUID = undefined;
-            }, this.movementBehaviour.aggroTime * 1000);
+            // change it
+            // player.giveDamage();
         } else {
             this._chasePlayer(player.uuid);
+        }
+
+        if(!this._timeOutSet) {
+            this._timeOutSet = true;
+            setTimeout(() => {
+                this.targetUUID = undefined;
+                this._timeOutSet = false;
+            }, this.movementBehaviour.aggroTime * 1000);
         }
     }
 
