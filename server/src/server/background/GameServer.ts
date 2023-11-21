@@ -235,6 +235,7 @@ export class GameServer {
             this.proccessRandomSpawns(),
             this.proccessRandomMovements(),
             this.processAlienRepairs(),
+            this.processAlienAttackBehavior(),
         ]);
     }
 
@@ -257,6 +258,22 @@ export class GameServer {
         player.isShooting = false;
         player.destination = undefined;
         player.targetUUID = undefined;
+    }
+
+    async processAlienAttackBehavior() {
+        if(this.tickCount == tickrate - 1) {
+            for(const spacemapName in this._spacemapNames) {
+                this.spacemaps[this._spacemapNames[spacemapName]].entities.forEach((entity) => {
+                    if(entity instanceof Alien) {
+                        this.spacemaps[this._spacemapNames[spacemapName]].entities.forEach((player) => {
+                            if(player instanceof Player) {
+                                entity.setTargetUUID(player.uuid);
+                            }
+                        });
+                    }
+                });
+            }
+        }
     }
 
     async processAlienRepairs() {
@@ -286,12 +303,13 @@ export class GameServer {
                 (entity) => {
                     if (entity instanceof Alien) {
                         if (
-                            entity._roamDestination?.x ||
-                            entity._roamDestination?.y
+                            entity._roamDestination?.x && entity._roamDestination?.y
                         ) {
                             if (
                                 entity._roamDestination.x >= mapWidth ||
-                                entity._roamDestination.y >= mapHeight
+                                entity._roamDestination.y >= mapHeight ||
+                                entity._roamDestination.x <= -mapWidth ||
+                                entity._roamDestination.y <= -mapWidth
                             ) {
                                 entity._roamDestination = null;
                             }

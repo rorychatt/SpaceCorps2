@@ -83,6 +83,20 @@ export class Alien extends Entity {
         }
     }
 
+    async setTargetUUID(playerUUID: string) {
+        const player = await gameServer.getPlayerByUUID(playerUUID);
+        if(!player) return;
+
+        const dx = player.position.x - this.position.x;
+        const dy = player.position.y - this.position.y;
+        const distance = Math.sqrt(dx ** 2 + dy ** 2);
+    
+        if(this.movementBehaviour.attackBehaviour == "passive") return;
+        if (distance <= this.movementBehaviour.aggroRadius * 2) {
+            this.targetUUID = playerUUID;
+        }
+    }
+
     async _chasePlayer(playerUUID: string) {
         const player = await gameServer.getPlayerByUUID(playerUUID);
         if (!player) return console.log(`Player not found!`);
@@ -103,7 +117,7 @@ export class Alien extends Entity {
         const distance = Math.sqrt(dx ** 2 + dy ** 2);
     
         if (distance <= this.movementBehaviour.attackRadius * 2) {
-            // change it
+            // fix it
             // player.giveDamage();
         } else {
             this._chasePlayer(player.uuid);
