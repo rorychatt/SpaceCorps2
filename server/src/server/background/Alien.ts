@@ -99,7 +99,7 @@ export class Alien extends Entity {
 
     async _chasePlayer(playerUUID: string) {
         const player = await gameServer.getPlayerByUUID(playerUUID);
-        if (!player) return console.log(`Player not found!`);
+        if (!player) return;
         
         const newX = player.position.x + Math.random() * (2 * this.movementBehaviour.attackRadius) - this.movementBehaviour.attackRadius;
         const newY = player.position.y + Math.random() * (2 * this.movementBehaviour.attackRadius) - this.movementBehaviour.attackRadius;
@@ -110,15 +110,15 @@ export class Alien extends Entity {
     
     async _checkForCanAttack(playerUUID: string) {
         const player = await gameServer.getPlayerByUUID(playerUUID);
-        if (!player) return console.log(`Player not found!`);
+        if (!player) return;
     
         const dx = player.position.x - this.position.x;
         const dy = player.position.y - this.position.y;
         const distance = Math.sqrt(dx ** 2 + dy ** 2);
     
         if (distance <= this.movementBehaviour.attackRadius * 2) {
-            // fix it
-            // player.giveDamage();
+            // тут
+            await gameServer.registerAlienAttackEvent({ alienUUID: this.uuid, targetUUID: player.uuid });
         } else {
             this._chasePlayer(player.uuid);
         }
@@ -170,6 +170,11 @@ export class Alien extends Entity {
         );
     }
 
+    giveDamageWithoutMultiplier() {
+        const damage = this.damage.maxDamage * (1 - Math.random() * this.damage.variance);
+        return damage;
+    }
+
     giveDamage() {
         const rawDamage =
             this.damage.maxDamage * (1 - Math.random() * this.damage.variance);
@@ -181,7 +186,7 @@ export class Alien extends Entity {
         console.log(`${this.uuid} tried to shoot and dealt ${damage} damage.`);
         return damage;
     }
-
+    
     roam(): Vector2D {
         let target = { x: 0, y: 0 };
         const currentPosition = this.position;
