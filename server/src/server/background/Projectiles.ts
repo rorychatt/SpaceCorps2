@@ -70,19 +70,18 @@ export class LaserProjectile extends Projectile {
     }
 }
 
-// тут
-// export class AlienProjectile extends Projectile {
-//     _type: ProjectileTypes;
-//     speed: number;
-//     damageAmount: number;
+export class AlienProjectile extends Projectile {
+    _type: ProjectileTypes;
+    speed: number;
+    damageAmount: number;
 
-//     constructor(map: Spacemap, target: Player, attacker: Alien, damageAmount: number) {
-//         super(map, "alienProjectile", target, attacker);
-//         this._type = "AlienProjectile";
-//         this.speed = 75;
-//         this.damageAmount = damageAmount;
-//     }
-// }
+    constructor(map: Spacemap, target: Player, attacker: Alien, damageAmount: number) {
+        super(map, "alienProjectile", target, attacker);
+        this._type = "AlienProjectile";
+        this.speed = 75;
+        this.damageAmount = damageAmount;
+    }
+}
 
 export class RocketProjectile extends Projectile {
     _type: ProjectileTypes;
@@ -167,5 +166,5 @@ export class RocketProjectileDTO {
 }
 
 export type ProjectileTypes = "LaserProjectile" | "RocketProjectile" | "AlienProjectile";
-export type PossibleProjectiles = LaserProjectile | RocketProjectile; // | AlienProjectile
+export type PossibleProjectiles = LaserProjectile | RocketProjectile | AlienProjectile;
 export type LaserColors = "red" | "green" | "blue" | "yellow";

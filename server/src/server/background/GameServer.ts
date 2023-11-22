@@ -17,12 +17,12 @@ import { DamageEvent } from "./DamageEvent";
 import { Entity, Portal } from "./Entity";
 import { RewardServer } from "./RewardServer";
 import {
-    // AlienProjectile,
+    AlienProjectile,
     LaserProjectile,
     LaserProjectileDTO,
     RocketProjectile,
     RocketProjectileDTO,
-} from "./Projectiles.js"; // тут
+} from "./Projectiles.js";
 import { Shop } from "./Shop";
 import { CargoDrop } from "./CargoDrop";
 import {
@@ -380,7 +380,6 @@ export class GameServer {
         });
     }
 
-    // тут
     async handleDamage() {
         this.damageEvents.forEach(async (damageEvent) => {
             if (damageEvent.attackerUUID) {
@@ -552,7 +551,6 @@ export class GameServer {
         }
     }
 
-    // тут
     async registerAlienAttackEvent(data: { alienUUID: string, targetUUID: string }) {
         const [attacker, target] = await Promise.all([
             this.getEntityByUUID(data.alienUUID),
@@ -561,8 +559,9 @@ export class GameServer {
 
         if(attacker && target) {
             if(attacker instanceof Alien) {
-                target.receiveDamage(attacker.giveDamageWithoutMultiplier(), attacker.uuid);
-                console.log(`PLAYER: ${target.name} RECEIVED DAMAGE: ${attacker.giveDamageWithoutMultiplier()}`);
+                attacker.shootProjectileAtTarget(
+                    target
+                );
             }
         }
     }
@@ -631,16 +630,15 @@ export class GameServer {
                                 )
                             );
                         });
-                    } // else if(projectile instanceof AlienProjectile) {
-                    //     // тут
-                    //     this.damageEvents.push(
-                    //         new DamageEvent(
-                    //             projectile.target.uuid,
-                    //             projectile.attacker.uuid,
-                    //             projectile.damageAmount
-                    //         )
-                    //     );
-                    // }
+                    } else if(projectile instanceof AlienProjectile) {
+                        this.damageEvents.push(
+                            new DamageEvent(
+                                projectile.target.uuid,
+                                projectile.attacker.uuid,
+                                projectile.damageAmount
+                            )
+                        );
+                    }
 
                     this.spacemaps[spacemapName].projectileServer.projectiles =
                         this.spacemaps[

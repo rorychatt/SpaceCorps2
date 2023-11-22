@@ -21,6 +21,7 @@ export class Alien extends Entity {
     lastAttackedByUUID?: string;
     targetUUID: string | undefined;
     _timeOutSet: boolean;
+    canShoot: boolean;
 
     public constructor(map: Spacemap, name: string, position: Vector2D) {
         super(map.name, name, position);
@@ -57,6 +58,7 @@ export class Alien extends Entity {
         this._maxSP = 1000;
         this.targetUUID = "";
         this._timeOutSet = false;
+        this.canShoot = true;
         this._getData();
     }
 
@@ -117,7 +119,6 @@ export class Alien extends Entity {
         const distance = Math.sqrt(dx ** 2 + dy ** 2);
     
         if (distance <= this.movementBehaviour.attackRadius * 2) {
-            // тут
             await gameServer.registerAlienAttackEvent({ alienUUID: this.uuid, targetUUID: player.uuid });
         } else {
             this._chasePlayer(player.uuid);
@@ -129,6 +130,21 @@ export class Alien extends Entity {
                 this.targetUUID = undefined;
                 this._timeOutSet = false;
             }, this.movementBehaviour.aggroTime * 1000);
+        }
+    }
+
+    shootProjectileAtTarget(target: Player) {
+        if(this.targetUUID == target.uuid) {
+            if(!this.canShoot) return;
+
+            gameServer.spacemaps[this.currentMap].projectileServer.createProjectile(
+                "AlienProjectile",
+                this,
+                target,
+            );
+
+            this.canShoot = false;
+            this.reload();
         }
     }
 
@@ -187,6 +203,14 @@ export class Alien extends Entity {
         return damage;
     }
     
+    async reload() {
+        if(this.canShoot) return;
+
+        setTimeout(() => {
+            this.canShoot = true;
+        }, 1500);
+    }
+
     roam(): Vector2D {
         let target = { x: 0, y: 0 };
         const currentPosition = this.position;

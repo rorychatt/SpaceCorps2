@@ -1,13 +1,14 @@
-import { Alien } from "./Alien";
+import { Alien } from "./Alien.js";
 import { Entity } from "./Entity";
 import { LaserAmmo } from "./Inventory";
-import { Player } from "./Player";
+import { Player } from "./Player.js";
 import {
+    AlienProjectile,
     LaserProjectile,
     PossibleProjectiles,
     ProjectileTypes,
     RocketProjectile,
-} from "./Projectiles";
+} from "./Projectiles.js";
 import { Spacemap } from "./Spacemap";
 
 export class ProjectileServer {
@@ -22,7 +23,7 @@ export class ProjectileServer {
         type: ProjectileTypes,
         attackerEntity: Player | Alien,
         targetEntity: Player | Alien,
-        ammoName: string,
+        ammoName?: string,
         damageAmount?: number
     ) {
         if (attackerEntity.currentMap != targetEntity.currentMap) {
@@ -32,6 +33,7 @@ export class ProjectileServer {
             return;
         }
         if (type == "LaserProjectile" && damageAmount) {
+            if(!ammoName) return;
             this.projectiles.push(
                 new LaserProjectile(
                     this.spacemap,
@@ -52,6 +54,18 @@ export class ProjectileServer {
                         targetEntity,
                         attackerEntity,
                         ammo
+                    )
+                );
+            }
+        } else if(type == "AlienProjectile") {
+            if(targetEntity instanceof Player && attackerEntity instanceof Alien) {
+                damageAmount = attackerEntity.giveDamageWithoutMultiplier();
+                this.projectiles.push(
+                    new AlienProjectile(
+                        this.spacemap,
+                        targetEntity,
+                        attackerEntity,
+                        damageAmount
                     )
                 );
             }
