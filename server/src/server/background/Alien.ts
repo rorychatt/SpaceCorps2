@@ -93,15 +93,22 @@ export class Alien extends Entity {
         const dy = player.position.y - this.position.y;
         const distance = Math.sqrt(dx ** 2 + dy ** 2);
     
+        if(this.currentMap != player.currentMap) return;
         if(this.movementBehaviour.attackBehaviour == "passive") return;
         if (distance <= this.movementBehaviour.aggroRadius * 2) {
             this.targetUUID = playerUUID;
         }
     }
 
-    async _chasePlayer(playerUUID: string) {
-        const player = await gameServer.getPlayerByUUID(playerUUID);
+    async resetTargetUUID() {
+        this.targetUUID = undefined;
+    }
+
+    async _chasePlayer() {
+        if(!this.targetUUID) return;
+        const player = await gameServer.getPlayerByUUID(this.targetUUID);
         if (!player) return;
+        if(this.currentMap != player.currentMap) return;
         
         const newX = player.position.x + Math.random() * (2 * this.movementBehaviour.attackRadius) - this.movementBehaviour.attackRadius;
         const newY = player.position.y + Math.random() * (2 * this.movementBehaviour.attackRadius) - this.movementBehaviour.attackRadius;
@@ -110,8 +117,9 @@ export class Alien extends Entity {
         this.flyToDestination();
     }
     
-    async _checkForCanAttack(playerUUID: string) {
-        const player = await gameServer.getPlayerByUUID(playerUUID);
+    async _checkForCanAttack() {
+        if(!this.targetUUID) return;
+        const player = await gameServer.getPlayerByUUID(this.targetUUID);
         if (!player) return;
     
         const dx = player.position.x - this.position.x;
@@ -121,7 +129,7 @@ export class Alien extends Entity {
         if (distance <= this.movementBehaviour.attackRadius * 2) {
             await gameServer.registerAlienAttackEvent({ alienUUID: this.uuid, targetUUID: player.uuid });
         } else {
-            this._chasePlayer(player.uuid);
+            this._chasePlayer();
         }
 
         if(!this._timeOutSet) {
@@ -166,7 +174,7 @@ export class Alien extends Entity {
 
         if(!this.targetUUID) this.targetUUID = attackerUUID;
         if(attackerUUID) this.lastAttackedByUUID = attackerUUID;
-        if(this.targetUUID) this._chasePlayer(this.targetUUID);
+        if(this.targetUUID) this._chasePlayer();
 
         const hitPointsAfterFirstHit = { ...this.hitPoints };
 
@@ -228,8 +236,8 @@ export class Alien extends Entity {
 
     async passiveRoam(mapWidth: number, mapHeight: number) {
         if(this.targetUUID) {
-            await this._chasePlayer(this.targetUUID);
-            await this._checkForCanAttack(this.targetUUID);
+            await this._chasePlayer();
+            await this._checkForCanAttack();
         } else {
             if (this.movementBehaviour?.behaviour === "passive") {
                 if (this._roamDestination == null) {

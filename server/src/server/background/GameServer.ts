@@ -259,6 +259,14 @@ export class GameServer {
         player.isShooting = false;
         player.destination = undefined;
         player.targetUUID = undefined;
+        this.spacemaps[oldMapName].entities.forEach((entity) => {
+            if(entity instanceof Alien) {
+                if(entity.targetUUID == player.uuid) {
+                    console.log(`reseted`);
+                    entity.resetTargetUUID();
+                }
+            }
+        }); 
     }
 
     async processAlienAttackBehavior() {
