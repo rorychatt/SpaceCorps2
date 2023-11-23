@@ -1328,7 +1328,6 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         (posX - object.position.x) ** 2 + (posY - object.position.z) ** 2;
 
     function _tween(object: any, targetPos: THREE.Vector3) {
-
         let originalPosition = object.position.clone();
 
         const positionTween = new TWEEN.Tween(object.position)
@@ -2833,17 +2832,19 @@ function displayQuest(quest: any) {
     const itemsDiv = document.createElement("div");
     itemsDiv.className = "quest_reward_items";
 
-    // Create a title for the items section
-    const itemsTitle = document.createElement("div");
-    itemsTitle.innerText = "Items:";
-    itemsDiv.appendChild(itemsTitle);
-
     // Loop through each item to create individual item elements and append them to the itemsDiv
-    quest.reward.items.forEach((item: any) => {
-        const individualItemDiv = document.createElement("div");
-        individualItemDiv.innerText = `${item.itemName} (${item.amount})`;
-        itemsDiv.appendChild(individualItemDiv);
-    });
+    if (quest.reward.items) {
+        // Create a title for the items section
+        const itemsTitle = document.createElement("div");
+        itemsTitle.innerText = "Items:";
+        itemsDiv.appendChild(itemsTitle);
+
+        quest.reward.items.forEach((item: any) => {
+            const individualItemDiv = document.createElement("div");
+            individualItemDiv.innerText = `${item.itemName} (${item.amount})`;
+            itemsDiv.appendChild(individualItemDiv);
+        });
+    }
 
     cancelButton.addEventListener("click", () =>
         socket.emit("cancelQuest", {

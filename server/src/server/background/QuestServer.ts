@@ -166,7 +166,7 @@ export class Quest {
             this.tasks[progress.taskId].currentAmount = progress.currentAmount;
             this.tasks[progress.taskId].completed = progress.completed;
         } catch (err) {
-            return console.log(`Error: ${err}`);
+            return console.log(`TaskProgress Error: ${err}`, progress, this.tasks);
         }
     }
 

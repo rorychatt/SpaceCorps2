@@ -7,7 +7,7 @@
         "tasks": [
             {
                 "_type": "fly",
-                "_id": 1,
+                "_id": 0,
                 "distance": 5000,
                 "map": "any",
                 "completed": false
