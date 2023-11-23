@@ -20,7 +20,7 @@ export class Alien extends Entity {
     activeShipName: string;
     lastAttackedByUUID?: string;
     targetUUID: string | undefined;
-    _timeOutSet: boolean;
+    isAggroed: boolean;
     canShoot: boolean;
 
     public constructor(map: Spacemap, name: string, position: Vector2D) {
@@ -57,7 +57,7 @@ export class Alien extends Entity {
         this._maxHP = 1000;
         this._maxSP = 1000;
         this.targetUUID = undefined;
-        this._timeOutSet = false;
+        this.isAggroed = false;
         this.canShoot = true;
         this._getData();
     }
@@ -132,11 +132,11 @@ export class Alien extends Entity {
             this._chasePlayer();
         }
 
-        if(!this._timeOutSet) {
-            this._timeOutSet = true;
+        if(!this.isAggroed) {
+            this.isAggroed = true;
             setTimeout(() => {
                 this.targetUUID = undefined;
-                this._timeOutSet = false;
+                this.isAggroed = false;
             }, this.movementBehaviour.aggroTime * 1000);
         }
     }
@@ -172,9 +172,9 @@ export class Alien extends Entity {
 
         this.hitPoints.hullPoints = this.hitPoints.hullPoints - hullDamage;
 
-        if(!this.targetUUID) this.targetUUID = attackerUUID;
+        if(!this.targetUUID && attackerUUID) this.targetUUID = attackerUUID;
         if(attackerUUID) this.lastAttackedByUUID = attackerUUID;
-        if(this.targetUUID) this._chasePlayer();
+        // if(this.targetUUID) this._chasePlayer();
 
         const hitPointsAfterFirstHit = { ...this.hitPoints };
 

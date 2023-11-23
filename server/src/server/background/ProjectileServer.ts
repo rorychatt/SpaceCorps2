@@ -27,7 +27,7 @@ export class ProjectileServer {
         damageAmount?: number
     ) {
         if (attackerEntity.currentMap != targetEntity.currentMap) {
-            console.log(
+            console.warn(
                 `${attackerEntity.name} tried to shoot ${targetEntity.name} from a different map!`
             );
             return;
