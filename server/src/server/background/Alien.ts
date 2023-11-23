@@ -110,11 +110,9 @@ export class Alien extends Entity {
         if (!player) return;
         if(this.currentMap != player.currentMap) return;
         
-        const newX = player.position.x + Math.random() * (2 * this.movementBehaviour.attackRadius) - this.movementBehaviour.attackRadius;
-        const newY = player.position.y + Math.random() * (2 * this.movementBehaviour.attackRadius) - this.movementBehaviour.attackRadius;
+        const newX = player.position.x + (((this.movementBehaviour.attackRadius) - (Math.random() * this.movementBehaviour.attackRadius / 2)));
+        const newY = player.position.y + (((this.movementBehaviour.attackRadius) - (Math.random() * this.movementBehaviour.attackRadius / 2)));
 
-        //TODO: Check for new coords in bounds, I think it can be done inside flyToDestination()
-    
         this._roamDestination = { x: newX, y: newY };
         this.flyToDestination();
     }
@@ -128,7 +126,7 @@ export class Alien extends Entity {
         const dy = player.position.y - this.position.y;
         const distance = Math.sqrt(dx ** 2 + dy ** 2);
     
-        if (distance <= this.movementBehaviour.attackRadius * 2) {
+        if (distance + 0.05 <= this.movementBehaviour.attackRadius * 2) {
             await gameServer.registerAlienAttackEvent({ alienUUID: this.uuid, targetUUID: player.uuid });
         } else {
             this._chasePlayer();
@@ -233,7 +231,6 @@ export class Alien extends Entity {
 
     async passiveRoam(mapWidth: number, mapHeight: number) {
         if(this.targetUUID) {
-            await this._chasePlayer();
             await this._checkForCanAttack();
         } else {
             if (this.movementBehaviour?.behaviour === "passive") {

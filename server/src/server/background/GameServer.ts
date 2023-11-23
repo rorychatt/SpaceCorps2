@@ -227,6 +227,20 @@ export class GameServer {
         }
     }
 
+    async isInMapBounds(entity: Alien, mapWidth: number, mapHeight: number) {
+        if(!entity._roamDestination?.x || !entity._roamDestination?.y) return;
+        if (
+            entity._roamDestination.x >= mapWidth ||
+            entity._roamDestination.y >= mapHeight ||
+            entity._roamDestination.x <= -mapWidth ||
+            entity._roamDestination.y <= -mapWidth
+        ) {
+            entity._roamDestination = null;
+        }
+
+        entity.passiveRoam(mapWidth, mapHeight);
+    }
+
     async loadNewPlayer(socketId: string, username: string) {
         const player = new Player(socketId, this.spacemaps["M-1"], username);
     }
@@ -310,21 +324,7 @@ export class GameServer {
             this.spacemaps[this._spacemapNames[spacemapName]].entities.forEach(
                 (entity) => {
                     if (entity instanceof Alien) {
-                        if (
-                            entity._roamDestination?.x && entity._roamDestination?.y
-                        ) {
-                            //TODO: check for in bounds of map as separate function
-                            if (
-                                entity._roamDestination.x >= mapWidth ||
-                                entity._roamDestination.y >= mapHeight ||
-                                entity._roamDestination.x <= -mapWidth ||
-                                entity._roamDestination.y <= -mapWidth
-                            ) {
-                                entity._roamDestination = null;
-                            }
-                        }
-
-                        entity.passiveRoam(mapWidth, mapHeight);
+                        this.isInMapBounds(entity, mapWidth, mapHeight);
                     }
                 }
             );
