@@ -56,7 +56,7 @@ export class Alien extends Entity {
         };
         this._maxHP = 1000;
         this._maxSP = 1000;
-        this.targetUUID = "";
+        this.targetUUID = undefined;
         this._timeOutSet = false;
         this.canShoot = true;
         this._getData();
@@ -112,6 +112,8 @@ export class Alien extends Entity {
         
         const newX = player.position.x + Math.random() * (2 * this.movementBehaviour.attackRadius) - this.movementBehaviour.attackRadius;
         const newY = player.position.y + Math.random() * (2 * this.movementBehaviour.attackRadius) - this.movementBehaviour.attackRadius;
+
+        //TODO: Check for new coords in bounds, I think it can be done inside flyToDestination()
     
         this._roamDestination = { x: newX, y: newY };
         this.flyToDestination();
@@ -192,11 +194,6 @@ export class Alien extends Entity {
         console.log(
             `${this.name} got shot by ${damage} damage and now has ${this.hitPoints.hullPoints} HP and ${this.hitPoints.shieldPoints} SP`
         );
-    }
-
-    giveDamageWithoutMultiplier() {
-        const damage = this.damage.maxDamage * (1 - Math.random() * this.damage.variance);
-        return damage;
     }
 
     giveDamage() {

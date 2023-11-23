@@ -260,9 +260,8 @@ export class GameServer {
         player.destination = undefined;
         player.targetUUID = undefined;
         this.spacemaps[oldMapName].entities.forEach((entity) => {
-            if(entity instanceof Alien) {
+            if(entity instanceof Alien || entity instanceof Player) { // TODO: Do the same for players!
                 if(entity.targetUUID == player.uuid) {
-                    console.log(`reseted`);
                     entity.resetTargetUUID();
                 }
             }
@@ -314,6 +313,7 @@ export class GameServer {
                         if (
                             entity._roamDestination?.x && entity._roamDestination?.y
                         ) {
+                            //TODO: check for in bounds of map as separate function
                             if (
                                 entity._roamDestination.x >= mapWidth ||
                                 entity._roamDestination.y >= mapHeight ||
@@ -415,7 +415,7 @@ export class GameServer {
                     (defenderEntity instanceof Player ||
                         defenderEntity instanceof Alien)
                 ) {
-                    defenderEntity.targetUUID = attackerEntity?.uuid;
+                    // defenderEntity.targetUUID = attackerEntity?.uuid;
                     defenderEntity.receiveDamage(damage, attackerEntity?.uuid);
                 } 
             }

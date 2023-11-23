@@ -88,6 +88,10 @@ export class Player extends Entity {
         this.refreshActiveShip();
     }
 
+    resetTargetUUID(){
+        this.targetUUID = undefined;
+    }
+
     async addQuest(quest: Quest) {
         this.currentActiveQuests.push(quest);
     }

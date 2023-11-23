@@ -59,7 +59,7 @@ export class ProjectileServer {
             }
         } else if(type == "AlienProjectile") {
             if(targetEntity instanceof Player && attackerEntity instanceof Alien) {
-                damageAmount = attackerEntity.giveDamageWithoutMultiplier();
+                damageAmount = attackerEntity.giveDamage();
                 this.projectiles.push(
                     new AlienProjectile(
                         this.spacemap,
