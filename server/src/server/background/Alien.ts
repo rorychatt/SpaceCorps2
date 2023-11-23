@@ -211,7 +211,7 @@ export class Alien extends Entity {
 
         setTimeout(() => {
             this.canShoot = true;
-        }, 1500);
+        }, 1000);
     }
 
     roam(): Vector2D {

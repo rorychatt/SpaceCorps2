@@ -228,17 +228,17 @@ export class GameServer {
     }
 
     async isInMapBounds(entity: Alien, mapWidth: number, mapHeight: number) {
-        if(!entity._roamDestination?.x || !entity._roamDestination?.y) return;
+        if (!entity._roamDestination) return false;
         if (
             entity._roamDestination.x >= mapWidth ||
             entity._roamDestination.y >= mapHeight ||
             entity._roamDestination.x <= -mapWidth ||
             entity._roamDestination.y <= -mapWidth
         ) {
-            entity._roamDestination = null;
+            return false;
         }
 
-        entity.passiveRoam(mapWidth, mapHeight);
+        return true;
     }
 
     async loadNewPlayer(socketId: string, username: string) {
@@ -274,21 +274,26 @@ export class GameServer {
         player.destination = undefined;
         player.targetUUID = undefined;
         this.spacemaps[oldMapName].entities.forEach((entity) => {
-            if(entity instanceof Alien || entity instanceof Player) { // TODO: Do the same for players!
-                if(entity.targetUUID == player.uuid) {
+            if (entity instanceof Alien || entity instanceof Player) {
+                // TODO: Do the same for players!
+                if (entity.targetUUID == player.uuid) {
                     entity.resetTargetUUID();
                 }
             }
-        }); 
+        });
     }
 
     async processAlienAttackBehavior() {
-        if(this.tickCount == tickrate - 1) {
-            for(const spacemapName in this._spacemapNames) {
-                this.spacemaps[this._spacemapNames[spacemapName]].entities.forEach((entity) => {
-                    if(entity instanceof Alien) {
-                        this.spacemaps[this._spacemapNames[spacemapName]].entities.forEach((player) => {
-                            if(player instanceof Player) {
+        if (this.tickCount == tickrate - 1) {
+            for (const spacemapName in this._spacemapNames) {
+                this.spacemaps[
+                    this._spacemapNames[spacemapName]
+                ].entities.forEach((entity) => {
+                    if (entity instanceof Alien) {
+                        this.spacemaps[
+                            this._spacemapNames[spacemapName]
+                        ].entities.forEach((player) => {
+                            if (player instanceof Player) {
                                 entity.setTargetUUID(player.uuid);
                             }
                         });
@@ -322,9 +327,9 @@ export class GameServer {
                     .mapSize.height;
 
             this.spacemaps[this._spacemapNames[spacemapName]].entities.forEach(
-                (entity) => {
+                async (entity) => {
                     if (entity instanceof Alien) {
-                        this.isInMapBounds(entity, mapWidth, mapHeight);
+                        entity.passiveRoam(mapWidth, mapHeight);
                     }
                 }
             );
@@ -417,7 +422,7 @@ export class GameServer {
                 ) {
                     // defenderEntity.targetUUID = attackerEntity?.uuid;
                     defenderEntity.receiveDamage(damage, attackerEntity?.uuid);
-                } 
+                }
             }
         });
         this.damageEvents = [];
@@ -559,17 +564,18 @@ export class GameServer {
         }
     }
 
-    async registerAlienAttackEvent(data: { alienUUID: string, targetUUID: string }) {
+    async registerAlienAttackEvent(data: {
+        alienUUID: string;
+        targetUUID: string;
+    }) {
         const [attacker, target] = await Promise.all([
             this.getEntityByUUID(data.alienUUID),
-            this.getPlayerByUUID(data.targetUUID)
+            this.getPlayerByUUID(data.targetUUID),
         ]);
 
-        if(attacker && target) {
-            if(attacker instanceof Alien) {
-                attacker.shootProjectileAtTarget(
-                    target
-                );
+        if (attacker && target) {
+            if (attacker instanceof Alien) {
+                attacker.shootProjectileAtTarget(target);
             }
         }
     }
@@ -638,7 +644,7 @@ export class GameServer {
                                 )
                             );
                         });
-                    } else if(projectile instanceof AlienProjectile) {
+                    } else if (projectile instanceof AlienProjectile) {
                         this.damageEvents.push(
                             new DamageEvent(
                                 projectile.target.uuid,
