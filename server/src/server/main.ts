@@ -465,6 +465,25 @@ function handleHTTPRequests() {
             }
         );
     });
+
+    app.get("/minimapWorker", (req, res) => {
+        res.sendFile(
+            path.join(
+                __dirname,
+                "..",
+                "..",
+                "dist",
+                "web",
+                "ts",
+                "minimapWorker.js"
+            ),
+            {
+                headers: {
+                    "Content-Type": "application/javascript",
+                },
+            }
+        );
+    });
 }
 
 export type SettingsData = {

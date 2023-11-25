@@ -111,6 +111,8 @@ const frameTime = 1000 / tickrate;
 let lastTime = 0;
 let frameCount = 0;
 
+let minimapWorker: Worker;
+
 // Hotbar
 
 type HotbarMapping = {
@@ -238,6 +240,7 @@ socket.on(
             console.warn(`Skipping tick due to client performance issues`);
         }
         isUpdating = true;
+        updateMinimap(data);
         if (!currentMap || currentMap.name != data.name) {
             loadNewSpacemap(data);
         }
@@ -926,8 +929,8 @@ const findClosestPortal = (
 };
 
 function createLighting() {
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.25);
+    const directionalLight = new THREE.DirectionalLight(0x404040, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     directionalLight.position.set(1, 1, 1);
     scene.add(directionalLight);
     scene.add(ambientLight);
@@ -1981,6 +1984,29 @@ async function loadEventListeners() {
     setInterval(() => {
         displayQuest(playerEntity.currentActiveQuests[currentSelectedQuestKey]);
     }, 1000);
+
+    setupMinimap();
+}
+
+async function setupMinimap() {
+    const minimapCanvas = document.getElementById(
+        "minimap"
+    ) as HTMLCanvasElement;
+    const offscreenCanvas = minimapCanvas.transferControlToOffscreen();
+
+    minimapWorker = new Worker("/minimapWorker");
+    minimapWorker.postMessage({ canvas: offscreenCanvas }, [offscreenCanvas]);
+    minimapWorker.postMessage({
+        type: "setPlayerName",
+        playerName: playerName,
+    });
+
+    console.log(minimapWorker);
+}
+
+async function updateMinimap(data: any) {
+    if (!minimapWorker) return;
+    minimapWorker.postMessage({ type: "update", data: data });
 }
 
 async function displayHotbarItems(
@@ -2762,7 +2788,6 @@ function createSafeZoneRing(
 }
 
 function displayQuest(quest: any) {
-    // Show the quest name
     if (quest == undefined) {
         document.getElementById("activeQuestName")!.innerHTML = "";
         document.getElementById("activeQuestTask")!.innerHTML = "";
@@ -2774,7 +2799,6 @@ function displayQuest(quest: any) {
 
     cancelButton.hidden = false;
 
-    // Show the quest tasks
     const taskDiv = document.getElementById("activeQuestTask")!;
     taskDiv.innerHTML = `Tasks: ${quest.type}`;
     quest.tasks.forEach((task: any) => {
@@ -2788,7 +2812,6 @@ function displayQuest(quest: any) {
         taskDiv.appendChild(taskElement);
     });
 
-    // Show the quest rewards
     const rewardDiv = document.getElementById("activeQuestReward")!;
     rewardDiv.innerHTML = "Rewards:";
     const statsDiv = document.createElement("div");
@@ -2823,18 +2846,14 @@ function displayQuest(quest: any) {
         statsTexts.push(`Thulium: ${quest.reward.stats.thulium}`);
     }
 
-    // Join the array using '<br>' as the separator to create the final string.
     statsDiv.innerHTML = statsTexts.join("<br>");
 
     rewardDiv.appendChild(statsDiv);
 
-    // Create a container for the quest items
     const itemsDiv = document.createElement("div");
     itemsDiv.className = "quest_reward_items";
 
-    // Loop through each item to create individual item elements and append them to the itemsDiv
     if (quest.reward.items) {
-        // Create a title for the items section
         const itemsTitle = document.createElement("div");
         itemsTitle.innerText = "Items:";
         itemsDiv.appendChild(itemsTitle);

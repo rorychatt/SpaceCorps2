@@ -103,6 +103,9 @@
       <div class="chat_button" id="chat_modal_btn">
         <button class="btn"><i class="fa fa-wechat"></i></button>
       </div>
+      <div class="minimap_button" id="minimap_modal_btn">
+        <button class="btn"><i class="fa map-pin"></i></button>
+      </div>
       <div class="spacemap_button" id="spacemap_modal_btn">
         <button class="btn"><i class="fa fa-map"></i></button>
       </div>
@@ -624,6 +627,15 @@
       <div class="chat_modal_footer">
         <input type="text" id="chat_modal_input" placeholder="Enter text message...">
         <button class="chat_modal_send_btn" id="sendChatMessageButton"><i class="fa fa-telegram"></i></button>
+      </div>
+    </div>
+    <div class="minimap_info_modal movable hidden" id="minimap_info_modal">
+      <div class="minimap_info_modal_header" id="minimap_modal">
+        <h1>Minimap</h1>
+        <button class="modal_btn" id="minimap_modal_quit_btn">
+          <i class="fa fa-remove"></i>
+        </button>
+        <canvas id="minimap" width="864" height="480"></canvas>
       </div>
     </div>
     <div class="spacemap_info_modal movable hidden" id="spacemap_info_modal">
