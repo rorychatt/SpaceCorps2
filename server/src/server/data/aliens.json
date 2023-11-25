@@ -67,7 +67,7 @@
         "movementBehaviour": {
             "behaviour": "passive",
             "speed": 400,
-            "attackBehaviour": "agressive",
+            "attackBehaviour": "aggressive",
             "aggroRadius": "10",
             "aggroTime": "10",
             "attackRadius": "5"
@@ -141,7 +141,7 @@
         "movementBehaviour":{
             "behaviour": "passive",
             "speed": 450,
-            "attackBehaviour": "agressive",
+            "attackBehaviour": "aggressive",
             "aggroRadius": "10",
             "aggroTime": "10",
             "attackRadius": "5"
@@ -215,7 +215,7 @@
         "movementBehaviour": {
             "behaviour": "passive",
             "speed": 360,
-            "attackBehaviour": "agressive",
+            "attackBehaviour": "aggressive",
             "aggroRadius": "10",
             "aggroTime": "10",
             "attackRadius": "5"
@@ -289,7 +289,7 @@
         "movementBehaviour": {
             "behaviour": "passive",
             "speed": 360,
-            "attackBehaviour": "agressive",
+            "attackBehaviour": "aggressive",
             "aggroRadius": "10",
             "aggroTime": "10",
             "attackRadius": "5"

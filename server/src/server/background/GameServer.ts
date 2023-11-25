@@ -1,6 +1,12 @@
 import { Alien, AlienDTO } from "./Alien";
 import { Player, PlayerDTO } from "./Player";
-import { Spacemap, SpacemapSize, Spacemaps, Vector2D } from "./Spacemap";
+import {
+    PossibleSpacemapEntities,
+    Spacemap,
+    SpacemapSize,
+    Spacemaps,
+    Vector2D,
+} from "./Spacemap";
 import {
     GameDataConfig,
     readGameDataConfigFiles,
@@ -134,20 +140,20 @@ export class GameServer {
     }
 
     public async attemptTeleport(playerName: string): Promise<void> {
-        function _findClosestPortal(
+        const _findClosestPortal = (
             portals: (Portal | Alien | Entity | Player)[],
             targetPos: Vector2D
-        ): Portal | undefined {
+        ): Portal | undefined => {
             if (portals.length === 0) return undefined;
 
             let closestPortal = portals[0];
-            let closestDistance = _getBADDistance(
+            let closestDistance = this._getBADDistance(
                 portals[0].position,
                 targetPos
             );
 
             for (let i = 1; i < portals.length; i++) {
-                const currentDistance = _getBADDistance(
+                const currentDistance = this._getBADDistance(
                     portals[i].position,
                     targetPos
                 );
@@ -158,13 +164,7 @@ export class GameServer {
             }
 
             if (closestPortal instanceof Portal) return closestPortal;
-        }
-
-        function _getBADDistance(position1: Vector2D, position2: Vector2D) {
-            const dx = position1.x - position2.x;
-            const dy = position1.y - position2.y;
-            return dx * dx + dy * dy;
-        }
+        };
         try {
             const player = await this.getPlayerByUsername(playerName);
             if (player) {
@@ -261,10 +261,25 @@ export class GameServer {
     ) {
         const oldMapName = player.currentMap;
         player.currentMap = newMapName;
+
+        // Remove player from old map
+
         this.spacemaps[oldMapName].entities = this.spacemaps[
             oldMapName
         ].entities.filter((entity) => entity.uuid !== player.uuid);
+
+        // Remove player as targetUUID from aliens/players
+        this.spacemaps[oldMapName].entities.forEach((entity) => {
+            if (
+                (entity instanceof Alien || entity instanceof Player) &&
+                entity.targetUUID == player.uuid
+            ) {
+                entity.targetUUID = undefined;
+            }
+        });
+
         this.spacemaps[player.currentMap].entities.push(player);
+
         if (targetPos) {
             player.position = { x: targetPos.x, y: targetPos.y };
         } else {
@@ -284,17 +299,32 @@ export class GameServer {
     }
 
     async processAlienAttackBehavior() {
-        if (this.tickCount == tickrate - 1) {
+        if (this.tickCount === tickrate - 1) {
             for (const spacemapName in this._spacemapNames) {
                 this.spacemaps[
                     this._spacemapNames[spacemapName]
                 ].entities.forEach((entity) => {
-                    if (entity instanceof Alien) {
+                    if (
+                        entity instanceof Alien &&
+                        entity.movementBehaviour.attackBehaviour ==
+                            "aggressive" &&
+                        !entity.targetUUID
+                    ) {
                         this.spacemaps[
                             this._spacemapNames[spacemapName]
                         ].entities.forEach((player) => {
                             if (player instanceof Player) {
-                                entity.setTargetUUID(player.uuid);
+                                const distance = this._getBADDistance(
+                                    entity.position,
+                                    player.position
+                                );
+                                if (
+                                    distance <
+                                    entity.movementBehaviour.aggroRadius
+                                ) {
+                                    entity.setTargetUUID(player.uuid);
+                                    return;
+                                }
                             }
                         });
                     }
@@ -675,6 +705,14 @@ export class GameServer {
             const disconnectedPlayer = this.players[disconnectedPlayerIndex];
             const spacemap = this.spacemaps[disconnectedPlayer.currentMap];
 
+            spacemap.entities.forEach((entity) => {
+                if (entity instanceof Alien || entity instanceof Player) {
+                    if (entity.targetUUID == disconnectedPlayer.uuid) {
+                        entity.targetUUID = undefined;
+                    }
+                }
+            });
+
             const playerIndexInSpacemap = spacemap.entities.findIndex(
                 (entity) =>
                     entity instanceof Player && entity.socketId === _socketId
@@ -788,6 +826,12 @@ export class GameServer {
 
         player.isCollectingCargoDrop = true;
         player.targetCargoDrop = cargoDrop;
+    }
+
+    _getBADDistance(position1: Vector2D, position2: Vector2D) {
+        const dx = position1.x - position2.x;
+        const dy = position1.y - position2.y;
+        return dx * dx + dy * dy;
     }
 
     startServer() {
