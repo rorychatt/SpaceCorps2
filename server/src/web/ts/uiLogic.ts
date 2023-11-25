@@ -11,6 +11,7 @@ const playerModalDiv = document.getElementById("player_info_modal") as HTMLEleme
 const shipModalDiv = document.getElementById("ship_info_modal") as HTMLElement;
 const chatModalDiv = document.getElementById("chat_info_modal") as HTMLElement;
 const chatModelDivClass = document.querySelector(".chat_info_modal") as HTMLElement;
+const minimapModalDiv = document.getElementById("minimap_info_modal") as HTMLElement;
 const spacemapModalDiv = document.getElementById("spacemap_info_modal") as HTMLElement;
 const logModalDiv = document.getElementById("log_info_modal") as HTMLElement;
 const assemblyModalDiv = document.getElementById("assembly_info_modal") as HTMLElement;
@@ -35,6 +36,8 @@ const shipModalButton = document.getElementById("ship_modal_btn") as HTMLElement
 const shipModalQuitButton = document.getElementById("ship_modal_quit_btn") as HTMLElement;
 const chatModalButton = document.getElementById("chat_modal_btn") as HTMLElement;
 const chatModalQuitButton = document.getElementById("chat_modal_quit_btn") as HTMLElement;
+const minimapModalButton = document.getElementById("minimap_modal_btn") as HTMLElement;
+const minimapModalQuitButton = document.getElementById("minimap_modal_quit_btn") as HTMLElement;
 const spacemapModalButton = document.getElementById("spacemap_modal_btn") as HTMLElement;
 const spacemapModalQuitButton = document.getElementById("spacemap_modal_quit_btn") as HTMLElement;
 const logModalButton = document.getElementById("log_modal_btn") as HTMLElement;
@@ -174,6 +177,20 @@ chatModalQuitButton.addEventListener("click", function() {
     setTimeout(function() {
         chatModalDiv.style.animation = 'fadeInOutAndExpand 0.5s ease-in-out forwards';
         chatModalDiv.classList.add('hidden');
+    }, 501);
+})
+
+minimapModalButton.addEventListener("click", function() {
+    minimapModalDiv.classList.remove('hidden');
+    minimapModalDiv.classList.add('shown');
+})
+
+minimapModalQuitButton.addEventListener("click", function() {
+    minimapModalDiv.classList.remove('shown');
+    minimapModalDiv.style.animation = 'fadeOutAndCollapse 0.5s ease-in-out forwards';
+    setTimeout(function() {
+        minimapModalDiv.style.animation = 'fadeInOutAndExpand 0.5s ease-in-out forwards';
+        minimapModalDiv.classList.add('hidden');
     }, 501);
 })
 

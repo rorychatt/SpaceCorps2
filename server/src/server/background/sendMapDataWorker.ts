@@ -8,6 +8,7 @@ class AlienDTO {
     maxShields: number;
     hitPoints: any;
     activeShipName: string;
+    targetUUID: string;
 
     constructor(alien: any) {
         this.name = alien.name;
@@ -18,6 +19,7 @@ class AlienDTO {
         this.maxHealth = alien._maxHP;
         this.maxShields = alien._maxSP;
         this.activeShipName = alien.activeShipName;
+        this.targetUUID = alien.targetUUID;
     }
 }
 
@@ -79,6 +81,45 @@ class RocketProjectileDTO {
     }
 }
 
+interface _OreResource {
+    name: string;
+    amount: number;
+}
+interface _OreSpawn {
+    _type: string;
+    uuid: string;
+    ores: _OreResource[];
+    qualityLevel: number;
+    position: { x: number; y: number };
+}
+class OreResourceDTO {
+    name: string;
+    amount: number;
+
+    constructor(oreResource: _OreResource) {
+        this.name = oreResource.name;
+        this.amount = oreResource.amount;
+    }
+}
+class OreSpawnDTO {
+    readonly _type = "OreSpawn";
+    
+    uuid: string;
+    ores: OreResourceDTO[] = [];
+    qualityLevel: number;
+    position: { x: number; y: number };
+
+    constructor(oreSpawn: _OreSpawn) {
+        for (const _oreResource in oreSpawn.ores) {
+            const oreResource = oreSpawn.ores[_oreResource];
+            this.ores.push(new OreResourceDTO(oreResource));
+        }
+        this.qualityLevel = oreSpawn.qualityLevel;
+        this.position = oreSpawn.position;
+        this.uuid = oreSpawn.uuid;
+    }
+}
+
 const renderRadius = Math.pow(28, 2);
 
 if (parentPort) {
@@ -90,6 +131,7 @@ if (parentPort) {
                 entitiesDTO: any[];
                 projectilesDTO: any[];
                 cargoboxes: any[];
+                oreSpawnDTO: any[];
                 size: any;
             }[] = [];
             data.players.forEach((player) => {
@@ -141,6 +183,21 @@ if (parentPort) {
                             renderRadius
                         );
                     });
+
+                const oreSpawns = mapData.oreSpawns
+                    .map((oreSpawn: _OreSpawn) => {
+                        if (oreSpawn._type && oreSpawn._type == "OreSpawn") {
+                            return new OreSpawnDTO(oreSpawn);
+                        }
+                    })
+                    .filter((e: any) => {
+                        return (
+                            Math.pow(e.position.x - player.position.x, 2) +
+                                Math.pow(e.position.y - player.position.y, 2) <=
+                            renderRadius
+                        );
+                    });
+
                 const cargoboxes = mapData.cargoboxes.filter((e: any) => {
                     return (
                         Math.pow(e.position.x - player.position.x, 2) +
@@ -154,6 +211,7 @@ if (parentPort) {
                     entitiesDTO: entitiesDTO,
                     projectilesDTO: projectilesDTO,
                     cargoboxes: cargoboxes,
+                    oreSpawnDTO: oreSpawns,
                     size: mapData.size,
                 });
             });

@@ -111,6 +111,8 @@ const frameTime = 1000 / tickrate;
 let lastTime = 0;
 let frameCount = 0;
 
+let minimapWorker: Worker;
+
 // Hotbar
 
 type HotbarMapping = {
@@ -231,18 +233,24 @@ socket.on(
         entities: any[];
         projectiles: any[];
         cargoboxes: any[];
+        oreSpawnDTO: any[];
         size: { width: number; height: number };
     }) => {
         if (isUpdating) {
             console.warn(`Skipping tick due to client performance issues`);
         }
         isUpdating = true;
+        updateMinimap(data);
         if (!currentMap || currentMap.name != data.name) {
             loadNewSpacemap(data);
         }
         Promise.resolve(
             updateObjects(
-                data.entities.concat(data.projectiles, data.cargoboxes)
+                data.entities.concat(
+                    data.projectiles,
+                    data.cargoboxes,
+                    data.oreSpawnDTO
+                )
             )
         ).then(() => {
             //TODO: this needs to be updated
@@ -732,21 +740,36 @@ function raycastFromCamera(event: any) {
         // console.log(`Got following intersects: ${JSON.stringify(_names)}`);
         // console.log(intersects);
 
-        const isOnlyPlaneAndCargo = _names.every(
+        const isOnlyPlaneAndCollectable = _names.every(
             (name) =>
                 name === "movingPlane" ||
                 name === "CargoDrop" ||
+                name === "OreSpawn" ||
                 name === playerName
         );
-        const firstCargoDrop = intersects.find(
-            (intersect) => intersect.object.name === "CargoDrop"
-        );
 
-        if (isOnlyPlaneAndCargo && firstCargoDrop) {
-            socket.emit("playerCollectCargoBox", {
-                playerName: playerName,
-                cargoDropUUID: firstCargoDrop.object.uuid,
-            });
+        const firstCollectable = intersects.find((intersect) => {
+            return (
+                intersect.object.name === "CargoDrop" ||
+                intersect.object.name === "OreSpawn"
+            );
+        });
+
+        if (isOnlyPlaneAndCollectable && firstCollectable) {
+            switch (firstCollectable.object.name) {
+                case "CargoDrop":
+                    socket.emit("playerCollectCargoBox", {
+                        playerName: playerName,
+                        collectableUUID: firstCollectable.object.uuid,
+                    });
+                    break;
+                case "OreSpawn":
+                    socket.emit("playerCollectOreSpawn", {
+                        playerName: playerName,
+                        collectableUUID: firstCollectable.object.uuid,
+                    });
+                    break;
+            }
         } else if (
             intersects.length === 1 &&
             intersects[0].object.name === "movingPlane"
@@ -906,8 +929,8 @@ const findClosestPortal = (
 };
 
 function createLighting() {
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.25);
+    const directionalLight = new THREE.DirectionalLight(0x404040, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     directionalLight.position.set(1, 1, 1);
     scene.add(directionalLight);
     scene.add(ambientLight);
@@ -1237,6 +1260,27 @@ async function createObject(data: any): Promise<THREE.Object3D> {
                     scene.add(cargoDrop);
                     resolve(cargoDrop);
                     break;
+                case "OreSpawn":
+                    const oreSpawnGeometry = new THREE.BoxGeometry(
+                        0.125,
+                        0.125,
+                        0.125
+                    );
+                    const oreSpawnMaterial = new THREE.MeshStandardMaterial({
+                        color: 0x00ffff,
+                    });
+                    const oreSpawn = new THREE.Mesh(
+                        oreSpawnGeometry,
+                        oreSpawnMaterial
+                    );
+                    oreSpawn.uuid = data.uuid;
+                    oreSpawn.position.set(data.position.x, -1, data.position.y);
+                    objectDataMap[data.uuid] = { data: oreSpawn };
+                    oreSpawn.layers.enable(rayCastLayerNo);
+                    setNameRecursively(oreSpawn, "OreSpawn", data.uuid);
+                    scene.add(oreSpawn);
+                    resolve(oreSpawn);
+                    break;
                 case "Portal":
                     modelUrl = "./assets/models/portals/portal.glb";
                     loader.load(modelUrl, async (glb) => {
@@ -1410,7 +1454,7 @@ async function updateObject(object: THREE.Object3D, entity: any) {
         }
     }
 
-    if (name !== "CargoDrop") {
+    if (name !== "CargoDrop" && object.name !== "OreSpawn") {
         _tween(object, targetDirection);
     }
 }
@@ -1940,6 +1984,29 @@ async function loadEventListeners() {
     setInterval(() => {
         displayQuest(playerEntity.currentActiveQuests[currentSelectedQuestKey]);
     }, 1000);
+
+    setupMinimap();
+}
+
+async function setupMinimap() {
+    const minimapCanvas = document.getElementById(
+        "minimap"
+    ) as HTMLCanvasElement;
+    const offscreenCanvas = minimapCanvas.transferControlToOffscreen();
+
+    minimapWorker = new Worker("/minimapWorker");
+    minimapWorker.postMessage({ canvas: offscreenCanvas }, [offscreenCanvas]);
+    minimapWorker.postMessage({
+        type: "setPlayerName",
+        playerName: playerName,
+    });
+
+    console.log(minimapWorker);
+}
+
+async function updateMinimap(data: any) {
+    if (!minimapWorker) return;
+    minimapWorker.postMessage({ type: "update", data: data });
 }
 
 async function displayHotbarItems(
@@ -2721,7 +2788,6 @@ function createSafeZoneRing(
 }
 
 function displayQuest(quest: any) {
-    // Show the quest name
     if (quest == undefined) {
         document.getElementById("activeQuestName")!.innerHTML = "";
         document.getElementById("activeQuestTask")!.innerHTML = "";
@@ -2733,7 +2799,6 @@ function displayQuest(quest: any) {
 
     cancelButton.hidden = false;
 
-    // Show the quest tasks
     const taskDiv = document.getElementById("activeQuestTask")!;
     taskDiv.innerHTML = `Tasks: ${quest.type}`;
     quest.tasks.forEach((task: any) => {
@@ -2747,7 +2812,6 @@ function displayQuest(quest: any) {
         taskDiv.appendChild(taskElement);
     });
 
-    // Show the quest rewards
     const rewardDiv = document.getElementById("activeQuestReward")!;
     rewardDiv.innerHTML = "Rewards:";
     const statsDiv = document.createElement("div");
@@ -2782,26 +2846,24 @@ function displayQuest(quest: any) {
         statsTexts.push(`Thulium: ${quest.reward.stats.thulium}`);
     }
 
-    // Join the array using '<br>' as the separator to create the final string.
     statsDiv.innerHTML = statsTexts.join("<br>");
 
     rewardDiv.appendChild(statsDiv);
 
-    // Create a container for the quest items
     const itemsDiv = document.createElement("div");
     itemsDiv.className = "quest_reward_items";
 
-    // Create a title for the items section
-    const itemsTitle = document.createElement("div");
-    itemsTitle.innerText = "Items:";
-    itemsDiv.appendChild(itemsTitle);
+    if (quest.reward.items) {
+        const itemsTitle = document.createElement("div");
+        itemsTitle.innerText = "Items:";
+        itemsDiv.appendChild(itemsTitle);
 
-    // Loop through each item to create individual item elements and append them to the itemsDiv
-    quest.reward.items.forEach((item: any) => {
-        const individualItemDiv = document.createElement("div");
-        individualItemDiv.innerText = `${item.itemName} (${item.amount})`;
-        itemsDiv.appendChild(individualItemDiv);
-    });
+        quest.reward.items.forEach((item: any) => {
+            const individualItemDiv = document.createElement("div");
+            individualItemDiv.innerText = `${item.itemName} (${item.amount})`;
+            itemsDiv.appendChild(individualItemDiv);
+        });
+    }
 
     cancelButton.addEventListener("click", () =>
         socket.emit("cancelQuest", {

@@ -8,7 +8,7 @@ import {
 } from "../db/db";
 import { gameServer } from "../main";
 import { Alien, Durability } from "./Alien";
-import { CargoDrop } from "./CargoDrop";
+import { CargoDrop, OreSpawn } from "./CargoDrop";
 import { Entity } from "./Entity";
 import { tickrate } from "./GameServer";
 import {
@@ -28,7 +28,7 @@ import { Quest, QuestDTO, QuestTaskDTO, questData } from "./QuestServer";
 import { Spacemap, Vector2D } from "./Spacemap";
 
 export class Player extends Entity {
-    _type: string = "Player";
+    readonly _type: string = "Player";
     socketId: string;
     state: PlayerStateCharacteristic = "passive";
     hitPoints: Durability;
@@ -44,8 +44,8 @@ export class Player extends Entity {
     _activeShip: ShipItem | undefined;
     activeShipName: string | undefined;
     isShooting: boolean = false;
-    isCollectingCargoDrop: boolean = false;
-    targetCargoDrop: CargoDrop | undefined = undefined;
+    isCollectingCollectable: boolean = false;
+    targetCollectable: CargoDrop | OreSpawn | undefined = undefined;
     targetUUID: string | undefined = undefined;
     level: number = 1;
     currentActiveQuests: Quest[] = [];

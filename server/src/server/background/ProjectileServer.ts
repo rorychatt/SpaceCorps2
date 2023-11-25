@@ -20,7 +20,7 @@ export class ProjectileServer {
     }
 
     createProjectile(
-        type: ProjectileTypes,
+        _type: ProjectileTypes,
         attackerEntity: Player | Alien,
         targetEntity: Player | Alien,
         ammoName?: string,
@@ -43,7 +43,7 @@ export class ProjectileServer {
                     damageAmount
                 )
             );
-        } else if (type == "RocketProjectile") {
+        } else if (_type == "RocketProjectile") {
             const ammo = (
                 attackerEntity as Player
             ).inventory.getCurrentRocketAmmo();

@@ -61,4 +61,29 @@ export class OreResource {
     }
 }
 
+export class OreResourceDTO {
+    name: string;
+    amount: number;
+
+    constructor(oreResource: OreResource) {
+        this.name = oreResource.name;
+        this.amount = oreResource.amount;
+    }
+}
+
+export class OreSpawnDTO {
+    ores: OreResourceDTO[] = [];
+    qualityLevel: number;
+    position: Vector2D;
+
+    constructor(oreSpawn: OreSpawn) {
+        for (const _oreResource in oreSpawn.ores) {
+            const oreResource = oreSpawn.ores[_oreResource];
+            this.ores.push(new OreResourceDTO(oreResource));
+        }
+        this.qualityLevel = oreSpawn.qualityLevel;
+        this.position = oreSpawn.position;
+    }
+}
+
 export type PossibleOreNames = "radium" | "agronite";
