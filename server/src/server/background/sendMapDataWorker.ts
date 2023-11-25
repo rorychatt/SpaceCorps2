@@ -8,6 +8,7 @@ class AlienDTO {
     maxShields: number;
     hitPoints: any;
     activeShipName: string;
+    targetUUID: string;
 
     constructor(alien: any) {
         this.name = alien.name;
@@ -18,6 +19,7 @@ class AlienDTO {
         this.maxHealth = alien._maxHP;
         this.maxShields = alien._maxSP;
         this.activeShipName = alien.activeShipName;
+        this.targetUUID = alien.targetUUID;
     }
 }
 
