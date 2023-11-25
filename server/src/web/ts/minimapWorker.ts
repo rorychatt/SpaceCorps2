@@ -82,7 +82,7 @@ function drawMinimap(inputData: input_data) {
 function transformCoordinates(position: Vector2D): Vector2D {
     return {
       x: canvas.width / 2 + position.x,
-      y: canvas.height / 2 - position.y,
+      y: canvas.height / 2 + position.y,
     };
   }
 
