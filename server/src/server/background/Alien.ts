@@ -110,8 +110,8 @@ export class Alien extends Entity {
         if (!player) return;
         if(this.currentMap != player.currentMap) return;
         
-        const newX = player.position.x + (((this.movementBehaviour.attackRadius) - (Math.random() * this.movementBehaviour.attackRadius / 2)));
-        const newY = player.position.y + (((this.movementBehaviour.attackRadius) - (Math.random() * this.movementBehaviour.attackRadius / 2)));
+        const newX = player.position.x + (Math.random() * this.movementBehaviour.attackRadius / 2);
+        const newY = player.position.y + (Math.random() * this.movementBehaviour.attackRadius / 2);
 
         this._roamDestination = { x: newX, y: newY };
         this.flyToDestination();
@@ -127,9 +127,6 @@ export class Alien extends Entity {
         const distance = Math.sqrt(dx ** 2 + dy ** 2);
     
         if (distance + 0.05 <= this.movementBehaviour.attackRadius) {
-            // DISCUSS
-            // Обновление targetUUID если player в радиусе атаки, первый способ
-            // this.targetUUID = player.uuid;
             await gameServer.registerAlienAttackEvent({ alienUUID: this.uuid, targetUUID: player.uuid });
         } else {
             this._chasePlayer();
@@ -138,12 +135,11 @@ export class Alien extends Entity {
         if(!this._timeOutSet) {
             this._timeOutSet = true;
             setTimeout(() => {
-                // Обновление targetUUID если player в радиусе атаки, второй способ
-                // if(distance + 0.05 <= this.movementBehaviour.attackRadius) {
-                //     this.targetUUID = player.uuid;
-                // } else {
-                //     this.targetUUID = undefined;
-                // }
+                if(distance + 0.05 <= this.movementBehaviour.attackRadius) {
+                    this.targetUUID = player.uuid;
+                } else {
+                    this.targetUUID = undefined;
+                }
                 this._timeOutSet = false;
             }, this.movementBehaviour.aggroTime * 1000);
         }
