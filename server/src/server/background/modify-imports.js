@@ -36,8 +36,8 @@ function fixGameServer() {
         );
 
         modifiedData = modifiedData.replace(
-            'import { Spacemap } from "./Spacemap";',
-            'import { Spacemap } from "./Spacemap.js";'
+            'import { Spacemap, } from "./Spacemap";',
+            'import { Spacemap, } from "./Spacemap.js";'
         );
 
         modifiedData = modifiedData.replace(

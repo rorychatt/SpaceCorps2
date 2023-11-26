@@ -27,9 +27,13 @@
             "experience": 125,
             "honor": 1
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
-            "speed": 360
+            "speed": 360,
+            "attackBehaviour": "passive",
+            "aggroRadius": 25,
+            "aggroTime": 10,
+            "attackRadius": 5
         }
     },
     "boss-thetys": {
@@ -60,9 +64,13 @@
             "experience": 1000,
             "honor": 6
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
-            "speed": 400
+            "speed": 400,
+            "attackBehaviour": "aggressive",
+            "aggroRadius": 25,
+            "aggroTime": 10,
+            "attackRadius": 5
         }
     },
     "plasmoid": {
@@ -93,9 +101,13 @@
             "experience": 400,
             "honor": 3
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
-            "speed": 360
+            "speed": 360,
+            "attackBehaviour": "passive",
+            "aggroRadius": 25,
+            "aggroTime": 10,
+            "attackRadius": 5
         }
     },
     "boss-plasmoid": {
@@ -126,9 +138,13 @@
             "experience": 2000,
             "honor": 15
         },
-        "movement":{
+        "movementBehaviour":{
             "behaviour": "passive",
-            "speed": 450
+            "speed": 450,
+            "attackBehaviour": "aggressive",
+            "aggroRadius": 25,
+            "aggroTime": 10,
+            "attackRadius": 5
         }
     },
     "surge": {
@@ -159,9 +175,13 @@
             "experience": 375,
             "honor": 12
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
-            "speed": 360
+            "speed": 360,
+            "attackBehaviour": "passive",
+            "aggroRadius": 25,
+            "aggroTime": 10,
+            "attackRadius": 5
         }
     },
     "boss-surge": {
@@ -192,9 +212,13 @@
             "experience": 500,
             "honor": 16
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
-            "speed": 360
+            "speed": 360,
+            "attackBehaviour": "aggressive",
+            "aggroRadius": 25,
+            "aggroTime": 10,
+            "attackRadius": 5
         }
     },
     "verner": {
@@ -225,9 +249,13 @@
             "experience": 500,
             "honor": 16
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
-            "speed": 360
+            "speed": 360,
+            "attackBehaviour": "passive",
+            "aggroRadius": 25,
+            "aggroTime": 10,
+            "attackRadius": 5
         }
     },
     "boss-verner": {
@@ -258,9 +286,13 @@
             "experience": 750,
             "honor": 24
         },
-        "movement": {
+        "movementBehaviour": {
             "behaviour": "passive",
-            "speed": 360
+            "speed": 360,
+            "attackBehaviour": "aggressive",
+            "aggroRadius": 25,
+            "aggroTime": 10,
+            "attackRadius": 5
         }
     }
 }

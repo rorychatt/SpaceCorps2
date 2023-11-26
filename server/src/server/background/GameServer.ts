@@ -1,6 +1,12 @@
 import { Alien, AlienDTO } from "./Alien";
 import { Player, PlayerDTO } from "./Player";
-import { Spacemap, SpacemapSize, Spacemaps, Vector2D } from "./Spacemap";
+import {
+    PossibleSpacemapEntities,
+    Spacemap,
+    SpacemapSize,
+    Spacemaps,
+    Vector2D,
+} from "./Spacemap";
 import {
     GameDataConfig,
     readGameDataConfigFiles,
@@ -17,11 +23,12 @@ import { DamageEvent } from "./DamageEvent";
 import { Entity, Portal } from "./Entity";
 import { RewardServer } from "./RewardServer";
 import {
+    AlienProjectile,
     LaserProjectile,
     LaserProjectileDTO,
     RocketProjectile,
     RocketProjectileDTO,
-} from "./Projectiles";
+} from "./Projectiles.js";
 import { Shop } from "./Shop";
 import { CargoDrop, OreSpawn, OreSpawnDTO } from "./CargoDrop";
 import {
@@ -135,20 +142,20 @@ export class GameServer {
     }
 
     public async attemptTeleport(playerName: string): Promise<void> {
-        function _findClosestPortal(
+        const _findClosestPortal = (
             portals: (Portal | Alien | Entity | Player)[],
             targetPos: Vector2D
-        ): Portal | undefined {
+        ): Portal | undefined => {
             if (portals.length === 0) return undefined;
 
             let closestPortal = portals[0];
-            let closestDistance = _getBADDistance(
+            let closestDistance = this._getBADDistance(
                 portals[0].position,
                 targetPos
             );
 
             for (let i = 1; i < portals.length; i++) {
-                const currentDistance = _getBADDistance(
+                const currentDistance = this._getBADDistance(
                     portals[i].position,
                     targetPos
                 );
@@ -159,13 +166,7 @@ export class GameServer {
             }
 
             if (closestPortal instanceof Portal) return closestPortal;
-        }
-
-        function _getBADDistance(position1: Vector2D, position2: Vector2D) {
-            const dx = position1.x - position2.x;
-            const dy = position1.y - position2.y;
-            return dx * dx + dy * dy;
-        }
+        };
         try {
             const player = await this.getPlayerByUsername(playerName);
             if (player) {
@@ -215,6 +216,7 @@ export class GameServer {
             console.error("An error occurred:", error);
         }
     }
+
     _loadSpacemapsFromConfig() {
         const gameDataConfig: GameDataConfig = readGameDataConfigFiles();
         for (const key in gameDataConfig) {
@@ -227,6 +229,20 @@ export class GameServer {
         }
     }
 
+    async isInMapBounds(entity: Alien, mapWidth: number, mapHeight: number) {
+        if (!entity._roamDestination) return false;
+        if (
+            entity._roamDestination.x >= mapWidth ||
+            entity._roamDestination.y >= mapHeight ||
+            entity._roamDestination.x <= -mapWidth ||
+            entity._roamDestination.y <= -mapWidth
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
     async loadNewPlayer(socketId: string, username: string) {
         const player = new Player(socketId, this.spacemaps["M-1"], username);
     }
@@ -236,6 +252,7 @@ export class GameServer {
             this.proccessRandomSpawns(),
             this.proccessRandomMovements(),
             this.processAlienRepairs(),
+            this.processAlienAttackBehavior(),
         ]);
     }
 
@@ -246,10 +263,25 @@ export class GameServer {
     ) {
         const oldMapName = player.currentMap;
         player.currentMap = newMapName;
+
+        // Remove player from old map
+
         this.spacemaps[oldMapName].entities = this.spacemaps[
             oldMapName
         ].entities.filter((entity) => entity.uuid !== player.uuid);
+
+        // Remove player as targetUUID from aliens/players
+        this.spacemaps[oldMapName].entities.forEach((entity) => {
+            if (
+                (entity instanceof Alien || entity instanceof Player) &&
+                entity.targetUUID == player.uuid
+            ) {
+                entity.targetUUID = undefined;
+            }
+        });
+
         this.spacemaps[player.currentMap].entities.push(player);
+
         if (targetPos) {
             player.position = { x: targetPos.x, y: targetPos.y };
         } else {
@@ -258,6 +290,48 @@ export class GameServer {
         player.isShooting = false;
         player.destination = undefined;
         player.targetUUID = undefined;
+        this.spacemaps[oldMapName].entities.forEach((entity) => {
+            if (entity instanceof Alien || entity instanceof Player) {
+                // TODO: Do the same for players!
+                if (entity.targetUUID == player.uuid) {
+                    entity.resetTargetUUID();
+                }
+            }
+        });
+    }
+
+    async processAlienAttackBehavior() {
+        if (this.tickCount === tickrate - 1) {
+            for (const spacemapName in this._spacemapNames) {
+                this.spacemaps[
+                    this._spacemapNames[spacemapName]
+                ].entities.forEach((entity) => {
+                    if (
+                        entity instanceof Alien &&
+                        entity.movementBehaviour.attackBehaviour ==
+                            "aggressive" &&
+                        !entity.targetUUID
+                    ) {
+                        this.spacemaps[
+                            this._spacemapNames[spacemapName]
+                        ].entities.forEach((player) => {
+                            if (player instanceof Player) {
+                                const dx = player.position.x - entity.position.x;
+                                const dy = player.position.y - entity.position.y;
+                                const distance = Math.sqrt(dx ** 2 + dy ** 2);
+                                if (
+                                    distance <=
+                                    entity.movementBehaviour.aggroRadius
+                                ) {
+                                    entity.setTargetUUID(player.uuid);
+                                    return;
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        }
     }
 
     async processAlienRepairs() {
@@ -284,20 +358,8 @@ export class GameServer {
                     .mapSize.height;
 
             this.spacemaps[this._spacemapNames[spacemapName]].entities.forEach(
-                (entity) => {
+                async (entity) => {
                     if (entity instanceof Alien) {
-                        if (
-                            entity._roamDestination?.x ||
-                            entity._roamDestination?.y
-                        ) {
-                            if (
-                                entity._roamDestination.x >= mapWidth ||
-                                entity._roamDestination.y >= mapHeight
-                            ) {
-                                entity._roamDestination = null;
-                            }
-                        }
-
                         entity.passiveRoam(mapWidth, mapHeight);
                     }
                 }
@@ -410,6 +472,7 @@ export class GameServer {
                     (defenderEntity instanceof Player ||
                         defenderEntity instanceof Alien)
                 ) {
+                    // defenderEntity.targetUUID = attackerEntity?.uuid;
                     defenderEntity.receiveDamage(damage, attackerEntity?.uuid);
                 }
             }
@@ -553,6 +616,22 @@ export class GameServer {
         }
     }
 
+    async registerAlienAttackEvent(data: {
+        alienUUID: string;
+        targetUUID: string;
+    }) {
+        const [attacker, target] = await Promise.all([
+            this.getEntityByUUID(data.alienUUID),
+            this.getPlayerByUUID(data.targetUUID),
+        ]);
+
+        if (attacker && target) {
+            if (attacker instanceof Alien) {
+                attacker.shootProjectileAtTarget(target);
+            }
+        }
+    }
+
     async registerPlayerUseItemEvent(data: {
         playerName: string;
         itemName: string;
@@ -617,7 +696,16 @@ export class GameServer {
                                 )
                             );
                         });
+                    } else if (projectile instanceof AlienProjectile) {
+                        this.damageEvents.push(
+                            new DamageEvent(
+                                projectile.target.uuid,
+                                projectile.attacker.uuid,
+                                projectile.damageAmount
+                            )
+                        );
                     }
+
                     this.spacemaps[spacemapName].projectileServer.projectiles =
                         this.spacemaps[
                             spacemapName
@@ -638,6 +726,14 @@ export class GameServer {
         if (disconnectedPlayerIndex !== -1) {
             const disconnectedPlayer = this.players[disconnectedPlayerIndex];
             const spacemap = this.spacemaps[disconnectedPlayer.currentMap];
+
+            spacemap.entities.forEach((entity) => {
+                if (entity instanceof Alien || entity instanceof Player) {
+                    if (entity.targetUUID == disconnectedPlayer.uuid) {
+                        entity.targetUUID = undefined;
+                    }
+                }
+            });
 
             const playerIndexInSpacemap = spacemap.entities.findIndex(
                 (entity) =>
@@ -762,6 +858,12 @@ export class GameServer {
 
         player.isCollectingCollectable = true;
         player.targetCollectable = oreSpawn;
+    }
+
+    _getBADDistance(position1: Vector2D, position2: Vector2D) {
+        const dx = position1.x - position2.x;
+        const dy = position1.y - position2.y;
+        return dx * dx + dy * dy;
     }
 
     startServer() {

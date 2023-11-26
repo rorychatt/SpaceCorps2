@@ -3,6 +3,8 @@ import * as fs from "fs";
 import { tickrate } from "./GameServer";
 import { Spacemap, Vector2D } from "./Spacemap";
 import { CargoDrop, OreResource, PossibleOreNames } from "./CargoDrop";
+import { Player } from "./Player";
+import { gameServer } from "../main.js";
 
 export class Alien extends Entity {
     _type: string = "Alien";
@@ -10,13 +12,16 @@ export class Alien extends Entity {
     killReward: _KillReward;
     cargoDrop: CargoDrop;
     damage: AlienDamageCharacteristic;
-    movement: AlienMovementCharacteristic;
+    movementBehaviour: MovementBehaviour;
     canRepair: boolean = false;
     _roamDestination: Vector2D | null = null;
     _maxHP: number;
     _maxSP: number;
     activeShipName: string;
     lastAttackedByUUID?: string;
+    targetUUID: string | undefined;
+    _timeOutSet: boolean;
+    canShoot: boolean;
 
     public constructor(map: Spacemap, name: string, position: Vector2D) {
         super(map.name, name, position);
@@ -41,12 +46,19 @@ export class Alien extends Entity {
             criticalChance: 0.01,
             criticalMultiplier: 2,
         };
-        this.movement = {
-            behaviour: "passive",
+        this.movementBehaviour = {
+            behaviour: "circular",
             speed: 360,
+            attackBehaviour: "passive",
+            aggroRadius: 5,
+            aggroTime: 10,
+            attackRadius: 10,
         };
         this._maxHP = 1000;
         this._maxSP = 1000;
+        this.targetUUID = undefined;
+        this._timeOutSet = false;
+        this.canShoot = true;
         this._getData();
     }
 
@@ -57,7 +69,7 @@ export class Alien extends Entity {
             this.hitPoints = aliensData[this.name].hitPoints;
             this.killReward = aliensData[this.name].killReward;
             this.damage = aliensData[this.name].damage;
-            this.movement = aliensData[this.name].movement;
+            this.movementBehaviour = aliensData[this.name].movementBehaviour;
             this._maxHP = aliensData[this.name].hitPoints.hullPoints;
             this._maxSP = aliensData[this.name].hitPoints.shieldPoints;
 
@@ -70,6 +82,81 @@ export class Alien extends Entity {
             this.cargoDrop.ores;
         } catch (error) {
             console.error("Error reading the file:", error);
+        }
+    }
+
+    async setTargetUUID(playerUUID: string) {
+        const player = await gameServer.getPlayerByUUID(playerUUID);
+        if(!player) return;
+
+        const dx = player.position.x - this.position.x;
+        const dy = player.position.y - this.position.y;
+        const distance = Math.sqrt(dx ** 2 + dy ** 2);
+    
+        if(this.currentMap != player.currentMap) return;
+        if(this.movementBehaviour.attackBehaviour == "passive") return;
+        if (distance <= this.movementBehaviour.aggroRadius * 2) {
+            this.targetUUID = playerUUID;
+        }
+    }
+
+    async resetTargetUUID() {
+        this.targetUUID = undefined;
+    }
+
+    async _chasePlayer() {
+        if(!this.targetUUID) return;
+        const player = await gameServer.getPlayerByUUID(this.targetUUID);
+        if (!player) return;
+        if(this.currentMap != player.currentMap) return;
+        
+        const newX = player.position.x + (Math.random() * this.movementBehaviour.attackRadius / 2);
+        const newY = player.position.y + (Math.random() * this.movementBehaviour.attackRadius / 2);
+
+        this._roamDestination = { x: newX, y: newY };
+        this.flyToDestination();
+    }
+    
+    async _checkForCanAttack() {
+        if(!this.targetUUID) return;
+        const player = await gameServer.getPlayerByUUID(this.targetUUID);
+        if (!player) return;
+    
+        const dx = player.position.x - this.position.x;
+        const dy = player.position.y - this.position.y;
+        const distance = Math.sqrt(dx ** 2 + dy ** 2);
+    
+        if (distance + 0.05 <= this.movementBehaviour.attackRadius) {
+            await gameServer.registerAlienAttackEvent({ alienUUID: this.uuid, targetUUID: player.uuid });
+        } else {
+            this._chasePlayer();
+        }
+
+        if(!this._timeOutSet) {
+            this._timeOutSet = true;
+            setTimeout(() => {
+                if(distance + 0.05 <= this.movementBehaviour.attackRadius) {
+                    this.targetUUID = player.uuid;
+                } else {
+                    this.targetUUID = undefined;
+                }
+                this._timeOutSet = false;
+            }, this.movementBehaviour.aggroTime * 1000);
+        }
+    }
+
+    shootProjectileAtTarget(target: Player) {
+        if(this.targetUUID == target.uuid) {
+            if(!this.canShoot) return;
+
+            gameServer.spacemaps[this.currentMap].projectileServer.createProjectile(
+                "AlienProjectile",
+                this,
+                target,
+            );
+
+            this.canShoot = false;
+            this.reload();
         }
     }
 
@@ -89,9 +176,9 @@ export class Alien extends Entity {
 
         this.hitPoints.hullPoints = this.hitPoints.hullPoints - hullDamage;
 
-        if (attackerUUID) {
-            this.lastAttackedByUUID = attackerUUID;
-        }
+        if(!this.targetUUID) this.targetUUID = attackerUUID;
+        if(attackerUUID) this.lastAttackedByUUID = attackerUUID;
+        if(this.targetUUID) this._chasePlayer();
 
         const hitPointsAfterFirstHit = { ...this.hitPoints };
 
@@ -122,14 +209,22 @@ export class Alien extends Entity {
         console.log(`${this.uuid} tried to shoot and dealt ${damage} damage.`);
         return damage;
     }
+    
+    async reload() {
+        if(this.canShoot) return;
+
+        setTimeout(() => {
+            this.canShoot = true;
+        }, 1000);
+    }
 
     roam(): Vector2D {
         let target = { x: 0, y: 0 };
         const currentPosition = this.position;
-        if (this.movement) {
+        if (this.movementBehaviour) {
             const ranX = 0.5 - Math.random();
             const ranY = 0.5 - Math.random();
-            const adjustedSpeed = (this.movement.speed * 1000) / tickrate;
+            const adjustedSpeed = (this.movementBehaviour.speed * 1000) / tickrate;
             target = {
                 x: currentPosition.x + (ranX * adjustedSpeed) / 1000,
                 y: currentPosition.y + (ranY * adjustedSpeed) / 1000,
@@ -138,32 +233,33 @@ export class Alien extends Entity {
         return target;
     }
 
-    passiveRoam(mapWidth: number, mapHeight: number) {
-        if (this.movement?.behaviour === "passive") {
-            if (this._roamDestination == null) {
-                const dx = (Math.random() - 0.5) * mapWidth;
-                const dy = (Math.random() - 0.5) * mapHeight;
+    async passiveRoam(mapWidth: number, mapHeight: number) {
+        if(this.targetUUID) {
+            await this._checkForCanAttack();
+        } else {
+            if (this.movementBehaviour?.behaviour === "passive") {
+                if (this._roamDestination == null) {
+                    const dx = (Math.random() - 0.5) * mapWidth;
+                    const dy = (Math.random() - 0.5) * mapHeight;
 
-                this._roamDestination = { x: dx, y: dy };
+                    this._roamDestination = { x: dx, y: dy };
 
-                this.flyToDestination();
-            } else {
-                this.flyToDestination();
+                    this.flyToDestination();
+                } else {
+                    this.flyToDestination();
+                }
             }
         }
     }
 
     flyToDestination() {
         if (this._roamDestination == null) return;
-
-        if (this.movement) {
-            const travelledDistance = this.movement.speed / tickrate / 100;
-
+        if (this.movementBehaviour) {
+            const travelledDistance = this.movementBehaviour.speed / tickrate / 100;
             const direction = {
                 x: this._roamDestination.x - this.position.x,
                 y: this._roamDestination.y - this.position.y,
             };
-
             const totalDistance = Math.sqrt(
                 direction.x ** 2 + direction.y ** 2
             );
@@ -248,12 +344,17 @@ export interface AlienDamageCharacteristic {
     criticalMultiplier: number;
 }
 
-export interface AlienMovementCharacteristic {
+export interface MovementBehaviour {
     behaviour: AlienMovementBehaviour;
     speed: number;
+    attackBehaviour: AttackBehaviour;
+    aggroRadius: number;
+    aggroTime: number;
+    attackRadius: number;
 }
 
 export type AlienMovementBehaviour = "passive" | "circular";
+export type AttackBehaviour = "passive" | "aggressive";
 
 interface _OreDropData {
     oreName: PossibleOreNames;
