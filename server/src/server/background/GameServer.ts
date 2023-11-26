@@ -316,12 +316,11 @@ export class GameServer {
                             this._spacemapNames[spacemapName]
                         ].entities.forEach((player) => {
                             if (player instanceof Player) {
-                                const distance = this._getBADDistance(
-                                    entity.position,
-                                    player.position
-                                );
+                                const dx = player.position.x - entity.position.x;
+                                const dy = player.position.y - entity.position.y;
+                                const distance = Math.sqrt(dx ** 2 + dy ** 2);
                                 if (
-                                    distance <
+                                    distance <=
                                     entity.movementBehaviour.aggroRadius
                                 ) {
                                     entity.setTargetUUID(player.uuid);

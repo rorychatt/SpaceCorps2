@@ -32,7 +32,7 @@ export class ProjectileServer {
             );
             return;
         }
-        if (type == "LaserProjectile" && damageAmount) {
+        if (_type == "LaserProjectile" && damageAmount) {
             if(!ammoName) return;
             this.projectiles.push(
                 new LaserProjectile(
@@ -57,7 +57,7 @@ export class ProjectileServer {
                     )
                 );
             }
-        } else if(type == "AlienProjectile") {
+        } else if(_type == "AlienProjectile") {
             if(targetEntity instanceof Player && attackerEntity instanceof Alien) {
                 damageAmount = attackerEntity.giveDamage();
                 this.projectiles.push(

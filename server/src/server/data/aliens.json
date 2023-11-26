@@ -31,9 +31,9 @@
             "behaviour": "passive",
             "speed": 360,
             "attackBehaviour": "passive",
-            "aggroRadius": "10",
+            "aggroRadius": "50",
             "aggroTime": "10",
-            "attackRadius": "5"
+            "attackRadius": "25"
         }
     },
     "boss-thetys": {
@@ -68,9 +68,9 @@
             "behaviour": "passive",
             "speed": 400,
             "attackBehaviour": "aggressive",
-            "aggroRadius": "10",
+            "aggroRadius": "50",
             "aggroTime": "10",
-            "attackRadius": "5"
+            "attackRadius": "25"
         }
     },
     "plasmoid": {
@@ -105,9 +105,9 @@
             "behaviour": "passive",
             "speed": 360,
             "attackBehaviour": "passive",
-            "aggroRadius": "10",
+            "aggroRadius": "50",
             "aggroTime": "10",
-            "attackRadius": "5"
+            "attackRadius": "25"
         }
     },
     "boss-plasmoid": {
@@ -142,9 +142,9 @@
             "behaviour": "passive",
             "speed": 450,
             "attackBehaviour": "aggressive",
-            "aggroRadius": "10",
+            "aggroRadius": "50",
             "aggroTime": "10",
-            "attackRadius": "5"
+            "attackRadius": "25"
         }
     },
     "surge": {
@@ -179,9 +179,9 @@
             "behaviour": "passive",
             "speed": 360,
             "attackBehaviour": "passive",
-            "aggroRadius": "10",
+            "aggroRadius": "50",
             "aggroTime": "10",
-            "attackRadius": "5"
+            "attackRadius": "25"
         }
     },
     "boss-surge": {
@@ -216,9 +216,9 @@
             "behaviour": "passive",
             "speed": 360,
             "attackBehaviour": "aggressive",
-            "aggroRadius": "10",
+            "aggroRadius": "50",
             "aggroTime": "10",
-            "attackRadius": "5"
+            "attackRadius": "25"
         }
     },
     "verner": {
@@ -253,9 +253,9 @@
             "behaviour": "passive",
             "speed": 360,
             "attackBehaviour": "passive",
-            "aggroRadius": "10",
+            "aggroRadius": "50",
             "aggroTime": "10",
-            "attackRadius": "5"
+            "attackRadius": "25"
         }
     },
     "boss-verner": {
@@ -290,9 +290,9 @@
             "behaviour": "passive",
             "speed": 360,
             "attackBehaviour": "aggressive",
-            "aggroRadius": "10",
+            "aggroRadius": "50",
             "aggroTime": "10",
-            "attackRadius": "5"
+            "attackRadius": "25"
         }
     }
 }

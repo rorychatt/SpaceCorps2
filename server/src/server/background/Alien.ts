@@ -126,7 +126,10 @@ export class Alien extends Entity {
         const dy = player.position.y - this.position.y;
         const distance = Math.sqrt(dx ** 2 + dy ** 2);
     
-        if (distance + 0.05 <= this.movementBehaviour.attackRadius * 2) {
+        if (distance + 0.05 <= this.movementBehaviour.attackRadius) {
+            // DISCUSS
+            // Обновление targetUUID если player в радиусе атаки, первый способ
+            // this.targetUUID = player.uuid;
             await gameServer.registerAlienAttackEvent({ alienUUID: this.uuid, targetUUID: player.uuid });
         } else {
             this._chasePlayer();
@@ -135,7 +138,12 @@ export class Alien extends Entity {
         if(!this._timeOutSet) {
             this._timeOutSet = true;
             setTimeout(() => {
-                this.targetUUID = undefined;
+                // Обновление targetUUID если player в радиусе атаки, второй способ
+                // if(distance + 0.05 <= this.movementBehaviour.attackRadius) {
+                //     this.targetUUID = player.uuid;
+                // } else {
+                //     this.targetUUID = undefined;
+                // }
                 this._timeOutSet = false;
             }, this.movementBehaviour.aggroTime * 1000);
         }
