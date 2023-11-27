@@ -44,6 +44,12 @@ MMO RPG game in space. Node.js server, three.js frontend with mySQL database
 
     Spacemaps are generated using https://tools.wwwtyro.net/space-3d/index.html
 
+## Extras 2
+
+    cd server
+    git pull
+    npm start
+
 ## Contributors
 
 - [ ] @rorychatt Lead full-stack developer, project lead, idea author
