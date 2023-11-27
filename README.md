@@ -51,3 +51,4 @@ MMO RPG game in space. Node.js server, three.js frontend with mySQL database
 - [ ] @rostyslawn02 Back-end developer
 - [ ] @Beditski Back-end developer
 - [ ] @nroxkey 3D asset designer
+- [ ] @Tmin274 designer
