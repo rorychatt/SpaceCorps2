@@ -77,7 +77,7 @@ export class GameServer {
         this.questServer = new QuestServer();
         this.rankingServer = new RankingServer();
         this.shop = new Shop();
-        this.admins = ["rostik", "rory", "duma", "bedun"];
+        this.admins = ["rostik", "rory", "duma", "bedun", "hhhh"];
         this._version = readPackageJson().version;
         this.sendMapDataWorker = this.createWorker();
     }
