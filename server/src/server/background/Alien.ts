@@ -85,6 +85,17 @@ export class Alien extends Entity {
         }
     }
 
+    async setAgrroTimer(playerUUID: string) {
+        if(this._timeOutSet) return;
+        const player = await gameServer.getPlayerByUUID(playerUUID);
+        if(!player) return;
+
+        this._timeOutSet = true;
+        setTimeout(() => {
+            this.setTargetUUID(player.uuid);
+        }, this.movementBehaviour.aggroTime * 1000);
+    }
+
     async setTargetUUID(playerUUID: string) {
         const player = await gameServer.getPlayerByUUID(playerUUID);
         if(!player) return;
@@ -94,9 +105,25 @@ export class Alien extends Entity {
         const distance = Math.sqrt(dx ** 2 + dy ** 2);
     
         if(this.currentMap != player.currentMap) return;
-        if(this.movementBehaviour.attackBehaviour == "passive") return;
-        if (distance <= this.movementBehaviour.aggroRadius * 2) {
-            this.targetUUID = playerUUID;
+        if(this.movementBehaviour.attackBehaviour == "aggressive" && distance <= this.movementBehaviour.aggroRadius * 2 && !this.targetUUID) {
+            this.targetUUID = player.uuid;
+            this.setAgrroTimer(player.uuid);
+        } else if(this.movementBehaviour.attackBehaviour == "passive" && this.targetUUID) {
+            if(distance <= this.movementBehaviour.aggroRadius * 2) {
+                this._timeOutSet = false;
+                this.setAgrroTimer(player.uuid);
+            } else {
+                this._timeOutSet = false;
+                this.targetUUID = undefined;
+            }
+        } else if(this._timeOutSet && this.targetUUID) {
+            if(distance <= this.movementBehaviour.aggroRadius * 2) {
+                this._timeOutSet = false;
+                this.setAgrroTimer(player.uuid);
+            } else {
+                this._timeOutSet = false;
+                this.targetUUID = undefined;
+            }
         }
     }
 
@@ -132,17 +159,7 @@ export class Alien extends Entity {
             this._chasePlayer();
         }
 
-        if(!this._timeOutSet) {
-            this._timeOutSet = true;
-            setTimeout(() => {
-                if(distance + 0.05 <= this.movementBehaviour.attackRadius) {
-                    this.targetUUID = player.uuid;
-                } else {
-                    this.targetUUID = undefined;
-                }
-                this._timeOutSet = false;
-            }, this.movementBehaviour.aggroTime * 1000);
-        }
+        this.setAgrroTimer(player.uuid);
     }
 
     shootProjectileAtTarget(target: Player) {
