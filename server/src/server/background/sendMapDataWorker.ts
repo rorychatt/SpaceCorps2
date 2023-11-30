@@ -81,6 +81,22 @@ class RocketProjectileDTO {
     }
 }
 
+export class AlienProjectileDTO {
+    name: string;
+    position: any;
+    targetPosition: any;
+    uuid: string;
+    _type: string;
+
+    constructor(alienProjectile: any) {
+        this.name = alienProjectile.name;
+        this.position = alienProjectile.position;
+        this.targetPosition = alienProjectile.target.position;
+        this.uuid = alienProjectile.uuid;
+        this._type = alienProjectile._type;
+    }
+}
+
 interface _OreResource {
     name: string;
     amount: number;
@@ -103,7 +119,7 @@ class OreResourceDTO {
 }
 class OreSpawnDTO {
     readonly _type = "OreSpawn";
-    
+
     uuid: string;
     ores: OreResourceDTO[] = [];
     qualityLevel: number;
@@ -173,6 +189,11 @@ if (parentPort) {
                             projectile._type == "RocketProjectile"
                         ) {
                             return new RocketProjectileDTO(projectile);
+                        } else if (
+                            projectile._type &&
+                            projectile._type == "AlienProjectile"
+                        ) {
+                            return new AlienProjectileDTO(projectile);
                         }
                         return projectile;
                     })
