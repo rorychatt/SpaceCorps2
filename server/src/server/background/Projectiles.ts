@@ -165,6 +165,22 @@ export class RocketProjectileDTO {
     }
 }
 
+export class AlienProjectileDTO {
+    name: string;
+    position: any;
+    targetPosition: any;
+    uuid: string;
+    _type: string;
+
+    constructor(alienProjectile: AlienProjectile) {
+        this.name = alienProjectile.name;
+        this.position = alienProjectile.position;
+        this.targetPosition = alienProjectile.target.position;
+        this.uuid = alienProjectile.uuid;
+        this._type = alienProjectile._type;
+    }
+}
+
 export type ProjectileTypes = "LaserProjectile" | "RocketProjectile" | "AlienProjectile";
 export type PossibleProjectiles = LaserProjectile | RocketProjectile | AlienProjectile;
 export type LaserColors = "red" | "green" | "blue" | "yellow";

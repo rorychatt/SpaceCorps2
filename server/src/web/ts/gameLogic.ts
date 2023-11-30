@@ -111,6 +111,11 @@ const frameTime = 1000 / tickrate;
 let lastTime = 0;
 let frameCount = 0;
 
+let lastMapDataTime = Date.now();
+let serverFrameTime: number | undefined
+let isMouseDown = false;
+let mousePosition = { x: 0, y: 0 };
+
 let minimapWorker: Worker;
 
 // Hotbar
@@ -238,7 +243,11 @@ socket.on(
     }) => {
         if (isUpdating) {
             console.warn(`Skipping tick due to client performance issues`);
+            //return;
         }
+        const currentTime = Date.now()
+        serverFrameTime = currentTime - lastMapDataTime
+        lastMapDataTime = currentTime;
         isUpdating = true;
         updateMinimap(data);
         if (!currentMap || currentMap.name != data.name) {
@@ -721,12 +730,18 @@ function _createLockOnCircle() {
     lockOnCircle.name = "lockOnCircle";
 }
 
-function raycastFromCamera(event: any) {
-    const mouse = new THREE.Vector2();
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+function continuousRaycast() {
+    if (isMouseDown) {
+        raycastFromCamera();
+        requestAnimationFrame(continuousRaycast);
+    }
+}
 
-    raycaster.setFromCamera(mouse, camera);
+function raycastFromCamera() {
+    let x = (mousePosition.x / window.innerWidth) * 2 - 1;
+    let y = -(mousePosition.y / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
 
     const intersects = raycaster.intersectObjects(scene.children, true);
 
@@ -929,7 +944,7 @@ const findClosestPortal = (
 };
 
 function createLighting() {
-    const directionalLight = new THREE.DirectionalLight(0x404040, 0.5);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     directionalLight.position.set(1, 1, 1);
     scene.add(directionalLight);
@@ -1235,6 +1250,53 @@ async function createObject(data: any): Promise<THREE.Object3D> {
                     }
 
                     break;
+                case "AlienProjectile":
+                    const alienProjectileMaterial = new THREE.LineBasicMaterial(
+                        {
+                            color: "green",
+                            linewidth: 16,
+                        }
+                    );
+                    const alienProjectileGeometry =
+                        new THREE.BufferGeometry().setFromPoints([
+                            new THREE.Vector3(0, 0, 0),
+                            new THREE.Vector3(0, 0, 0.5),
+                        ]);
+                    const alienProjectile = new THREE.Line(
+                        alienProjectileGeometry,
+                        alienProjectileMaterial
+                    );
+                    alienProjectile.uuid = data.uuid;
+                    alienProjectile.name = data.name;
+                    alienProjectile.position.set(
+                        data.position.x,
+                        0,
+                        data.position.y
+                    );
+                    alienProjectile.lookAt(
+                        data.targetPosition.x,
+                        0,
+                        data.targetPosition.y
+                    );
+                    scene.add(alienProjectile);
+                    objectDataMap[data.uuid] = { data: alienProjectile };
+
+                    const alienProjectileSound = new THREE.PositionalAudio(
+                        audioListener
+                    );
+
+                    if (currentSounds <= maxConcurrentSounds) {
+                        currentSounds++;
+                        alienProjectileSound.setBuffer(rocketShootSoundBuffer);
+                        alienProjectileSound.setRefDistance(20);
+                        alienProjectileSound.setVolume(0.15);
+                        alienProjectileSound.onEnded = function () {
+                            currentSounds--;
+                        };
+                        alienProjectile.add(alienProjectileSound);
+                        alienProjectileSound.play();
+                    }
+                    break;
                 case "CargoDrop":
                     const cargoDropGeometry = new THREE.BoxGeometry(
                         0.25,
@@ -1340,7 +1402,7 @@ async function updateObject(object: THREE.Object3D, entity: any) {
                     y: 0,
                     z: targetPos.z,
                 },
-                frameTime
+                serverFrameTime
             )
             .easing(TWEEN.Easing.Linear.None)
             .onUpdate(function () {
@@ -1380,7 +1442,28 @@ async function updateObject(object: THREE.Object3D, entity: any) {
                 object.quaternion
             );
             object.rotation.copy(oldOrientation);
-            object.quaternion.slerp(targetQuaternion, 0.35);
+
+            // Check if the dot product between quaternions is negative
+            if (object.quaternion.dot(targetQuaternion) < 0) {
+                // Negate the target quaternion components for shortest path interpolation
+                targetQuaternion.x *= -1;
+                targetQuaternion.y *= -1;
+                targetQuaternion.z *= -1;
+                targetQuaternion.w *= -1;
+            }
+
+            const tween = new TWEEN.Tween(object.quaternion)
+                .to(
+                    {
+                        x: targetQuaternion.x,
+                        y: targetQuaternion.y,
+                        z: targetQuaternion.z,
+                        w: targetQuaternion.w,
+                    },
+                    serverFrameTime
+                )
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .start();
         }
     }
     if (hitPoints) {
@@ -1804,16 +1887,26 @@ function setNameRecursively(
 }
 
 async function loadEventListeners() {
-    canvas?.addEventListener(
-        "mouseup",
-        function (event) {
-            if (event.button === 0) {
-                // Check if the left mouse button (button 0) was released
-                raycastFromCamera(event);
-            }
-        },
-        false
-    );
+    renderer.domElement.addEventListener("mousemove", (event) => {
+        // Update the mouse position whenever it moves
+        mousePosition.x = event.clientX;
+        mousePosition.y = event.clientY;
+    });
+    
+    renderer.domElement.addEventListener("mousedown", (event) => {
+        if (event.button === 0) { // Left mouse button
+            isMouseDown = true;
+            continuousRaycast();
+        }
+    });
+    
+    renderer.domElement.addEventListener("mouseup", () => {
+        isMouseDown = false;
+    });
+    
+    renderer.domElement.addEventListener("mouseleave", () => {
+        isMouseDown = false;
+    });    
 
     sendChatMessageButton = document.getElementById("sendChatMessageButton");
     chatModalContent = document.getElementById("chat_modal_content");
@@ -2732,8 +2825,26 @@ function recreateRenderer(antialias: boolean) {
     }
     controls = new OrbitControls(camera, renderer.domElement);
     isFirstUpdateForPlayer = true;
-    renderer.domElement.addEventListener("click", (event) => {
-        raycastFromCamera(event);
+
+    renderer.domElement.addEventListener("mousemove", (event) => {
+        // Update the mouse position whenever it moves
+        mousePosition.x = event.clientX;
+        mousePosition.y = event.clientY;
+    });
+    
+    renderer.domElement.addEventListener("mousedown", (event) => {
+        if (event.button === 0) { // Left mouse button
+            isMouseDown = true;
+            continuousRaycast();
+        }
+    });
+    
+    renderer.domElement.addEventListener("mouseup", () => {
+        isMouseDown = false;
+    });
+    
+    renderer.domElement.addEventListener("mouseleave", () => {
+        isMouseDown = false;
     });
 
     updateControlsSettings();
