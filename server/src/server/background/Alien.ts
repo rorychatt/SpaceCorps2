@@ -254,7 +254,7 @@ export class Alien extends Entity {
         if(this.targetUUID) {
             await this._checkForCanAttack();
         } else {
-            if (this.movementBehaviour?.behaviour === "passive") {
+            if (this.movementBehaviour.behaviour === "passive") {
                 if (this._roamDestination == null) {
                     const dx = (Math.random() - 0.5) * mapWidth;
                     const dy = (Math.random() - 0.5) * mapHeight;
@@ -262,6 +262,35 @@ export class Alien extends Entity {
                     this._roamDestination = { x: dx, y: dy };
 
                     this.flyToDestination();
+                } else {
+                    this.flyToDestination();
+                }
+            } else if(this.movementBehaviour.behaviour === "circular") {
+                if (this._roamDestination == null) {
+                    const mapCorners = [
+                        { x: -mapWidth, y: -mapHeight },
+                        { x: -mapWidth, y: mapHeight },
+                        { x: mapWidth, y: -mapHeight },
+                        { x: mapWidth, y: mapHeight }
+                    ];
+                
+                    const noise_amount = 10;
+                    const radius = 100;
+                    const startPoint = mapCorners[Math.floor(Math.random() * mapCorners.length)];
+                
+                    const angle = Math.random() * 2 * Math.PI;
+                    const noiseX = Math.random() * (noise_amount - noise_amount / 2);
+                    const noiseY = Math.random() * (noise_amount - noise_amount / 2);
+                    const dx = startPoint.x + Math.cos(angle) * (radius / noiseX);
+                    const dy = startPoint.y + Math.sin(angle) * (radius / noiseY);
+                
+                    this._roamDestination = { x: dx, y: dy };
+
+                    if (await gameServer.isInMapBounds(this, mapWidth, mapHeight)) {
+                        return this.flyToDestination();
+                    }
+
+                    this._roamDestination = null;
                 } else {
                     this.flyToDestination();
                 }

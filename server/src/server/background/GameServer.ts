@@ -230,7 +230,7 @@ export class GameServer {
     }
 
     async isInMapBounds(entity: Alien, mapWidth: number, mapHeight: number) {
-        if (!entity._roamDestination) return false;
+        if (entity._roamDestination == null) return false;
         if (
             entity._roamDestination.x >= mapWidth ||
             entity._roamDestination.y >= mapHeight ||
@@ -240,7 +240,7 @@ export class GameServer {
             return false;
         }
 
-        return true;
+        return true; 
     }
 
     async loadNewPlayer(socketId: string, username: string) {
