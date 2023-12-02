@@ -229,13 +229,13 @@ export class GameServer {
         }
     }
 
-    async isInMapBounds(entity: Alien, mapWidth: number, mapHeight: number) {
-        if (entity._roamDestination == null) return false;
+    async isInMapBounds(_roamDestination: { x: number, y: number }, mapWidth: number, mapHeight: number) {
+        if (_roamDestination == null) return false;
         if (
-            entity._roamDestination.x >= mapWidth ||
-            entity._roamDestination.y >= mapHeight ||
-            entity._roamDestination.x <= -mapWidth ||
-            entity._roamDestination.y <= -mapWidth
+            _roamDestination.x > mapWidth ||
+            _roamDestination.x < -mapWidth ||
+            _roamDestination.y > mapHeight ||
+            _roamDestination.y < -mapHeight
         ) {
             return false;
         }

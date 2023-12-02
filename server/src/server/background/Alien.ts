@@ -276,24 +276,26 @@ export class Alien extends Entity {
                 
                     const noise_amount = 10;
                     const radius = 100;
-                    const startPoint = mapCorners[Math.floor(Math.random() * mapCorners.length)];
                 
+                    const startPoint = mapCorners[Math.floor(Math.random() * mapCorners.length)];
                     const angle = Math.random() * 2 * Math.PI;
-                    const noiseX = Math.random() * (noise_amount - noise_amount / 2);
-                    const noiseY = Math.random() * (noise_amount - noise_amount / 2);
-                    const dx = startPoint.x + Math.cos(angle) * (radius / noiseX);
-                    const dy = startPoint.y + Math.sin(angle) * (radius / noiseY);
+
+                    const noiseX = (Math.random() - 0.5) * noise_amount;
+                    const noiseY = (Math.random() - 0.5) * noise_amount;
+                
+                    const dx = startPoint.x + Math.cos(angle) * (radius + noiseX);
+                    const dy = startPoint.y + Math.sin(angle) * (radius + noiseY);
                 
                     this._roamDestination = { x: dx, y: dy };
-
-                    if (await gameServer.isInMapBounds(this, mapWidth, mapHeight)) {
+                
+                    if(await gameServer.isInMapBounds(this._roamDestination, mapWidth, mapHeight)) {
                         return this.flyToDestination();
                     }
 
                     this._roamDestination = null;
                 } else {
                     this.flyToDestination();
-                }
+                }                
             }
         }
     }
