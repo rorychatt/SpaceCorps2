@@ -250,6 +250,29 @@ export class Alien extends Entity {
         return target;
     }
 
+    _circularMovement(mapWidth: number, mapHeight: number): { dx: number, dy: number } {
+        const mapCorners = [
+            { x: -mapWidth / 2, y: -mapHeight / 2},
+            { x: -mapWidth / 2, y: mapHeight / 2},
+            { x: mapWidth / 2, y: -mapHeight / 2},
+            { x: mapWidth / 2, y: mapHeight / 2}
+        ];
+
+        const noise_amount = 8;
+        const radius = 50;
+        
+        const startPoint = mapCorners[Math.floor(Math.random() * mapCorners.length)];
+        const angle = Math.random() * 2 * Math.PI;
+
+        const noiseX = (Math.random() - 0.5) * noise_amount;
+        const noiseY = (Math.random() - 0.5) * noise_amount;
+        
+        const dx = startPoint.x + Math.cos(angle) * (radius + noiseX);
+        const dy = startPoint.y + Math.sin(angle) * (radius + noiseY);
+               
+        return { dx, dy };
+    }
+
     async passiveRoam(mapWidth: number, mapHeight: number) {
         if(this.targetUUID) {
             await this._checkForCanAttack();
@@ -259,43 +282,23 @@ export class Alien extends Entity {
                     const dx = (Math.random() - 0.5) * mapWidth;
                     const dy = (Math.random() - 0.5) * mapHeight;
 
-                    this._roamDestination = { x: dx, y: dy };
-
-                    this.flyToDestination();
+                    if(await gameServer.isInMapBounds({ x: dx, y: dy }, mapWidth, mapHeight)) {
+                        this._roamDestination = { x: dx, y: dy };
+                        this.flyToDestination();
+                    }
                 } else {
                     this.flyToDestination();
                 }
             } else if(this.movementBehaviour.behaviour === "circular") {
-                if (this._roamDestination == null) {
-                    const mapCorners = [
-                        { x: -mapWidth, y: -mapHeight },
-                        { x: -mapWidth, y: mapHeight },
-                        { x: mapWidth, y: -mapHeight },
-                        { x: mapWidth, y: mapHeight }
-                    ];
-                
-                    const noise_amount = 10;
-                    const radius = 100;
-                
-                    const startPoint = mapCorners[Math.floor(Math.random() * mapCorners.length)];
-                    const angle = Math.random() * 2 * Math.PI;
-
-                    const noiseX = (Math.random() - 0.5) * noise_amount;
-                    const noiseY = (Math.random() - 0.5) * noise_amount;
-                
-                    const dx = startPoint.x + Math.cos(angle) * (radius + noiseX);
-                    const dy = startPoint.y + Math.sin(angle) * (radius + noiseY);
-                
-                    this._roamDestination = { x: dx, y: dy };
-                
-                    if(await gameServer.isInMapBounds(this._roamDestination, mapWidth, mapHeight)) {
-                        return this.flyToDestination();
+                if(this._roamDestination == null) {
+                    const _roamDestination = this._circularMovement(mapWidth, mapHeight);
+                    if(await gameServer.isInMapBounds({ x: _roamDestination.dx, y: _roamDestination.dy }, mapWidth, mapHeight)) {
+                        this._roamDestination = { x: _roamDestination.dx, y: _roamDestination.dy };
+                        this.flyToDestination();
                     }
-
-                    this._roamDestination = null;
                 } else {
                     this.flyToDestination();
-                }                
+                }             
             }
         }
     }

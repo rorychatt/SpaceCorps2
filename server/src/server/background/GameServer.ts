@@ -231,17 +231,21 @@ export class GameServer {
 
     async isInMapBounds(_roamDestination: { x: number, y: number }, mapWidth: number, mapHeight: number) {
         if (_roamDestination == null) return false;
+    
+        const halfMapWidth = mapWidth / 2;
+        const halfMapHeight = mapHeight / 2;
+    
         if (
-            _roamDestination.x > mapWidth ||
-            _roamDestination.x < -mapWidth ||
-            _roamDestination.y > mapHeight ||
-            _roamDestination.y < -mapHeight
+            _roamDestination.x > halfMapWidth ||
+            _roamDestination.x < -halfMapWidth ||
+            _roamDestination.y > halfMapHeight ||
+            _roamDestination.y < -halfMapHeight
         ) {
             return false;
         }
-
-        return true; 
-    }
+    
+        return true;
+    }    
 
     async loadNewPlayer(socketId: string, username: string) {
         const player = new Player(socketId, this.spacemaps["M-1"], username);
