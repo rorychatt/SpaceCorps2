@@ -65,7 +65,7 @@
             "honor": 6
         },
         "movementBehaviour": {
-            "behaviour": "passive",
+            "behaviour": "circular",
             "speed": 400,
             "attackBehaviour": "aggressive",
             "aggroRadius": 25,
@@ -139,7 +139,7 @@
             "honor": 15
         },
         "movementBehaviour":{
-            "behaviour": "passive",
+            "behaviour": "circular",
             "speed": 450,
             "attackBehaviour": "aggressive",
             "aggroRadius": 25,
@@ -213,7 +213,7 @@
             "honor": 16
         },
         "movementBehaviour": {
-            "behaviour": "passive",
+            "behaviour": "circular",
             "speed": 360,
             "attackBehaviour": "aggressive",
             "aggroRadius": 25,
@@ -287,7 +287,7 @@
             "honor": 24
         },
         "movementBehaviour": {
-            "behaviour": "passive",
+            "behaviour": "circular",
             "speed": 360,
             "attackBehaviour": "aggressive",
             "aggroRadius": 25,

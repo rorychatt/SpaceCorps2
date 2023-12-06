@@ -229,19 +229,23 @@ export class GameServer {
         }
     }
 
-    async isInMapBounds(entity: Alien, mapWidth: number, mapHeight: number) {
-        if (!entity._roamDestination) return false;
+    async isInMapBounds(_roamDestination: { x: number, y: number }, mapSize: SpacemapSize) {
+        if (_roamDestination == null) return false;
+    
+        const halfMapWidth = mapSize.width / 2;
+        const halfMapHeight = mapSize.height / 2;
+    
         if (
-            entity._roamDestination.x >= mapWidth ||
-            entity._roamDestination.y >= mapHeight ||
-            entity._roamDestination.x <= -mapWidth ||
-            entity._roamDestination.y <= -mapWidth
+            _roamDestination.x > halfMapWidth ||
+            _roamDestination.x < -halfMapWidth ||
+            _roamDestination.y > halfMapHeight ||
+            _roamDestination.y < -halfMapHeight
         ) {
             return false;
         }
-
+    
         return true;
-    }
+    }    
 
     async loadNewPlayer(socketId: string, username: string) {
         const player = new Player(socketId, this.spacemaps["M-1"], username);
