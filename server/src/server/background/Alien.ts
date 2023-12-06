@@ -282,7 +282,7 @@ export class Alien extends Entity {
                     const dx = (Math.random() - 0.5) * mapWidth;
                     const dy = (Math.random() - 0.5) * mapHeight;
 
-                    if(await gameServer.isInMapBounds({ x: dx, y: dy }, mapWidth, mapHeight)) {
+                    if(await gameServer.isInMapBounds({ x: dx, y: dy }, { width: mapWidth, height: mapHeight })) {
                         this._roamDestination = { x: dx, y: dy };
                         this.flyToDestination();
                     }
@@ -292,7 +292,7 @@ export class Alien extends Entity {
             } else if(this.movementBehaviour.behaviour === "circular") {
                 if(this._roamDestination == null) {
                     const _roamDestination = this._circularMovement(mapWidth, mapHeight);
-                    if(await gameServer.isInMapBounds({ x: _roamDestination.dx, y: _roamDestination.dy }, mapWidth, mapHeight)) {
+                    if(await gameServer.isInMapBounds({ x: _roamDestination.dx, y: _roamDestination.dy }, { width: mapWidth, height: mapHeight })) {
                         this._roamDestination = { x: _roamDestination.dx, y: _roamDestination.dy };
                         this.flyToDestination();
                     }

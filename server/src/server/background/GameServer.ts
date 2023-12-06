@@ -229,11 +229,11 @@ export class GameServer {
         }
     }
 
-    async isInMapBounds(_roamDestination: { x: number, y: number }, mapWidth: number, mapHeight: number) {
+    async isInMapBounds(_roamDestination: { x: number, y: number }, mapSize: SpacemapSize) {
         if (_roamDestination == null) return false;
     
-        const halfMapWidth = mapWidth / 2;
-        const halfMapHeight = mapHeight / 2;
+        const halfMapWidth = mapSize.width / 2;
+        const halfMapHeight = mapSize.height / 2;
     
         if (
             _roamDestination.x > halfMapWidth ||
