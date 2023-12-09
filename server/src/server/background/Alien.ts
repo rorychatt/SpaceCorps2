@@ -194,8 +194,10 @@ export class Alien extends Entity {
         this.hitPoints.hullPoints = this.hitPoints.hullPoints - hullDamage;
 
         if(!this.targetUUID) this.targetUUID = attackerUUID;
-        if(attackerUUID) this.lastAttackedByUUID = attackerUUID;
-        if(this.targetUUID) this._chasePlayer();
+        if(attackerUUID) { 
+            this.lastAttackedByUUID = attackerUUID;
+            this.setTargetUUID(attackerUUID);
+        }
 
         const hitPointsAfterFirstHit = { ...this.hitPoints };
 
