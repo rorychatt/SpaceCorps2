@@ -34,12 +34,14 @@
             {
                 "oreName": "radium",
                 "qualityLevel": 1,
-                "amount": 10
+                "amount": 10,
+                "maxAmount": 10
             },
             {
                 "oreName": "agronite",
                 "qualityLevel": 1,
-                "amount": 10
+                "amount": 10,
+                "maxAmount": 10
             }
         ]
     },
@@ -78,12 +80,14 @@
             {
                 "oreName": "radium",
                 "qualityLevel": 1,
-                "amount": 10
+                "amount": 10,
+                "maxAmount": 10
             },
             {
                 "oreName": "agronite",
                 "qualityLevel": 1,
-                "amount": 10
+                "amount": 10,
+                "maxAmount": 10
             }
         ]
     },
@@ -122,12 +126,14 @@
             {
                 "oreName": "radium",
                 "qualityLevel": 1,
-                "amount": 10
+                "amount": 10,
+                "maxAmount": 10
             },
             {
                 "oreName": "agronite",
                 "qualityLevel": 1,
-                "amount": 10
+                "amount": 10,
+                "maxAmount": 10
             }
         ]
     },
@@ -166,12 +172,14 @@
             {
                 "oreName": "radium",
                 "qualityLevel": 1,
-                "amount": 10
+                "amount": 10,
+                "maxAmount": 10
             },
             {
                 "oreName": "agronite",
                 "qualityLevel": 1,
-                "amount": 10
+                "amount": 10,
+                "maxAmount": 10
             }
         ]
     },
@@ -219,13 +227,15 @@
         "oreSpawns": [
             {
                 "oreName": "radium",
-                "qualityLevel": 2,
-                "amount": 10
+                "qualityLevel": 1,
+                "amount": 10,
+                "maxAmount": 10
             },
             {
                 "oreName": "agronite",
-                "qualityLevel": 2,
-                "amount": 10
+                "qualityLevel": 1,
+                "amount": 10,
+                "maxAmount": 10
             }
         ]
     }

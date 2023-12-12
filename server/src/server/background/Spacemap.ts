@@ -103,24 +103,30 @@ export class Spacemap {
         }
     }
 
+    // тут
     randomSpawnOreSpawn() {
         if (!this._config.oreSpawns) return;
         this._config.oreSpawns.forEach((data) => {
             let currentAmount = 0;
             for (const entity of this.entities) {
                 if (
-                    currentAmount < data.amount &&
+                    currentAmount < data.maxAmount &&
                     entity instanceof OreSpawn &&
                     entity.name == data.oreName
                 ) {
                     currentAmount++;
                 }
             }
-            if (currentAmount < data.amount) {
+            if (currentAmount < data.maxAmount) {
                 const spawnPosition = attemptGetSpawnPosition(this);
                 const oreResource = new OreResource(data.oreName, data.amount);
                 this.spawnOre([oreResource], spawnPosition, data.qualityLevel);
             }
+
+            console.log(`OreName: ${data.oreName}, map: ${this.name}, currentAmount: ${currentAmount}`);
+
+            // console.log(`DATA: ${JSON.stringify(data)}`);
+            // console.log(`MAXAMOUNT: ${data.maxAmount}, orename: ${data.oreName}`);
         });
     }
 
@@ -246,6 +252,7 @@ export interface SpawnableOreSpawn {
     oreName: PossibleOreNames;
     qualityLevel: number;
     amount: number;
+    maxAmount: number;
 }
 export interface SpawnableAliens {
     [alienName: string]: {
