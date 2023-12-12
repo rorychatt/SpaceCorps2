@@ -52,12 +52,10 @@ export class OreResource {
     readonly _type: string = "Ore";
     name: PossibleOreNames;
     amount: number = 1;
-    maxAmount: number = 10;
 
-    constructor(name: PossibleOreNames, amount?: number, maxAmount?: number) {
+    constructor(name: PossibleOreNames, amount?: number) {
         this.name = name;
         if (amount) this.amount = amount;
-        if(maxAmount) this.maxAmount = maxAmount;
     }
 }
 

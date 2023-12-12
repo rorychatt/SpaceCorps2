@@ -4,7 +4,7 @@ import {
     OreResource,
     OreSpawn,
     PossibleOreNames,
-} from "./CargoDrop";
+} from "./CargoDrop.js";
 import {
     CompanyBase,
     Entity,
@@ -108,23 +108,24 @@ export class Spacemap {
         if (!this._config.oreSpawns) return;
         this._config.oreSpawns.forEach((data) => {
             let currentAmount = 0;
+
             for (const entity of this.entities) {
                 if (
-                    currentAmount < data.maxAmount &&
+                    currentAmount < data.amount &&
                     entity instanceof OreSpawn &&
                     entity.name == data.oreName
                 ) {
                     currentAmount++;
                 }
             }
-            if (currentAmount < data.maxAmount) {
+
+            if (currentAmount < data.amount) {
                 const spawnPosition = attemptGetSpawnPosition(this);
                 const oreResource = new OreResource(data.oreName, data.amount);
                 this.spawnOre([oreResource], spawnPosition, data.qualityLevel);
             }
 
-            console.log(`OreName: ${data.oreName}, map: ${this.name}, currentAmount: ${currentAmount}`);
-
+            // console.log(`OreName: ${data.oreName}, map: ${this.name}, currentAmount: ${currentAmount}`);
             // console.log(`DATA: ${JSON.stringify(data)}`);
             // console.log(`MAXAMOUNT: ${data.maxAmount}, orename: ${data.oreName}`);
         });
