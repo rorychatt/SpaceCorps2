@@ -23,12 +23,16 @@ export class OreSpawn extends Entity {
     readonly _type: string = "OreSpawn";
     ores: OreResource[] = [];
     qualityLevel: number = 1;
+    currentAmount: number = 0;
+    maxAmount: number = 10;
 
     constructor(
         currentMap: string,
         position: Vector2D,
         ores: OreResource[],
-        qualityLevel?: number
+        qualityLevel?: number,
+        currentAmount?: number,
+        maxAmount?: number
     ) {
         super(currentMap, "OreSpawn", position);
         this.ores = ores;
@@ -36,6 +40,12 @@ export class OreSpawn extends Entity {
             this.qualityLevel = qualityLevel;
             this._recalculateOres();
         }
+
+        if(maxAmount) 
+            this.maxAmount = maxAmount;
+
+        if(currentAmount) 
+            this.currentAmount = currentAmount;
     }
 
     _recalculateOres() {
