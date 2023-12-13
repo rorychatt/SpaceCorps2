@@ -91,7 +91,6 @@ export class OreSpawnDTO {
 
 export interface OreSpawnsAmount {
     oreSpawnName: string;
-    // количество orespawn object на этой карте // comment to delete
     amount: number;
 }
 
