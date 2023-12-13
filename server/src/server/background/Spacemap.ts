@@ -4,6 +4,7 @@ import {
     OreResource,
     OreSpawn,
     PossibleOreNames,
+    OreSpawnsAmount,
 } from "./CargoDrop.js";
 import {
     CompanyBase,
@@ -22,7 +23,8 @@ export class Spacemap {
     type = "Spacemap";
     entities: PossibleSpacemapEntities[];
     cargoboxes: CargoDrop[] = [];
-    oreSpawns: OreSpawn[] = [];
+    oreSpawns: OreSpawn[] = []; // тут // comment to delete
+    oreSpawnsAmount: OreSpawnsAmount[] = []; // тут // comment to delete
     _config: SpacemapConfig;
     projectileServer: ProjectileServer;
     safeZones: SafeZone[] = [];
@@ -103,29 +105,47 @@ export class Spacemap {
         }
     }
 
-    // тут
+    // тут // comment to delete
     randomSpawnOreSpawn() {
         if (!this._config.oreSpawns) return;
-        let currentAmount = 0;
+        // let currentAmount = 0; // hujnja // to delete
         this._config.oreSpawns.forEach((data) => {
-            for (const entity of this.entities) {
-                if (
-                    entity instanceof OreSpawn
-                ) {
-                    entity.currentAmount++;
-                    currentAmount++;
+            const spawnPosition = attemptGetSpawnPosition(this);
+            const oreResource = new OreResource(data.oreName, data.amount);
+
+            if (this.oreSpawnsAmount.length === 0) {
+                for (let i = 0; i < data.maxAmount; i++) {
+                    const oreSpawn: OreSpawn = new OreSpawn(this.name, spawnPosition, [oreResource], data.qualityLevel);
+                    this.oreSpawns.push(oreSpawn);
+                    this.oreSpawnsAmount.push({ oreSpawnName: data.oreName, amount: +1 });
+                }
+                return;
+            }
+
+            for (const ore of this.oreSpawnsAmount) {
+                if (ore.amount < data.maxAmount) {
+                    const oreSpawn: OreSpawn = new OreSpawn(this.name, spawnPosition, [oreResource], data.qualityLevel);
+                    this.oreSpawns.push(oreSpawn);
+                    ore.amount++;
+                    if (ore.amount === data.maxAmount) break;
                 }
             }
 
-            if(currentAmount < data.maxAmount) {
-                const spawnPosition = attemptGetSpawnPosition(this);
-                const oreResource = new OreResource(data.oreName, data.amount);
-                const oreSpawn: OreSpawn = new OreSpawn(this.name, spawnPosition, [oreResource], data.qualityLevel, currentAmount);
-                this.entities.push(oreSpawn);
-                this.spawnOre([oreResource], spawnPosition, data.qualityLevel);
-                currentAmount++;
-            }
+            // to delete
+            // >>>
+            // hujnja
+            // if(currentAmount < data.maxAmount) {
+            //     const spawnPosition = attemptGetSpawnPosition(this);
+            //     const oreResource = new OreResource(data.oreName, data.amount);
+            //     // fix
+            //     const oreSpawn: OreSpawn = new OreSpawn(this.name, spawnPosition, [oreResource], data.qualityLevel);
+            //     // oreSpawn.currentAmount++;
+            //     this.entities.push(oreSpawn);
+            //     this.spawnOre([oreResource], spawnPosition, data.qualityLevel);
+            //     currentAmount++;
+            // }
             
+            // бесполезный 
             // for (const entity of this.entities) {
             //     if (
             //         currentAmount < data.amount &&
@@ -154,11 +174,12 @@ export class Spacemap {
             //         }
             //     }
             // }
+            // <<<
         });
 
-        for(const entity of this.entities) 
-            if(entity instanceof OreSpawn)
-                console.log(entity.currentAmount);
+        // to delete
+        // console.log(JSON.stringify(this.oreSpawns)); // success
+        // console.log(`AMOUNTSPAWNS: ${JSON.stringify(this.oreSpawnsAmount)}`); // success
     }
 
     loadStaticEntities() {
