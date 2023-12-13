@@ -114,7 +114,7 @@ export class Spacemap {
             const oreResource = new OreResource(data.oreName, data.amount);
 
             if (this.oreSpawnsAmount.length === 0) {
-                for (let i = 0; i < data.maxAmount; i++) {
+                for (let i = 0; i < data.maxAmountPerMap; i++) {
                     const oreSpawn: OreSpawn = new OreSpawn(this.name, spawnPosition, [oreResource], data.qualityLevel);
                     this.oreSpawns.push(oreSpawn);
                     this.oreSpawnsAmount.push({ oreSpawnName: data.oreName, amount: +1 });
@@ -123,11 +123,11 @@ export class Spacemap {
             }
 
             for (const ore of this.oreSpawnsAmount) {
-                if (ore.amount < data.maxAmount) {
+                if (ore.amount < data.maxAmountPerMap) {
                     const oreSpawn: OreSpawn = new OreSpawn(this.name, spawnPosition, [oreResource], data.qualityLevel);
                     this.oreSpawns.push(oreSpawn);
                     ore.amount++;
-                    if (ore.amount === data.maxAmount) break;
+                    if (ore.amount === data.maxAmountPerMap) break;
                 }
             }
 
@@ -178,8 +178,8 @@ export class Spacemap {
         });
 
         // to delete
-        // console.log(JSON.stringify(this.oreSpawns)); // success
-        // console.log(`AMOUNTSPAWNS: ${JSON.stringify(this.oreSpawnsAmount)}`); // success
+        // console.log(JSON.stringify(this.oreSpawns));
+        // console.log(`AMOUNTSPAWNS: ${JSON.stringify(this.oreSpawnsAmount)}`);
     }
 
     loadStaticEntities() {
@@ -304,7 +304,7 @@ export interface SpawnableOreSpawn {
     oreName: PossibleOreNames;
     qualityLevel: number;
     amount: number;
-    maxAmount: number;
+    maxAmountPerMap: number;
 }
 export interface SpawnableAliens {
     [alienName: string]: {
