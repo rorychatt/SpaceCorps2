@@ -23,12 +23,14 @@ export class OreSpawn extends Entity {
     readonly _type: string = "OreSpawn";
     ores: OreResource[] = [];
     qualityLevel: number = 1;
+    maxAmountPerMap: number = 0;
 
     constructor(
         currentMap: string,
         position: Vector2D,
         ores: OreResource[],
-        qualityLevel?: number
+        qualityLevel?: number,
+        maxAmountPerMap?: number
     ) {
         super(currentMap, "OreSpawn", position);
         this.ores = ores;
@@ -36,6 +38,9 @@ export class OreSpawn extends Entity {
             this.qualityLevel = qualityLevel;
             this._recalculateOres();
         }
+
+        if(maxAmountPerMap) 
+            this.maxAmountPerMap = maxAmountPerMap;
     }
 
     _recalculateOres() {
@@ -55,9 +60,7 @@ export class OreResource {
 
     constructor(name: PossibleOreNames, amount?: number) {
         this.name = name;
-        if (amount) {
-            this.amount = amount;
-        }
+        if (amount) this.amount = amount;
     }
 }
 
@@ -84,6 +87,11 @@ export class OreSpawnDTO {
         this.qualityLevel = oreSpawn.qualityLevel;
         this.position = oreSpawn.position;
     }
+}
+
+export interface OreSpawnsAmount {
+    oreSpawnName: string;
+    amount: number;
 }
 
 export type PossibleOreNames = "radium" | "agronite";

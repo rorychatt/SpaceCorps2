@@ -4,7 +4,8 @@ import {
     OreResource,
     OreSpawn,
     PossibleOreNames,
-} from "./CargoDrop";
+    OreSpawnsAmount,
+} from "./CargoDrop.js";
 import {
     CompanyBase,
     Entity,
@@ -23,6 +24,7 @@ export class Spacemap {
     entities: PossibleSpacemapEntities[];
     cargoboxes: CargoDrop[] = [];
     oreSpawns: OreSpawn[] = [];
+    oreSpawnsAmount: OreSpawnsAmount[] = [];
     _config: SpacemapConfig;
     projectileServer: ProjectileServer;
     safeZones: SafeZone[] = [];
@@ -106,20 +108,25 @@ export class Spacemap {
     randomSpawnOreSpawn() {
         if (!this._config.oreSpawns) return;
         this._config.oreSpawns.forEach((data) => {
-            let currentAmount = 0;
-            for (const entity of this.entities) {
-                if (
-                    currentAmount < data.amount &&
-                    entity instanceof OreSpawn &&
-                    entity.name == data.oreName
-                ) {
-                    currentAmount++;
+            const spawnPosition = attemptGetSpawnPosition(this);
+            const oreResource = new OreResource(data.oreName, data.amount);
+
+            if (this.oreSpawnsAmount.length === 0) {
+                for (let i = 0; i < data.maxAmountPerMap; i++) {
+                    const oreSpawn: OreSpawn = new OreSpawn(this.name, spawnPosition, [oreResource], data.qualityLevel);
+                    this.oreSpawns.push(oreSpawn);
+                    this.oreSpawnsAmount.push({ oreSpawnName: data.oreName, amount: +1 });
                 }
+                return;
             }
-            if (currentAmount < data.amount) {
-                const spawnPosition = attemptGetSpawnPosition(this);
-                const oreResource = new OreResource(data.oreName, data.amount);
-                this.spawnOre([oreResource], spawnPosition, data.qualityLevel);
+
+            for (const ore of this.oreSpawnsAmount) {
+                if (ore.amount < data.maxAmountPerMap) {
+                    const oreSpawn: OreSpawn = new OreSpawn(this.name, spawnPosition, [oreResource], data.qualityLevel);
+                    this.oreSpawns.push(oreSpawn);
+                    ore.amount++;
+                    if (ore.amount === data.maxAmountPerMap) break;
+                }
             }
         });
     }
@@ -246,6 +253,7 @@ export interface SpawnableOreSpawn {
     oreName: PossibleOreNames;
     qualityLevel: number;
     amount: number;
+    maxAmountPerMap: number;
 }
 export interface SpawnableAliens {
     [alienName: string]: {
