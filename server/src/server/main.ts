@@ -322,10 +322,9 @@ io.on("connection", (socket) => {
 
             if(!player) return;
 
-            gameServer.spacemaps[player.currentMap].oreSpawns.forEach((ore) => {
-                if(ore.uuid == data.collectableUUID) {
-                    gameServer.addPlayerCollectOreSpawn(ore, player);
-                }
+            gameServer.spacemaps[player.currentMap].oreSpawns.forEach((oreSpawn) => {
+                if(oreSpawn.uuid == data.collectableUUID)
+                    gameServer.addPlayerCollectOreSpawn(oreSpawn, player);
             });
         }
     )
