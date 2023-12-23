@@ -108,26 +108,32 @@ export class Spacemap {
     randomSpawnOreSpawn() {
         if (!this._config.oreSpawns) return;
         this._config.oreSpawns.forEach((data) => {
-            const spawnPosition = attemptGetSpawnPosition(this);
+            let spawnPosition: Vector2D;
             const oreResource = new OreResource(data.oreName, data.amount);
 
             if (this.oreSpawnsAmount.length === 0) {
                 for (let i = 0; i < data.maxAmountPerMap; i++) {
+                    spawnPosition = attemptGetSpawnPosition(this);
                     const oreSpawn: OreSpawn = new OreSpawn(this.name, spawnPosition, [oreResource], data.qualityLevel);
                     this.oreSpawns.push(oreSpawn);
                     this.oreSpawnsAmount.push({ oreSpawnName: data.oreName, amount: +1 });
                 }
+
+                this.oreSpawns = this.oreSpawns.filter((el) => el.position !== spawnPosition);
                 return;
             }
 
             for (const ore of this.oreSpawnsAmount) {
                 if (ore.amount < data.maxAmountPerMap) {
+                    spawnPosition = attemptGetSpawnPosition(this);
                     const oreSpawn: OreSpawn = new OreSpawn(this.name, spawnPosition, [oreResource], data.qualityLevel);
                     this.oreSpawns.push(oreSpawn);
                     ore.amount++;
                     if (ore.amount === data.maxAmountPerMap) break;
                 }
             }
+
+            this.oreSpawns = this.oreSpawns.filter((el) => el.position !== spawnPosition);
         });
     }
 
@@ -192,6 +198,7 @@ function attemptGetSpawnPosition(spacemap: Spacemap): Vector2D {
                     spacemap._config.size.height / 2
             ),
         };
+
         if (spacemap.safeZones) {
             for (const safeZone of spacemap.safeZones) {
                 if (safeZone.isInSafeZone(newPosition)) {
