@@ -319,14 +319,13 @@ io.on("connection", (socket) => {
             const player = await gameServer.getPlayerByUsername(
                 data.playerName
             );
-            if(player){
-                const oreSpawn = gameServer.spacemaps[player.currentMap].oreSpawns.find((orespawn) => {
-                    return orespawn.uuid === data.collectableUUID
-                });
-                if(oreSpawn) {
-                    gameServer.addPlayerCollectOreSpawn(oreSpawn, player)
-                }
-            }
+
+            if(!player) return;
+
+            gameServer.spacemaps[player.currentMap].oreSpawns.forEach((oreSpawn) => {
+                if(oreSpawn.uuid == data.collectableUUID)
+                    gameServer.addPlayerCollectOreSpawn(oreSpawn, player);
+            });
         }
     )
 

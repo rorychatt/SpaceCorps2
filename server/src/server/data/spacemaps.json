@@ -35,13 +35,13 @@
                 "oreName": "radium",
                 "qualityLevel": 1,
                 "amount": 10,
-                "maxAmountPerMap": 50
+                "maxAmountPerMap": 10
             },
             {
                 "oreName": "agronite",
                 "qualityLevel": 1,
                 "amount": 10,
-                "maxAmountPerMap": 50
+                "maxAmountPerMap": 10
             }
         ]
     },
@@ -81,13 +81,13 @@
                 "oreName": "radium",
                 "qualityLevel": 1,
                 "amount": 10,
-                "maxAmountPerMap": 50
+                "maxAmountPerMap": 10
             },
             {
                 "oreName": "agronite",
                 "qualityLevel": 1,
                 "amount": 10,
-                "maxAmountPerMap": 50
+                "maxAmountPerMap": 10
             }
         ]
     },
@@ -127,13 +127,13 @@
                 "oreName": "radium",
                 "qualityLevel": 1,
                 "amount": 10,
-                "maxAmountPerMap": 50
+                "maxAmountPerMap": 10
             },
             {
                 "oreName": "agronite",
                 "qualityLevel": 1,
                 "amount": 10,
-                "maxAmountPerMap": 50
+                "maxAmountPerMap": 10
             }
         ]
     },
@@ -173,13 +173,13 @@
                 "oreName": "radium",
                 "qualityLevel": 1,
                 "amount": 10,
-                "maxAmountPerMap": 50
+                "maxAmountPerMap": 10
             },
             {
                 "oreName": "agronite",
                 "qualityLevel": 1,
                 "amount": 10,
-                "maxAmountPerMap": 50
+                "maxAmountPerMap": 10
             }
         ]
     },
@@ -229,13 +229,13 @@
                 "oreName": "radium",
                 "qualityLevel": 1,
                 "amount": 10,
-                "maxAmountPerMap": 50
+                "maxAmountPerMap": 10
             },
             {
                 "oreName": "agronite",
                 "qualityLevel": 1,
                 "amount": 10,
-                "maxAmountPerMap": 50
+                "maxAmountPerMap": 10
             }
         ]
     }

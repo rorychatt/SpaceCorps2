@@ -108,11 +108,12 @@ export class Spacemap {
     randomSpawnOreSpawn() {
         if (!this._config.oreSpawns) return;
         this._config.oreSpawns.forEach((data) => {
-            const spawnPosition = attemptGetSpawnPosition(this);
+            let spawnPosition: Vector2D;
             const oreResource = new OreResource(data.oreName, data.amount);
 
             if (this.oreSpawnsAmount.length === 0) {
                 for (let i = 0; i < data.maxAmountPerMap; i++) {
+                    spawnPosition = attemptGetSpawnPosition(this);
                     const oreSpawn: OreSpawn = new OreSpawn(this.name, spawnPosition, [oreResource], data.qualityLevel);
                     this.oreSpawns.push(oreSpawn);
                     this.oreSpawnsAmount.push({ oreSpawnName: data.oreName, amount: +1 });
@@ -122,6 +123,7 @@ export class Spacemap {
 
             for (const ore of this.oreSpawnsAmount) {
                 if (ore.amount < data.maxAmountPerMap) {
+                    spawnPosition = attemptGetSpawnPosition(this);
                     const oreSpawn: OreSpawn = new OreSpawn(this.name, spawnPosition, [oreResource], data.qualityLevel);
                     this.oreSpawns.push(oreSpawn);
                     ore.amount++;
@@ -183,15 +185,14 @@ function attemptGetSpawnPosition(spacemap: Spacemap): Vector2D {
     let position: Vector2D | undefined;
     while (spawnAttempt < 5) {
         const newPosition = {
-            x: Math.floor(
-                Math.random() * (spacemap._config.size.width + 1) -
-                    spacemap._config.size.width / 2
-            ),
-            y: Math.floor(
-                Math.random() * (spacemap._config.size.height + 1) -
-                    spacemap._config.size.height / 2
-            ),
+            x:
+                (Math.random() * (spacemap._config.size.width + 1) -
+                    spacemap._config.size.width / 2),
+            y:
+                (Math.random() * (spacemap._config.size.height + 1) -
+                    spacemap._config.size.height / 2)
         };
+
         if (spacemap.safeZones) {
             for (const safeZone of spacemap.safeZones) {
                 if (safeZone.isInSafeZone(newPosition)) {
