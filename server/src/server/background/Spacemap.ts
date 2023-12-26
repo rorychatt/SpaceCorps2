@@ -118,8 +118,6 @@ export class Spacemap {
                     this.oreSpawns.push(oreSpawn);
                     this.oreSpawnsAmount.push({ oreSpawnName: data.oreName, amount: +1 });
                 }
-
-                this.oreSpawns = this.oreSpawns.filter((el) => el.position !== spawnPosition);
                 return;
             }
 
@@ -132,8 +130,6 @@ export class Spacemap {
                     if (ore.amount === data.maxAmountPerMap) break;
                 }
             }
-
-            this.oreSpawns = this.oreSpawns.filter((el) => el.position !== spawnPosition);
         });
     }
 
@@ -189,14 +185,12 @@ function attemptGetSpawnPosition(spacemap: Spacemap): Vector2D {
     let position: Vector2D | undefined;
     while (spawnAttempt < 5) {
         const newPosition = {
-            x: Math.floor(
-                Math.random() * (spacemap._config.size.width + 1) -
-                    spacemap._config.size.width / 2
-            ),
-            y: Math.floor(
-                Math.random() * (spacemap._config.size.height + 1) -
-                    spacemap._config.size.height / 2
-            ),
+            x:
+                (Math.random() * (spacemap._config.size.width + 1) -
+                    spacemap._config.size.width / 2),
+            y:
+                (Math.random() * (spacemap._config.size.height + 1) -
+                    spacemap._config.size.height / 2)
         };
 
         if (spacemap.safeZones) {
