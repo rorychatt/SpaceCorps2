@@ -489,6 +489,7 @@ export type SettingsData = {
     username: string;
     volume: number;
     antiAliasing: boolean;
+    themeColor: string;
 };
 
 export type HotbarSettingsData = {
