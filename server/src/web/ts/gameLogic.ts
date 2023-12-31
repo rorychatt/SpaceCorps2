@@ -1967,7 +1967,6 @@ async function loadEventListeners() {
     if (saveSettingsBtn) {
         saveSettingsBtn.addEventListener("click", () => {
             if (volumeValue && switchCheckbox && themeColor) {
-                // console.log("Current color theme:", themeColor.value); // passed
                 savePlayerSettings({
                     username: playerName,
                     volume: volumeValue.value,
