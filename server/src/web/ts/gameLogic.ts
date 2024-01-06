@@ -1062,7 +1062,8 @@ async function setupPlayerObject(model: THREE.Object3D, data: any) {
 function setupPortalObject(model: THREE.Object3D, data: any) {
     model.uuid = data.uuid;
     model.position.set(data.position.x, 0, data.position.y);
-    model.add(createSafeZoneRing(5));
+    console.log(`DATA SETUP PORTAL OBJECT: ${JSON.stringify(data)}`);
+    model.add(createSafeZoneRing(data.safeZoneRadii));
     setNameRecursively(model, data.name, data.uuid);
     scene.add(model);
     model.lookAt(new THREE.Vector3(0, 0, 0));
@@ -1355,6 +1356,7 @@ async function createObject(data: any): Promise<THREE.Object3D> {
                     });
                     break;
                 case "CompanyBase":
+                    console.log(`DATA COMPANYBASE: ${JSON.stringify(data)}`);
                     loader.load(
                         `./assets/models/base/base.glb`,
                         async (glb) => {
@@ -1365,7 +1367,7 @@ async function createObject(data: any): Promise<THREE.Object3D> {
                                 0,
                                 data.position.y
                             );
-                            model.add(createSafeZoneRing(10));
+                            model.add(createSafeZoneRing(data.safeZoneRadii));
                             setNameRecursively(model, data.name, data.uuid);
                             scene.add(model);
                             model.lookAt(new THREE.Vector3(0, 0, 0));
@@ -2875,6 +2877,7 @@ function createNewIcon(itemName: string) {
     return itemPng;
 }
 
+//тут
 function createSafeZoneRing(
     radius: number,
     lineWidth: number = 0.05,
