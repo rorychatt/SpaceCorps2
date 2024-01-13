@@ -490,6 +490,7 @@ export type SettingsData = {
     volume: number;
     antiAliasing: boolean;
     themeColor: string;
+    secondThemeColor: string;
 };
 
 export type HotbarSettingsData = {

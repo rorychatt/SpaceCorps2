@@ -48,6 +48,8 @@ const volumeValue: HTMLInputElement | null =
     document.querySelector("#volumeLevelInput");
 const themeColor: HTMLInputElement | null =
     document.querySelector("#colorPicker");
+const secondThemeColor: HTMLInputElement | null =
+    document.querySelector("#secondColorPicker");
 const saveSettingsBtn: HTMLElement | null =
     document.getElementById("save_settings_btn");
 
@@ -179,7 +181,7 @@ socket.on(
     (data: { username: string; playerSettings: any }) => {
         for (let i = 0; i < data.playerSettings.length; i++) {
             if (data.username == data.playerSettings[i].username) {
-                if (volumeValue && switchCheckbox && themeColor && saveSettingsBtn) {
+                if (volumeValue && switchCheckbox && themeColor && secondThemeColor && saveSettingsBtn) {
                     volumeValue.value = data.playerSettings[i].volume;
 
                     switchCheckbox.checked =
@@ -191,7 +193,9 @@ socket.on(
                     );
 
                     themeColor.value = data.playerSettings[i].themeColor;
+                    secondThemeColor.value = data.playerSettings[i].secondThemeColor;
                     rootElement.style.setProperty("--main-theme-color", themeColor.value);
+                    rootElement.style.setProperty("--main-theme-color-hover", secondThemeColor.value);
                 }
             }
         }
@@ -521,20 +525,23 @@ function savePlayerSettings(data: {
     volume: string;
     antiAliasing: boolean;
     themeColor: string;
+    secondThemeColor: string;
 }) {
     if (data.antiAliasing) {
         socket.emit("saveSettings", {
             username: data.username,
             volume: parseInt(data.volume),
             antiAliasing: 1,
-            themeColor: data.themeColor
+            themeColor: data.themeColor,
+            secondThemeColor: data.secondThemeColor
         });
     } else {
         socket.emit("saveSettings", {
             username: data.username,
             volume: parseInt(data.volume),
             antiAliasing: 0,
-            themeColor: data.themeColor
+            themeColor: data.themeColor,
+            secondThemeColor: data.secondThemeColor
         });
     }
 }
@@ -1966,12 +1973,13 @@ async function loadEventListeners() {
 
     if (saveSettingsBtn) {
         saveSettingsBtn.addEventListener("click", () => {
-            if (volumeValue && switchCheckbox && themeColor) {
+            if (volumeValue && switchCheckbox && themeColor && secondThemeColor) {
                 savePlayerSettings({
                     username: playerName,
                     volume: volumeValue.value,
                     antiAliasing: switchCheckbox.checked,
-                    themeColor: themeColor.value
+                    themeColor: themeColor.value,
+                    secondThemeColor: secondThemeColor.value
                 });
             }
         });
@@ -1987,6 +1995,12 @@ async function loadEventListeners() {
         themeColor.addEventListener("change", () => {
             rootElement.style.setProperty("--main-theme-color", themeColor.value);
         });
+    }
+
+    if(secondThemeColor) {
+        secondThemeColor.addEventListener("change", () => {
+            rootElement.style.setProperty("--main-theme-color-hover", secondThemeColor.value);
+        })
     }
 
     if (refreshTop10ExperienceBtn && refreshTop10HonorBtn) {

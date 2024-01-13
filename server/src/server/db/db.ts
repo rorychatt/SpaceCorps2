@@ -96,7 +96,8 @@ export function setupDatabaseConnection(): Promise<void> {
                         username VARCHAR(255) PRIMARY KEY,
                         volume INT DEFAULT 5,
                         antiAliasing BOOLEAN DEFAULT TRUE,
-                        themeColor VARCHAR(255) DEFAULT '#6363ff'
+                        themeColor VARCHAR(255) DEFAULT '#6363ff',
+                        secondThemeColor VARCHAR(255) DEFAULT 'BLUE'
                     );
                 `;                
                 const questsQuery: string = `
@@ -277,13 +278,15 @@ export function savePlayerSettings(data: {
     volume: number;
     antiAliasing: boolean;
     themeColor: string;
+    secondThemeColor: string;
 }) {
     const query = `
         UPDATE gamesettings
         SET
             volume = ${data.volume},
             antiAliasing = '${data.antiAliasing}',
-            themeColor = '${data.themeColor}'
+            themeColor = '${data.themeColor}',
+            secondThemeColor = '${data.secondThemeColor}'
         WHERE
             username = '${data.username}';
     `;
