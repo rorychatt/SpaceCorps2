@@ -95,8 +95,11 @@ export function setupDatabaseConnection(): Promise<void> {
                     CREATE TABLE IF NOT EXISTS gamesettings (
                         username VARCHAR(255) PRIMARY KEY,
                         volume INT DEFAULT 5,
-                        antiAliasing BOOLEAN DEFAULT TRUE
-                    );`;
+                        antiAliasing BOOLEAN DEFAULT TRUE,
+                        themeColor VARCHAR(255) DEFAULT '#6363ff',
+                        secondThemeColor VARCHAR(255) DEFAULT 'BLUE'
+                    );
+                `;                
                 const questsQuery: string = `
                     CREATE TABLE IF NOT EXISTS quests (
                         username VARCHAR(255) PRIMARY KEY,
@@ -274,15 +277,20 @@ export function savePlayerSettings(data: {
     username: string;
     volume: number;
     antiAliasing: boolean;
+    themeColor: string;
+    secondThemeColor: string;
 }) {
     const query = `
         UPDATE gamesettings
         SET
             volume = ${data.volume},
-            antiAliasing = '${data.antiAliasing}'
+            antiAliasing = '${data.antiAliasing}',
+            themeColor = '${data.themeColor}',
+            secondThemeColor = '${data.secondThemeColor}'
         WHERE
             username = '${data.username}';
-        `;
+    `;
+
     executeQuery(query);
 }
 

@@ -12,6 +12,7 @@ import * as TWEEN from "@tweenjs/tween.js";
 export const socket = io("http://localhost:3000", { reconnection: false });
 
 // HTML Elements
+const rootElement = document.documentElement as HTMLElement;
 let loginDiv = document.getElementById("loginDiv") as HTMLElement;
 let spacemapDiv = document.getElementById("spacemapDiv") as HTMLElement;
 let contentDiv = document.getElementById("content") as HTMLElement;
@@ -45,6 +46,10 @@ const switchCheckbox: HTMLInputElement | null = document.querySelector(
 );
 const volumeValue: HTMLInputElement | null =
     document.querySelector("#volumeLevelInput");
+const themeColor: HTMLInputElement | null =
+    document.querySelector("#colorPicker");
+const secondThemeColor: HTMLInputElement | null =
+    document.querySelector("#secondColorPicker");
 const saveSettingsBtn: HTMLElement | null =
     document.getElementById("save_settings_btn");
 
@@ -176,7 +181,7 @@ socket.on(
     (data: { username: string; playerSettings: any }) => {
         for (let i = 0; i < data.playerSettings.length; i++) {
             if (data.username == data.playerSettings[i].username) {
-                if (volumeValue && switchCheckbox && saveSettingsBtn) {
+                if (volumeValue && switchCheckbox && themeColor && secondThemeColor && saveSettingsBtn) {
                     volumeValue.value = data.playerSettings[i].volume;
 
                     switchCheckbox.checked =
@@ -186,6 +191,11 @@ socket.on(
                     mainThemeMusic.setVolume(
                         parseInt(data.playerSettings[i].volume) / 100
                     );
+
+                    themeColor.value = data.playerSettings[i].themeColor;
+                    secondThemeColor.value = data.playerSettings[i].secondThemeColor;
+                    rootElement.style.setProperty("--main-theme-color", themeColor.value);
+                    rootElement.style.setProperty("--main-theme-color-hover", secondThemeColor.value);
                 }
             }
         }
@@ -514,18 +524,24 @@ function savePlayerSettings(data: {
     username: string;
     volume: string;
     antiAliasing: boolean;
+    themeColor: string;
+    secondThemeColor: string;
 }) {
     if (data.antiAliasing) {
         socket.emit("saveSettings", {
             username: data.username,
             volume: parseInt(data.volume),
             antiAliasing: 1,
+            themeColor: data.themeColor,
+            secondThemeColor: data.secondThemeColor
         });
     } else {
         socket.emit("saveSettings", {
             username: data.username,
             volume: parseInt(data.volume),
             antiAliasing: 0,
+            themeColor: data.themeColor,
+            secondThemeColor: data.secondThemeColor
         });
     }
 }
@@ -1959,11 +1975,13 @@ async function loadEventListeners() {
 
     if (saveSettingsBtn) {
         saveSettingsBtn.addEventListener("click", () => {
-            if (volumeValue && switchCheckbox) {
+            if (volumeValue && switchCheckbox && themeColor && secondThemeColor) {
                 savePlayerSettings({
                     username: playerName,
                     volume: volumeValue.value,
                     antiAliasing: switchCheckbox.checked,
+                    themeColor: themeColor.value,
+                    secondThemeColor: secondThemeColor.value
                 });
             }
         });
@@ -1973,6 +1991,18 @@ async function loadEventListeners() {
         volumeLevelInput.addEventListener("change", () => {
             mainThemeMusic.setVolume(parseInt(volumeLevelInput.value) / 100);
         });
+    }
+
+    if(themeColor) {
+        themeColor.addEventListener("change", () => {
+            rootElement.style.setProperty("--main-theme-color", themeColor.value);
+        });
+    }
+
+    if(secondThemeColor) {
+        secondThemeColor.addEventListener("change", () => {
+            rootElement.style.setProperty("--main-theme-color-hover", secondThemeColor.value);
+        })
     }
 
     if (refreshTop10ExperienceBtn && refreshTop10HonorBtn) {

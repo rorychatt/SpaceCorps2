@@ -2160,6 +2160,55 @@ input[type="number"]::-webkit-outer-spin-button {
     width: 35%;
 }
 
+/*  */
+.settings_themeColor {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    color: var(--login-container-white-background);
+    border: 1px solid var(--login-container-white-background);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.settings_themeColor label {
+    font-family: "AudioWide";
+    font-size: 1vh;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 65%;
+    height: 100%;
+}
+
+.settings_themeColor div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 35%;
+    height: 100%;
+}
+
+.settings_themeColor input {
+    margin: 5px 0;
+    width: 100px;
+    height: 20px;
+}
+
+.settings_themeColor input[type="color"] {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.settings_themeColor input[type="color"]:hover {
+    background-color: #f0f0f0;
+}
+/*  */
+
 .settings_switch {
     width: 35%;
 }
