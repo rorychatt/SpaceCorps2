@@ -4,6 +4,7 @@ import cors from "cors";
 import http from "http";
 import { Server, Socket } from "socket.io";
 import {
+    checkCompany,
     executeQuery,
     getPlayerHotbarSettings,
     getUserByUsername,
@@ -95,6 +96,14 @@ io.on("connection", (socket) => {
                     userCredentials &&
                     userCredentials.password === data.password
                 ) {
+                    const returnedCompany: { company: string }[] = await checkCompany(userCredentials.username);
+                    const playerCompany: string = returnedCompany[0].company;
+
+                    if(playerCompany == "free") {
+                        socket.emit("chooseCompany", {username: userCredentials.username});
+                        return;
+                    }
+
                     socket.emit("loginSuccessful", {
                         username: userCredentials.username,
                         gameversion: gameServer._version,

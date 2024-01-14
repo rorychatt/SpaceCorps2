@@ -35,6 +35,10 @@ export interface QuestsInterface {
     currentQuests: { questName: string; tasksProgress: any[] }[];
 }
 
+export type CompanyResult = {
+    company: string;
+}
+
 export let pool: mysql.Pool;
 
 const config: Config = readServerConfigFile();
@@ -70,7 +74,7 @@ export function setupDatabaseConnection(): Promise<void> {
                     CREATE TABLE IF NOT EXISTS playerEntity (
                         username VARCHAR(255) PRIMARY KEY,
                         mapName VARCHAR(255) DEFAULT 'M-1',
-                        company VARCHAR(255) DEFAULT 'MCC',
+                        company VARCHAR(255) DEFAULT 'free',
                         positionX DOUBLE DEFAULT 0,
                         positionY DOUBLE DEFAULT 0,
                         credits BIGINT DEFAULT 50000,
@@ -341,4 +345,9 @@ export function saveCompletedQuests(data: {
             username = '${data.username}'
     `;
     executeQuery(query);
+}
+
+export function checkCompany(username: string): Promise<CompanyResult[]> {
+    const query = `SELECT company FROM playerEntity WHERE username = '${username}'`;
+    return executeQuery(query);
 }
