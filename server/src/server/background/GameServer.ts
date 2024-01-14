@@ -248,7 +248,6 @@ export class GameServer {
     }    
 
     async loadNewPlayer(socketId: string, username: string, companyName?: string | null) {
-        // тут
         for(const mapName in this.spacemaps) {
             this.spacemaps[
                 mapName
@@ -568,9 +567,19 @@ export class GameServer {
                     entity instanceof Player &&
                     entity.hitPoints.hullPoints <= 0
                 ) {
-                    // тут
                     //TODO: Respawn logic
                     entity.hitPoints.hullPoints = 10000;
+                    for(const mapName in this.spacemaps) {
+                        this.spacemaps[
+                            mapName
+                        ].entities.forEach((companyBase) => { 
+                            if(companyBase instanceof CompanyBase && companyBase.name == entity.company) {
+                                this.sendPlayerToNewMap(entity, companyBase.currentMap, { x: companyBase.position.x, y: companyBase.position.y });
+                                return true;
+                            }
+                        });
+                    }
+
                     this.sendPlayerToNewMap(entity, "M-1", { x: 0, y: 0 });
                 }
                 return true;

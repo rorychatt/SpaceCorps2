@@ -73,7 +73,6 @@ io.on("connection", (socket) => {
         }
     });
 
-    // тут
     socket.on("pickedCompany", async(data: { username: string, company: string }) => {
         await changeCompany(data.username, data.company);
         await loadPlayerAndData(data.username, data.company);
