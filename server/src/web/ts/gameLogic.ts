@@ -26,7 +26,8 @@ let cancelButton = document.getElementById("quest_cancel_btn") as HTMLElement;
 let chooseCompanyDivParent = document.querySelector(".choose_company") as HTMLElement;
 let chooseCompanyMenu = document.querySelectorAll(".choose_company .item") as NodeListOf<HTMLElement>;
 let MCCcompanyBtn = document.querySelector(".mcc") as HTMLElement;
-let OROcompanyBtn = document.querySelector(".oro") as HTMLDivElement;
+let TSGcompanyBtn = document.querySelector(".tsg") as HTMLElement;
+let TUIcompanyBtn = document.querySelector(".tui") as HTMLElement;
 let GVGcompanyBtn = document.querySelector(".gvg") as HTMLElement;
 
 // UI Elements
@@ -165,16 +166,29 @@ socket.on("connect", () => {
 });
 
 socket.on("chooseCompany", (data: { username: string }) => {
+    contentDiv.hidden = true;
+    loginDiv.hidden = true;
     chooseCompanyDivParent.style.display = "flex";
 
-    if(MCCcompanyBtn && OROcompanyBtn && GVGcompanyBtn) {
-        Array.prototype.forEach.call(chooseCompanyMenu, (element: HTMLElement) => {        
-            element.addEventListener("click", () => {
-                const company = element.querySelector("h2")?.textContent;
+    if(MCCcompanyBtn && TSGcompanyBtn && TUIcompanyBtn && GVGcompanyBtn) {
+        MCCcompanyBtn.addEventListener("click", () => socket.emit("pickedCompany", { username: data.username, company: "MCC"}));
+        TSGcompanyBtn.addEventListener("click", () => socket.emit("pickedCompany", { username: data.username, company: "TSG"}));
+        TUIcompanyBtn.addEventListener("click", () => socket.emit("pickedCompany", { username: data.username, company: "TUI"}));
+        GVGcompanyBtn.addEventListener("click", () => socket.emit("pickedCompany", { username: data.username, company: "GVG"}));
 
-                socket.emit("pickedCompany", { username: data.username, company: company });
+        chooseCompanyDivParent.style.transition = "0.4s";
+
+        Array.prototype.forEach.call(chooseCompanyMenu, (element: HTMLElement) => {
+            element.addEventListener("mouseenter", () => {
+                chooseCompanyDivParent.style.background = window.getComputedStyle(element).backgroundColor;
             });
-        });        
+        });
+
+        Array.prototype.forEach.call(chooseCompanyMenu, (element: HTMLElement) => {
+            element.addEventListener("mouseleave", () => {
+                chooseCompanyDivParent.style.backgroundColor = "black";
+            });
+        });
     }
 });
 
@@ -182,7 +196,6 @@ socket.on("userisAdmin", () => {
     consoleBtn.hidden = false;
 });
 
-// тут
 socket.on(
     "loginSuccessful",
     (data: { username: string; gameversion: string }) => {
@@ -2928,7 +2941,6 @@ function createNewIcon(itemName: string) {
     return itemPng;
 }
 
-//тут
 function createSafeZoneRing(
     radius: number,
     lineWidth: number = 0.05,

@@ -109,6 +109,20 @@ body {
 }
 
 /* company */
+.choose_company {
+    display: flex;
+    flex-direction: column;
+    grid-gap: 15px;
+    background-color: #181818;
+    width: 100vw;
+    height: 100vh;
+}
+
+.choose_company h1 {
+    font-size: 40px;
+    flex-grow: 0;
+}
+
 .choose_company .companies {
     display: flex;
     justify-content: space-around;
@@ -119,22 +133,31 @@ body {
     font-size: 24px;
     display: flex;
     flex-direction: column;
+    align-items: center;
     grid-gap: 50px;
     width: 300px;
-    height: 600px;
-    color: var(--body-white-backround);
+    color: var(--login-container-white-background);
+    padding: 25px 0;
 }
 
-.choose_company .item.red {
+.choose_company .item button {
+    font-size: 28px;
+}
+
+.choose_company .item.red, .choose_company .item.red button {
     background-color: red;
 }
 
-.choose_company .item.blue {
+.choose_company .item.blue, .choose_company .item.blue button {
     background-color: blue;
 }
 
-.choose_company .item.green {
+.choose_company .item.green, .choose_company .item.green button {
     background-color: green;
+}
+
+.choose_company .item.purple, .choose_company .item.purple button {
+    background-color: purple;
 }
 
 .container {
