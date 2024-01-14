@@ -23,6 +23,11 @@ let gamefpsDiv = document.getElementById("gamefps") as HTMLElement;
 let quests100qDiv = document.getElementById("quest_100q") as HTMLElement;
 let entityLabelsDiv = document.getElementById("entityLabelsDiv");
 let cancelButton = document.getElementById("quest_cancel_btn") as HTMLElement;
+let chooseCompanyDivParent = document.querySelector(".choose_company") as HTMLElement;
+let chooseCompanyMenu = document.querySelectorAll(".choose_company .item") as NodeListOf<HTMLElement>;
+let MCCcompanyBtn = document.querySelector(".mcc") as HTMLElement;
+let OROcompanyBtn = document.querySelector(".oro") as HTMLDivElement;
+let GVGcompanyBtn = document.querySelector(".gvg") as HTMLElement;
 
 // UI Elements
 const creditsElement = document.getElementById("credits_value");
@@ -159,10 +164,25 @@ socket.on("connect", () => {
     console.log("Connected to the socket.io server");
 });
 
+socket.on("chooseCompany", (data: { username: string }) => {
+    chooseCompanyDivParent.style.display = "flex";
+
+    if(MCCcompanyBtn && OROcompanyBtn && GVGcompanyBtn) {
+        Array.prototype.forEach.call(chooseCompanyMenu, (element: HTMLElement) => {        
+            element.addEventListener("click", () => {
+                const company = element.querySelector("h2")?.textContent;
+
+                socket.emit("pickedCompany", { username: data.username, company: company });
+            });
+        });        
+    }
+});
+
 socket.on("userisAdmin", () => {
     consoleBtn.hidden = false;
 });
 
+// тут
 socket.on(
     "loginSuccessful",
     (data: { username: string; gameversion: string }) => {
@@ -172,6 +192,7 @@ socket.on(
         rescaleOnWindowResize();
         uiDiv.hidden = false;
         gameVersionDiv.innerHTML = data.gameversion;
+        chooseCompanyDivParent.remove();
         socket.emit("checkisAdmin", data.username);
     }
 );

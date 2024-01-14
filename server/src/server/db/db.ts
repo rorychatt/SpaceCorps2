@@ -351,3 +351,9 @@ export function checkCompany(username: string): Promise<CompanyResult[]> {
     const query = `SELECT company FROM playerEntity WHERE username = '${username}'`;
     return executeQuery(query);
 }
+
+export async function changeCompany(username: string, company: string) {
+    const query = `UPDATE playerEntity SET company = '${company}' WHERE username = '${username}'`;
+    await executeQuery(query);
+    console.log(`Player: ${username}, set company: ${company}`);
+}

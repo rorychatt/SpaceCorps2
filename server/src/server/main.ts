@@ -4,6 +4,7 @@ import cors from "cors";
 import http from "http";
 import { Server, Socket } from "socket.io";
 import {
+    changeCompany,
     checkCompany,
     executeQuery,
     getPlayerHotbarSettings,
@@ -72,6 +73,15 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("loadPlayerAndData", (username: string) => {
+        loadPlayerAndData(username);
+    });
+
+    socket.on("pickedCompany", async(data: { username: string, company: string }) => {
+        await changeCompany(data.username, data.company);
+        await loadPlayerAndData(data.username);
+    });
+
     socket.on(
         "authenticate",
         async (data: { username: string; password: string }) => {
@@ -104,55 +114,7 @@ io.on("connection", (socket) => {
                         return;
                     }
 
-                    socket.emit("loginSuccessful", {
-                        username: userCredentials.username,
-                        gameversion: gameServer._version,
-                    });
-
-                    const playerSettings = await loadPlayerSettings(
-                        userCredentials.username
-                    );
-
-                    await Promise.all([
-                        socket.emit("loadPlayerSettings", {
-                            username: userCredentials.username,
-                            playerSettings: playerSettings,
-                        }),
-                        socket.emit("shopData", {
-                            lasers: laserData,
-                            generators: generatorData,
-                            ships: shipData,
-                            ammunition: {
-                                laserAmmo: laserAmmoData,
-                                rocketAmmo: rocketAmmoData,
-                            },
-                        }),
-                        socket.emit("questsData", {
-                            username: userCredentials.username,
-                            quests: gameServer.questServer.quests,
-                        }),
-                        socket.emit("hotbarMappingData", {
-                            username: userCredentials.username,
-                            hotbarMapping: (
-                                (
-                                    await getPlayerHotbarSettings(
-                                        userCredentials.username
-                                    )
-                                )[0] as any
-                            ).hotbarMapping,
-                        }),
-                        socket.emit("universeData", {
-                            maps: await readGameDataConfigFiles(),
-                        }),
-                    ]);
-
-                    console.log(
-                        `${userCredentials.username} logs into the game`
-                    );
-                    gameServer.loadNewPlayer(
-                        socket.id as string,
-                        userCredentials.username
-                    );
+                    loadPlayerAndData(userCredentials.username);
                 } else {
                     socket.emit("loginUnsuccessful", {
                         username: data.username,
@@ -372,6 +334,58 @@ io.on("connection", (socket) => {
     socket.on("savePlayerHotbarSettings", (hotbarData: HotbarSettingsData) => {
         savePlayerHotbarSettings(hotbarData);
     });
+
+    async function loadPlayerAndData(username: string) {
+        socket.emit("loginSuccessful", {
+            username: username,
+            gameversion: gameServer._version,
+        });
+    
+        const playerSettings = await loadPlayerSettings(
+            username
+        );
+    
+        await Promise.all([
+            socket.emit("loadPlayerSettings", {
+                username: username,
+                playerSettings: playerSettings,
+            }),
+            socket.emit("shopData", {
+                lasers: laserData,
+                generators: generatorData,
+                ships: shipData,
+                ammunition: {
+                    laserAmmo: laserAmmoData,
+                    rocketAmmo: rocketAmmoData,
+                },
+            }),
+            socket.emit("questsData", {
+                username: username,
+                quests: gameServer.questServer.quests,
+            }),
+            socket.emit("hotbarMappingData", {
+                username: username,
+                hotbarMapping: (
+                    (
+                        await getPlayerHotbarSettings(
+                            username
+                        )
+                    )[0] as any
+                ).hotbarMapping,
+            }),
+            socket.emit("universeData", {
+                maps: await readGameDataConfigFiles(),
+            }),
+        ]);
+    
+        console.log(
+            `${username} logs into the game`
+        );
+        gameServer.loadNewPlayer(
+            socket.id as string,
+            username
+        );
+    }
 });
 
 function handleHTTPRequests() {
