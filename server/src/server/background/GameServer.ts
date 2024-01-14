@@ -20,7 +20,7 @@ import {
 } from "../db/db";
 import { ChatServer } from "./ChatServer";
 import { DamageEvent } from "./DamageEvent";
-import { Entity, Portal } from "./Entity";
+import { CompanyBase, Entity, Portal } from "./Entity.js";
 import { RewardServer } from "./RewardServer";
 import {
     AlienProjectile,
@@ -247,7 +247,22 @@ export class GameServer {
         return true;
     }    
 
-    async loadNewPlayer(socketId: string, username: string) {
+    async loadNewPlayer(socketId: string, username: string, companyName?: string | null) {
+        // тут
+        for(const mapName in this.spacemaps) {
+            this.spacemaps[
+                mapName
+            ].entities.forEach((entity) => { 
+                if(entity instanceof CompanyBase && entity.name == companyName) {
+                    const player = new Player(socketId, this.spacemaps[entity.currentMap], username);
+                    player.position.x = entity.position.x;
+                    player.position.y = entity.position.y;
+                    player.company = companyName;
+                    return;
+                }
+            });
+        }
+
         const player = new Player(socketId, this.spacemaps["M-1"], username);
     }
 
@@ -553,6 +568,7 @@ export class GameServer {
                     entity instanceof Player &&
                     entity.hitPoints.hullPoints <= 0
                 ) {
+                    // тут
                     //TODO: Respawn logic
                     entity.hitPoints.hullPoints = 10000;
                     this.sendPlayerToNewMap(entity, "M-1", { x: 0, y: 0 });

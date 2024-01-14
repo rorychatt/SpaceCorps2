@@ -73,13 +73,10 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("loadPlayerAndData", (username: string) => {
-        loadPlayerAndData(username);
-    });
-
+    // тут
     socket.on("pickedCompany", async(data: { username: string, company: string }) => {
         await changeCompany(data.username, data.company);
-        await loadPlayerAndData(data.username);
+        await loadPlayerAndData(data.username, data.company);
     });
 
     socket.on(
@@ -335,7 +332,7 @@ io.on("connection", (socket) => {
         savePlayerHotbarSettings(hotbarData);
     });
 
-    async function loadPlayerAndData(username: string) {
+    async function loadPlayerAndData(username: string, companyName?: string) {
         socket.emit("loginSuccessful", {
             username: username,
             gameversion: gameServer._version,
@@ -381,10 +378,18 @@ io.on("connection", (socket) => {
         console.log(
             `${username} logs into the game`
         );
-        gameServer.loadNewPlayer(
-            socket.id as string,
-            username
-        );
+        
+        if(companyName) 
+            gameServer.loadNewPlayer(
+                socket.id as string,
+                username,
+                companyName
+            );
+        else
+            gameServer.loadNewPlayer(
+                socket.id as string,
+                username
+            );
     }
 });
 

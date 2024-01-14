@@ -348,12 +348,18 @@ export function saveCompletedQuests(data: {
 }
 
 export function checkCompany(username: string): Promise<CompanyResult[]> {
-    const query = `SELECT company FROM playerEntity WHERE username = '${username}'`;
-    return executeQuery(query);
+    const query = 'SELECT company FROM playerEntity WHERE username = ?';
+    return executeQuery(query, [username]);
 }
 
-export async function changeCompany(username: string, company: string) {
-    const query = `UPDATE playerEntity SET company = '${company}' WHERE username = '${username}'`;
-    await executeQuery(query);
-    console.log(`Player: ${username}, set company: ${company}`);
+export async function changeCompany(username: string, company: string): Promise<void> {
+    const query = 'UPDATE playerEntity SET company = ? WHERE username = ?';
+    
+    try {
+        await executeQuery(query, [company, username]);
+        console.log(`Player: ${username}, set company: ${company}`);
+    } catch (error) {
+        console.error('Error updating company:', error);
+        throw error;
+    }
 }
