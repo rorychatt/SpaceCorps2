@@ -26,8 +26,8 @@ let cancelButton = document.getElementById("quest_cancel_btn") as HTMLElement;
 let chooseCompanyDivParent = document.querySelector(".choose_company") as HTMLElement;
 let chooseCompanyMenu = document.querySelectorAll(".choose_company .item") as NodeListOf<HTMLElement>;
 let MCCcompanyBtn = document.querySelector(".mcc") as HTMLElement;
-let TSGcompanyBtn = document.querySelector(".tsg") as HTMLElement;
-let TUIcompanyBtn = document.querySelector(".tui") as HTMLElement;
+let OROcompanyBtn = document.querySelector(".oro") as HTMLElement;
+let TRUcompanyBtn = document.querySelector(".tru") as HTMLElement;
 let GVGcompanyBtn = document.querySelector(".gvg") as HTMLElement;
 
 // UI Elements
@@ -170,10 +170,10 @@ socket.on("chooseCompany", (data: { username: string }) => {
     loginDiv.hidden = true;
     chooseCompanyDivParent.style.display = "flex";
 
-    if(MCCcompanyBtn && TSGcompanyBtn && TUIcompanyBtn && GVGcompanyBtn) {
+    if(MCCcompanyBtn && OROcompanyBtn && TRUcompanyBtn && GVGcompanyBtn) {
         MCCcompanyBtn.addEventListener("click", () => socket.emit("pickedCompany", { username: data.username, company: "MCC"}));
-        TSGcompanyBtn.addEventListener("click", () => socket.emit("pickedCompany", { username: data.username, company: "TSG"}));
-        TUIcompanyBtn.addEventListener("click", () => socket.emit("pickedCompany", { username: data.username, company: "TUI"}));
+        OROcompanyBtn.addEventListener("click", () => socket.emit("pickedCompany", { username: data.username, company: "ORO"}));
+        TRUcompanyBtn.addEventListener("click", () => socket.emit("pickedCompany", { username: data.username, company: "TRU"}));
         GVGcompanyBtn.addEventListener("click", () => socket.emit("pickedCompany", { username: data.username, company: "GVG"}));
 
         chooseCompanyDivParent.style.transition = "0.4s";

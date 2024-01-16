@@ -14,10 +14,11 @@ import {
 } from "./loadGameData";
 import { Server, Socket } from "socket.io";
 import {
+    checkCompany,
     saveCompletedQuests,
     saveCurrentQuests,
     savePlayerData,
-} from "../db/db";
+} from "../db/db.js";
 import { ChatServer } from "./ChatServer";
 import { DamageEvent } from "./DamageEvent";
 import { CompanyBase, Entity, Portal } from "./Entity.js";
@@ -245,24 +246,35 @@ export class GameServer {
         }
     
         return true;
-    }    
+    }
 
-    async loadNewPlayer(socketId: string, username: string, companyName?: string | null) {
+    async loadNewPlayer(socketId: string, username: string, companyName?: string) {
+        if(!companyName) {
+            const company = await checkCompany(username);
+            const player = new Player(socketId, this.spacemaps["M-1"], username);
+            player.company = company[0].company;
+            console.log(`loading player: ${player.name}, company: ${player.company}`);
+            return;
+        }
+        
         for(const mapName in this.spacemaps) {
             this.spacemaps[
                 mapName
-            ].entities.forEach((entity) => { 
-                if(entity instanceof CompanyBase && entity.name == companyName) {
-                    const player = new Player(socketId, this.spacemaps[entity.currentMap], username);
-                    player.position.x = entity.position.x;
-                    player.position.y = entity.position.y;
-                    player.company = companyName;
+            ].entities.forEach(async(entity) => { 
+                if(entity instanceof CompanyBase && companyName) {
+                    if(companyName === entity.name) {
+                        // fix loading player on company-base
+                        const player: Player = new Player(socketId, this.spacemaps[entity.currentMap], username);
+                        player.position = entity.position; // fix
+                        player.company = entity.name;
+                        console.log("entity", JSON.stringify(entity));
+                        console.log("player", JSON.stringify(player.position));
+                    }
+
                     return;
                 }
             });
         }
-
-        const player = new Player(socketId, this.spacemaps["M-1"], username);
     }
 
     async processAILogic() {
@@ -568,6 +580,7 @@ export class GameServer {
                     entity.hitPoints.hullPoints <= 0
                 ) {
                     //TODO: Respawn logic
+                    // fix respawn player on company-base
                     entity.hitPoints.hullPoints = 10000;
                     for(const mapName in this.spacemaps) {
                         this.spacemaps[
@@ -575,6 +588,7 @@ export class GameServer {
                         ].entities.forEach((companyBase) => { 
                             if(companyBase instanceof CompanyBase && companyBase.name == entity.company) {
                                 this.sendPlayerToNewMap(entity, companyBase.currentMap, { x: companyBase.position.x, y: companyBase.position.y });
+                                console.log(`respawn player: ${entity.name}, map: ${entity.currentMap}`);
                                 return true;
                             }
                         });

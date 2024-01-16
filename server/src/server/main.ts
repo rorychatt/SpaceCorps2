@@ -382,13 +382,14 @@ io.on("connection", (socket) => {
             gameServer.loadNewPlayer(
                 socket.id as string,
                 username,
-                companyName
+                companyName as string
             );
-        else
+        else {
             gameServer.loadNewPlayer(
                 socket.id as string,
                 username
             );
+        }
     }
 });
 

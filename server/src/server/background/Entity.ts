@@ -75,7 +75,7 @@ export class CompanyBase extends Entity {
         name: string,
         safeZoneRadii: number
     ) {
-        super(name, "CompanyBase");
+        super(map.name, name);
         this.location = location;
         this.position = calculateEntityPosition(location, map.size);
         this.safeZoneRadii = safeZoneRadii;
