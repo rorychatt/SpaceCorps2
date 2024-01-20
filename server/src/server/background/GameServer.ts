@@ -14,10 +14,11 @@ import {
 } from "./loadGameData";
 import { Server, Socket } from "socket.io";
 import {
-    checkCompany,
+    getPlayerCompany,
     saveCompletedQuests,
     saveCurrentQuests,
     savePlayerData,
+    setPlayerPosition,
 } from "../db/db.js";
 import { ChatServer } from "./ChatServer";
 import { DamageEvent } from "./DamageEvent";
@@ -250,28 +251,26 @@ export class GameServer {
 
     async loadNewPlayer(socketId: string, username: string, companyName?: string) {
         if(!companyName) {
-            const company = await checkCompany(username);
+            const company = await getPlayerCompany(username);
             const player = new Player(socketId, this.spacemaps["M-1"], username);
             player.company = company[0].company;
-            console.log(`loading player: ${player.name}, company: ${player.company}`);
             return;
         }
         
+        // change "for" for another method
         for(const mapName in this.spacemaps) {
             this.spacemaps[
                 mapName
             ].entities.forEach(async(entity) => { 
                 if(entity instanceof CompanyBase && companyName) {
-                    if(companyName === entity.name) {
-                        // fix loading player on company-base
-                        const player: Player = new Player(socketId, this.spacemaps[entity.currentMap], username);
-                        player.position = entity.position; // fix
-                        player.company = entity.name;
-                        console.log("entity", JSON.stringify(entity));
-                        console.log("player", JSON.stringify(player.position));
-                    }
+                    if(companyName === entity.name.slice(0, 3)) {
+                        await setPlayerPosition(username, entity.currentMap, entity.position.x, entity.position.y);
 
-                    return;
+                        const player = new Player(socketId, this.spacemaps[entity.currentMap], username);
+                        player.company = entity.name.slice(0, 3);
+
+                        return;
+                    }
                 }
             });
         }

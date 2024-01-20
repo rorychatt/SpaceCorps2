@@ -4,8 +4,8 @@ import cors from "cors";
 import http from "http";
 import { Server, Socket } from "socket.io";
 import {
-    changeCompany,
-    checkCompany,
+    changePlayerCompany,
+    getPlayerCompany,
     executeQuery,
     getPlayerHotbarSettings,
     getUserByUsername,
@@ -74,7 +74,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("pickedCompany", async(data: { username: string, company: string }) => {
-        await changeCompany(data.username, data.company);
+        await changePlayerCompany(data.username, data.company.slice(0,3));
         await loadPlayerAndData(data.username, data.company);
     });
 
@@ -102,7 +102,7 @@ io.on("connection", (socket) => {
                     userCredentials &&
                     userCredentials.password === data.password
                 ) {
-                    const returnedCompany: { company: string }[] = await checkCompany(userCredentials.username);
+                    const returnedCompany: { company: string }[] = await getPlayerCompany(userCredentials.username);
                     const playerCompany: string = returnedCompany[0].company;
 
                     if(playerCompany == "free") {
@@ -375,7 +375,7 @@ io.on("connection", (socket) => {
         ]);
     
         console.log(
-            `${username} logs into the game`
+            `${username} logged into the game`
         );
         
         if(companyName) 
