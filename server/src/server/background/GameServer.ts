@@ -252,27 +252,28 @@ export class GameServer {
     async loadNewPlayer(socketId: string, username: string, companyName?: string) {
         if(!companyName) {
             const company = await getPlayerCompany(username);
-            const player = new Player(socketId, this.spacemaps["M-1"], username);
-            player.company = company[0].company;
-            return;
-        }
-        
-        // change "for" for another method
-        for(const mapName in this.spacemaps) {
-            this.spacemaps[
-                mapName
-            ].entities.forEach(async(entity) => { 
-                if(entity instanceof CompanyBase && companyName) {
-                    if(companyName === entity.name.slice(0, 3)) {
-                        await setPlayerPosition(username, entity.currentMap, entity.position.x, entity.position.y);
-
+            for(const mapName in this.spacemaps) {
+                for(const entity of this.spacemaps[mapName].entities) {
+                    if(entity instanceof CompanyBase && company[0].company === entity.name.slice(0, 3)) {
                         const player = new Player(socketId, this.spacemaps[entity.currentMap], username);
-                        player.company = entity.name.slice(0, 3);
-
+                        player.company = company[0].company;
                         return;
                     }
                 }
-            });
+            }
+        }
+        
+        for(const mapName in this.spacemaps) {
+            for(const entity of this.spacemaps[mapName].entities) {
+                if(entity instanceof CompanyBase && companyName && companyName === entity.name.slice(0, 3)) {
+                    await setPlayerPosition(username, entity.currentMap, entity.position.x, entity.position.y);
+
+                    const player = new Player(socketId, this.spacemaps[entity.currentMap], username);
+                    player.company = entity.name.slice(0, 3);
+
+                    return;
+                }
+            }
         }
     }
 
@@ -578,22 +579,16 @@ export class GameServer {
                     entity instanceof Player &&
                     entity.hitPoints.hullPoints <= 0
                 ) {
-                    //TODO: Respawn logic
-                    // fix respawn player on company-base
                     entity.hitPoints.hullPoints = 10000;
                     for(const mapName in this.spacemaps) {
-                        this.spacemaps[
-                            mapName
-                        ].entities.forEach((companyBase) => { 
-                            if(companyBase instanceof CompanyBase && companyBase.name == entity.company) {
+                        for(const companyBase of this.spacemaps[mapName].entities) {
+                            if(companyBase instanceof CompanyBase && companyBase.name.slice(0, 3) === entity.company) {
                                 this.sendPlayerToNewMap(entity, companyBase.currentMap, { x: companyBase.position.x, y: companyBase.position.y });
-                                console.log(`respawn player: ${entity.name}, map: ${entity.currentMap}`);
+
                                 return true;
                             }
-                        });
+                        }
                     }
-
-                    this.sendPlayerToNewMap(entity, "M-1", { x: 0, y: 0 });
                 }
                 return true;
             });
