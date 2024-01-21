@@ -360,7 +360,6 @@ export async function changePlayerCompany(username: string, newCompanyName: stri
         console.log(`Player: ${username}, set company: ${newCompanyName}`);
     } catch (error) {
         console.error('Error updating company:', error);
-        throw error;
     }
 }
 
@@ -372,6 +371,5 @@ export async function setPlayerPosition(username: string, mapName: string, posit
         console.log(`Player: ${username}, update position: map: ${mapName}, position x: ${positionX}, position y: ${positionY}`);
     } catch(error) {
         console.log(`Error updating player position:`, error);
-        throw error;
     }
 }
