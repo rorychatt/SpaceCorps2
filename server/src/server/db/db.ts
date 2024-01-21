@@ -35,6 +35,10 @@ export interface QuestsInterface {
     currentQuests: { questName: string; tasksProgress: any[] }[];
 }
 
+export type CompanyResult = {
+    company: string;
+}
+
 export let pool: mysql.Pool;
 
 const config: Config = readServerConfigFile();
@@ -70,7 +74,7 @@ export function setupDatabaseConnection(): Promise<void> {
                     CREATE TABLE IF NOT EXISTS playerEntity (
                         username VARCHAR(255) PRIMARY KEY,
                         mapName VARCHAR(255) DEFAULT 'M-1',
-                        company VARCHAR(255) DEFAULT 'MCC',
+                        company VARCHAR(255) DEFAULT 'free',
                         positionX DOUBLE DEFAULT 0,
                         positionY DOUBLE DEFAULT 0,
                         credits BIGINT DEFAULT 50000,
@@ -341,4 +345,31 @@ export function saveCompletedQuests(data: {
             username = '${data.username}'
     `;
     executeQuery(query);
+}
+
+export function getPlayerCompany(username: string): Promise<CompanyResult[]> {
+    const query = 'SELECT company FROM playerEntity WHERE username = ?';
+    return executeQuery(query, [username]);
+}
+
+export async function changePlayerCompany(username: string, newCompanyName: string): Promise<void> {
+    const query = 'UPDATE playerEntity SET company = ? WHERE username = ?';
+
+    try {
+        await executeQuery(query, [newCompanyName, username]);
+        console.log(`Player: ${username}, set company: ${newCompanyName}`);
+    } catch (error) {
+        console.error('Error updating company:', error);
+    }
+}
+
+export async function setPlayerPosition(username: string, mapName: string, positionX: number, positionY: number) {
+    const query = `UPDATE playerEntity SET mapName = ?, positionX = ?, positionY = ? WHERE username = ?`;
+
+    try {
+        await executeQuery(query, [mapName, positionX, positionY, username]);
+        console.log(`Player: ${username}, update position: map: ${mapName}, position x: ${positionX}, position y: ${positionY}`);
+    } catch(error) {
+        console.log(`Error updating player position:`, error);
+    }
 }

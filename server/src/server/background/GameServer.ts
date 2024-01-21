@@ -14,13 +14,15 @@ import {
 } from "./loadGameData";
 import { Server, Socket } from "socket.io";
 import {
+    getPlayerCompany,
     saveCompletedQuests,
     saveCurrentQuests,
     savePlayerData,
-} from "../db/db";
+    setPlayerPosition,
+} from "../db/db.js";
 import { ChatServer } from "./ChatServer";
 import { DamageEvent } from "./DamageEvent";
-import { Entity, Portal } from "./Entity";
+import { CompanyBase, Entity, Portal } from "./Entity.js";
 import { RewardServer } from "./RewardServer";
 import {
     AlienProjectile,
@@ -245,10 +247,34 @@ export class GameServer {
         }
     
         return true;
-    }    
+    }
 
-    async loadNewPlayer(socketId: string, username: string) {
-        const player = new Player(socketId, this.spacemaps["M-1"], username);
+    async loadNewPlayer(socketId: string, username: string, companyName?: string) {
+        if(!companyName) {
+            const company = await getPlayerCompany(username);
+            for(const mapName in this.spacemaps) {
+                for(const entity of this.spacemaps[mapName].entities) {
+                    if(entity instanceof CompanyBase && company[0].company === entity.name.slice(0, 3)) {
+                        const player = new Player(socketId, this.spacemaps[entity.currentMap], username);
+                        player.company = company[0].company;
+                        return;
+                    }
+                }
+            }
+        }
+        
+        for(const mapName in this.spacemaps) {
+            for(const entity of this.spacemaps[mapName].entities) {
+                if(entity instanceof CompanyBase && companyName && companyName === entity.name.slice(0, 3)) {
+                    await setPlayerPosition(username, entity.currentMap, entity.position.x, entity.position.y);
+
+                    const player = new Player(socketId, this.spacemaps[entity.currentMap], username);
+                    player.company = entity.name.slice(0, 3);
+
+                    return;
+                }
+            }
+        }
     }
 
     async processAILogic() {
@@ -553,9 +579,16 @@ export class GameServer {
                     entity instanceof Player &&
                     entity.hitPoints.hullPoints <= 0
                 ) {
-                    //TODO: Respawn logic
                     entity.hitPoints.hullPoints = 10000;
-                    this.sendPlayerToNewMap(entity, "M-1", { x: 0, y: 0 });
+                    for(const mapName in this.spacemaps) {
+                        for(const companyBase of this.spacemaps[mapName].entities) {
+                            if(companyBase instanceof CompanyBase && companyBase.name.slice(0, 3) === entity.company) {
+                                this.sendPlayerToNewMap(entity, companyBase.currentMap, { x: companyBase.position.x, y: companyBase.position.y });
+
+                                return true;
+                            }
+                        }
+                    }
                 }
                 return true;
             });
