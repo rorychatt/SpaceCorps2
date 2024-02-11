@@ -738,8 +738,10 @@ h1 {
 .questbook {
     justify-content: center;
     text-align: center;
-    margin-top: 4%;
+    margin-top: 10px;
     box-sizing: border-box;
+    margin-left: 10px;
+    margin-right:  10px;
 }
 
 .assembly {
