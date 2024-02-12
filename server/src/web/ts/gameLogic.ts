@@ -1265,7 +1265,6 @@ async function createObject(data: any): Promise<THREE.Object3D> {
                     scene.add(line);
                     objectDataMap[data.uuid] = { data: line };
 
-                    // тут
                     if(pointLightActive) {
                         const pointLight = new THREE.PointLight(
                             data.color,
@@ -2036,8 +2035,6 @@ async function loadEventListeners() {
         } else {
             pointLightActive = false;
         }
-
-        console.log("change point light settings", pointLightActive);
     });
 
     switchCheckbox?.addEventListener("change", (event: any) => {
