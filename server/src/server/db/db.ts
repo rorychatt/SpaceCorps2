@@ -101,7 +101,8 @@ export function setupDatabaseConnection(): Promise<void> {
                         volume INT DEFAULT 5,
                         antiAliasing BOOLEAN DEFAULT TRUE,
                         themeColor VARCHAR(255) DEFAULT '#6363ff',
-                        secondThemeColor VARCHAR(255) DEFAULT 'BLUE'
+                        secondThemeColor VARCHAR(255) DEFAULT 'BLUE',
+                        pointLight BOOLEAN DEFAULT TRUE
                     );
                 `;                
                 const questsQuery: string = `
@@ -283,6 +284,7 @@ export function savePlayerSettings(data: {
     antiAliasing: boolean;
     themeColor: string;
     secondThemeColor: string;
+    pointLight: boolean;
 }) {
     const query = `
         UPDATE gamesettings
@@ -290,7 +292,8 @@ export function savePlayerSettings(data: {
             volume = ${data.volume},
             antiAliasing = '${data.antiAliasing}',
             themeColor = '${data.themeColor}',
-            secondThemeColor = '${data.secondThemeColor}'
+            secondThemeColor = '${data.secondThemeColor}',
+            pointLight = '${data.pointLight}'
         WHERE
             username = '${data.username}';
     `;

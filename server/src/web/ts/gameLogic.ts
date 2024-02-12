@@ -29,6 +29,9 @@ let MCCcompanyBtn = document.querySelector(".mcc") as HTMLElement;
 let OROcompanyBtn = document.querySelector(".oro") as HTMLElement;
 let TRUcompanyBtn = document.querySelector(".tru") as HTMLElement;
 let GVGcompanyBtn = document.querySelector(".gvg") as HTMLElement;
+let pointLightSwitch = document.querySelector("#point_light .chk") as HTMLInputElement;
+
+let pointLightActive: boolean = true;
 
 // UI Elements
 const creditsElement = document.getElementById("credits_value");
@@ -560,23 +563,48 @@ function savePlayerSettings(data: {
     antiAliasing: boolean;
     themeColor: string;
     secondThemeColor: string;
+    pointLight: boolean;
 }) {
     if (data.antiAliasing) {
-        socket.emit("saveSettings", {
-            username: data.username,
-            volume: parseInt(data.volume),
-            antiAliasing: 1,
-            themeColor: data.themeColor,
-            secondThemeColor: data.secondThemeColor
-        });
+        if(data.pointLight) {
+            socket.emit("saveSettings", {
+                username: data.username,
+                volume: parseInt(data.volume),
+                antiAliasing: 1,
+                themeColor: data.themeColor,
+                secondThemeColor: data.secondThemeColor,
+                pointLight: 1
+            });
+        } else {
+            socket.emit("saveSettings", {
+                username: data.username,
+                volume: parseInt(data.volume),
+                antiAliasing: 1,
+                themeColor: data.themeColor,
+                secondThemeColor: data.secondThemeColor,
+                pointLight: 0
+            });
+        }
     } else {
-        socket.emit("saveSettings", {
-            username: data.username,
-            volume: parseInt(data.volume),
-            antiAliasing: 0,
-            themeColor: data.themeColor,
-            secondThemeColor: data.secondThemeColor
-        });
+        if(data.pointLight) {
+            socket.emit("saveSettings", {
+                username: data.username,
+                volume: parseInt(data.volume),
+                antiAliasing: 0,
+                themeColor: data.themeColor,
+                secondThemeColor: data.secondThemeColor,
+                pointLight: 1
+            });
+        } else {
+            socket.emit("saveSettings", {
+                username: data.username,
+                volume: parseInt(data.volume),
+                antiAliasing: 0,
+                themeColor: data.themeColor,
+                secondThemeColor: data.secondThemeColor,
+                pointLight: 0
+            });
+        }
     }
 }
 
@@ -1237,14 +1265,17 @@ async function createObject(data: any): Promise<THREE.Object3D> {
                     scene.add(line);
                     objectDataMap[data.uuid] = { data: line };
 
-                    const pointLight = new THREE.PointLight(
-                        data.color,
-                        0.5,
-                        10
-                    );
-                    pointLight.position.set(0, 0, 0);
-
-                    line.add(pointLight);
+                    // тут
+                    if(pointLightActive) {
+                        const pointLight = new THREE.PointLight(
+                            data.color,
+                            0.5,
+                            10
+                        );
+                        pointLight.position.set(0, 0, 0);
+    
+                        line.add(pointLight);
+                    }
 
                     if (currentSounds <= maxConcurrentSounds) {
                         currentSounds++;
@@ -1998,6 +2029,17 @@ async function loadEventListeners() {
 
     window.addEventListener("keypress", handleKeyboardButton);
 
+    pointLightSwitch.addEventListener("change", (event: any) => {
+        const isChecked = event.target.checked;
+        if(isChecked) {
+            pointLightActive = true;
+        } else {
+            pointLightActive = false;
+        }
+
+        console.log("change point light settings", pointLightActive);
+    });
+
     switchCheckbox?.addEventListener("change", (event: any) => {
         const isChecked = event.target.checked;
         if (isChecked) {
@@ -2009,13 +2051,14 @@ async function loadEventListeners() {
 
     if (saveSettingsBtn) {
         saveSettingsBtn.addEventListener("click", () => {
-            if (volumeValue && switchCheckbox && themeColor && secondThemeColor) {
+            if (volumeValue && switchCheckbox && themeColor && secondThemeColor && pointLightSwitch) {
                 savePlayerSettings({
                     username: playerName,
                     volume: volumeValue.value,
                     antiAliasing: switchCheckbox.checked,
                     themeColor: themeColor.value,
-                    secondThemeColor: secondThemeColor.value
+                    secondThemeColor: secondThemeColor.value,
+                    pointLight: pointLightSwitch.checked
                 });
             }
         });
