@@ -519,6 +519,7 @@ export type SettingsData = {
     antiAliasing: boolean;
     themeColor: string;
     secondThemeColor: string;
+    pointLight: boolean;
 };
 
 export type HotbarSettingsData = {
