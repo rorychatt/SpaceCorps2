@@ -1,6 +1,6 @@
 front/node_modules/
 server/node_modules/
-src/web/styles/css
+server/src/web/styles/css
 OLDSERVER
 front/dist
 server/dist/*
