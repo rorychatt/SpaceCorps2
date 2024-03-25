@@ -225,7 +225,7 @@ export class Alien extends Entity {
         const damageMultiplier = isCritical
             ? this.damage.criticalMultiplier
             : 1;
-        const damage = rawDamage * damageMultiplier;
+        const damage = Math.floor(rawDamage * damageMultiplier);
         console.log(`${this.uuid} tried to shoot and dealt ${damage} damage.`);
         return damage;
     }
