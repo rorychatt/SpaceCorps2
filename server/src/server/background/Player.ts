@@ -9,7 +9,7 @@ import {
 import { gameServer } from "../main";
 import { Alien, Durability } from "./Alien";
 import { CargoDrop, OreSpawn } from "./CargoDrop";
-import { Entity } from "./Entity";
+import { Entity, SafeZone } from "./Entity";
 import { tickrate } from "./GameServer";
 import {
     CreditsItem,
@@ -38,6 +38,7 @@ export class Player extends Entity {
     destination?: Vector2D | null;
     reloadState: ReloadStateCharacteristic = "canShoot";
     rocketReloadState: ReloadStateCharacteristic = "canShoot";
+    pvpStateCharacteristic: PvpStateCharacteristic = "pvp-protected";
     lastAttackedByUUID?: string;
     speed: number = 150;
     inventory: Inventory = new Inventory(this.uuid);
@@ -88,7 +89,7 @@ export class Player extends Entity {
         this.refreshActiveShip();
     }
 
-    resetTargetUUID(){
+    resetTargetUUID() {
         this.targetUUID = undefined;
     }
 
@@ -297,7 +298,7 @@ export class Player extends Entity {
         }
     }
 
-    async _calculateShields() {}
+    async _calculateShields() { }
 
     async _calculateCargo() {
         if (this._activeShip) {
@@ -436,7 +437,7 @@ export class Player extends Entity {
                     target &&
                     target.currentMap == this.currentMap &&
                     this.inventory.findLaserAmmoByName(ammoName)!.amount >=
-                        this._getLaserAmmoPerShot()
+                    this._getLaserAmmoPerShot()
                 ) {
                     this.shootLaserProjectileAtTarget(target, ammoName);
                 } else {
@@ -487,6 +488,24 @@ export class Player extends Entity {
                 });
             }
         }
+    }
+
+    async updatePvpState() {
+
+        const safeZones: SafeZone[] = gameServer.spacemaps[this.currentMap].safeZones;
+
+        let isInSafeZone: boolean = false;
+
+        safeZones.forEach(safeZone => {
+            if (safeZone.isInSafeZone(this.position)) {
+                isInSafeZone = true;
+            }
+        });
+
+        if (isInSafeZone) {
+            this.pvpStateCharacteristic = "pvp-protected"
+        }
+
     }
 
     addHonor(honor: number) {
@@ -576,3 +595,4 @@ export interface PlayerStats {
 
 export type PlayerStateCharacteristic = "passive" | "attacking";
 export type ReloadStateCharacteristic = "canShoot" | "reloading";
+export type PvpStateCharacteristic = "pvp-protected" | "attackable"

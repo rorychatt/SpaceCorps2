@@ -188,10 +188,10 @@ export class GameServer {
                             closestPortal.position.x - player.position.x,
                             2
                         ) +
-                            Math.pow(
-                                closestPortal.position.y - player.position.y,
-                                2
-                            ) >
+                        Math.pow(
+                            closestPortal.position.y - player.position.y,
+                            2
+                        ) >
                         Math.pow(closestPortal.safeZoneRadii, 2)
                     )
                         return;
@@ -233,10 +233,10 @@ export class GameServer {
 
     async isInMapBounds(_roamDestination: { x: number, y: number }, mapSize: SpacemapSize) {
         if (_roamDestination == null) return false;
-    
+
         const halfMapWidth = mapSize.width / 2;
         const halfMapHeight = mapSize.height / 2;
-    
+
         if (
             _roamDestination.x > halfMapWidth ||
             _roamDestination.x < -halfMapWidth ||
@@ -245,16 +245,16 @@ export class GameServer {
         ) {
             return false;
         }
-    
+
         return true;
     }
 
     async loadNewPlayer(socketId: string, username: string, companyName?: string) {
-        if(!companyName) {
+        if (!companyName) {
             const company = await getPlayerCompany(username);
-            for(const mapName in this.spacemaps) {
-                for(const entity of this.spacemaps[mapName].entities) {
-                    if(entity instanceof CompanyBase && company[0].company === entity.name.slice(0, 3)) {
+            for (const mapName in this.spacemaps) {
+                for (const entity of this.spacemaps[mapName].entities) {
+                    if (entity instanceof CompanyBase && company[0].company === entity.name.slice(0, 3)) {
                         const player = new Player(socketId, this.spacemaps[entity.currentMap], username);
                         player.company = company[0].company;
                         return;
@@ -262,10 +262,10 @@ export class GameServer {
                 }
             }
         }
-        
-        for(const mapName in this.spacemaps) {
-            for(const entity of this.spacemaps[mapName].entities) {
-                if(entity instanceof CompanyBase && companyName && companyName === entity.name.slice(0, 3)) {
+
+        for (const mapName in this.spacemaps) {
+            for (const entity of this.spacemaps[mapName].entities) {
+                if (entity instanceof CompanyBase && companyName && companyName === entity.name.slice(0, 3)) {
                     await setPlayerPosition(username, entity.currentMap, entity.position.x, entity.position.y);
 
                     const player = new Player(socketId, this.spacemaps[entity.currentMap], username);
@@ -283,6 +283,7 @@ export class GameServer {
             this.proccessRandomMovements(),
             this.processAlienRepairs(),
             this.processAlienAttackBehavior(),
+            this.processPvpStates()
         ]);
     }
 
@@ -339,7 +340,7 @@ export class GameServer {
                     if (
                         entity instanceof Alien &&
                         entity.movementBehaviour.attackBehaviour ==
-                            "aggressive" &&
+                        "aggressive" &&
                         !entity.targetUUID
                     ) {
                         this.spacemaps[
@@ -358,6 +359,20 @@ export class GameServer {
                                 }
                             }
                         });
+                    }
+                });
+            }
+        }
+    }
+
+    async processPvpStates() {
+        if (this.tickCount == tickrate - 2) {
+            for (const spacemapName in this._spacemapNames) {
+                this.spacemaps[
+                    this._spacemapNames[spacemapName]
+                ].entities.forEach((entity) => {
+                    if (entity instanceof Player) {
+                        entity.updatePvpState();
                     }
                 });
             }
@@ -580,9 +595,9 @@ export class GameServer {
                     entity.hitPoints.hullPoints <= 0
                 ) {
                     entity.hitPoints.hullPoints = 10000;
-                    for(const mapName in this.spacemaps) {
-                        for(const companyBase of this.spacemaps[mapName].entities) {
-                            if(companyBase instanceof CompanyBase && companyBase.name.slice(0, 3) === entity.company) {
+                    for (const mapName in this.spacemaps) {
+                        for (const companyBase of this.spacemaps[mapName].entities) {
+                            if (companyBase instanceof CompanyBase && companyBase.name.slice(0, 3) === entity.company) {
                                 this.sendPlayerToNewMap(entity, companyBase.currentMap, { x: companyBase.position.x, y: companyBase.position.y });
 
                                 return true;
@@ -614,6 +629,10 @@ export class GameServer {
         ]);
 
         if (attacker && target) {
+
+            if (attacker instanceof Player) attacker.pvpStateCharacteristic = "attackable"
+            if (target instanceof Player && target.pvpStateCharacteristic == "pvp-protected") return;
+
             if (attacker.targetUUID != data.targetUUID) {
                 attacker.isShooting = false;
             }
@@ -713,10 +732,10 @@ export class GameServer {
                                 if (
                                     (projectile.position.x -
                                         entity.position.x) **
-                                        2 +
-                                        (projectile.position.y -
-                                            entity.position.y) **
-                                            2 <=
+                                    2 +
+                                    (projectile.position.y -
+                                        entity.position.y) **
+                                    2 <=
                                     projectile.damageRadius
                                 ) {
                                     return true;
