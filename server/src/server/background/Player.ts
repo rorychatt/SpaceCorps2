@@ -346,9 +346,9 @@ export class Player extends Entity {
             }
         }
         if (damageMultiplier) {
-            return totalDamage * damageMultiplier;
+            return Math.floor(totalDamage * damageMultiplier);
         } else {
-            return totalDamage;
+            return Math.floor(totalDamage);
         }
     }
 
