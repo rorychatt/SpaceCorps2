@@ -346,7 +346,7 @@ export class GameServer {
                         this.spacemaps[
                             this._spacemapNames[spacemapName]
                         ].entities.forEach((player) => {
-                            if (player instanceof Player) {
+                            if (player instanceof Player && player.pvpStateCharacteristic == "attackable") {
                                 const dx = player.position.x - entity.position.x;
                                 const dy = player.position.y - entity.position.y;
                                 const distance = Math.sqrt(dx ** 2 + dy ** 2);
