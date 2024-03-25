@@ -148,6 +148,7 @@ export class Alien extends Entity {
         if(!this.targetUUID) return;
         const player = await gameServer.getPlayerByUUID(this.targetUUID);
         if (!player) return;
+        if (player.pvpStateCharacteristic == "pvp-protected") return;
     
         const dx = player.position.x - this.position.x;
         const dy = player.position.y - this.position.y;

@@ -31,6 +31,7 @@ class PlayerDTO {
     stats: any;
     company: string;
     targetUUID: string;
+    pvpStateCharacteristic: string;
     activeShipName: string;
     uuid: string;
 
@@ -44,6 +45,7 @@ class PlayerDTO {
         this.uuid = player.uuid;
         this.targetUUID = player.targetUUID;
         this.activeShipName = player.activeShipName;
+        this.pvpStateCharacteristic = player.pvpStateCharacteristic;
     }
 }
 
@@ -170,8 +172,8 @@ if (parentPort) {
                     .filter((e: any) => {
                         return (
                             Math.pow(e.position.x - player.position.x, 2) +
-                                Math.pow(e.position.y - player.position.y, 2) <=
-                                renderRadius ||
+                            Math.pow(e.position.y - player.position.y, 2) <=
+                            renderRadius ||
                             e._type == "Portal" ||
                             e._type == "CompanyBase"
                         );
@@ -200,7 +202,7 @@ if (parentPort) {
                     .filter((e: any) => {
                         return (
                             Math.pow(e.position.x - player.position.x, 2) +
-                                Math.pow(e.position.y - player.position.y, 2) <=
+                            Math.pow(e.position.y - player.position.y, 2) <=
                             renderRadius
                         );
                     });
@@ -214,7 +216,7 @@ if (parentPort) {
                     .filter((e: any) => {
                         return (
                             Math.pow(e.position.x - player.position.x, 2) +
-                                Math.pow(e.position.y - player.position.y, 2) <=
+                            Math.pow(e.position.y - player.position.y, 2) <=
                             renderRadius
                         );
                     });
@@ -222,7 +224,7 @@ if (parentPort) {
                 const cargoboxes = mapData.cargoboxes.filter((e: any) => {
                     return (
                         Math.pow(e.position.x - player.position.x, 2) +
-                            Math.pow(e.position.y - player.position.y, 2) <=
+                        Math.pow(e.position.y - player.position.y, 2) <=
                         renderRadius
                     );
                 });

@@ -30,6 +30,7 @@ export const readGameDataConfigFiles = (): GameDataConfig => {
                 width: 160,
                 height: 90,
             },
+            preferredColor: "",
             staticEntities: {
                 portals: [
                     {

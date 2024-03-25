@@ -20,6 +20,7 @@ import { ProjectileServer } from "./ProjectileServer";
 export class Spacemap {
     readonly name: string;
     readonly size: SpacemapSize;
+    readonly preferredColor: PreferredMapColor;
     type = "Spacemap";
     entities: PossibleSpacemapEntities[];
     cargoboxes: CargoDrop[] = [];
@@ -34,6 +35,7 @@ export class Spacemap {
         this._config = config;
         this.name = config.name;
         this.size = config.size;
+        this.preferredColor = config.hasOwnProperty('preferredColor') ? config.preferredColor : "";
         this.projectileServer = new ProjectileServer(this);
         this.generateSafeZones();
     }
@@ -245,6 +247,7 @@ export interface SpacemapSize {
 export interface SpacemapConfig {
     name: string;
     size: SpacemapSize;
+    preferredColor: PreferredMapColor;
     staticEntities: StaticEntitiesConfig;
     spawnableAliens?: SpawnableAliens;
     oreSpawns?: SpawnableOreSpawn[];
@@ -279,3 +282,9 @@ export type PossibleSpacemapEntities =
     | Entity
     | Portal
     | CompanyBase;
+
+export type PreferredMapColor = 
+    | "green"
+    | "red"
+    | "blue"
+    | ""

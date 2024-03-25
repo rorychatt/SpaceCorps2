@@ -5,6 +5,7 @@
             "width": 320,
             "height": 180
         },
+        "preferredColor": "red",
         "staticEntities": {
             "portals": [
                 {
@@ -51,6 +52,7 @@
             "width": 320,
             "height": 180
         },
+        "preferredColor": "blue",
         "staticEntities": {
             "portals": [
                 {
@@ -97,6 +99,7 @@
             "width": 320,
             "height": 180
         },
+        "preferredColor": "green",
         "staticEntities": {
             "portals": [
                 {
@@ -143,6 +146,7 @@
             "width": 320,
             "height": 180
         },
+        "preferredColor": "",
         "staticEntities": {
             "portals": [
                 {
