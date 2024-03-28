@@ -893,10 +893,10 @@ h1 {
     box-sizing: border-box;
 }
 
-/* .sim_content {
+.sim_content {
     height: 100%;
     width: 70%;
-} */
+}
 
 .sim_modal_btn {
     display: flex;
@@ -2323,7 +2323,6 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .sim_content {
     display: flex;
-    width: 100%;
     justify-content: center;
     align-items: center;
 
